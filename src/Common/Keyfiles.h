@@ -1,7 +1,7 @@
 /*
- Copyright (c) TrueCrypt Foundation. All rights reserved.
+ Copyright (c) 2005 TrueCrypt Foundation. All rights reserved.
 
- Covered by the TrueCrypt License 2.2 the full text of which is contained
+ Governed by the TrueCrypt License 2.4 the full text of which is contained
  in the file License.txt included in TrueCrypt binary and source code
  distribution packages.
 */
@@ -9,6 +9,9 @@
 #ifndef KEYFILES_H
 #define	KEYFILES_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "Common.h"
 
@@ -31,11 +34,14 @@ KeyFile *KeyFileAdd (KeyFile *firstKeyFile, KeyFile *keyFile);
 void KeyFileRemoveAll (KeyFile **firstKeyFile);
 KeyFile *KeyFileClone (KeyFile *keyFile);
 KeyFile *KeyFileCloneAll (KeyFile *firstKeyFile);
-BOOL KeyFilesApply (Password *password, KeyFile *firstKeyFile, BOOL preserveTimestamp);
+BOOL KeyFilesApply (Password *password, KeyFile *firstKeyFile);
 
 #ifdef _WIN32
-BOOL WINAPI KeyFilesDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam);
+BOOL CALLBACK KeyFilesDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam);
 #endif
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif	/* #ifndef KEYFILES_H */ 

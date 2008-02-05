@@ -1,5 +1,9 @@
 #include <windows.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define UNKNOWN_STRING_ID L"[?]"
 
 extern BOOL LocalizationActive;
@@ -12,9 +16,14 @@ typedef struct
 	int Size;
 } Font;
 
-BOOL WINAPI LanguageDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam);
+BOOL CALLBACK LanguageDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam);
 wchar_t *GetString (char *stringId);
 Font *GetFont (char *fontType);
 BOOL LoadLanguageFile ();
 char *GetPreferredLangId ();
 void SetPreferredLangId (char *langId);
+char *GetActiveLangPackVersion ();
+
+#ifdef __cplusplus
+}
+#endif

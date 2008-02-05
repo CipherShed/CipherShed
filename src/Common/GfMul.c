@@ -34,7 +34,7 @@
 */
 
 /* 
- Portions Copyright (c) TrueCrypt Foundation
+ Portions Copyright (c) 2005 TrueCrypt Foundation
 
  TrueCrypt Foundation made the following changes:
 
@@ -55,6 +55,7 @@
 #include <linux/string.h>
 #else
 #include <memory.h>
+#include <stdlib.h>
 #endif
 
 #include "GfMul.h"
@@ -661,6 +662,8 @@ int Gf128Tab64Init (unsigned __int8 *a, GfCtx *ctx)
 
 int Gf64TabInit (unsigned __int8 *a, GfCtx *ctx)
 {
+	/* Deprecated/legacy */
+
 	GfCtx4k64 *ctx4k;
 	unsigned __int8 am[8];
 	int i, j;
@@ -731,6 +734,8 @@ void Gf128MulBy64Tab (unsigned __int8 a[8], unsigned __int8 p[16], GfCtx *ctx)
 /* Multiply two 64-bit numbers in the finite field GF(2^64) */
 void Gf64MulTab (unsigned char a[8], unsigned char p[8], GfCtx *ctx)
 {  
+	/* Deprecated/legacy */
+
 	unsigned __int32 r[CBLK_LEN8 >> 2];
 
 	move_block_aligned64(r, ctx->gf_t64[7*2][a[7] & 15]);
@@ -815,6 +820,8 @@ static void shl64 (unsigned __int8 *a)
 
 static void GfMul64Basic (unsigned __int8 *a, unsigned __int8 *b, unsigned __int8* p)
 {
+	/* Deprecated/legacy */
+
 	int i;
 	unsigned __int8 la[8];
 	memcpy (la, a, 8);
@@ -851,7 +858,7 @@ BOOL GfMulSelfTest ()
 	if (!gfCtx)
 		return FALSE;
 
-	/* GF(2^64) */
+	/* GF(2^64) - deprecated/legacy */
 	for (i = 0; i < 0x100; i++)
 	{
 		for (j = 0; j < 8; j++)

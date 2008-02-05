@@ -1,11 +1,12 @@
 /*
- Legal Notice: The source code contained in this file has been derived from
- the source code of Encryption for the Masses 2.02a, which is Copyright (c)
- Paul Le Roux and which is covered by the 'License Agreement for Encryption
- for the Masses'. Modifications and additions to that source code contained
- in this file are Copyright (c) TrueCrypt Foundation and are covered by the
- TrueCrypt License 2.2 the full text of which is contained in the file
- License.txt included in TrueCrypt binary and source code distribution
+ Legal Notice: Some portions of the source code contained in this file were
+ derived from the source code of Encryption for the Masses 2.02a, which is
+ Copyright (c) 1998-2000 Paul Le Roux and which is governed by the 'License
+ Agreement for Encryption for the Masses'. Modifications and additions to
+ the original source code (contained in this file) and all other portions of
+ this file are Copyright (c) 2003-2008 TrueCrypt Foundation and are governed
+ by the TrueCrypt License 2.4 the full text of which is contained in the
+ file License.txt included in TrueCrypt binary and source code distribution
  packages. */
 
 #include <stdlib.h>
@@ -54,7 +55,7 @@ GetFatParams (fatparams * ft)
 	ft->create_time = (unsigned int) time (NULL);
 	ft->media = 0xf8;
 	ft->sector_size = SECTOR_SIZE;
-	ft->hidden = 63;
+	ft->hidden = 0;
 
 	ft->size_root_dir = ft->dir_entries * 32;
 
@@ -68,7 +69,7 @@ GetFatParams (fatparams * ft)
 	if (ft->cluster_count >= 4085) // FAT16
 	{
 		ft->size_fat = 16;
-		ft->reserved = 8;
+		ft->reserved = 2;
 		fatsecs = ft->num_sectors - (ft->size_root_dir + SECTOR_SIZE - 1) / SECTOR_SIZE - ft->reserved;
 		ft->cluster_count = (int) (((__int64) fatsecs * SECTOR_SIZE) / (ft->cluster_size * SECTOR_SIZE + 4));
 		ft->fat_length = (ft->cluster_count * 2 + SECTOR_SIZE - 1) / SECTOR_SIZE;
@@ -77,7 +78,7 @@ GetFatParams (fatparams * ft)
 	if(ft->cluster_count >= 65525) // FAT32
 	{
 		ft->size_fat = 32;
-		ft->reserved = 38;
+		ft->reserved = 32;
 		fatsecs = ft->num_sectors - ft->reserved;
 		ft->size_root_dir = ft->cluster_size * SECTOR_SIZE;
 		ft->cluster_count = (int) (((__int64) fatsecs * SECTOR_SIZE) / (ft->cluster_size * SECTOR_SIZE + 8));
@@ -224,7 +225,7 @@ FormatFat (unsigned __int64 startSector, fatparams * ft, void * dev, PCRYPTO_INF
 	unsigned __int64 nSecNo = startSector;
 	int x, n;
 	int retVal;
-	char temporaryKey[DISKKEY_SIZE];
+	char temporaryKey[MASTER_KEYDATA_SIZE];
 
 #ifdef _WIN32
 	LARGE_INTEGER startOffset;
@@ -359,12 +360,13 @@ FormatFat (unsigned __int64 startSector, fatparams * ft, void * dev, PCRYPTO_INF
 		// Temporary master key
 		if (!RandgetBytes (temporaryKey, EAGetKeySize (cryptoInfo->ea), FALSE))
 			goto fail;
-		// Secondary key (LRW mode)
-		if (!RandgetBytes (cryptoInfo->iv, sizeof cryptoInfo->iv, FALSE))		
+
+		// Temporary secondary key (XTS mode)
+		if (!RandgetBytes (cryptoInfo->k2, sizeof cryptoInfo->k2, FALSE))		
 			goto fail;
 
 		retVal = EAInit (cryptoInfo->ea, temporaryKey, cryptoInfo->ks);
-		if (retVal != 0)
+		if (retVal != ERR_SUCCESS)
 		{
 			burn (temporaryKey, sizeof(temporaryKey));
 			return retVal;
@@ -378,24 +380,22 @@ FormatFat (unsigned __int64 startSector, fatparams * ft, void * dev, PCRYPTO_INF
 		x = ft->num_sectors - ft->reserved - ft->size_root_dir / SECTOR_SIZE - ft->fat_length * 2;
 		while (x--)
 		{
-			/* Generate random plaintext. Note that reused plaintext blocks are not a concern
-			here since LRW mode is designed to hide patterns. Furthermore, patterns in plaintext
-			do occur commonly on media in the "real world", so it might actually be a fatal
-			mistake to try to avoid them completely. */
+			/* Generate random plaintext. Note that reused plaintext blocks are not a concern here
+			since XTS mode is designed to hide patterns. Furthermore, patterns in plaintext do 
+			occur commonly on media in the "real world", so it might actually be a fatal mistake
+			to try to avoid them completely. */
 
-#if RNG_POOL_SIZE > SECTOR_SIZE
-#error RNG_POOL_SIZE > SECTOR_SIZE
+#if RNG_POOL_SIZE < SECTOR_SIZE
+#error RNG_POOL_SIZE < SECTOR_SIZE
 #endif
 
 #ifdef _WIN32
-			if (!RandpeekBytes (sector, RNG_POOL_SIZE)
-				|| !RandpeekBytes (sector + RNG_POOL_SIZE, SECTOR_SIZE - RNG_POOL_SIZE))
+			if (!RandpeekBytes (sector, SECTOR_SIZE))
 				goto fail;
 #else
 			if ((nSecNo & 0x3fff) == 0)
 			{
-				if (!RandgetBytes (sector, RNG_POOL_SIZE, FALSE)
-					|| !RandgetBytes (sector + RNG_POOL_SIZE, SECTOR_SIZE - RNG_POOL_SIZE, FALSE))
+				if (!RandgetBytes (sector, SECTOR_SIZE, FALSE))
 					goto fail;
 			}
 #endif

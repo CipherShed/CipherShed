@@ -1,3 +1,5 @@
+/* Deprecated/legacy */
+
 /* crypto/des/des.org */
 /* Copyright (C) 1995-1997 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
@@ -90,8 +92,6 @@ typedef struct des_ks_struct
 		 * 8 byte longs */
 		DES_LONG pad[2];
 		} ks;
-#undef _
-#define _	ks._
 	} des_key_schedule[16];
 
 #define DES_KEY_SZ 	(sizeof(des_cblock))
@@ -191,17 +191,7 @@ int des_enc_read(int fd,char *buf,int len,des_key_schedule sched,
 int des_enc_write(int fd,char *buf,int len,des_key_schedule sched,
 	des_cblock *iv);
 char *des_fcrypt(const char *buf,const char *salt, char *ret);
-#ifdef PERL5
 char *des_crypt(const char *buf,const char *salt);
-#else
-/* some stupid compilers complain because I have declared char instead
- * of const char */
-#ifdef HEADER_DES_LOCL_H
-char *crypt(const char *buf,const char *salt);
-#else
-char *crypt();
-#endif
-#endif
 void des_ofb_encrypt(unsigned char *in,unsigned char *out,
 	int numbits,long length,des_key_schedule schedule,des_cblock *ivec);
 void des_pcbc_encrypt(des_cblock *input,des_cblock *output,long length,

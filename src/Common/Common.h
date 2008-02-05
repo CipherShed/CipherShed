@@ -1,3 +1,11 @@
+/*
+ Copyright (c) 2005-2008 TrueCrypt Foundation. All rights reserved.
+
+ Governed by the TrueCrypt License 2.4 the full text of which is contained
+ in the file License.txt included in TrueCrypt binary and source code
+ distribution packages.
+*/
+
 #ifndef COMMON_H
 #define COMMON_H
 
@@ -18,6 +26,7 @@ enum
 	PROP_VOL_TYPE_HIDDEN,
 	PROP_VOL_TYPE_OUTER,						/* Outer/normal (hidden volume protected) */
 	PROP_VOL_TYPE_OUTER_VOL_WRITE_PREVENTED,	/* Outer/normal (hidden volume protected AND write already prevented) */
+	PROP_VOL_TYPE_SYSTEM,
 	PROP_NBR_VOLUME_TYPES
 };
 
@@ -35,8 +44,6 @@ typedef struct
 	BOOL Removable;
 	BOOL ProtectHiddenVolume;
 	BOOL PreserveTimestamp;
-	BOOL SystemVolume;
-	BOOL PersistentVolume;
 	Password ProtectedHidVolPassword;	/* Password of hidden volume to protect against overwriting */
 } MountOptions;
 
