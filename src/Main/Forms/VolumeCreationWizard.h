@@ -10,7 +10,6 @@
 #define TC_HEADER_Main_Forms_VolumeCreationWizard
 
 #include "WizardFrame.h"
-#include "TravelerMountOptionsWizardPage.h"
 #include "Core/VolumeCreator.h"
 
 namespace TrueCrypt

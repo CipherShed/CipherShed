@@ -20,7 +20,9 @@
 #include "FavoriteVolumesDialog.h"
 #include "LegalNoticesDialog.h"
 #include "PreferencesDialog.h"
+#ifdef TC_WINDOWS
 #include "TravelerDiskWizard.h"
+#endif
 #include "VolumeCreationWizard.h"
 #include "VolumePropertiesDialog.h"
 
