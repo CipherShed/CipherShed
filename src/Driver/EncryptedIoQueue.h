@@ -57,6 +57,8 @@ typedef struct
 	LONG OutstandingIoCount;
 	KEVENT NoOutstandingIoEvent;
 	
+	KEVENT RequestCompletedEvent;
+
 	__int64 TotalBytesRead;
 	__int64 TotalBytesWritten;
 
@@ -78,10 +80,9 @@ typedef struct
 	BOOL Write;
 	ULONG OriginalLength;
 	LARGE_INTEGER OriginalOffset;
-	KEVENT IoRequestCompletedEvent;
+	LONG OutstandingRequestCount;
 	NTSTATUS Status;
 	LIST_ENTRY ListEntry;
-	__int64 DebugOffset;
 } EncryptedIoQueueItem;
 
 
@@ -106,7 +107,7 @@ NTSTATUS EncryptedIoQueueAddIrp (EncryptedIoQueue *queue, PIRP irp);
 BOOL EncryptedIoQueueIsRunning (EncryptedIoQueue *queue);
 BOOL EncryptedIoQueueIsSuspended (EncryptedIoQueue *queue);
 NTSTATUS EncryptedIoQueueResumeFromHold (EncryptedIoQueue *queue);
-NTSTATUS EncryptedIoQueueStart (EncryptedIoQueue *queue);
+NTSTATUS EncryptedIoQueueStart (EncryptedIoQueue *queue, PEPROCESS process);
 NTSTATUS EncryptedIoQueueStop (EncryptedIoQueue *queue);
 NTSTATUS EncryptedIoQueueHoldWhenIdle (EncryptedIoQueue *queue, int64 timeout);
 

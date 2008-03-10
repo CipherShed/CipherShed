@@ -28,7 +28,7 @@ void EnableScreenOutput ()
 
 void PrintChar (char c)
 {
-#ifdef TC_TRACING_ENABLED
+#ifdef TC_BOOT_TRACING_ENABLED
 	WriteDebugPort (c);
 #endif
 
@@ -228,6 +228,22 @@ bool IsKeyboardCharAvailable ()
 	}
 
 	return available;
+}
+
+
+void ClearBiosKeystrokeBuffer ()
+{
+	__asm
+	{
+		push es
+		xor ax, ax
+		mov es, ax
+		mov di, 0x41e
+		mov cx, 32
+		cld
+		rep stosb
+		pop es
+	}
 }
 
 

@@ -139,22 +139,6 @@ bool TestInt64 ()
 }
 
 
-void Jump (uint16 jumpSegment, uint16 jumpOffset, byte dlRegister)
-{
-	uint32 addr = (uint32 (jumpSegment) << 16) | jumpOffset;
-	__asm
-	{
-		mov dl, dlRegister
-		mov ax, jumpSegment
-		mov ds, ax
-		mov es, ax
-		mov ss, ax
-		mov sp, 0xffff
-		jmp cs:addr
-	}
-}
-
-
 void CopyMemory (byte *source, uint16 destSegment, uint16 destOffset, uint16 blockSize)
 {
 	__asm
@@ -191,7 +175,31 @@ void CopyMemory (uint16 sourceSegment, uint16 sourceOffset, byte *destination, u
 }
 
 
+void EraseMemory (void *memory, int size)
+{
+	byte *m = (byte *) memory;
+	
+	while (size--)
+	{
+		*m++ = 0;
+	}
+}
+
+
 uint32 GetLinearAddress (uint16 segment, uint16 offset)
 {
 	return (uint32 (segment) << 4) + offset;
+}
+
+
+bool RegionsIntersect (const uint64 &start1, uint32 length1, const uint64 &start2, const uint64 &end2)
+{
+	uint64 end1 = start1 + length1 - 1UL;
+	uint64 intersectEnd = (end1 <= end2) ? end1 : end2;
+	
+	uint64 intersectStart = (start1 >= start2) ? start1 : start2;
+	if (intersectStart > intersectEnd)
+		return false;
+		
+	return (intersectEnd + 1UL - intersectStart).LowPart != 0;
 }

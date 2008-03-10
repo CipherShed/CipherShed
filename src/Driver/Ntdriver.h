@@ -28,16 +28,14 @@ typedef struct _THREAD_BLOCK_
    must be the first member of the structure! */
 typedef struct EXTENSION
 {
-	BOOL bRootDevice;	/* Is this the root device ? which the
-				   user-mode apps talk to */
+	BOOL bRootDevice;	/* Is this the root device ? which the user-mode apps talk to */
 	BOOL IsDriveFilterDevice;
 
-	ULONG lMagicNumber;	/* To ensure the completion routine is not
-				   sending us bad IRP's */
+	ULONG lMagicNumber;	/* To ensure the completion routine is not sending us bad IRP's */
 
 	int UniqueVolumeId;
-	int nDosDriveNo;	/* Drive number this extension is mounted
-				   against */
+	int nDosDriveNo;	/* Drive number this extension is mounted against */
+
 	BOOL bShuttingDown;			/* Is the driver shutting down ? */
 	BOOL bThreadShouldQuit;		/* Instruct per device worker thread to quit */
 	PETHREAD peThread;			/* Thread handle */
@@ -81,8 +79,10 @@ typedef struct EXTENSION
 
 } EXTENSION, *PEXTENSION;
 
+extern PDRIVER_OBJECT TCDriverObject;
 extern BOOL DriverShuttingDown;
 extern ULONG OsMajorVersion;
+extern ULONG OsMinorVersion;
 
 /* Helper macro returning x seconds in units of 100 nanoseconds */
 #define WAIT_SECONDS(x) ((x)*10000000)
@@ -101,11 +101,6 @@ extern ULONG OsMajorVersion;
 #	define DumpMem(...) ((void) 0)
 #endif
 
-#define FSCTL_LOCK_VOLUME               CTL_CODE(FILE_DEVICE_FILE_SYSTEM,  6, METHOD_BUFFERED, FILE_ANY_ACCESS)
-#define FSCTL_UNLOCK_VOLUME             CTL_CODE(FILE_DEVICE_FILE_SYSTEM,  7, METHOD_BUFFERED, FILE_ANY_ACCESS)
-#define FSCTL_DISMOUNT_VOLUME           CTL_CODE(FILE_DEVICE_FILE_SYSTEM,  8, METHOD_BUFFERED, FILE_ANY_ACCESS)
-NTKERNELAPI NTSTATUS ObOpenObjectByPointer (IN PVOID Object, IN ULONG HandleAttributes, IN PACCESS_STATE PassedAccessState OPTIONAL, IN ACCESS_MASK DesiredAccess OPTIONAL, IN POBJECT_TYPE ObjectType OPTIONAL, IN KPROCESSOR_MODE AccessMode, OUT PHANDLE Handle);
-
 NTSTATUS DriverEntry (PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath);
 void DumpMemory (void *memory, int size);
 BOOL IsAccessibleByUser (PUNICODE_STRING objectFileName, BOOL readOnly);
@@ -118,6 +113,7 @@ NTSTATUS TCCreateDeviceObject (PDRIVER_OBJECT DriverObject, PDEVICE_OBJECT * ppD
 NTSTATUS TCReadDevice (PDEVICE_OBJECT deviceObject, PVOID buffer, LARGE_INTEGER offset, ULONG length);
 NTSTATUS TCWriteDevice (PDEVICE_OBJECT deviceObject, PVOID buffer, LARGE_INTEGER offset, ULONG length);
 NTSTATUS TCStartThread (PKSTART_ROUTINE threadProc, PVOID threadArg, PKTHREAD *kThread);
+NTSTATUS TCStartThreadInProcess (PKSTART_ROUTINE threadProc, PVOID threadArg, PKTHREAD *kThread, PEPROCESS process);
 NTSTATUS TCStartVolumeThread (PDEVICE_OBJECT DeviceObject, PEXTENSION Extension, MOUNT_STRUCT * mount);
 void TCStopThread (PKTHREAD kThread, PKEVENT wakeUpEvent);
 void TCStopVolumeThread (PDEVICE_OBJECT DeviceObject, PEXTENSION Extension);
@@ -147,6 +143,7 @@ void GetIntersection (uint64 start1, uint32 length1, uint64 start2, uint64 end2,
 NTSTATUS TCCompleteIrp (PIRP irp, NTSTATUS status, ULONG_PTR information);
 NTSTATUS TCCompleteDiskIrp (PIRP irp, NTSTATUS status, ULONG_PTR information);
 NTSTATUS ProbeRealDriveSize (PDEVICE_OBJECT driveDeviceObject, LARGE_INTEGER *driveSize);
+BOOL UserCanAccessDriveDevice ();
 
 #define TC_TO_STRING2(n) #n
 #define TC_TO_STRING(n) TC_TO_STRING2(n)

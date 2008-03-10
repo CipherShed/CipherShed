@@ -32,12 +32,15 @@
 #pragma alloc_text(INIT,DriverEntry)
 #pragma alloc_text(INIT,TCCreateRootDeviceObject)
 
+PDRIVER_OBJECT TCDriverObject;
 KMUTEX driverMutex;			/* Sync mutex for the entire driver */
 BOOL DriverShuttingDown = FALSE;
 BOOL SelfTestsPassed;
 int LastUniqueVolumeId;
 ULONG OsMajorVersion;
+ULONG OsMinorVersion;
 BOOL ReferencedDeviceDeleted = FALSE;
+BOOL TravelerMode = FALSE;
 
 
 NTSTATUS DriverEntry (PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath)
@@ -46,9 +49,11 @@ NTSTATUS DriverEntry (PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath)
 	HANDLE regKeyHandle;
 	int i;
 
+	TCDriverObject = DriverObject;
 	SelfTestsPassed = AutoTestAlgorithms ();
+	PsGetVersion (&OsMajorVersion, &OsMinorVersion, NULL, NULL);
 
-	// Enable drive class filter and load boot arguments if driver is set to start at sytem boot
+	// Enable drive class filter and load boot arguments if the driver is set to start at system boot
 
 	InitializeObjectAttributes (&regObjAttribs, RegistryPath, OBJ_KERNEL_HANDLE | OBJ_CASE_INSENSITIVE, NULL, NULL);
 	if (ZwOpenKey (&regKeyHandle, KEY_READ, &regObjAttribs) == STATUS_SUCCESS)
@@ -90,9 +95,7 @@ NTSTATUS DriverEntry (PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath)
 	}
 
 	DriverObject->DriverUnload = TCUnloadDriver;
-
 	KeInitializeMutex (&driverMutex, 1);
-	PsGetVersion (&OsMajorVersion, NULL, NULL, NULL);
 
 	return TCCreateRootDeviceObject (DriverObject);
 }
@@ -140,6 +143,8 @@ TCDispatchQueueIRP (PDEVICE_OBJECT DeviceObject, PIRP Irp)
 		{
 		case TC_IOCTL_GET_MOUNTED_VOLUMES:
 		case TC_IOCTL_GET_PASSWORD_CACHE_STATUS:
+		case TC_IOCTL_GET_TRAVELER_MODE_STATUS:
+		case TC_IOCTL_SET_TRAVELER_MODE_STATUS:
 		case TC_IOCTL_OPEN_TEST:
 		case TC_IOCTL_GET_RESOLVED_SYMLINK:
 		case TC_IOCTL_GET_DRIVE_PARTITION_INFO:
@@ -452,13 +457,20 @@ NTSTATUS ProcessVolumeDeviceControlIrp (PDEVICE_OBJECT DeviceObject, PEXTENSION 
 		}
 		break;
 
-		case IOCTL_MOUNTDEV_QUERY_SUGGESTED_LINK_NAME:
+	case IOCTL_MOUNTDEV_QUERY_SUGGESTED_LINK_NAME:
 		{
 			ULONG outLength;
 			UNICODE_STRING ntUnicodeString;
 			WCHAR ntName[256];
 			PMOUNTDEV_SUGGESTED_LINK_NAME outputBuffer = (PMOUNTDEV_SUGGESTED_LINK_NAME) Irp->AssociatedIrp.SystemBuffer;
-			
+
+			if(irpSp->Parameters.DeviceIoControl.OutputBufferLength < sizeof (MOUNTDEV_SUGGESTED_LINK_NAME))
+			{
+				Irp->IoStatus.Status = STATUS_INVALID_PARAMETER;
+				Irp->IoStatus.Information = 0;
+				break; 
+			}
+
 			TCGetDosNameFromNumber (ntName, Extension->nDosDriveNo);
 			RtlInitUnicodeString (&ntUnicodeString, ntName);
 
@@ -601,6 +613,12 @@ NTSTATUS ProcessVolumeDeviceControlIrp (PDEVICE_OBJECT DeviceObject, PEXTENSION 
 		break;
 
 	case IOCTL_DISK_VERIFY:
+		if (irpSp->Parameters.DeviceIoControl.InputBufferLength < sizeof (PVERIFY_INFORMATION))
+		{
+			Irp->IoStatus.Status = STATUS_BUFFER_TOO_SMALL;
+			Irp->IoStatus.Information = 0;
+		}
+		else
 		{
 			PVERIFY_INFORMATION pVerifyInformation;
 			pVerifyInformation = (PVERIFY_INFORMATION) Irp->AssociatedIrp.SystemBuffer;
@@ -610,7 +628,7 @@ NTSTATUS ProcessVolumeDeviceControlIrp (PDEVICE_OBJECT DeviceObject, PEXTENSION 
 				pVerifyInformation->StartingOffset.HighPart;
 			irpSp->Parameters.Read.Length = pVerifyInformation->Length;
 			Irp->IoStatus.Status = STATUS_SUCCESS;
-			Irp->IoStatus.Information = pVerifyInformation->Length;
+			Irp->IoStatus.Information = 0;
 		}
 		break;
 
@@ -736,6 +754,9 @@ NTSTATUS ProcessMainDeviceControlIrp (PDEVICE_OBJECT DeviceObject, PEXTENSION Ex
 			HANDLE NtFileHandle;
 			UNICODE_STRING FullFileName;
 			IO_STATUS_BLOCK IoStatus;
+			LARGE_INTEGER offset;
+			unsigned char readBuffer [SECTOR_SIZE];
+			NTSTATUS TCBootLoaderDetected = STATUS_NO_SUCH_DEVICE;	// STATUS_NO_SUCH_DEVICE is sent when the boot loader is not found (even if the device is found)
 
 			RtlInitUnicodeString (&FullFileName, opentest->wszFileName);
 
@@ -750,6 +771,38 @@ NTSTATUS ProcessMainDeviceControlIrp (PDEVICE_OBJECT DeviceObject, PEXTENSION Ex
 
 			if (NT_SUCCESS (ntStatus))
 			{
+				if (opentest->bDetectTCBootLoader)
+				{
+					// Determine if the first sector contains a portion of the TrueCrypt Boot Loader
+
+					offset.QuadPart = 0;	// MBR
+
+					ntStatus = ZwReadFile (NtFileHandle,
+						NULL,
+						NULL,
+						NULL,
+						&IoStatus,
+						readBuffer,
+						sizeof(readBuffer),
+						&offset,
+						NULL);
+
+					if (NT_SUCCESS (ntStatus))
+					{
+						size_t i;
+
+						// Search for the string "TrueCrypt"
+						for (i = 0; i < sizeof (readBuffer) - strlen (TC_APP_NAME); ++i)
+						{
+							if (memcmp (readBuffer + i, TC_APP_NAME, strlen (TC_APP_NAME)) == 0)
+							{
+								TCBootLoaderDetected = STATUS_SUCCESS;
+								break;
+							}
+						}
+					}
+				}
+
 				ZwClose (NtFileHandle);
 				Dump ("Open test on file %ls success.\n", opentest->wszFileName);
 			}
@@ -761,7 +814,7 @@ NTSTATUS ProcessMainDeviceControlIrp (PDEVICE_OBJECT DeviceObject, PEXTENSION Ex
 			}
 
 			Irp->IoStatus.Information = 0;
-			Irp->IoStatus.Status = ntStatus;
+			Irp->IoStatus.Status = opentest->bDetectTCBootLoader ? TCBootLoaderDetected : ntStatus;
 		}
 		break;
 
@@ -776,6 +829,24 @@ NTSTATUS ProcessMainDeviceControlIrp (PDEVICE_OBJECT DeviceObject, PEXTENSION Ex
 
 	case TC_IOCTL_GET_PASSWORD_CACHE_STATUS:
 		Irp->IoStatus.Status = cacheEmpty ? STATUS_PIPE_EMPTY : STATUS_SUCCESS;
+		Irp->IoStatus.Information = 0;
+		break;
+
+	case TC_IOCTL_SET_TRAVELER_MODE_STATUS:
+		if (!UserCanAccessDriveDevice())
+		{
+			Irp->IoStatus.Status = STATUS_ACCESS_DENIED;
+			Irp->IoStatus.Information = 0;
+		}
+		else
+		{
+			TravelerMode = TRUE;
+			Dump ("Setting traveler mode\n");
+		}
+		break;
+
+	case TC_IOCTL_GET_TRAVELER_MODE_STATUS:
+		Irp->IoStatus.Status = TravelerMode ? STATUS_SUCCESS : STATUS_PIPE_EMPTY;
 		Irp->IoStatus.Information = 0;
 		break;
 
@@ -1011,13 +1082,20 @@ NTSTATUS ProcessMainDeviceControlIrp (PDEVICE_OBJECT DeviceObject, PEXTENSION Ex
 			status = ProbeRealDriveSize (deviceObject, &request->RealDriveSize);
 			ObDereferenceObject (fileObject);
 
-			if (!NT_SUCCESS (status))
+			if (status == STATUS_TIMEOUT)
+			{
+				request->TimeOut = TRUE;
+				Irp->IoStatus.Information = sizeof (ProbeRealDriveSizeRequest);
+				Irp->IoStatus.Status = STATUS_SUCCESS;
+			}
+			else if (!NT_SUCCESS (status))
 			{
 				Irp->IoStatus.Information = 0;
 				Irp->IoStatus.Status = status;
 			}
 			else
 			{
+				request->TimeOut = FALSE;
 				Irp->IoStatus.Information = sizeof (ProbeRealDriveSizeRequest);
 				Irp->IoStatus.Status = status;
 			}
@@ -1146,6 +1224,12 @@ NTSTATUS ProcessMainDeviceControlIrp (PDEVICE_OBJECT DeviceObject, PEXTENSION Ex
 		DriverMutexRelease ();
 		break;
 
+	case TC_IOCTL_GET_BOOT_ENCRYPTION_ALGORITHM_NAME:
+		DriverMutexWait ();
+		GetBootEncryptionAlgorithmName (Irp, irpSp);
+		DriverMutexRelease ();
+		break;
+
 	default:
 		return TCCompleteIrp (Irp, STATUS_INVALID_DEVICE_REQUEST, 0);
 	}
@@ -1158,6 +1242,8 @@ NTSTATUS ProcessMainDeviceControlIrp (PDEVICE_OBJECT DeviceObject, PEXTENSION Ex
 		{
 		case TC_IOCTL_GET_MOUNTED_VOLUMES:
 		case TC_IOCTL_GET_PASSWORD_CACHE_STATUS:
+		case TC_IOCTL_GET_TRAVELER_MODE_STATUS:
+		case TC_IOCTL_SET_TRAVELER_MODE_STATUS:
 		case TC_IOCTL_OPEN_TEST:
 		case TC_IOCTL_GET_RESOLVED_SYMLINK:
 		case TC_IOCTL_GET_DRIVE_PARTITION_INFO:
@@ -1177,13 +1263,27 @@ NTSTATUS ProcessMainDeviceControlIrp (PDEVICE_OBJECT DeviceObject, PEXTENSION Ex
 
 NTSTATUS TCStartThread (PKSTART_ROUTINE threadProc, PVOID threadArg, PKTHREAD *kThread)
 {
+	return TCStartThreadInProcess (threadProc, threadArg, kThread, NULL);
+}
+
+
+NTSTATUS TCStartThreadInProcess (PKSTART_ROUTINE threadProc, PVOID threadArg, PKTHREAD *kThread, PEPROCESS process)
+{
 	NTSTATUS status;
 	HANDLE threadHandle;
+	HANDLE processHandle = NULL;
 	OBJECT_ATTRIBUTES threadObjAttributes;
+
+	if (process)
+	{
+		status = ObOpenObjectByPointer (process, OBJ_KERNEL_HANDLE, NULL, 0, NULL, KernelMode, &processHandle);
+		if (!NT_SUCCESS (status))
+			return status;
+	}
 
 	InitializeObjectAttributes (&threadObjAttributes, NULL, OBJ_KERNEL_HANDLE, NULL, NULL);
 	
-	status = PsCreateSystemThread (&threadHandle, THREAD_ALL_ACCESS, &threadObjAttributes, NULL, NULL, threadProc, threadArg);
+	status = PsCreateSystemThread (&threadHandle, THREAD_ALL_ACCESS, &threadObjAttributes, processHandle, NULL, threadProc, threadArg);
 	if (!NT_SUCCESS (status))
 		return status;
 
@@ -1194,6 +1294,9 @@ NTSTATUS TCStartThread (PKSTART_ROUTINE threadProc, PVOID threadArg, PKTHREAD *k
 		*kThread = NULL;
 		return status;
 	}
+
+	if (processHandle)
+		ZwClose (processHandle);
 
 	ZwClose (threadHandle);
 	return STATUS_SUCCESS;
@@ -1233,7 +1336,7 @@ TCStartVolumeThread (PDEVICE_OBJECT DeviceObject, PEXTENSION Extension, MOUNT_ST
 
 	if (mount->bUserContext)
 	{
-		ntStatus = ObOpenObjectByPointer (IoGetCurrentProcess (), 0, NULL, 0, NULL, KernelMode, &process);
+		ntStatus = ObOpenObjectByPointer (IoGetCurrentProcess (), OBJ_KERNEL_HANDLE, NULL, 0, NULL, KernelMode, &process);
 		if (!NT_SUCCESS (ntStatus))
 		{
 			Dump ("ObOpenObjectByPointer Failed\n");
@@ -1254,6 +1357,9 @@ TCStartVolumeThread (PDEVICE_OBJECT DeviceObject, PEXTENSION Extension, MOUNT_ST
 					 NULL,
 					 VolumeThreadProc,
 					 pThreadBlock);
+
+	if (process)
+		ZwClose (process);
 
 	if (!NT_SUCCESS (ntStatus))
 	{
@@ -1327,6 +1433,9 @@ void TCSleep (int milliSeconds)
 	PKTIMER timer = (PKTIMER) TCalloc (sizeof (KTIMER));
 	LARGE_INTEGER duetime;
 
+	if (!timer)
+		return;
+
 	duetime.QuadPart = (__int64) milliSeconds * -10000;
 	KeInitializeTimerEx(timer, NotificationTimer);
 	KeSetTimerEx(timer, duetime, 0, NULL);
@@ -1392,7 +1501,7 @@ VolumeThreadProc (PVOID Context)
 	Extension->Queue.HostFileHandle = Extension->hDeviceFile;
 	Extension->Queue.VirtualDeviceLength = Extension->DiskLength;
 
-	pThreadBlock->ntCreateStatus = EncryptedIoQueueStart (&Extension->Queue);
+	pThreadBlock->ntCreateStatus = EncryptedIoQueueStart (&Extension->Queue, pThreadBlock->mount->bUserContext ? IoGetCurrentProcess() : NULL);
 
 	if (!NT_SUCCESS (pThreadBlock->ntCreateStatus))
 	{
@@ -1507,6 +1616,7 @@ TCTranslateCode (ULONG ulCode)
 		TC_CASE_RET_NAME (TC_IOCTL_DISMOUNT_ALL_VOLUMES);
 		TC_CASE_RET_NAME (TC_IOCTL_DISMOUNT_VOLUME);
 		TC_CASE_RET_NAME (TC_IOCTL_GET_BOOT_DRIVE_VOLUME_PROPERTIES);
+		TC_CASE_RET_NAME (TC_IOCTL_GET_BOOT_ENCRYPTION_ALGORITHM_NAME);
 		TC_CASE_RET_NAME (TC_IOCTL_GET_BOOT_ENCRYPTION_SETUP_RESULT);
 		TC_CASE_RET_NAME (TC_IOCTL_GET_BOOT_ENCRYPTION_STATUS);
 		TC_CASE_RET_NAME (TC_IOCTL_GET_BOOT_LOADER_VERSION);
@@ -1516,6 +1626,8 @@ TCTranslateCode (ULONG ulCode)
 		TC_CASE_RET_NAME (TC_IOCTL_GET_DRIVER_VERSION);
 		TC_CASE_RET_NAME (TC_IOCTL_GET_MOUNTED_VOLUMES);
 		TC_CASE_RET_NAME (TC_IOCTL_GET_PASSWORD_CACHE_STATUS);
+		TC_CASE_RET_NAME (TC_IOCTL_GET_TRAVELER_MODE_STATUS);
+		TC_CASE_RET_NAME (TC_IOCTL_SET_TRAVELER_MODE_STATUS);
 		TC_CASE_RET_NAME (TC_IOCTL_GET_RESOLVED_SYMLINK);
 		TC_CASE_RET_NAME (TC_IOCTL_GET_VOLUME_PROPERTIES);
 		TC_CASE_RET_NAME (TC_IOCTL_IS_ANY_VOLUME_MOUNTED);
@@ -1665,6 +1777,13 @@ TCDeleteDeviceObject (PDEVICE_OBJECT DeviceObject, PEXTENSION Extension)
 	{
 		if (Extension->peThread != NULL)
 			TCStopVolumeThread (DeviceObject, Extension);
+
+		if (DeviceObject->ReferenceCount > 0)
+			ReferencedDeviceDeleted = TRUE;
+			
+		// Forced dismount does not set reference count to zero even if all open handles are closed
+		Dump ("Deleting device with ref count %ld\n", DeviceObject->ReferenceCount);
+		DeviceObject->ReferenceCount = 0;
 	}
 
 	if (DeviceObject != NULL)
@@ -1787,6 +1906,7 @@ NTSTATUS ProbeRealDriveSize (PDEVICE_OBJECT driveDeviceObject, LARGE_INTEGER *dr
 	LARGE_INTEGER sysLength;
 	LARGE_INTEGER offset;
 	byte *sectorBuffer = TCalloc (SECTOR_SIZE);
+	ULONGLONG startTime;
 
 	if (!sectorBuffer)
 		return STATUS_INSUFFICIENT_RESOURCES;
@@ -1797,18 +1917,29 @@ NTSTATUS ProbeRealDriveSize (PDEVICE_OBJECT driveDeviceObject, LARGE_INTEGER *dr
 	if (!NT_SUCCESS (status))
 	{
 		Dump ("Failed to get drive size - error %x\n", status);
+		TCfree (sectorBuffer);
 		return status;
 	}
 
+	startTime = KeQueryInterruptTime ();
 	for (offset.QuadPart = sysLength.QuadPart; ; offset.QuadPart += SECTOR_SIZE)
 	{
 		status = TCReadDevice (driveDeviceObject, sectorBuffer, offset, SECTOR_SIZE);
+		
 		if (!NT_SUCCESS (status))
 		{
 			driveSize->QuadPart = offset.QuadPart;
 			Dump ("Real drive size = %I64d\n", driveSize->QuadPart);
 			TCfree (sectorBuffer);
 			return STATUS_SUCCESS;
+		}
+
+		if (KeQueryInterruptTime() - startTime > 3ULL * 60 * 1000 * 1000 * 10)
+		{
+			// Abort if probing for more than 3 minutes
+			driveSize->QuadPart = sysLength.QuadPart;
+			TCfree (sectorBuffer);
+			return STATUS_TIMEOUT;
 		}
 	}
 }
@@ -2183,14 +2314,8 @@ UnmountDevice (PDEVICE_OBJECT deviceObject, BOOL ignoreOpenFiles)
 
 	if (volumeHandle != NULL)
 		TCCloseFsVolume (volumeHandle, volumeFileObject);
-	
-	if (deviceObject->ReferenceCount > 0)
-		ReferencedDeviceDeleted = TRUE;
 
-	Dump ("Deleting DeviceObject with ref count %ld\n", deviceObject->ReferenceCount);
-	deviceObject->ReferenceCount = 0;
 	TCDeleteDeviceObject (deviceObject, (PEXTENSION) deviceObject->DeviceExtension);
-
 	return 0;
 }
 
@@ -2310,6 +2435,15 @@ BOOL IsAccessibleByUser (PUNICODE_STRING objectFileName, BOOL readOnly)
 	}
 
 	return FALSE;
+}
+
+
+BOOL UserCanAccessDriveDevice ()
+{
+	UNICODE_STRING name;
+	RtlInitUnicodeString (&name, L"\\Device\\MountPointManager");
+
+	return IsAccessibleByUser (&name, FALSE);
 }
 
 

@@ -113,7 +113,7 @@ typedef struct
 #define SYSENC_PAUSE_RETRIES			200
 
 // Expected duration of system drive analysis, in ms 
-#define SYSENC_DRIVE_ANALYSIS_ETA		60000
+#define SYSENC_DRIVE_ANALYSIS_ETA		(4*60000)
 
 BootEncryption			*BootEncObj = NULL;
 BootEncryptionStatus	BootEncStatus;
@@ -129,7 +129,9 @@ BOOL bSystemEncryptionInProgress = FALSE;		/* TRUE when encrypting/decrypting th
 BOOL bWholeSysDrive = FALSE;	/* Whether to encrypt the entire system drive or just the system partition. */
 static BOOL bSystemEncryptionStatusChanged = FALSE;   /* TRUE if this instance changed the value of SystemEncryptionStatus (it's set to FALSE each time the system encryption settings are saved to the config file. This value is to be treated as protected -- only the wizard can change this value (others may only read it). */
 volatile BOOL bSysEncDriveAnalysisInProgress = FALSE;
+volatile BOOL bSysEncDriveAnalysisTimeOutOccurred = FALSE;
 int SysEncDriveAnalysisStart;
+BOOL bDontVerifyRescueDisk = FALSE;
 BOOL bFirstSysEncResumeDone = FALSE;
 int nMultiBoot = 0;			/* The number of operating systems installed on the computer, according to the user. 0: undetermined, 1: one, 2: two or more */
 BOOL bHiddenVol = FALSE;	/* If true, we are (or will be) creating a hidden volume. */
@@ -169,6 +171,8 @@ volatile HWND hVerifyPasswordInputField = NULL;		/* Verify-password input field 
 HBITMAP hbmWizardBitmapRescaled = NULL;
 
 char OrigKeyboardLayout [8+1] = "00000409";
+BOOL bKeyboardLayoutChanged = FALSE;		/* TRUE if the keyboard layout was changed to the standard US keyboard layout (from any other layout). */ 
+BOOL bKeybLayoutAltKeyWarningShown = FALSE;	/* TRUE if the user has been informed that it is not possible to type characters by pressing keys while the right Alt key is held down. */ 
 
 BOOL bWarnDeviceFormatAdvanced = TRUE;
 
@@ -195,7 +199,7 @@ BOOL bDisplayPoolContents = TRUE;
 
 volatile BOOL bSparseFileSwitch = FALSE;
 volatile BOOL quickFormat = FALSE;	/* WARNING: Meaning of this variable depends on bSparseFileSwitch. If bSparseFileSwitch is TRUE, this variable represents the sparse file flag. */
-volatile int fileSystem = 0;	
+volatile int fileSystem = FILESYS_NONE;	
 volatile int clusterSize = 0;
 
 SYSENC_MULTIBOOT_CFG	SysEncMultiBootCfg;
@@ -275,7 +279,10 @@ static void localcleanup (void)
 	cleanup ();
 
 	if (BootEncObj != NULL)
+	{
 		delete BootEncObj;
+		BootEncObj = NULL;
+	}
 }
 
 static BOOL CALLBACK BroadcastSysEncCfgUpdateCallb (HWND hwnd, LPARAM lParam)
@@ -436,6 +443,9 @@ static BOOL ChangeWizardMode (int newWizardMode)
 	}
 
 	bDevice = (WizardMode != WIZARD_MODE_FILE_CONTAINER);
+
+	if (newWizardMode != WIZARD_MODE_SYS_DEVICE)
+		CloseSysEncMutex ();	
 
 	return TRUE;
 }
@@ -722,13 +732,39 @@ BOOL SwitchWizardToSysEncMode (void)
 
 			try
 			{
-				if (BootEncObj->SystemPartitionCoversWholeDrive() 
+				if (BootEncObj->SystemDriveIsDynamic())
+				{
+					Warning ("SYSENC_UNSUPPORTED_FOR_DYNAMIC_DISK");
+					ChangeWizardMode (WIZARD_MODE_NONSYS_DEVICE);
+					return FALSE;
+				}
+
+				if (bWholeSysDrive && !BootEncObj->SystemPartitionCoversWholeDrive())
+				{
+					if (BootEncObj->SystemDriveContainsExtendedPartition())
+					{
+						bWholeSysDrive = FALSE;
+
+						Warning ("WDE_UNSUPPORTED_FOR_EXTENDED_PARTITIONS");
+
+						if (AskYesNo ("ASK_ENCRYPT_PARTITION_INSTEAD_OF_DRIVE") == IDNO)
+						{
+							ChangeWizardMode (WIZARD_MODE_NONSYS_DEVICE);
+							return FALSE;
+						}
+					}
+					else
+						Warning ("WDE_EXTENDED_PARTITIONS_WARNING");
+				}
+				else if (BootEncObj->SystemPartitionCoversWholeDrive() 
 					&& !bWholeSysDrive)
 					bWholeSysDrive = (AskYesNo ("WHOLE_SYC_DEVICE_RECOM") == IDYES);
+
 			}
 			catch (Exception &e)
 			{
 				e.Show (MainDlg);
+				return FALSE;
 			}
 
 			// Skip SYSENC_SPAN_PAGE as the user already made the choice
@@ -794,7 +830,13 @@ static BOOL ResolveUnknownSysEncDirection (void)
 			{
 				// Ask the user to select encryption, decryption, or cancel
 
-				char *tmpStr[] = {0, "CHOOSE_ENCRYPT_OR_DECRYPT", "ENCRYPT", "DECRYPT", "IDCANCEL", 0};
+				char *tmpStr[] = {0,
+					!BootEncStatus.DriveEncrypted ? "CHOOSE_ENCRYPT_OR_DECRYPT_FINALIZE_DECRYPT_NOTE" : "CHOOSE_ENCRYPT_OR_DECRYPT",
+					"ENCRYPT",
+					"DECRYPT",
+					"IDCANCEL",
+					0};
+
 				switch (AskMultiChoice ((void **) tmpStr))
 				{
 				case 1:
@@ -1299,7 +1341,9 @@ static void SysEncResume (void)
 
 			case SYSENC_STATUS_DECRYPTING:
 
-				BootEncObj->StartDecryption ();			
+				if (locBootEncStatus.DriveMounted)	// If the drive is not encrypted we will just deinstall
+					BootEncObj->StartDecryption ();	
+
 				break;
 			}
 
@@ -1328,6 +1372,22 @@ static void SysEncResume (void)
 	}
 	else
 		Error ("SYSTEM_ENCRYPTION_IN_PROGRESS_ELSEWHERE");
+}
+
+
+BOOL RegisterBootDriver (void)
+{
+	try
+	{
+		BootEncObj->RegisterBootDriver();
+	}
+	catch (Exception &e)
+	{
+		e.Show (NULL);
+		return FALSE;
+	}
+
+	return TRUE;
 }
 
 
@@ -1372,6 +1432,11 @@ static void __cdecl sysEncDriveAnalysisThread (void *hwndDlgArg)
 	try
 	{
 		BootEncObj->ProbeRealSystemDriveSize ();
+		bSysEncDriveAnalysisTimeOutOccurred = FALSE;
+	}
+	catch (TimeOut &)
+	{
+		bSysEncDriveAnalysisTimeOutOccurred = TRUE;
 	}
 	catch (Exception &e)
 	{
@@ -1793,6 +1858,10 @@ static void LoadPage (HWND hwndDlg, int nPageNo)
 	{
 		MoveWindow (hCurPage, rD.left, rD.top, rW.right - rW.left, rW.bottom - rW.top, TRUE);
 		ShowWindow (hCurPage, SW_SHOWNORMAL);
+
+		// Place here any message boxes that need to be displayed as soon as a new page is displayed. This 
+		// ensures that the page is fully rendered (otherwise it would remain blank, until the message box
+		// is closed).
 		switch (nPageNo)
 		{
 		case PASSWORD_PAGE:
@@ -1864,7 +1933,7 @@ void DisplaySizingErrorText (HWND hwndTextBox)
 {
 	wchar_t szTmp[1024];
 
-	if (translateWin32Error (szTmp, sizeof (szTmp)))
+	if (translateWin32Error (szTmp, sizeof (szTmp) / sizeof(szTmp[0])))
 	{
 		wchar_t szTmp2[1024];
 		wsprintfW (szTmp2, L"%s\n%s", GetString ("CANNOT_CALC_SPACE"), szTmp);
@@ -2544,13 +2613,18 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 					ToBootPwdField (hwndDlg, IDC_VERIFY);
 
 					sprintf (OrigKeyboardLayout, "%08X", (DWORD) GetKeyboardLayout (NULL) & 0xFFFF);
-					DWORD keybLayout = (DWORD) LoadKeyboardLayout ("00000409", KLF_ACTIVATE);
 
-					if (keybLayout != 0x00000409 && keybLayout != 0x04090409)
+					if ((DWORD) GetKeyboardLayout (NULL) != 0x00000409 && (DWORD) GetKeyboardLayout (NULL) != 0x04090409)
 					{
-						Error ("CANT_CHANGE_KEYB_LAYOUT_FOR_SYS_ENCRYPTION");
-						EndMainDlg (MainDlg);
-						return 1;
+						DWORD keybLayout = (DWORD) LoadKeyboardLayout ("00000409", KLF_ACTIVATE);
+
+						if (keybLayout != 0x00000409 && keybLayout != 0x04090409)
+						{
+							Error ("CANT_CHANGE_KEYB_LAYOUT_FOR_SYS_ENCRYPTION");
+							EndMainDlg (MainDlg);
+							return 1;
+						}
+						bKeyboardLayoutChanged = TRUE;
 					}
 
 					ShowWindow(GetDlgItem(hwndDlg, IDC_SHOW_PASSWORD), SW_HIDE);
@@ -2671,12 +2745,12 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 			{
 				wchar_t szTmp[8096];
 
-				SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), GetString ("RESCUE_DISK_RECORDING_TITLE"));
+				SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), GetString (bDontVerifyRescueDisk ? "RESCUE_DISK_CREATED_TITLE" : "RESCUE_DISK_RECORDING_TITLE"));
 				SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_NEXT), GetString ("NEXT"));
 				SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_PREV), GetString ("PREV"));
 
 				_snwprintf (szTmp, sizeof szTmp / 2,
-					GetString ("RESCUE_DISK_BURN_INFO"),
+					GetString (bDontVerifyRescueDisk ? "RESCUE_DISK_BURN_INFO_NO_CHECK" : "RESCUE_DISK_BURN_INFO"),
 					szRescueDiskISO);
 
 				SetWindowTextW (GetDlgItem (hwndDlg, IDT_RESCUE_DISK_BURN_INFO), szTmp);
@@ -2942,20 +3016,24 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				EnableWindow (GetDlgItem (hwndDlg, IDC_FILESYS), TRUE);
 				EnableWindow (GetDlgItem (GetParent (hwndDlg), IDC_NEXT), TRUE);
 
-				// The first allowed file system (in the following order) will become the default
-				if (bNTFSallowed)
-					fileSystem = FILESYS_NTFS;
-				else if (bFATallowed)
-					fileSystem = FILESYS_FAT;
-				else if (bNoFSallowed)
-					fileSystem = FILESYS_NONE;
-				else
+				if (fileSystem == FILESYS_NONE)	// If no file system has been previously selected
 				{
-					AddComboPair (GetDlgItem (hwndDlg, IDC_FILESYS), "---", 0);
-					EnableWindow (GetDlgItem (GetParent (hwndDlg), IDC_NEXT), FALSE);
+					// Set default file system. 
+					if (bNTFSallowed && (nVolumeSize >= OPTIMAL_MIN_NTFS_VOLUME_SIZE || !bFATallowed))
+						fileSystem = FILESYS_NTFS;
+					else if (bFATallowed)
+						fileSystem = FILESYS_FAT;
+					else if (bNoFSallowed)
+						fileSystem = FILESYS_NONE;
+					else
+					{
+						AddComboPair (GetDlgItem (hwndDlg, IDC_FILESYS), "---", 0);
+						EnableWindow (GetDlgItem (GetParent (hwndDlg), IDC_NEXT), FALSE);
+					}
 				}
 
 				SendMessage (GetDlgItem (hwndDlg, IDC_FILESYS), CB_SETCURSEL, 0, 0);
+				SelectAlgo (GetDlgItem (hwndDlg, IDC_FILESYS), (int *) &fileSystem);
 
 				EnableWindow (GetDlgItem (hwndDlg, IDC_CLUSTERSIZE), TRUE);
 				EnableWindow (GetDlgItem (hwndDlg, IDC_ABORT_BUTTON), FALSE);
@@ -3687,7 +3765,8 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 						try
 						{
-							BootEncObj->CheckEncryptionSetupResult();
+							if (BootEncStatus.DriveMounted)	// If we had been really encrypting/decrypting (not just proceeding to deinstall)
+								BootEncObj->CheckEncryptionSetupResult();
 						}
 						catch (Exception &e)
 						{
@@ -3758,6 +3837,8 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 			{
 				DWORD keybLayout = (DWORD) GetKeyboardLayout (NULL);
 
+				/* Watch the keyboard layout */
+
 				if (keybLayout != 0x00000409 && keybLayout != 0x04090409)
 				{
 					// Keyboard layout is not standard US
@@ -3777,7 +3858,29 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 						return 1;
 					}
 
-					Warning ("KEYB_LAYOUT_CHANGE_PREVENTED");
+					bKeyboardLayoutChanged = TRUE;
+
+					wchar_t szTmp [4096];
+					wcscpy (szTmp, GetString ("KEYB_LAYOUT_CHANGE_PREVENTED"));
+					wcscat (szTmp, L"\n\n");
+					wcscat (szTmp, GetString ("KEYB_LAYOUT_SYS_ENC_EXPLANATION"));
+					MessageBoxW (MainDlg, szTmp, lpszTitle, MB_ICONWARNING | MB_SETFOREGROUND | MB_TOPMOST);
+				}
+
+				/* Watch the right Alt key (which is used to enter various characters on non-US keyboards) */
+
+				if (bKeyboardLayoutChanged && !bKeybLayoutAltKeyWarningShown)
+				{
+					if (GetAsyncKeyState (VK_RMENU) < 0)
+					{
+						bKeybLayoutAltKeyWarningShown = TRUE;
+
+						wchar_t szTmp [4096];
+						wcscpy (szTmp, GetString ("ALT_KEY_CHARS_NOT_FOR_SYS_ENCRYPTION"));
+						wcscat (szTmp, L"\n\n");
+						wcscat (szTmp, GetString ("KEYB_LAYOUT_SYS_ENC_EXPLANATION"));
+						MessageBoxW (MainDlg, szTmp, lpszTitle, MB_ICONINFORMATION  | MB_SETFOREGROUND | MB_TOPMOST);
+					}
 				}
 			}
 			return 1;
@@ -3800,6 +3903,10 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				KillTimer (hwndDlg, TIMER_ID_SYSENC_DRIVE_ANALYSIS_PROGRESS);
 				UpdateProgressBarProc (SYSENC_DRIVE_ANALYSIS_ETA);
 				Sleep (1500);	// User-friendly GUI
+
+				if (bSysEncDriveAnalysisTimeOutOccurred)
+					Warning ("SYS_DRIVE_SIZE_PROBE_TIMEOUT");
+
 				LoadPage (hwndDlg, SYSENC_DRIVE_ANALYSIS_PAGE + 1);
 			}
 			return 1;
@@ -3977,6 +4084,7 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 				case WIZARD_MODE_SYS_DEVICE:
 
+					bHiddenVol = FALSE;
 					SwitchWizardToSysEncMode ();
 					return 1;
 				}
@@ -3985,6 +4093,27 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 			{
 				try
 				{
+					if (BootEncObj->SystemDriveIsDynamic())
+					{
+						Warning ("SYSENC_UNSUPPORTED_FOR_DYNAMIC_DISK");
+						return 1;
+					}
+
+					if (bWholeSysDrive && !BootEncObj->SystemPartitionCoversWholeDrive())
+					{
+						if (BootEncObj->SystemDriveContainsExtendedPartition())
+						{
+							Warning ("WDE_UNSUPPORTED_FOR_EXTENDED_PARTITIONS");
+
+							if (AskYesNo ("ASK_ENCRYPT_PARTITION_INSTEAD_OF_DRIVE") == IDNO)
+								return 1;
+
+							bWholeSysDrive = FALSE;
+						}
+						else
+							Warning ("WDE_EXTENDED_PARTITIONS_WARNING");
+					}
+
 					if (!bWholeSysDrive && BootEncObj->SystemPartitionCoversWholeDrive())
 						bWholeSysDrive = (AskYesNo ("WHOLE_SYC_DEVICE_RECOM") == IDYES);
 				}
@@ -4226,13 +4355,22 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				nIndex = SendMessage (GetDlgItem (hCurPage, IDC_COMBO_BOX), CB_GETCURSEL, 0, 0);
 				nVolumeEA = SendMessage (GetDlgItem (hCurPage, IDC_COMBO_BOX), CB_GETITEMDATA, nIndex, 0);
 
+				if (WizardMode == WIZARD_MODE_SYS_DEVICE
+					&& EAGetCipherCount (nVolumeEA) > 1)		// Cascade?
+				{
+					if (AskWarnNoYes ("CONFIRM_CASCADE_FOR_SYS_ENCRYPTION") == IDNO)
+						return 1;
+
+					Info ("NOTE_CASCADE_FOR_SYS_ENCRYPTION");
+				}
+
 				nIndex = SendMessage (GetDlgItem (hCurPage, IDC_COMBO_BOX_HASH_ALGO), CB_GETCURSEL, 0, 0);
 				hash_algo = SendMessage (GetDlgItem (hCurPage, IDC_COMBO_BOX_HASH_ALGO), CB_GETITEMDATA, nIndex, 0);
 
 				RandSetHashFunction (hash_algo);
 
 				if (WizardMode == WIZARD_MODE_SYS_DEVICE)
-					nCurPageNo = PASSWORD_PAGE - 1;				// Skip irrelevant pages
+					nCurPageNo = PASSWORD_PAGE - 1;			// Skip irrelevant pages
 			}
 
 			else if (nCurPageNo == SIZE_PAGE)
@@ -4323,8 +4461,14 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				{
 					KillTimer (hwndDlg, TIMER_ID_KEYB_LAYOUT_GUARD);
 
-					// Restore the original keyboard layout
-					LoadKeyboardLayout (OrigKeyboardLayout, KLF_ACTIVATE | KLF_SUBSTITUTE_OK);
+					if (bKeyboardLayoutChanged)
+					{
+						// Restore the original keyboard layout
+						if (LoadKeyboardLayout (OrigKeyboardLayout, KLF_ACTIVATE | KLF_SUBSTITUTE_OK) == NULL) 
+							Warning ("CANNOT_RESTORE_KEYBOARD_LAYOUT");
+						else
+							bKeyboardLayoutChanged = FALSE;
+					}
 				}
 
 				// Attempt to wipe passwords stored in the input field buffers
@@ -4534,29 +4678,34 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 			else if (nCurPageNo == SYSENC_RESCUE_DISK_BURN_PAGE)
 			{
-				/* Verify that the rescue disk has been written correctly */
+				if (!bDontVerifyRescueDisk)
+				{
+					/* Verify that the rescue disk has been written correctly */
 
-				try
-				{
-					WaitCursor();
-					if (!BootEncObj->VerifyRescueDisk ())
+					try
 					{
-						Error ("RESCUE_DISK_CHECK_FAILED");
-						NormalCursor ();
+						WaitCursor();
+						if (!BootEncObj->VerifyRescueDisk ())
+						{
+							Error ("RESCUE_DISK_CHECK_FAILED");
+							NormalCursor ();
 #ifndef _DEBUG
-						return 1;
+							return 1;
 #else
-						MessageBoxW (MainDlg, L"DEBUG INFO:\nPrevious error ignored (Debug build) -- allowed to continue.", lpszTitle, MB_ICONINFORMATION | MB_SETFOREGROUND | MB_TOPMOST);
+							MessageBoxW (MainDlg, L"DEBUG INFO:\nPrevious error ignored (Debug build) -- allowed to continue.", lpszTitle, MB_ICONINFORMATION | MB_SETFOREGROUND | MB_TOPMOST);
 #endif
+						}
 					}
-				}
-				catch (Exception &e)
-				{
-					e.Show (hwndDlg);
+					catch (Exception &e)
+					{
+						e.Show (hwndDlg);
+						NormalCursor ();
+						return 1;
+					}
 					NormalCursor ();
-					return 1;
 				}
-				NormalCursor ();
+				else
+					nCurPageNo = SYSENC_RESCUE_DISK_VERIFIED_PAGE;			// Skip irrelevant pages
 			}
 
 			else if (nCurPageNo == SYSENC_WIPE_MODE_PAGE)
@@ -4629,6 +4778,10 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 			else if (nCurPageNo == SYSENC_PRETEST_RESULT_PAGE)
 			{
 				TextInfoDialogBox (TC_TBXID_SYS_ENC_RESCUE_DISK);
+
+				// Begin the actual encryption process
+
+				ChangeSystemEncryptionStatus (SYSENC_STATUS_ENCRYPTING);
 			}
 
 			else if (nCurPageNo == SYSENC_ENCRYPTION_PAGE
@@ -4959,8 +5112,14 @@ ovf_end:
 
 					KillTimer (hwndDlg, TIMER_ID_KEYB_LAYOUT_GUARD);
 
-					// Restore the original keyboard layout
-					LoadKeyboardLayout (OrigKeyboardLayout, KLF_ACTIVATE | KLF_SUBSTITUTE_OK);
+					if (bKeyboardLayoutChanged)
+					{
+						// Restore the original keyboard layout
+						if (LoadKeyboardLayout (OrigKeyboardLayout, KLF_ACTIVATE | KLF_SUBSTITUTE_OK) == NULL) 
+							Warning ("CANNOT_RESTORE_KEYBOARD_LAYOUT");
+						else
+							bKeyboardLayoutChanged = FALSE;
+					}
 				}
 
 				// Attempt to wipe passwords stored in the input field buffers
@@ -5001,6 +5160,12 @@ ovf_end:
 				tmp [sizeof(tmp)-1] = 0;
 				SetWindowText (hMasterKey, tmp);
 				SetWindowText (hHeaderKey, tmp);
+			}
+
+			else if (nCurPageNo == SYSENC_WIPE_MODE_PAGE)
+			{
+				if (bDontVerifyRescueDisk)
+					nCurPageNo = SYSENC_RESCUE_DISK_VERIFIED_PAGE;	// Skip irrelevant pages
 			}
 
 			else if (nCurPageNo == FORMAT_PAGE)
@@ -5069,7 +5234,8 @@ void ExtractCommandLine (HWND hwndDlg, char *lpszCommandLine)
 				{"/csysenc", "/c"},
 				// Same as csysenc but called only by the system (via the startup sequence)
 				{"/acsysenc", "/a"},
-
+				// Do not verify that TrueCrypt Rescue Disks are correctly burned
+				{"/noisocheck", "/n"},
 				{"/encdev", "/e"},
 				{"/history", "/h"},
 				{"/quit", "/q"}
@@ -5163,6 +5329,10 @@ void ExtractCommandLine (HWND hwndDlg, char *lpszCommandLine)
 				DirectDeviceEncMode = TRUE;
 				break;
 
+			case 'n':
+				bDontVerifyRescueDisk = TRUE;
+				break;
+
 			case 'h':
 				{
 					char szTmp[8];
@@ -5214,6 +5384,7 @@ int DetermineMaxHiddenVolSize (HWND hwndDlg)
 	if (nbrFreeClusters * realClusterSize < MIN_VOLUME_SIZE + HIDDEN_VOL_HEADER_OFFSET)
 	{
 		MessageBoxW (hwndDlg, GetString ("NO_SPACE_FOR_HIDDEN_VOL"), lpszTitle, ICON_HAND);
+		UnmountVolume (hwndDlg, hiddenVolHostDriveNo, FALSE);
 		AbortProcessSilent ();
 	}
 
@@ -5232,6 +5403,7 @@ int DetermineMaxHiddenVolSize (HWND hwndDlg)
 	if (nMaximumHiddenVolSize < MIN_VOLUME_SIZE)
 	{
 		MessageBoxW (hwndDlg, GetString ("NO_SPACE_FOR_HIDDEN_VOL"), lpszTitle, ICON_HAND);
+		UnmountVolume (hwndDlg, hiddenVolHostDriveNo, FALSE);
 		AbortProcessSilent ();
 	}
 	else if (nMaximumHiddenVolSize > MAX_HIDDEN_VOLUME_SIZE)
@@ -5388,6 +5560,7 @@ int MountHiddenVolHost (HWND hwndDlg, char *volumePath, int *driveNo, Password *
 	mountOptions.Removable = ConfigReadInt ("MountVolumesRemovable", FALSE);
 	mountOptions.ProtectHiddenVolume = FALSE;
 	mountOptions.PreserveTimestamp = bPreserveTimestamp;
+	mountOptions.PartitionInInactiveSysEncScope = FALSE;
 
 	if (MountVolume (hwndDlg, *driveNo, volumePath, password, FALSE, TRUE, &mountOptions, FALSE, TRUE) < 1)
 	{
@@ -5552,10 +5725,73 @@ static void AfterSysEncProgressWMInitTasks (HWND hwndDlg)
 // For example, any tasks that may invoke the UAC prompt (otherwise the UAC dialog box would not be on top).
 static void AfterWMInitTasks (HWND hwndDlg)
 {
+	// Note that if bDirectSysEncModeCommand is not SYSENC_COMMAND_NONE, we already have the mutex.
+
+
+	// SYSENC_COMMAND_DECRYPT has the highest priority because it also performs uninstallation (restores the
+	// original contents of the first drive cylinder, etc.) so it must be attempted regardless of the phase
+	// or content of configuration files.
+	if (bDirectSysEncModeCommand == SYSENC_COMMAND_DECRYPT)
+	{
+		// Add the wizard to the system startup sequence
+		ManageStartupSeqWiz (FALSE, "/acsysenc");
+
+		ChangeSystemEncryptionStatus (SYSENC_STATUS_DECRYPTING);
+		LoadPage (hwndDlg, SYSENC_ENCRYPTION_PAGE);
+		return;
+	}
+
+
+	if (SystemEncryptionStatus == SYSENC_STATUS_ENCRYPTING
+		|| SystemEncryptionStatus == SYSENC_STATUS_DECRYPTING)
+	{
+		try
+		{
+			BootEncStatus = BootEncObj->GetStatus();
+
+			if (!BootEncStatus.DriveMounted)
+			{
+				if (!BootEncStatus.DeviceFilterActive)
+				{
+					// This is an inconsistent state. SystemEncryptionStatus should never be SYSENC_STATUS_ENCRYPTING
+					// or SYSENC_STATUS_DECRYPTING when the drive filter is not active. Possible causes: 1) corrupted
+					// or stale config file, 2) corrupted system
+
+					// Fix the inconsistency
+					ManageStartupSeqWiz (TRUE, "");
+					ChangeSystemEncryptionStatus (SYSENC_STATUS_NONE);
+					EndMainDlg (MainDlg);
+					InconsistencyResolved (SRC_POS);
+					return;
+				}
+				else if (bDirectSysEncMode)
+				{
+					// This is an inconsistent state. We have a direct system encryption command, 
+					// SystemEncryptionStatus is SYSENC_STATUS_ENCRYPTING or SYSENC_STATUS_DECRYPTING, the
+					// system drive is not 'mounted' and drive filter is active.  Possible causes: 1) The drive had
+					// been decrypted in the pre-boot environment. 2) The OS is not located on the lowest partition,
+					// the drive is to be fully encrypted, but the user rebooted before encryption reached the 
+					// system partition and then pressed Esc in the boot loader screen. 3) Corrupted or stale config
+					// file. 4) Damaged system.
+					
+					Warning ("SYSTEM_ENCRYPTION_SCHEDULED_BUT_PBA_FAILED");
+					EndMainDlg (MainDlg);
+					return;
+				}
+			}
+		}
+		catch (Exception &e)
+		{
+			e.Show (MainDlg);
+		}
+	}
+
+
 	if (SystemEncryptionStatus != SYSENC_STATUS_PRETEST)
 	{
 		// Handle system encryption command line arguments (if we're not in the Pretest phase).
 		// Note that if bDirectSysEncModeCommand is not SYSENC_COMMAND_NONE, we already have the mutex.
+		// Also note that SYSENC_COMMAND_DECRYPT is handled above.
 
 		switch (bDirectSysEncModeCommand)
 		{
@@ -5629,12 +5865,6 @@ static void AfterWMInitTasks (HWND hwndDlg)
 			}
 
 			break;
-
-		case SYSENC_COMMAND_DECRYPT:
-
-			ChangeSystemEncryptionStatus (SYSENC_STATUS_DECRYPTING);
-			LoadPage (hwndDlg, SYSENC_ENCRYPTION_PAGE);
-			return;
 		}
 	}
 
@@ -5771,7 +6001,6 @@ static void AfterWMInitTasks (HWND hwndDlg)
 				{
 					// Pretest successful
 
-					ChangeSystemEncryptionStatus (SYSENC_STATUS_ENCRYPTING);
 					LoadPage (hwndDlg, SYSENC_PRETEST_RESULT_PAGE);
 				}
 				else
@@ -5781,6 +6010,10 @@ static void AfterWMInitTasks (HWND hwndDlg)
 					if (AskWarnYesNo ("BOOT_PRETEST_FAILED_RETRY") == IDYES)
 					{
 						// User wants to retry the pretest
+
+						// We re-register the driver for boot because the user may have selected
+						// "Last Known Good Configuration" from the Windows boot menu.
+						RegisterBootDriver ();
 
 						if (AskWarnYesNo ("CONFIRM_RESTART") == IDYES)
 						{

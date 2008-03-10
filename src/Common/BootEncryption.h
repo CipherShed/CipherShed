@@ -60,6 +60,12 @@ namespace TrueCrypt
 		const char *SrcPos;
 	};
 
+	struct TimeOut : public Exception
+	{
+		TimeOut (const char *srcPos) { }
+		void Show (HWND parent) { MessageBox (parent, "Timeout", "TrueCrypt", MB_ICONERROR); }
+	};
+
 	struct UserAbort : public Exception
 	{
 		UserAbort (const char *srcPos) { }
@@ -129,6 +135,35 @@ namespace TrueCrypt
 
 	typedef list <Partition> PartitionList;
 
+#pragma pack (push)
+#pragma pack(1)
+
+	struct PartitionEntryMBR
+	{
+		byte BootIndicator;
+
+		byte StartHead;
+		byte StartCylSector;
+		byte StartCylinder;
+
+		byte Type;
+
+		byte EndHead;
+		byte EndSector;
+		byte EndCylinder;
+
+		uint32 StartLBA;
+		uint32 SectorCountLBA;
+	};
+
+	struct MBR
+	{
+		byte Code[446];
+		PartitionEntryMBR Partitions[4];
+		uint16 Signature;
+	};
+
+#pragma pack (pop)
 
 	struct SystemDriveConfiguration
 	{
@@ -151,6 +186,7 @@ namespace TrueCrypt
 			RealSystemDriveSizeValid (false),
 			RescueIsoImage (nullptr),
 			RescueVolumeHeaderValid (false),
+			SelectedEncryptionAlgorithmId (0),
 			VolumeHeaderValid (false)
 		{
 		}
@@ -167,18 +203,24 @@ namespace TrueCrypt
 		void Deinstall ();
 		DWORD GetDriverServiceStartType ();
 		uint16 GetInstalledBootLoaderVersion ();
+		bool IsBootLoaderOnDrive (char *devicePath);
 		BootEncryptionStatus GetStatus ();
 		void GetVolumeProperties (VOLUME_PROPERTIES_STRUCT *properties);
 		SystemDriveConfiguration GetSystemDriveConfiguration ();
 		void Install ();
+		void InstallBootLoader ();
 		void PrepareInstallation (bool systemPartitionOnly, Password &password, int ea, int mode, int pkcs5, const string &rescueIsoImagePath);
 		void ProbeRealSystemDriveSize ();
+		void RegisterBootDriver ();
 		void RegisterFilterDriver (bool registerDriver);
 		bool RestartComputer (void);
 		void SetDriverServiceStartType (DWORD startType);
 		void StartDecryption ();
 		void StartEncryption (WipeAlgorithmId wipeAlgorithm);
+		bool SystemDriveContainsPartitionType (byte type);
+		bool SystemDriveContainsExtendedPartition ();
 		bool SystemPartitionCoversWholeDrive ();
+		bool SystemDriveIsDynamic ();
 		bool VerifyRescueDisk ();
 
 	protected:
@@ -187,16 +229,18 @@ namespace TrueCrypt
 		void BackupSystemLoader ();
 		void CreateVolumeHeader (uint64 volumeSize, uint64 encryptedAreaStart, Password *password, int ea, int mode, int pkcs5);
 		string GetSystemLoaderBackupPath ();
+		void GetBootLoader (byte *buffer, size_t bufferSize, bool rescueDisk);
+		uint32 GetChecksum (byte *data, size_t size);
 		DISK_GEOMETRY GetDriveGeometry (int driveNumber);
 		PartitionList GetDrivePartitions (int driveNumber);
 		string GetWindowsDirectory ();
-		void InstallBootLoader ();
 		void RestoreSystemLoader ();
 		void InstallVolumeHeader ();
 		void UpdateSystemDriveConfiguration ();
 
 		HWND ParentWindow;
 		SystemDriveConfiguration DriveConfig;
+		int SelectedEncryptionAlgorithmId;
 		byte *RescueIsoImage;
 		byte RescueVolumeHeader[HEADER_SIZE];
 		byte VolumeHeader[HEADER_SIZE];

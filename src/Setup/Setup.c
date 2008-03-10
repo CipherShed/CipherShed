@@ -50,6 +50,7 @@ BOOL bMakePackage = FALSE;
 BOOL bDone = FALSE;
 BOOL Rollback = FALSE;
 BOOL bUpgrade = FALSE;
+BOOL SystemEncryptionUpgrade = FALSE;
 BOOL bRepairMode = FALSE;
 BOOL bChangeMode = FALSE;
 BOOL bDevm = FALSE;
@@ -116,7 +117,7 @@ CreateLink (char *lpszPathObj, char *lpszArguments,
 
 			/* Ensure that the string is ANSI.  */
 			MultiByteToWideChar (CP_ACP, 0, lpszPathLink, -1,
-					     wsz, TC_MAX_PATH);
+					     wsz, sizeof(wsz) / sizeof(wsz[0]));
 
 			/* Save the link by calling IPersistFile::Save.  */
 			hres = ppf->Save (wsz, TRUE);
@@ -392,7 +393,7 @@ BOOL
 DoRegInstall (HWND hwndDlg, char *szDestDir, BOOL bInstallType)
 {
 	char szDir[TC_MAX_PATH], *key;
-	char szTmp[TC_MAX_PATH];
+	char szTmp[TC_MAX_PATH*4];
 	HKEY hkey = 0;
 	BOOL bSlash, bOK = FALSE;
 	DWORD dw;
@@ -752,8 +753,7 @@ error:
 }
 
 
-BOOL
-DoDriverUnload (HWND hwndDlg)
+BOOL DoDriverUnload (HWND hwndDlg)
 {
 	BOOL bOK = TRUE;
 	int status;
@@ -783,18 +783,6 @@ DoDriverUnload (HWND hwndDlg)
 		BOOL bResult;
 		int volumesMounted;
 
-		// Test for encrypted boot drive
-		try
-		{
-			BootEncryption bootEnc (hwndDlg);
-			if (bootEnc.GetDriverServiceStartType() == SERVICE_BOOT_START)
-			{
-				Error ("SETUP_FAILED_BOOT_DRIVE_ENCRYPTED");
-				return FALSE;
-			}
-		}
-		catch (...)	{ }
-
 		// Try to determine if it's upgrade (and not reinstall, downgrade, or first-time install).
 		bResult = DeviceIoControl (hDriver, TC_IOCTL_GET_DRIVER_VERSION, NULL, 0, &driverVersion, sizeof (driverVersion), &dwResult, NULL);
 
@@ -803,30 +791,57 @@ DoDriverUnload (HWND hwndDlg)
 
 		bUpgrade = bResult && driverVersion < VERSION_NUM;
 
-		// Check mounted volumes
-		bResult = DeviceIoControl (hDriver, TC_IOCTL_IS_ANY_VOLUME_MOUNTED, NULL, 0, &volumesMounted, sizeof (volumesMounted), &dwResult, NULL);
-
-		if (!bResult)
+		// Test for encrypted boot drive
+		try
 		{
-			bResult = DeviceIoControl (hDriver, TC_IOCTL_LEGACY_GET_MOUNTED_VOLUMES, NULL, 0, &driver, sizeof (driver), &dwResult, NULL);
-			if (bResult)
-				volumesMounted = driver.ulMountedDrives;
-		}
-
-		if (bResult)
-		{
-			if (volumesMounted != 0)
+			BootEncryption bootEnc (hwndDlg);
+			if (bootEnc.GetDriverServiceStartType() == SERVICE_BOOT_START)
 			{
-				bOK = FALSE;
-				MessageBoxW (hwndDlg, GetString ("DISMOUNT_ALL_FIRST"), lpszTitle, MB_ICONHAND);
+				if (bUninstallInProgress && driverVersion >= 0x500 && !bootEnc.GetStatus().DeviceFilterActive)
+				{
+					bootEnc.RegisterFilterDriver (false);
+					bootEnc.SetDriverServiceStartType (SERVICE_SYSTEM_START);
+				}
+				else if (!bUpgrade || driverVersion < 0x500)
+				{
+					Error ("SETUP_FAILED_BOOT_DRIVE_ENCRYPTED");
+					return FALSE;
+				}
+				else
+				{
+					SystemEncryptionUpgrade = TRUE;
+				}
 			}
 		}
-		else
+		catch (...)	{ }
+
+		if (!SystemEncryptionUpgrade)
 		{
-			bOK = FALSE;
-			handleWin32Error (hwndDlg);
+			// Check mounted volumes
+			bResult = DeviceIoControl (hDriver, TC_IOCTL_IS_ANY_VOLUME_MOUNTED, NULL, 0, &volumesMounted, sizeof (volumesMounted), &dwResult, NULL);
+
+			if (!bResult)
+			{
+				bResult = DeviceIoControl (hDriver, TC_IOCTL_LEGACY_GET_MOUNTED_VOLUMES, NULL, 0, &driver, sizeof (driver), &dwResult, NULL);
+				if (bResult)
+					volumesMounted = driver.ulMountedDrives;
+			}
+
+			if (bResult)
+			{
+				if (volumesMounted != 0)
+				{
+					bOK = FALSE;
+					MessageBoxW (hwndDlg, GetString ("DISMOUNT_ALL_FIRST"), lpszTitle, MB_ICONHAND);
+				}
+			}
+			else
+			{
+				bOK = FALSE;
+				handleWin32Error (hwndDlg);
+			}
 		}
-		
+
 		// Try to close all open TC windows
 		if (bOK)
 		{
@@ -848,8 +863,11 @@ DoDriverUnload (HWND hwndDlg)
 			bOK = FALSE;
 		}
 
-		CloseHandle (hDriver);
-		hDriver = INVALID_HANDLE_VALUE;
+		if (!bOK || !SystemEncryptionUpgrade)
+		{
+			CloseHandle (hDriver);
+			hDriver = INVALID_HANDLE_VALUE;
+		}
 	}
 	else
 	{
@@ -860,60 +878,33 @@ DoDriverUnload (HWND hwndDlg)
 }
 
 
-BOOL
-DoDriverInstall (HWND hwndDlg)
+BOOL UpgradeBootLoader (HWND hwndDlg)
 {
-	SC_HANDLE hManager, hService = NULL;
-	BOOL bOK = FALSE, bRet;
+	if (!SystemEncryptionUpgrade)
+		return TRUE;
 
-	hManager = OpenSCManager (NULL, NULL, SC_MANAGER_ALL_ACCESS);
-	if (hManager == NULL)
-		goto error;
-
-	StatusMessage (hwndDlg, "INSTALLING_DRIVER");
-
-	hService = CreateService (hManager, "truecrypt", "truecrypt",
-		SERVICE_ALL_ACCESS, SERVICE_KERNEL_DRIVER, SERVICE_SYSTEM_START, SERVICE_ERROR_NORMAL,
-		!Is64BitOs () ? "System32\\drivers\\truecrypt.sys" : "SysWOW64\\drivers\\truecrypt.sys",
-		NULL, NULL, NULL, NULL, NULL);
-
-	if (hService == NULL)
-		goto error;
-	else
-		CloseServiceHandle (hService);
-
-	hService = OpenService (hManager, "truecrypt", SERVICE_ALL_ACCESS);
-	if (hService == NULL)
-		goto error;
-
-	StatusMessage (hwndDlg, "STARTING_DRIVER");
-
-	bRet = StartService (hService, 0, NULL);
-	if (bRet == FALSE)
-		goto error;
-
-	bOK = TRUE;
-
-error:
-	if (bOK == FALSE && GetLastError () != ERROR_SERVICE_ALREADY_RUNNING)
+	try
 	{
-		handleWin32Error (hwndDlg);
-		MessageBoxW (hwndDlg, GetString ("DRIVER_INSTALL_FAILED"), lpszTitle, MB_ICONHAND);
+		BootEncryption bootEnc (hwndDlg);
+		if (bootEnc.GetInstalledBootLoaderVersion() < VERSION_NUM)
+		{
+			bootEnc.InstallBootLoader ();
+			Info ("BOOT_LOADER_UPGRADE_OK");
+		}
+		return TRUE;
 	}
-	else
-		bOK = TRUE;
+	catch (Exception &e)
+	{
+		e.Show (hwndDlg);
+	}
+	catch (...) { }
 
-	if (hService != NULL)
-		CloseServiceHandle (hService);
-
-	if (hManager != NULL)
-		CloseServiceHandle (hManager);
-
-	return bOK;
+	Error ("BOOT_LOADER_UPGRADE_FAILED");
+	return FALSE;
 }
 
-BOOL
-DoShortcutsUninstall (HWND hwndDlg, char *szDestDir)
+
+BOOL DoShortcutsUninstall (HWND hwndDlg, char *szDestDir)
 {
 	char szLinkDir[TC_MAX_PATH];
 	char szTmp2[TC_MAX_PATH];
@@ -1129,7 +1120,7 @@ OutcomePrompt (HWND hwndDlg, BOOL bOK)
 		{
 			if (bDevm)
 				PostMessage (MainDlg, WM_CLOSE, 0, 0);
-			else
+			else if (!SystemEncryptionUpgrade)
 				Info ("INSTALL_OK");
 		}
 		else
@@ -1253,6 +1244,8 @@ DoUninstall (void *arg)
 			GetTempPath (sizeof (temp), temp);
 			_snprintf (UninstallBatch, sizeof (UninstallBatch), "%s\\TrueCrypt-Uninstall.bat", temp);
 
+			UninstallBatch [sizeof(UninstallBatch)-1] = 0;
+
 			// Create uninstall batch
 			f = fopen (UninstallBatch, "w");
 			if (!f)
@@ -1339,7 +1332,8 @@ DoInstall (void *arg)
 	
 	UpdateProgressBarProc(55);
 
-	DoRegUninstall ((HWND) hwndDlg, TRUE);
+	if (!SystemEncryptionUpgrade)
+		DoRegUninstall ((HWND) hwndDlg, TRUE);
 
 	UpdateProgressBarProc(62);
 
@@ -1347,7 +1341,7 @@ DoInstall (void *arg)
 	strcat_s (path, sizeof (path), "\\TrueCrypt Setup.exe");
 	DeleteFile (path);
 
-	if (UpdateProgressBarProc(63) && DoServiceUninstall (hwndDlg, "truecrypt") == FALSE)
+	if (UpdateProgressBarProc(63) && !SystemEncryptionUpgrade && DoServiceUninstall (hwndDlg, "truecrypt") == FALSE)
 	{
 		bOK = FALSE;
 	}
@@ -1355,11 +1349,15 @@ DoInstall (void *arg)
 	{
 		bOK = FALSE;
 	}
-	else if (UpdateProgressBarProc(80) && DoRegInstall ((HWND) hwndDlg, InstallationPath, bRegisterFileExt ) == FALSE)
+	else if (UpdateProgressBarProc(80) && !SystemEncryptionUpgrade && DoRegInstall ((HWND) hwndDlg, InstallationPath, bRegisterFileExt ) == FALSE)
 	{
 		bOK = FALSE;
 	}
-	else if (UpdateProgressBarProc(85) && DoDriverInstall (hwndDlg) == FALSE)
+	else if (UpdateProgressBarProc(85) && !SystemEncryptionUpgrade && DoDriverInstall (hwndDlg) == FALSE)
+	{
+		bOK = FALSE;
+	}
+	else if (SystemEncryptionUpgrade && UpgradeBootLoader (hwndDlg) == FALSE)
 	{
 		bOK = FALSE;
 	}
@@ -1388,7 +1386,8 @@ DoInstall (void *arg)
 		Rollback = TRUE;
 		Silent = TRUE;
 
-		DoUninstall (hwndDlg);
+		if (!SystemEncryptionUpgrade)
+			DoUninstall (hwndDlg);
 
 		bUninstall = FALSE;
 		Rollback = FALSE;
@@ -1405,13 +1404,21 @@ DoInstall (void *arg)
 	}
 	else if (!bUninstall && !bDevm)
 	{
-		if (bUpgrade && (AskYesNo ("AFTER_UPGRADE_RELEASE_NOTES") == IDYES))
+		if (SystemEncryptionUpgrade && AskYesNo ("UPGRADE_OK_REBOOT_REQUIRED") == IDYES)
 		{
-			Applink ("releasenotes", TRUE, "");
+			BootEncryption bootEnc (hwndDlg);
+			bootEnc.RestartComputer();
 		}
-		else if (bFirstTimeInstall && AskYesNo ("AFTER_INSTALL_TUTORIAL") == IDYES)
+		else
 		{
-			Applink ("beginnerstutorial", TRUE, "");
+			if (bUpgrade && (AskYesNo ("AFTER_UPGRADE_RELEASE_NOTES") == IDYES))
+			{
+				Applink ("releasenotes", TRUE, "");
+			}
+			else if (bFirstTimeInstall && AskYesNo ("AFTER_INSTALL_TUTORIAL") == IDYES)
+			{
+				Applink ("beginnerstutorial", TRUE, "");
+			}
 		}
 	}
 }
@@ -1446,7 +1453,7 @@ void SetInstallationPath (HWND hwndDlg)
 		4.2a	C:\WINDOWS\TrueCrypt Setup.exe /u C:\Program Files\TrueCrypt
 		4.3		"C:\Program Files\TrueCrypt\TrueCrypt Setup.exe" /u C:\Program Files\TrueCrypt\
 		4.3a	"C:\Program Files\TrueCrypt\TrueCrypt Setup.exe" /u C:\Program Files\TrueCrypt\
-		5.0		"C:\Program Files\TrueCrypt\TrueCrypt Setup.exe" /u
+		5.0+	"C:\Program Files\TrueCrypt\TrueCrypt Setup.exe" /u
 
 		Note: In versions 1.0-3.0a the user was able to choose whether to install the uninstaller.
 			  The default was to install it. If it wasn't installed, there was no UninstallString.
@@ -1533,8 +1540,8 @@ void SetInstallationPath (HWND hwndDlg)
 		// Default "Program Files" path. 
 		SHGetSpecialFolderLocation (hwndDlg, CSIDL_PROGRAM_FILES, &itemList);
 		SHGetPathFromIDList (itemList, path);
-		strcat (path, "\\TrueCrypt\\");
-		strcpy (InstallationPath, path);
+		strncat (path, "\\TrueCrypt\\", min (strlen("\\TrueCrypt\\"), sizeof(path)-strlen(path)-1));
+		strncpy (InstallationPath, path, sizeof(InstallationPath)-1);
 	}
 
 	// Make sure the path ends with a backslash
@@ -1637,9 +1644,7 @@ UninstallDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam)
 }
 
 
-int WINAPI
-WINMAIN (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpszCommandLine,
-	 int nCmdShow)
+int WINAPI WINMAIN (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpszCommandLine, int nCmdShow)
 {
 	SelfExtractStartupInit();
 
@@ -1772,6 +1777,11 @@ WINMAIN (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpszCommandLine,
 
 				if (!CreateProcess (UninstallBatch, NULL, NULL, NULL, FALSE, IDLE_PRIORITY_CLASS, NULL, NULL, &si, &pi))
 					DeleteFile (UninstallBatch);
+				else
+				{
+					CloseHandle (pi.hProcess);
+					CloseHandle (pi.hThread);
+				}
 			}
 		}
 	}
