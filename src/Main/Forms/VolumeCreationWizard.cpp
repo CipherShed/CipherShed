@@ -227,7 +227,7 @@ namespace TrueCrypt
 				return;
 			}
 		}
-		catch (Exception &e)
+		catch (exception &e)
 		{
 			Gui->ShowError (e);
 		}
@@ -239,7 +239,7 @@ namespace TrueCrypt
 			{
 				FilePath (wstring (SelectedVolumePath)).Delete();
 			}
-			catch (Exception &e) {Gui->ShowError(e); }
+			catch (...) { }
 		}
 	}
 
@@ -417,6 +417,7 @@ namespace TrueCrypt
 
 						options->EA = SelectedEncryptionAlgorithm;
 						options->Password = Password;
+						options->Keyfiles = Keyfiles;
 						options->Path = SelectedVolumePath;
 						options->Quick = QuickFormatEnabled;
 						options->Size = VolumeSize;

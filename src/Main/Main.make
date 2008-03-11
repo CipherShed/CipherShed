@@ -49,7 +49,9 @@ OBJS += Forms/VolumeSizeWizardPage.o
 OBJS += Forms/WizardFrame.o
 OBJS += Resources.o
 
+ifndef DISABLE_PRECOMPILED_HEADERS
 PCH := SystemPrecompiled.h.gch
+endif
 
 RESOURCES :=
 RESOURCES += ../License.txt.h
@@ -96,7 +98,7 @@ ifndef NOSTRIP
 	strip $(APPNAME)
 endif
 
-ifndef ARCH
+ifndef NOTEST
 	./$(APPNAME) --text --test >/dev/null
 endif
 endif
@@ -112,8 +114,9 @@ else
 endif
 
 	cp $(PWD)/Resources/Icons/TrueCrypt.icns $(APPNAME).app/Contents/Resources
+	
 	echo -n APPLTRUE >$(APPNAME).app/Contents/PkgInfo
-	sed -e 's/_VERSION_/$(TC_VERSION)/' ../Build/Resources/MacOSX/Info.plist.xml >$(APPNAME).app/Contents/Info.plist
+	sed -e 's/_VERSION_/$(patsubst %a,%.1,$(patsubst %b,%.2,$(TC_VERSION)))/' ../Build/Resources/MacOSX/Info.plist.xml >$(APPNAME).app/Contents/Info.plist
 endif
 
 $(OBJS): $(PCH)
