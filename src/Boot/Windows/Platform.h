@@ -1,7 +1,7 @@
 /*
  Copyright (c) 2008 TrueCrypt Foundation. All rights reserved.
 
- Governed by the TrueCrypt License 2.4 the full text of which is contained
+ Governed by the TrueCrypt License 2.5 the full text of which is contained
  in the file License.txt included in TrueCrypt binary and source code
  distribution packages.
 */
@@ -12,13 +12,7 @@
 #pragma warning ( disable : 4769 )
 
 #include "TCdefs.h"
-
 #include <memory.h>
-
-#ifndef DEBUG
-#	pragma intrinsic (memcpy)
-#	pragma intrinsic (memset)
-#endif
 
 typedef int bool;
 #define false 0
@@ -93,8 +87,10 @@ struct Registers
 
 uint64 operator+ (const uint64 &a, const uint64 &b);
 uint64 operator+ (const uint64 &a, uint32 b);
+uint64 &operator+= (uint64 &a, const uint64 &b);
 uint64 operator- (const uint64 &a, const uint64 &b);
 uint64 operator- (const uint64 &a, uint32 b);
+uint64 &operator-= (uint64 &a, const uint64 &b);
 uint64 operator>> (const uint64 &a, int shiftCount);
 uint64 operator<< (const uint64 &a, int shiftCount);
 uint64 &operator++ (uint64 &a);
@@ -110,5 +106,6 @@ extern "C" void EraseMemory (void *memory, int size);
 uint32 GetLinearAddress (uint16 segment, uint16 offset);
 bool RegionsIntersect (const uint64 &start1, uint32 length1, const uint64 &start2, const uint64 &end2);
 bool TestInt64 ();
+extern "C" void ThrowFatalException (int line);
 
 #endif // TC_HEADER_Boot_Platform

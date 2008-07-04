@@ -1,7 +1,7 @@
 /*
 Copyright (c) 2008 TrueCrypt Foundation. All rights reserved.
 
-Governed by the TrueCrypt License 2.4 the full text of which is contained
+Governed by the TrueCrypt License 2.5 the full text of which is contained
 in the file License.txt included in TrueCrypt binary and source code
 distribution packages.
 */
@@ -206,27 +206,8 @@ static int CompressBuffer (char *out, char *in, int len)
 // If those bytes weren't cleared, CRC-32 checks would fail after signing.
 static void WipeSignatureAreas (char *buffer)
 {
-	buffer [0x130] = 0;
-	buffer [0x131] = 0;
-	buffer [0x132] = 0;
-
-	buffer [0x138] = 0;
-	buffer [0x139] = 0;
-	buffer [0x13A] = 0;
-
-	buffer [0x170] = 0;
-	buffer [0x171] = 0;
-	buffer [0x172] = 0;
-	buffer [0x173] = 0;
-	buffer [0x174] = 0;
-	buffer [0x175] = 0;
-
-	buffer [0x178] = 0;
-	buffer [0x179] = 0;
-	buffer [0x17A] = 0;
-	buffer [0x17B] = 0;
-	buffer [0x17C] = 0;
-	buffer [0x17D] = 0;
+	// Clear bytes 0x130-0x1ff
+	memset (buffer + 0x130, 0, 0x200 - 0x130);
 }
 
 

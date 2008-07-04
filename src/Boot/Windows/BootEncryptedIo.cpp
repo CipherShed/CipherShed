@@ -1,7 +1,7 @@
 /*
  Copyright (c) 2008 TrueCrypt Foundation. All rights reserved.
 
- Governed by the TrueCrypt License 2.4 the full text of which is contained
+ Governed by the TrueCrypt License 2.5 the full text of which is contained
  in the file License.txt included in TrueCrypt binary and source code
  distribution packages.
 */
@@ -18,17 +18,41 @@
 BiosResult ReadEncryptedSectors (uint16 destSegment, uint16 destOffset, byte drive, uint64 sector, uint16 sectorCount)
 {
 	BiosResult result;
+	bool decrypt = true;
+
+	if (BootCryptoInfo->hiddenVolume)
+	{
+		if (ReadWritePartiallyCoversEncryptedArea (sector, sectorCount))
+			return BiosResultInvalidFunction;
+
+		if (sector >= EncryptedVirtualPartition.StartSector && sector <= EncryptedVirtualPartition.EndSector)
+		{
+			// Remap the request to the hidden volume
+			sector -= EncryptedVirtualPartition.StartSector;
+			sector += HiddenVolumeStartSector;
+		}
+		else
+			decrypt = false;
+	}
 
 	result = ReadSectors (destSegment, destOffset, drive, sector, sectorCount);
 
-	if (result != BiosResultSuccess)
+	if (result != BiosResultSuccess || !decrypt)
 		return result;
+
+	if (BootCryptoInfo->hiddenVolume)
+	{
+		// Convert sector number to data unit number of the hidden volume
+		sector -= HiddenVolumeStartSector;
+		sector += HiddenVolumeStartUnitNo;
+	}
 
 	if (drive == EncryptedVirtualPartition.Drive)
 	{
 		while (sectorCount-- > 0)
 		{
-			if (sector >= EncryptedVirtualPartition.StartSector && sector <= EncryptedVirtualPartition.EndSector)
+			if (BootCryptoInfo->hiddenVolume
+				|| (sector >= EncryptedVirtualPartition.StartSector && sector <= EncryptedVirtualPartition.EndSector))
 			{
 				AcquireSectorBuffer();
 				CopyMemory (destSegment, destOffset, SectorBuffer, TC_LB_SIZE);
@@ -52,6 +76,24 @@ BiosResult WriteEncryptedSectors (uint16 sourceSegment, uint16 sourceOffset, byt
 {
 	BiosResult result;
 	AcquireSectorBuffer();
+	uint64 dataUnitNo;
+	uint64 writeOffset;
+
+	dataUnitNo = sector;
+	writeOffset.HighPart = 0;
+	writeOffset.LowPart = 0;
+
+	if (BootCryptoInfo->hiddenVolume)
+	{
+		if (ReadWritePartiallyCoversEncryptedArea (sector, sectorCount))
+			return BiosResultInvalidFunction;
+
+		// Remap the request to the hidden volume
+		writeOffset = HiddenVolumeStartSector;
+		writeOffset -= EncryptedVirtualPartition.StartSector;
+		dataUnitNo -= EncryptedVirtualPartition.StartSector;
+		dataUnitNo += HiddenVolumeStartUnitNo;
+	}
 
 	while (sectorCount-- > 0)
 	{
@@ -59,18 +101,28 @@ BiosResult WriteEncryptedSectors (uint16 sourceSegment, uint16 sourceOffset, byt
 
 		if (drive == EncryptedVirtualPartition.Drive && sector >= EncryptedVirtualPartition.StartSector && sector <= EncryptedVirtualPartition.EndSector)
 		{
-			EncryptDataUnits (SectorBuffer, &sector, 1, BootCryptoInfo);
+			EncryptDataUnits (SectorBuffer, &dataUnitNo, 1, BootCryptoInfo);
 		}
 
-		result = WriteSectors (SectorBuffer, drive, sector, 1);
+		result = WriteSectors (SectorBuffer, drive, sector + writeOffset, 1);
 
 		if (result != BiosResultSuccess)
 			break;
 
 		++sector;
+		++dataUnitNo;
 		sourceOffset += TC_LB_SIZE;
 	}
 
 	ReleaseSectorBuffer();
 	return result;
+}
+
+
+static bool ReadWritePartiallyCoversEncryptedArea (const uint64 &sector, uint16 sectorCount)
+{
+	uint64 readWriteEnd = sector + --sectorCount;
+
+	return ((sector < EncryptedVirtualPartition.StartSector && readWriteEnd >= EncryptedVirtualPartition.StartSector)
+		|| (sector >= EncryptedVirtualPartition.StartSector && readWriteEnd > EncryptedVirtualPartition.EndSector));
 }

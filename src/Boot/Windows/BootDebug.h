@@ -1,7 +1,7 @@
 /*
  Copyright (c) 2008 TrueCrypt Foundation. All rights reserved.
 
- Governed by the TrueCrypt License 2.4 the full text of which is contained
+ Governed by the TrueCrypt License 2.5 the full text of which is contained
  in the file License.txt included in TrueCrypt binary and source code
  distribution packages.
 */
@@ -28,16 +28,22 @@
 #	if 1
 #		define TC_TRACE_INT13
 #	endif
-#	if 1
+#	if 0
 #		define TC_TRACE_INT15
 #	endif
 #endif
 
-
-#define trace_point do { Print(__FILE__); PrintChar (':'); Print (TC_TO_STRING (__LINE__)); PrintEndl(); } while (false)
-#define trace_val(VAL) PrintVal (#VAL, VAL);
-#define trace_hex(VAL) do { Print (#VAL), PrintChar (':'); PrintHex (VAL); PrintEndl(); } while (false)
-#define assert(COND) do { if (!(COND)) { trace_point; __asm jmp $ } } while (false)
+#ifdef TC_BOOT_DEBUG_ENABLED
+#	define trace_point do { Print(__FILE__); PrintChar (':'); Print (TC_TO_STRING (__LINE__)); PrintEndl(); } while (false)
+#	define trace_val(VAL) PrintVal (#VAL, VAL);
+#	define trace_hex(VAL) do { Print (#VAL), PrintChar (':'); PrintHex (VAL); PrintEndl(); } while (false)
+#	define assert(COND) do { if (!(COND)) { trace_point; __asm jmp $ } } while (false)
+#else
+#	define trace_point
+#	define trace_val(VAL)
+#	define trace_hex(VAL)
+#	define assert(COND)
+#endif
 
 void InitDebugPort ();
 void InitStackChecker ();

@@ -5,7 +5,7 @@
  Agreement for Encryption for the Masses'. Modifications and additions to
  the original source code (contained in this file) and all other portions of
  this file are Copyright (c) 2003-2008 TrueCrypt Foundation and are governed
- by the TrueCrypt License 2.4 the full text of which is contained in the
+ by the TrueCrypt License 2.5 the full text of which is contained in the
  file License.txt included in TrueCrypt binary and source code distribution
  packages. */
 
@@ -43,6 +43,7 @@ static char *szCompressedFiles[]=
 #define FILENAME_64BIT_DRIVER	"truecrypt-x64.sys"
 #define NBR_COMPRESSED_FILES (sizeof(szCompressedFiles) / sizeof(szCompressedFiles[0]))
 
+void localcleanup (void);
 BOOL StatDeleteFile ( char *lpszFile );
 BOOL StatRemoveDirectory ( char *lpszDir );
 HRESULT CreateLink ( char *lpszPathObj , char *lpszArguments , char *lpszPathLink );
@@ -78,11 +79,13 @@ extern BOOL bDevm;
 extern BOOL Rollback;
 extern BOOL bRepairMode;
 extern BOOL bSystemRestore;
+extern BOOL bDisableSwapFiles;
 extern BOOL bForAllUsers;
 extern BOOL bRegisterFileExt;
 extern BOOL bAddToStartMenu;
 extern BOOL bDesktopIcon;
 extern BOOL SystemEncryptionUpgrade;
+extern BOOL bRestartRequired;
 extern HMODULE volatile SystemRestoreDll;
 extern char InstallationPath[TC_MAX_PATH];
 extern char SetupFilesDir[TC_MAX_PATH];

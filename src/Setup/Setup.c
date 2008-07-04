@@ -5,7 +5,7 @@
  Agreement for Encryption for the Masses'. Modifications and additions to
  the original source code (contained in this file) and all other portions of
  this file are Copyright (c) 2003-2008 TrueCrypt Foundation and are governed
- by the TrueCrypt License 2.4 the full text of which is contained in the
+ by the TrueCrypt License 2.5 the full text of which is contained in the
  file License.txt included in TrueCrypt binary and source code distribution
  packages. */
 
@@ -46,6 +46,7 @@ char SetupFilesDir[TC_MAX_PATH];
 char UninstallBatch[MAX_PATH];
 
 BOOL bUninstall = FALSE;
+BOOL bRestartRequired = FALSE;
 BOOL bMakePackage = FALSE;
 BOOL bDone = FALSE;
 BOOL Rollback = FALSE;
@@ -58,12 +59,21 @@ BOOL bFirstTimeInstall = FALSE;
 BOOL bUninstallInProgress = FALSE;
 
 BOOL bSystemRestore = TRUE;
+BOOL bDisableSwapFiles = TRUE;
 BOOL bForAllUsers = TRUE;
 BOOL bRegisterFileExt = TRUE;
 BOOL bAddToStartMenu = TRUE;
 BOOL bDesktopIcon = TRUE;
 
 HMODULE volatile SystemRestoreDll = 0;
+
+void localcleanup (void)
+{
+	localcleanupwiz ();
+	cleanup ();
+
+	CloseAppSetupMutex ();
+}
 
 BOOL
 StatDeleteFile (char *lpszFile)
@@ -501,7 +511,7 @@ DoRegInstall (HWND hwndDlg, char *szDestDir, BOOL bInstallType)
 	if (RegSetValueEx (hkey, "Publisher", 0, REG_SZ, (BYTE *) szTmp, strlen (szTmp) + 1) != ERROR_SUCCESS)
 		goto error;
 
-	sprintf (szTmp, "%s&dest=index\n", TC_APPLINK);
+	sprintf (szTmp, "%s&dest=index", TC_APPLINK);
 	if (RegSetValueEx (hkey, "URLInfoAbout", 0, REG_SZ, (BYTE *) szTmp, strlen (szTmp) + 1) != ERROR_SUCCESS)
 		goto error;
 		
@@ -797,16 +807,33 @@ BOOL DoDriverUnload (HWND hwndDlg)
 			BootEncryption bootEnc (hwndDlg);
 			if (bootEnc.GetDriverServiceStartType() == SERVICE_BOOT_START)
 			{
+				try
+				{
+					// Check hidden OS update consistency
+					if (IsHiddenOSRunning())
+					{
+						if (bootEnc.GetInstalledBootLoaderVersion() != VERSION_NUM)
+						{
+							if (AskWarnNoYes ("UPDATE_TC_IN_DECOY_OS_FIRST") == IDNO)
+								AbortProcessSilent ();
+						}
+					}
+				}
+				catch (...) { }
+
 				if (bUninstallInProgress && driverVersion >= 0x500 && !bootEnc.GetStatus().DeviceFilterActive)
 				{
-					bootEnc.RegisterFilterDriver (false);
+					bootEnc.RegisterFilterDriver (false, false);
+					bootEnc.RegisterFilterDriver (false, true);
 					bootEnc.SetDriverServiceStartType (SERVICE_SYSTEM_START);
 				}
+#ifndef DEBUG
 				else if (!bUpgrade || driverVersion < 0x500)
 				{
 					Error ("SETUP_FAILED_BOOT_DRIVE_ENCRYPTED");
 					return FALSE;
 				}
+#endif
 				else
 				{
 					SystemEncryptionUpgrade = TRUE;
@@ -888,8 +915,10 @@ BOOL UpgradeBootLoader (HWND hwndDlg)
 		BootEncryption bootEnc (hwndDlg);
 		if (bootEnc.GetInstalledBootLoaderVersion() < VERSION_NUM)
 		{
+			StatusMessage (hwndDlg, "INSTALLER_UPDATING_BOOT_LOADER");
+
 			bootEnc.InstallBootLoader ();
-			Info ("BOOT_LOADER_UPGRADE_OK");
+			Info (IsHiddenOSRunning () ? "BOOT_LOADER_UPGRADE_OK_HIDDEN_OS" : "BOOT_LOADER_UPGRADE_OK");
 		}
 		return TRUE;
 	}
@@ -1291,6 +1320,8 @@ DoInstall (void *arg)
 	BOOL bOK = TRUE;
 	char path[MAX_PATH];
 
+	BootEncryption bootEnc (hwndDlg);
+
 	// Refresh the main GUI (wizard thread)
 	InvalidateRect (GetDlgItem (MainDlg, IDD_INSTL_DLG), NULL, TRUE);
 
@@ -1325,6 +1356,20 @@ DoInstall (void *arg)
 	if (bSystemRestore)
 		SetSystemRestorePoint (hwndDlg, FALSE);
 
+	UpdateProgressBarProc(48);
+	
+	if (bDisableSwapFiles
+		&& IsPagingFileActive())
+	{
+		if (!DisablePagingFile())
+		{
+			handleWin32Error (hwndDlg);
+			Error ("FAILED_TO_DISABLE_PAGING_FILES");
+		}
+		else
+			bRestartRequired = TRUE;
+	}
+
 	UpdateProgressBarProc(50);
 
 	// Remove deprecated
@@ -1357,7 +1402,7 @@ DoInstall (void *arg)
 	{
 		bOK = FALSE;
 	}
-	else if (SystemEncryptionUpgrade && UpgradeBootLoader (hwndDlg) == FALSE)
+	else if (UpdateProgressBarProc(90) && SystemEncryptionUpgrade && UpgradeBootLoader (hwndDlg) == FALSE)
 	{
 		bOK = FALSE;
 	}
@@ -1365,6 +1410,13 @@ DoInstall (void *arg)
 	{
 		bOK = FALSE;
 	}
+
+	try
+	{
+		bootEnc.RenameDeprecatedSystemLoaderBackup();
+	}
+	catch (...)	{ }
+
 
 	if (bOK)
 		UpdateProgressBarProc(97);
@@ -1404,21 +1456,24 @@ DoInstall (void *arg)
 	}
 	else if (!bUninstall && !bDevm)
 	{
-		if (SystemEncryptionUpgrade && AskYesNo ("UPGRADE_OK_REBOOT_REQUIRED") == IDYES)
+		if (!IsHiddenOSRunning())	// A hidden OS user should not see the post-install notes twice (on decoy OS and then on hidden OS).
 		{
-			BootEncryption bootEnc (hwndDlg);
-			bootEnc.RestartComputer();
+			if (bUpgrade)
+			{
+				SavePostInstallTasksSettings (TC_POST_INSTALL_CFG_RELEASE_NOTES);
+			}
+			else if (bFirstTimeInstall)
+			{
+				SavePostInstallTasksSettings (TC_POST_INSTALL_CFG_TUTORIAL);
+			}
 		}
-		else
+
+		if (bRestartRequired || SystemEncryptionUpgrade)
 		{
-			if (bUpgrade && (AskYesNo ("AFTER_UPGRADE_RELEASE_NOTES") == IDYES))
-			{
-				Applink ("releasenotes", TRUE, "");
-			}
-			else if (bFirstTimeInstall && AskYesNo ("AFTER_INSTALL_TUTORIAL") == IDYES)
-			{
-				Applink ("beginnerstutorial", TRUE, "");
-			}
+			bRestartRequired = TRUE;
+
+			if (AskYesNo (SystemEncryptionUpgrade ? "UPGRADE_OK_REBOOT_REQUIRED" : "CONFIRM_RESTART") == IDYES)
+				RestartComputer();
 		}
 	}
 }
@@ -1461,7 +1516,7 @@ void SetInstallationPath (HWND hwndDlg)
 
 		char rv[MAX_PATH*4];
 		DWORD size = sizeof (rv);
-		if (RegQueryValueEx (hkey, "UninstallString", 0, 0, (LPBYTE) &rv, &size) == ERROR_SUCCESS)
+		if (RegQueryValueEx (hkey, "UninstallString", 0, 0, (LPBYTE) &rv, &size) == ERROR_SUCCESS && strrchr (rv, '/'))
 		{
 			size_t len = 0;
 
@@ -1510,7 +1565,6 @@ void SetInstallationPath (HWND hwndDlg)
 
 					ShellExecute (NULL, "open", InstallationPath, "/u", NULL, SW_SHOWNORMAL);
 					RegCloseKey (hkey);
-					cleanup ();
 					exit (1);
 				}
 			}
@@ -1561,7 +1615,12 @@ UninstallDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam)
 	switch (msg)
 	{
 	case WM_INITDIALOG:
+
 		MainDlg = hwndDlg;
+
+		if (!CreateAppSetupMutex ())
+			AbortProcess ("TC_INSTALLER_IS_RUNNING");
+
 		InitDialog (hwndDlg);
 		LocalizeDialog (hwndDlg, NULL);
 
@@ -1646,6 +1705,8 @@ UninstallDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam)
 
 int WINAPI WINMAIN (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpszCommandLine, int nCmdShow)
 {
+	atexit (localcleanup);
+
 	SelfExtractStartupInit();
 
 	lpszTitle = L"TrueCrypt Setup";
@@ -1656,7 +1717,6 @@ int WINAPI WINMAIN (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpszComm
 	if (IsAdmin () != TRUE)
 		if (MessageBoxW (NULL, GetString ("SETUP_ADMIN"), lpszTitle, MB_YESNO | MB_ICONQUESTION) != IDYES)
 		{
-			cleanup ();
 			exit (1);
 		}
 
@@ -1715,7 +1775,6 @@ int WINAPI WINMAIN (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpszComm
 				if (!VerifyPackageIntegrity())
 				{
 					// Package corrupted 
-					cleanup ();
 					exit (1);
 				}
 				bDevm = FALSE;
@@ -1723,7 +1782,6 @@ int WINAPI WINMAIN (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpszComm
 			else if (!bDevm)
 			{
 				MessageBox (NULL, "Error: This installer file does not contain any compressed files.\n\nTo create a self-extracting installer package (with embedded compressed files), run:\n\"TrueCrypt Setup.exe\" /p", "TrueCrypt", MB_ICONERROR | MB_SETFOREGROUND | MB_TOPMOST);
-				cleanup ();
 				exit (1);
 			}
 
@@ -1743,7 +1801,6 @@ int WINAPI WINMAIN (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpszComm
 					bUninstall = TRUE;
 					break;
 				default:
-					cleanup ();
 					exit (1);
 				}
 			}
@@ -1785,9 +1842,6 @@ int WINAPI WINMAIN (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpszComm
 			}
 		}
 	}
-
-	/* Terminate */
-	cleanup ();
 
 	return 0;
 }

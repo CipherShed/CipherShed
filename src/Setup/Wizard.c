@@ -5,7 +5,7 @@
  Agreement for Encryption for the Masses'. Modifications and additions to
  the original source code (contained in this file) and all other portions of
  this file are Copyright (c) 2003-2008 TrueCrypt Foundation and are governed
- by the TrueCrypt License 2.4 the full text of which is contained in the
+ by the TrueCrypt License 2.5 the full text of which is contained in the
  file License.txt included in TrueCrypt binary and source code distribution
  packages. */
 
@@ -46,7 +46,7 @@ BOOL bInProgress = FALSE;
 
 int nPbar = 0;			/* Control ID of progress bar */
 
-void localcleanup (void)
+void localcleanupwiz (void)
 {
 	/* Delete buffered bitmaps (if any) */
 	if (hbmWizardBitmapRescaled != NULL)
@@ -54,9 +54,6 @@ void localcleanup (void)
 		DeleteObject ((HGDIOBJ) hbmWizardBitmapRescaled);
 		hbmWizardBitmapRescaled = NULL;
 	}
-
-	/* Cleanup common code resources */
-	cleanup ();
 }
 
 static void InitWizardDestInstallPath (void)
@@ -322,6 +319,15 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				EnableWindow (GetDlgItem (hwndDlg, IDC_SYSTEM_RESTORE), FALSE);
 			}
 
+			// Swap files
+			SetCheckBox (hwndDlg, IDC_DISABLE_PAGING_FILES, bDisableSwapFiles);
+			if (nCurrentOS == WIN_2000)
+			{
+				bDisableSwapFiles = FALSE;
+				SetCheckBox (hwndDlg, IDC_DISABLE_PAGING_FILES, FALSE);
+				EnableWindow (GetDlgItem (hwndDlg, IDC_DISABLE_PAGING_FILES), FALSE);
+			}
+
 			SetCheckBox (hwndDlg, IDC_ALL_USERS, bForAllUsers);
 			SetCheckBox (hwndDlg, IDC_FILE_TYPE, bRegisterFileExt);
 			SetCheckBox (hwndDlg, IDC_PROG_GROUP, bAddToStartMenu);
@@ -392,6 +398,11 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 			OpenPageHelp (GetParent (hwndDlg), nCurPageNo);
 
 		return 1;
+
+	case WM_ENDSESSION:
+		EndDialog (MainDlg, 0);
+		localcleanup ();
+		return 0;
 
 	case TC_APPMSG_LOAD_LICENSE:
 		{
@@ -496,6 +507,19 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				bSystemRestore = IsButtonChecked (GetDlgItem (hCurPage, IDC_SYSTEM_RESTORE));
 				return 1;
 
+			case IDC_DISABLE_PAGING_FILES:
+
+				bDisableSwapFiles = IsButtonChecked (GetDlgItem (hCurPage, IDC_DISABLE_PAGING_FILES));
+
+				if (!bDisableSwapFiles
+					&& AskWarnNoYes("CONFIRM_NOT_DISABLING_SWAP_FILES") == IDNO)
+				{
+					bDisableSwapFiles = TRUE;
+					SetCheckBox (hwndDlg, IDC_DISABLE_PAGING_FILES, bDisableSwapFiles);
+				}
+
+				return 1;
+
 			case IDC_ALL_USERS:
 				bForAllUsers = IsButtonChecked (GetDlgItem (hCurPage, IDC_ALL_USERS));
 				return 1;
@@ -570,8 +594,6 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 {
 	WORD lw = LOWORD (wParam);
 
-	if (lParam);		/* Remove unused parameter warning */
-
 	switch (uMsg)
 	{
 	case WM_INITDIALOG:
@@ -581,6 +603,10 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 			GetModuleFileName (NULL, SelfFile, sizeof (SelfFile));
 
 			MainDlg = hwndDlg;
+
+			if (!CreateAppSetupMutex ())
+				AbortProcess ("TC_INSTALLER_IS_RUNNING");
+
 			InitDialog (hwndDlg);
 			LocalizeDialog (hwndDlg, "IDD_INSTL_DLG");
 			
@@ -615,6 +641,7 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 			}
 			else
 				LoadPage (hwndDlg, INTRO_PAGE);
+
 		}
 		return 0;
 
@@ -812,6 +839,7 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 		return 1;
 
 	case WM_CLOSE:
+
 		if (bInProgress)
 		{
 			NormalCursor();
@@ -822,7 +850,14 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 			WaitCursor ();
 		}
 
-		localcleanup();
+		if (bRestartRequired)
+		{
+			if (AskWarnYesNo ("CONFIRM_RESTART") == IDYES)
+			{
+				RestartComputer();
+			}
+			return 1;
+		}
 
 		if (bOpenContainingFolder && bExtractOnly && bExtractionSuccessful)
 			ShellExecute (NULL, "open", WizardDestExtractPath, NULL, NULL, SW_SHOWNORMAL);

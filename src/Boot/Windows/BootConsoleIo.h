@@ -1,7 +1,7 @@
 /*
  Copyright (c) 2008 TrueCrypt Foundation. All rights reserved.
 
- Governed by the TrueCrypt License 2.4 the full text of which is contained
+ Governed by the TrueCrypt License 2.5 the full text of which is contained
  in the file License.txt included in TrueCrypt binary and source code
  distribution packages.
 */
@@ -40,9 +40,11 @@ void ClearBiosKeystrokeBuffer ();
 void ClearScreen ();
 void DisableScreenOutput ();
 void EnableScreenOutput ();
+bool EscKeyPressed ();
 byte GetKeyboardChar (byte *scanCode = nullptr);
+byte GetShiftFlags ();
 int GetString (char *buffer, size_t bufferSize);
-void InitScreen ();
+void InitVideoMode ();
 bool IsKeyboardCharAvailable ();
 bool IsLbaSupported (byte drive);
 bool IsPrintable (char c);

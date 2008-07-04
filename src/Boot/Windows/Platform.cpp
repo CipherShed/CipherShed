@@ -1,12 +1,13 @@
 /*
  Copyright (c) 2008 TrueCrypt Foundation. All rights reserved.
 
- Governed by the TrueCrypt License 2.4 the full text of which is contained
+ Governed by the TrueCrypt License 2.5 the full text of which is contained
  in the file License.txt included in TrueCrypt binary and source code
  distribution packages.
 */
 
 #include "Platform.h"
+#include "BootConsoleIo.h"
 
 
 uint64 operator+ (const uint64 &a, const uint64 &b)
@@ -35,6 +36,11 @@ uint64 operator+ (const uint64 &a, uint32 b)
 	return a + b64;
 }
 
+uint64 &operator+= (uint64 &a, const uint64 &b)
+{
+	return a = a + b;
+}
+
 uint64 operator- (const uint64 &a, const uint64 &b)
 {
 	int carry = 0;
@@ -61,6 +67,11 @@ uint64 operator- (const uint64 &a, uint32 b)
 	return a - b64;
 }
 
+uint64 &operator-= (uint64 &a, const uint64 &b)
+{
+	return a = a - b;
+}
+
 uint64 operator>> (const uint64 &a, int shiftCount)
 {
 	uint64 r = a;
@@ -83,14 +94,18 @@ uint64 operator<< (const uint64 &a, int shiftCount)
 	uint64 r = a;
 	
 	while (shiftCount--)
-		r = r + r;
+		r += r;
 
 	return r;
 }
 
 uint64 &operator++ (uint64 &a)
 {
-	return a = a + 1;
+	uint64 b;
+	b.HighPart = 0;
+	b.LowPart = 1;
+
+	return a += b;
 }
 
 bool operator== (const uint64 &a, const uint64 &b)
@@ -127,7 +142,11 @@ bool TestInt64 ()
 	b.HighPart = 0x00ffeeddUL;
 	b.LowPart = 0xffffFFFFUL;
 
+	a += b;
+	a -= b;
+	
 	++a;
+	
 	b = b + (uint32) 1UL;
 
 	c = (a - ((a + b) >> 32) - (uint32) 1UL);
@@ -177,12 +196,7 @@ void CopyMemory (uint16 sourceSegment, uint16 sourceOffset, byte *destination, u
 
 void EraseMemory (void *memory, int size)
 {
-	byte *m = (byte *) memory;
-	
-	while (size--)
-	{
-		*m++ = 0;
-	}
+	memset (memory, 0, size);
 }
 
 
@@ -202,4 +216,11 @@ bool RegionsIntersect (const uint64 &start1, uint32 length1, const uint64 &start
 		return false;
 		
 	return (intersectEnd + 1UL - intersectStart).LowPart != 0;
+}
+
+
+void ThrowFatalException (int line)
+{
+	PrintChar ('#'); Print (line);
+	while (1);
 }

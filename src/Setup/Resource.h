@@ -48,6 +48,7 @@
 #define IDT_EXTRACT_DESTINATION         1029
 #define IDC_POS_BOX                     1030
 #define IDC_BITMAP_SETUP_WIZARD         1031
+#define IDC_DISABLE_PAGING_FILES        1032
 
 // Next default values for new objects
 // 
@@ -56,7 +57,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        114
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1032
+#define _APS_NEXT_CONTROL_VALUE         1033
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

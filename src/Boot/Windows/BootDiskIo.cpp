@@ -1,13 +1,14 @@
 /*
  Copyright (c) 2008 TrueCrypt Foundation. All rights reserved.
 
- Governed by the TrueCrypt License 2.4 the full text of which is contained
+ Governed by the TrueCrypt License 2.5 the full text of which is contained
  in the file License.txt included in TrueCrypt binary and source code
  distribution packages.
 */
 
 #include "Bios.h"
 #include "BootConsoleIo.h"
+#include "BootConfig.h"
 #include "BootDebug.h"
 #include "BootDefs.h"
 #include "BootDiskIo.h"
@@ -37,7 +38,13 @@ void ReleaseSectorBuffer ()
 
 bool IsLbaSupported (byte drive)
 {
+	static byte CachedDrive = TC_INVALID_BIOS_DRIVE;
+	static bool CachedStatus;
 	uint16 result = 0;
+
+	if (CachedDrive == drive)
+		goto ret;
+
 	__asm
 	{
 		mov bx, 0x55aa
@@ -49,7 +56,10 @@ bool IsLbaSupported (byte drive)
 	err:
 	}
 
-	return result == 0xaa55;
+	CachedDrive = drive;
+	CachedStatus = (result == 0xaa55);
+ret:
+	return CachedStatus;
 }
 
 
@@ -57,7 +67,7 @@ void PrintDiskError (BiosResult error, bool write, byte drive, const uint64 *sec
 {
 	PrintEndl();
 	Print (write ? "Write" : "Read"); Print (" error:");
-	PrintHex (error);
+	Print (error);
 	Print (" Drive:");
 	Print (drive < TC_FIRST_BIOS_DRIVE ? drive : drive - TC_FIRST_BIOS_DRIVE);
 
@@ -85,6 +95,12 @@ void Print (const ChsAddress &chs)
 	Print (chs.Head);
 	PrintChar ('/');
 	Print (chs.Sector);
+}
+
+
+void PrintSectorCountInMB (const uint64 &sectorCount)
+{
+	Print (sectorCount >> (TC_LB_SIZE_BIT_SHIFT_DIVISOR + 2)); Print (" MB ");
 }
 
 
@@ -130,7 +146,7 @@ BiosResult ReadWriteSectors (bool write, byte *buffer, byte drive, const ChsAddr
 {
 	uint16 codeSeg;
 	__asm mov codeSeg, cs
-	return ReadWriteSectors (false, codeSeg, (uint16) buffer, drive, chs, sectorCount, silent);
+	return ReadWriteSectors (write, codeSeg, (uint16) buffer, drive, chs, sectorCount, silent);
 }
 
 
@@ -294,17 +310,37 @@ void PartitionEntryMBRToPartition (const PartitionEntryMBR &partEntry, Partition
 }
 
 
-BiosResult GetDrivePartitions (byte drive, Partition *partitionArray, size_t partitionArrayCapacity, size_t &partitionCount, bool activeOnly, bool silent)
+BiosResult ReadWriteMBR (bool write, byte drive, bool silent)
 {
 	ChsAddress chs;
 	chs.Cylinder = 0;
 	chs.Head = 0;
 	chs.Sector = 1;
 
+	return ReadWriteSectors (write, SectorBuffer, drive, chs, 1, silent);
+}
+
+
+BiosResult GetDrivePartitions (byte drive, Partition *partitionArray, size_t partitionArrayCapacity, size_t &partitionCount, bool activeOnly, Partition *findPartitionFollowingThis, bool silent)
+{
+	Partition *followingPartition;
+	Partition tmpPartition;
+
+	if (findPartitionFollowingThis)
+	{
+		assert (partitionArrayCapacity == 1);
+		partitionArrayCapacity = 0xff;
+		followingPartition = partitionArray;
+		partitionArray = &tmpPartition;
+
+		followingPartition->Drive = TC_INVALID_BIOS_DRIVE;
+		followingPartition->StartSector.LowPart = 0xFFFFffffUL;
+	}
+
 	AcquireSectorBuffer();
-	BiosResult result = ReadSectors (SectorBuffer, drive, chs, 1, silent);
-	
+	BiosResult result = ReadWriteMBR (false, drive, silent);
 	ReleaseSectorBuffer();
+
 	partitionCount = 0;
 
 	MBR *mbr = (MBR *) SectorBuffer;
@@ -347,7 +383,7 @@ BiosResult GetDrivePartitions (byte drive, Partition *partitionArray, size_t par
 					{
 						if (extMbr->Partitions[0].SectorCountLBA > 0)
 						{
-							Partition &logPart = partitionArray[partitionArrayPos++];
+							Partition &logPart = partitionArray[partitionArrayPos];
 							PartitionEntryMBRToPartition (extMbr->Partitions[0], logPart);
 							logPart.Drive = drive;
 
@@ -356,6 +392,17 @@ BiosResult GetDrivePartitions (byte drive, Partition *partitionArray, size_t par
 
 							logPart.StartSector.LowPart += extStartLBA.LowPart;
 							logPart.EndSector.LowPart += extStartLBA.LowPart;
+
+							if (findPartitionFollowingThis)
+							{
+								if (logPart.StartSector.LowPart > findPartitionFollowingThis->EndSector.LowPart
+									&& logPart.StartSector.LowPart < followingPartition->StartSector.LowPart)
+								{
+									*followingPartition = logPart;
+								}
+							}
+							else
+								++partitionArrayPos;
 						}
 
 						// Secondary extended
@@ -369,8 +416,18 @@ BiosResult GetDrivePartitions (byte drive, Partition *partitionArray, size_t par
 			}
 			else
 			{
-				++partitionArrayPos;
 				partition.Primary = true;
+
+				if (findPartitionFollowingThis)
+				{
+					if (partition.StartSector.LowPart > findPartitionFollowingThis->EndSector.LowPart
+						&& partition.StartSector.LowPart < followingPartition->StartSector.LowPart)
+					{
+						*followingPartition = partition;
+					}
+				}
+				else
+					++partitionArrayPos;
 			}
 		}
 	}
@@ -380,7 +437,20 @@ BiosResult GetDrivePartitions (byte drive, Partition *partitionArray, size_t par
 }
 
 
-BiosResult GetActivePartition (byte drive, Partition &partition, size_t &partitionCount, bool silent)
+bool GetActiveAndFollowingPartition (byte drive)
 {
-	return GetDrivePartitions (drive, &partition, 1, partitionCount, true, silent);
+	size_t partCount;
+
+	// Find active partition
+	if (GetDrivePartitions (drive, &ActivePartition, 1, partCount, true) != BiosResultSuccess || partCount < 1)
+	{
+		ActivePartition.Drive = TC_INVALID_BIOS_DRIVE;
+		PrintError ("No bootable partition found");
+		return false;
+	}
+
+	// Find partition following the active one
+	GetDrivePartitions (drive, &PartitionFollowingActive, 1, partCount, false, &ActivePartition);
+
+	return true;
 }

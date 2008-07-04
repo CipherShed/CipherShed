@@ -1,5 +1,5 @@
-Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual Studio 2005
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Crypto", "Crypto\Crypto.vcproj", "{993245CF-6B70-47EE-91BB-39F8FC6DC0E7}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Driver", "Driver\Driver.vcproj", "{EF5EF444-18D0-40D7-8DFA-775EC4448602}"
@@ -31,6 +31,7 @@ Global
 		All Debug|Win32 = All Debug|Win32
 		All|Win32 = All|Win32
 		Boot Debug|Win32 = Boot Debug|Win32
+		Boot Loader|Win32 = Boot Loader|Win32
 		Boot|Win32 = Boot|Win32
 		Driver Debug|Win32 = Driver Debug|Win32
 		Driver x64 Debug|Win32 = Driver x64 Debug|Win32
@@ -51,6 +52,7 @@ Global
 		{993245CF-6B70-47EE-91BB-39F8FC6DC0E7}.All|Win32.ActiveCfg = Release|Win32
 		{993245CF-6B70-47EE-91BB-39F8FC6DC0E7}.All|Win32.Build.0 = Release|Win32
 		{993245CF-6B70-47EE-91BB-39F8FC6DC0E7}.Boot Debug|Win32.ActiveCfg = Debug|Win32
+		{993245CF-6B70-47EE-91BB-39F8FC6DC0E7}.Boot Loader|Win32.ActiveCfg = Release|Win32
 		{993245CF-6B70-47EE-91BB-39F8FC6DC0E7}.Boot|Win32.ActiveCfg = Release|Win32
 		{993245CF-6B70-47EE-91BB-39F8FC6DC0E7}.Driver Debug|Win32.ActiveCfg = Debug|Win32
 		{993245CF-6B70-47EE-91BB-39F8FC6DC0E7}.Driver x64 Debug|Win32.ActiveCfg = Debug|Win32
@@ -73,6 +75,7 @@ Global
 		{EF5EF444-18D0-40D7-8DFA-775EC4448602}.All|Win32.ActiveCfg = Release|Win32
 		{EF5EF444-18D0-40D7-8DFA-775EC4448602}.All|Win32.Build.0 = Release|Win32
 		{EF5EF444-18D0-40D7-8DFA-775EC4448602}.Boot Debug|Win32.ActiveCfg = Debug|Win32
+		{EF5EF444-18D0-40D7-8DFA-775EC4448602}.Boot Loader|Win32.ActiveCfg = Release|Win32
 		{EF5EF444-18D0-40D7-8DFA-775EC4448602}.Boot|Win32.ActiveCfg = Release|Win32
 		{EF5EF444-18D0-40D7-8DFA-775EC4448602}.Driver Debug|Win32.ActiveCfg = Debug|Win32
 		{EF5EF444-18D0-40D7-8DFA-775EC4448602}.Driver Debug|Win32.Build.0 = Debug|Win32
@@ -97,6 +100,7 @@ Global
 		{9DC1ABE2-D18B-48FB-81D2-8C50ADC57BCF}.All|Win32.ActiveCfg = Release|Win32
 		{9DC1ABE2-D18B-48FB-81D2-8C50ADC57BCF}.All|Win32.Build.0 = Release|Win32
 		{9DC1ABE2-D18B-48FB-81D2-8C50ADC57BCF}.Boot Debug|Win32.ActiveCfg = Debug|Win32
+		{9DC1ABE2-D18B-48FB-81D2-8C50ADC57BCF}.Boot Loader|Win32.ActiveCfg = Release|Win32
 		{9DC1ABE2-D18B-48FB-81D2-8C50ADC57BCF}.Boot|Win32.ActiveCfg = Release|Win32
 		{9DC1ABE2-D18B-48FB-81D2-8C50ADC57BCF}.Driver Debug|Win32.ActiveCfg = Debug|Win32
 		{9DC1ABE2-D18B-48FB-81D2-8C50ADC57BCF}.Driver x64 Debug|Win32.ActiveCfg = Debug|Win32
@@ -117,6 +121,7 @@ Global
 		{E4C40F94-E7F9-4981-86E4-186B46F993F3}.All|Win32.ActiveCfg = Release|Win32
 		{E4C40F94-E7F9-4981-86E4-186B46F993F3}.All|Win32.Build.0 = Release|Win32
 		{E4C40F94-E7F9-4981-86E4-186B46F993F3}.Boot Debug|Win32.ActiveCfg = Debug|Win32
+		{E4C40F94-E7F9-4981-86E4-186B46F993F3}.Boot Loader|Win32.ActiveCfg = Release|Win32
 		{E4C40F94-E7F9-4981-86E4-186B46F993F3}.Boot|Win32.ActiveCfg = Release|Win32
 		{E4C40F94-E7F9-4981-86E4-186B46F993F3}.Driver Debug|Win32.ActiveCfg = Debug|Win32
 		{E4C40F94-E7F9-4981-86E4-186B46F993F3}.Driver x64 Debug|Win32.ActiveCfg = Debug|Win32
@@ -137,6 +142,7 @@ Global
 		{DF5F654D-BD44-4E31-B92E-B68074DC37A8}.All|Win32.ActiveCfg = Release|Win32
 		{DF5F654D-BD44-4E31-B92E-B68074DC37A8}.All|Win32.Build.0 = Release|Win32
 		{DF5F654D-BD44-4E31-B92E-B68074DC37A8}.Boot Debug|Win32.ActiveCfg = Debug|Win32
+		{DF5F654D-BD44-4E31-B92E-B68074DC37A8}.Boot Loader|Win32.ActiveCfg = Release|Win32
 		{DF5F654D-BD44-4E31-B92E-B68074DC37A8}.Boot|Win32.ActiveCfg = Release|Win32
 		{DF5F654D-BD44-4E31-B92E-B68074DC37A8}.Driver Debug|Win32.ActiveCfg = Debug|Win32
 		{DF5F654D-BD44-4E31-B92E-B68074DC37A8}.Driver x64 Debug|Win32.ActiveCfg = Debug|Win32
@@ -158,6 +164,8 @@ Global
 		{8B7F059F-E4C7-4E11-88F5-EE8B8433072E}.All|Win32.Build.0 = Release|Win32
 		{8B7F059F-E4C7-4E11-88F5-EE8B8433072E}.Boot Debug|Win32.ActiveCfg = Debug|Win32
 		{8B7F059F-E4C7-4E11-88F5-EE8B8433072E}.Boot Debug|Win32.Build.0 = Debug|Win32
+		{8B7F059F-E4C7-4E11-88F5-EE8B8433072E}.Boot Loader|Win32.ActiveCfg = Release Loader|Win32
+		{8B7F059F-E4C7-4E11-88F5-EE8B8433072E}.Boot Loader|Win32.Build.0 = Release Loader|Win32
 		{8B7F059F-E4C7-4E11-88F5-EE8B8433072E}.Boot|Win32.ActiveCfg = Release|Win32
 		{8B7F059F-E4C7-4E11-88F5-EE8B8433072E}.Boot|Win32.Build.0 = Release|Win32
 		{8B7F059F-E4C7-4E11-88F5-EE8B8433072E}.Driver Debug|Win32.ActiveCfg = Debug|Win32

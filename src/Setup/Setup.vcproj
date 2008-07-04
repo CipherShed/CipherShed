@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="9.00"
 	Name="Setup"
 	ProjectGUID="{DF5F654D-BD44-4E31-B92E-B68074DC37A8}"
 	RootNamespace="Setup"
 	Keyword="Win32Proj"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -42,14 +43,13 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\Common;..\Crypto;..\"
-				PreprocessorDefinitions="SETUP;WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NON_CONFORMING_SWPRINTFS"
+				PreprocessorDefinitions="SETUP;WIN32;DEBUG;_DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NON_CONFORMING_SWPRINTFS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
 				BufferSecurityCheck="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="4"
 				DisableSpecificWarnings="4311"
 			/>
@@ -65,13 +65,16 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/NODEFAULTLIB:LIBCMTD"
-				AdditionalDependencies="msvcrtd.lib setupapi.lib"
+				AdditionalDependencies="libcmtd.lib setupapi.lib"
 				OutputFile="$(OutDir)/TrueCryptSetup.exe"
 				LinkIncremental="2"
+				GenerateManifest="false"
+				UACExecutionLevel="2"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/Setup.pdb"
 				SubSystem="2"
-				OptimizeForWindows98="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="2"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -95,11 +98,8 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="md &quot;..\Debug\Setup Files&quot; 2&gt;NUL:&#x0D;&#x0A;copy Debug\TrueCryptSetup.exe &quot;..\Debug\Setup Files\TrueCrypt Setup.exe&quot; &gt;NUL:&#x0D;&#x0A;copy Debug\TrueCryptSetup.exe.manifest &quot;..\Debug\Setup Files\TrueCrypt Setup.exe.manifest&quot; &gt;NUL:&#x0D;&#x0A;"
+				CommandLine="md &quot;..\Debug\Setup Files&quot; 2&gt;NUL:&#x0D;&#x0A;copy Debug\TrueCryptSetup.exe &quot;..\Debug\Setup Files\TrueCrypt Setup.exe&quot; &gt;NUL:&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -128,6 +128,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/w34189"
+				Optimization="2"
 				AdditionalIncludeDirectories="..\Common;..\Crypto;..\"
 				PreprocessorDefinitions="SETUP;WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NON_CONFORMING_SWPRINTFS"
 				RuntimeLibrary="0"
@@ -136,7 +137,6 @@
 				AssemblerOutput="2"
 				AssemblerListingLocation="$(IntDir)/"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="0"
 				DisableSpecificWarnings="4311"
 			/>
@@ -152,15 +152,18 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/IGNORE:4089"
-				AdditionalDependencies="atls.lib setupapi.lib"
+				AdditionalDependencies="setupapi.lib"
 				OutputFile="$(OutDir)/TrueCryptSetup.exe"
 				LinkIncremental="1"
+				GenerateManifest="false"
+				UACExecutionLevel="2"
 				GenerateDebugInformation="false"
 				GenerateMapFile="true"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				OptimizeForWindows98="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="2"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -181,9 +184,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -238,6 +238,22 @@
 			<File
 				RelativePath=".\Wizard.c"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						CompileAs="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						CompileAs="2"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\Common\Xml.c"

@@ -1,7 +1,7 @@
 /*
  Copyright (c) 2008 TrueCrypt Foundation. All rights reserved.
 
- Governed by the TrueCrypt License 2.4 the full text of which is contained
+ Governed by the TrueCrypt License 2.5 the full text of which is contained
  in the file License.txt included in TrueCrypt binary and source code
  distribution packages.
 */
@@ -23,6 +23,9 @@
 
 #define TC_ORIG_BOOT_LOADER_BACKUP_SECTOR TC_BOOT_LOADER_AREA_SECTOR_COUNT
 #define TC_ORIG_BOOT_LOADER_BACKUP_SECTOR_OFFSET (TC_ORIG_BOOT_LOADER_BACKUP_SECTOR * SECTOR_SIZE)
+
+#define TC_BOOT_LOADER_BACKUP_RESCUE_DISK_SECTOR (TC_ORIG_BOOT_LOADER_BACKUP_SECTOR + TC_BOOT_LOADER_AREA_SECTOR_COUNT)
+#define TC_BOOT_LOADER_BACKUP_RESCUE_DISK_SECTOR_OFFSET (TC_BOOT_LOADER_BACKUP_RESCUE_DISK_SECTOR * SECTOR_SIZE)
 
 #define TC_MBR_SECTOR 0
 #define TC_MAX_MBR_BOOT_CODE_SIZE 440
@@ -48,6 +51,10 @@ typedef struct
 	uint16 CryptoInfoLength;
 	uint32 HeaderSaltCrc32;
 	Password BootPassword;
+	uint64 HiddenSystemPartitionStart;
+	uint64 DecoySystemPartitionStart;
+	uint32 BootArgumentsCrc32;
+
 } BootArguments;
 
 #pragma pack ()

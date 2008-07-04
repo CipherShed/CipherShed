@@ -1,7 +1,7 @@
 /*
  Copyright (c) 2008 TrueCrypt Foundation. All rights reserved.
 
- Governed by the TrueCrypt License 2.4 the full text of which is contained
+ Governed by the TrueCrypt License 2.5 the full text of which is contained
  in the file License.txt included in TrueCrypt binary and source code
  distribution packages.
 */
@@ -37,7 +37,7 @@ void PrintChar (char c)
 
 	__asm
 	{
-		xor bx, bx
+		mov bx, 7
 		mov al, c
 		mov ah, 0xe
 		int 0x10
@@ -49,7 +49,7 @@ void PrintCharAtCusor (char c)
 {
 	__asm
 	{
-		xor bx, bx
+		mov bx, 7
 		mov al, c
 		mov cx, 1
 		mov ah, 0xa
@@ -144,16 +144,33 @@ void Beep ()
 }
 
 
+void InitVideoMode ()
+{
+	__asm
+	{
+		// Text mode 80x25
+		mov ax, 3
+		int 0x10
+
+		// Page 0
+		mov ax, 0x500
+		int 0x10
+	}
+}
+
+
 void ClearScreen ()
 {
 	__asm
 	{
+		// White text on black
 		mov bh, 7
 		xor cx, cx
 		mov dx, 0x184f
 		mov ax, 0x600
 		int 0x10
 
+		// Cursor at 0,0
 		xor bh, bh
 		xor dx, dx
 		mov ah, 2
@@ -231,6 +248,19 @@ bool IsKeyboardCharAvailable ()
 	}
 
 	return available;
+}
+
+
+bool EscKeyPressed ()
+{
+	if (IsKeyboardCharAvailable ())
+	{
+		byte keyScanCode;
+		GetKeyboardChar (&keyScanCode);
+		return keyScanCode == TC_BIOS_KEY_ESC;
+	}
+
+	return false;
 }
 
 
