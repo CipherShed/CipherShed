@@ -767,7 +767,7 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 		NormalCursor ();
 
-		SetWindowTextW (GetDlgItem (hwndDlg, IDC_NEXT), GetString ("FINALIZE"));
+		SetWindowTextW (GetDlgItem (hwndDlg, IDC_NEXT), GetString (bRestartRequired ? "RESTART" : "FINALIZE"));
 		EnableWindow (GetDlgItem (hwndDlg, IDC_PREV), FALSE);
 		EnableWindow (GetDlgItem (hwndDlg, IDC_NEXT), TRUE);
 		EnableWindow (GetDlgItem (hwndDlg, IDHELP), FALSE);
@@ -852,7 +852,7 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 		if (bRestartRequired)
 		{
-			if (AskWarnYesNo ("CONFIRM_RESTART") == IDYES)
+			if (AskWarnYesNo ("TC_INSTALLER_REQUIRING_RESTART") == IDYES)
 			{
 				RestartComputer();
 			}
