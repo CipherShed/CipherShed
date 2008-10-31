@@ -5,7 +5,7 @@
  Agreement for Encryption for the Masses'. Modifications and additions to
  the original source code (contained in this file) and all other portions of
  this file are Copyright (c) 2003-2008 TrueCrypt Foundation and are governed
- by the TrueCrypt License 2.5 the full text of which is contained in the
+ by the TrueCrypt License 2.6 the full text of which is contained in the
  file License.txt included in TrueCrypt binary and source code distribution
  packages. */
 
@@ -166,26 +166,25 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				else
 				{
 					Error("CANNOT_DISPLAY_LICENSE");
-					PostMessage (MainDlg, WM_CLOSE, 0, 0);
+					exit (1);
 				}
 
 				/* Some of the following texts cannot be localized by third parties for legal reasons. */
 
-				CheckButton (GetDlgItem (hwndDlg, bLicenseAccepted ? IDC_AGREE : IDC_DISAGREE));
+				SetCheckBox (hwndDlg, IDC_AGREE, bLicenseAccepted);
 
 				SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), L"License");
 				SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_INFO), L"You must accept these license terms before you can use, extract, or install TrueCrypt.");
-				SetWindowTextW (GetDlgItem (hwndDlg, IDC_BOX_HELP), L"IMPORTANT: By selecting the first option below and clicking Accept, you accept these license terms and agree to be bound by and to comply with them. Click the 'arrow down' icon to see the rest of the license.");
+				SetWindowTextW (GetDlgItem (hwndDlg, IDC_BOX_HELP), L"IMPORTANT: By checking the checkbox below and clicking Accept, you accept these license terms and agree to be bound by and to comply with them. Click the 'arrow down' icon to see the rest of the license.");
 				//SendMessage (GetDlgItem (hwndDlg, IDC_BOX_HELP), WM_SETFONT, (WPARAM) hUserBoldFont, (LPARAM) TRUE);
 
 				SetWindowTextW (GetDlgItem (hwndDlg, IDC_AGREE), L"I a&ccept and agree to be bound by the license terms");
-				SetWindowTextW (GetDlgItem (hwndDlg, IDC_DISAGREE), L"I &do not accept the license terms");
+				//SetWindowTextW (GetDlgItem (hwndDlg, IDC_DISAGREE), L"I &do not accept the license terms");
 
 				//SendMessage (GetDlgItem (hwndDlg, IDC_AGREE), WM_SETFONT, (WPARAM) hUserBoldFont, (LPARAM) TRUE);
 				//SendMessage (GetDlgItem (hwndDlg, IDC_DISAGREE), WM_SETFONT, (WPARAM) hUserBoldFont, (LPARAM) TRUE);
 
 				EnableWindow (GetDlgItem (hwndDlg, IDC_AGREE), TRUE);
-				EnableWindow (GetDlgItem (hwndDlg, IDC_DISAGREE), TRUE);
 
 				SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_NEXT), L"&Accept");	// Cannot be localized by third parties for legal reasons.
 				SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_PREV), GetString ("PREV"));
@@ -194,6 +193,9 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				EnableWindow (GetDlgItem (GetParent (hwndDlg), IDC_NEXT), bLicenseAccepted);
 				EnableWindow (GetDlgItem (GetParent (hwndDlg), IDC_PREV), FALSE);
 				EnableWindow (GetDlgItem (GetParent (hwndDlg), IDHELP), bLicenseAccepted);
+
+				// Left margin for license text
+				SendMessage (GetDlgItem (hwndDlg, IDC_LICENSE_TEXT), EM_SETMARGINS, (WPARAM) EC_LEFTMARGIN, (LPARAM) CompensateXDPI (4));
 			}
 			return 1;
 
@@ -285,7 +287,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				bInProgress = TRUE;
 				bStartExtraction = FALSE;
 
-				_beginthread (ExtractAllFilesThread, 16384, (void *) hwndDlg);
+				_beginthread (ExtractAllFilesThread, 0, (void *) hwndDlg);
 			}
 			else
 			{
@@ -319,6 +321,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				EnableWindow (GetDlgItem (hwndDlg, IDC_SYSTEM_RESTORE), FALSE);
 			}
 
+#if 0
 			// Swap files
 			SetCheckBox (hwndDlg, IDC_DISABLE_PAGING_FILES, bDisableSwapFiles);
 			if (nCurrentOS == WIN_2000)
@@ -327,6 +330,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				SetCheckBox (hwndDlg, IDC_DISABLE_PAGING_FILES, FALSE);
 				EnableWindow (GetDlgItem (hwndDlg, IDC_DISABLE_PAGING_FILES), FALSE);
 			}
+#endif // 0
 
 			SetCheckBox (hwndDlg, IDC_ALL_USERS, bForAllUsers);
 			SetCheckBox (hwndDlg, IDC_FILE_TYPE, bRegisterFileExt);
@@ -375,7 +379,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				bInProgress = TRUE;
 				bStartInstall = FALSE;
 
-				_beginthread (DoInstall, 16384, (void *) hwndDlg);
+				_beginthread (DoInstall, 0, (void *) hwndDlg);
 			}
 			else
 			{
@@ -404,35 +408,12 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 		localcleanup ();
 		return 0;
 
-	case TC_APPMSG_LOAD_LICENSE:
-		{
-			char *licenseText = NULL;
-			licenseText = GetLegalNotices ();
-			if (licenseText != NULL)
-			{
-				SetWindowText (GetDlgItem (hwndDlg, IDC_LICENSE_TEXT), licenseText);
-				free (licenseText);
-			}
-			else
-			{
-				Error("CANNOT_DISPLAY_LICENSE");
-				PostMessage (MainDlg, WM_CLOSE, 0, 0);
-			}
-		}
-		return 1;
-
 
 	case WM_COMMAND:
 
-		if (lw == IDC_DISAGREE && nCurPageNo == INTRO_PAGE)
-		{
-			EnableWindow (GetDlgItem (GetParent (hwndDlg), IDC_NEXT), FALSE);
-			return 1;
-		}
-
 		if (lw == IDC_AGREE && nCurPageNo == INTRO_PAGE)
 		{
-			EnableWindow (GetDlgItem (GetParent (hwndDlg), IDC_NEXT), TRUE);
+			EnableWindow (GetDlgItem (GetParent (hwndDlg), IDC_NEXT), IsButtonChecked (GetDlgItem (hwndDlg, IDC_AGREE)));
 			return 1;
 		}
 
@@ -457,13 +438,6 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 		if ( nCurPageNo == INSTALL_OPTIONS_PAGE && hw == EN_CHANGE )
 		{
 			EnableWindow (GetDlgItem (MainDlg, IDC_NEXT), (GetWindowTextLength (GetDlgItem (hCurPage, IDC_DESTINATION)) > 1));
-			return 1;
-		}
-
-		if (nCurPageNo == INTRO_PAGE && lw == IDC_LICENSE_TEXT && HIWORD (wParam) == EN_UPDATE)
-		{
-			// License is read-only
-			SendMessage (hwndDlg, TC_APPMSG_LOAD_LICENSE, 0, 0);
 			return 1;
 		}
 
@@ -507,6 +481,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				bSystemRestore = IsButtonChecked (GetDlgItem (hCurPage, IDC_SYSTEM_RESTORE));
 				return 1;
 
+#if 0
 			case IDC_DISABLE_PAGING_FILES:
 
 				bDisableSwapFiles = IsButtonChecked (GetDlgItem (hCurPage, IDC_DISABLE_PAGING_FILES));
@@ -519,6 +494,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				}
 
 				return 1;
+#endif // 0
 
 			case IDC_ALL_USERS:
 				bForAllUsers = IsButtonChecked (GetDlgItem (hCurPage, IDC_ALL_USERS));
@@ -689,8 +665,15 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 			else if (nCurPageNo == WIZARD_MODE_PAGE)
 			{
-				if (bExtractOnly = IsButtonChecked (GetDlgItem (hCurPage, IDC_WIZARD_MODE_EXTRACT_ONLY)))
+				if (IsButtonChecked (GetDlgItem (hCurPage, IDC_WIZARD_MODE_EXTRACT_ONLY)))
 				{
+					if (IsUacSupported() 
+						&& AskWarnYesNo ("TRAVELER_UAC_NOTE") == IDNO)
+					{
+						return 1;
+					}
+
+					bExtractOnly = TRUE;
 					nCurPageNo = EXTRACTION_OPTIONS_PAGE - 1;
 				}
 			}
@@ -774,7 +757,7 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 		EnableWindow (GetDlgItem (hwndDlg, IDCANCEL), FALSE);
 
 		SetWindowTextW (GetDlgItem (hwndDlg, IDC_BOX_TITLE), GetString ("SETUP_FINISHED_TITLE"));
-		SetWindowTextW (GetDlgItem (hwndDlg, IDC_BOX_INFO), GetString ("SETUP_FINISHED_INFO"));
+		SetWindowTextW (GetDlgItem (hwndDlg, IDC_BOX_INFO), GetString (bRestartRequired ? "SETUP_FINISHED_INFO_RESTART_REQUIRED" : "SETUP_FINISHED_INFO"));
 
 		RefreshUIGFX ();
 		return 1;

@@ -40,15 +40,13 @@
 #define IDC_OPEN_CONTAINING_FOLDER      1021
 #define IDC_AGREE                       1022
 #define IDC_HR_BOTTOM                   1023
-#define IDC_DISAGREE                    1024
-#define IDC_WIZARD_MODE_INSTALL         1025
-#define IDC_WIZARD_MODE_EXTRACT_ONLY    1026
-#define IDC_NEXT                        1027
-#define IDC_PREV                        1028
-#define IDT_EXTRACT_DESTINATION         1029
-#define IDC_POS_BOX                     1030
-#define IDC_BITMAP_SETUP_WIZARD         1031
-#define IDC_DISABLE_PAGING_FILES        1032
+#define IDC_WIZARD_MODE_INSTALL         1024
+#define IDC_WIZARD_MODE_EXTRACT_ONLY    1025
+#define IDC_NEXT                        1026
+#define IDC_PREV                        1027
+#define IDT_EXTRACT_DESTINATION         1028
+#define IDC_POS_BOX                     1029
+#define IDC_BITMAP_SETUP_WIZARD         1030
 
 // Next default values for new objects
 // 
@@ -57,7 +55,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        114
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1033
+#define _APS_NEXT_CONTROL_VALUE         1031
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
