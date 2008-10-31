@@ -17,26 +17,6 @@
 	</ToolFiles>
 	<Configurations>
 		<Configuration
-			Name="Debug|Win32"
-			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="0"
-			>
-			<Tool
-				Name="VCNMakeTool"
-				BuildCommandLine="md Debug 2&gt;NUL:&#x0D;&#x0A;nmake.exe /nologo DEBUG=1"
-				ReBuildCommandLine="md Debug 2&gt;NUL:&#x0D;&#x0A;nmake.exe /nologo DEBUG=1 clean&#x0D;&#x0A;nmake.exe /nologo DEBUG=1"
-				CleanCommandLine="nmake.exe /nologo DEBUG=1 clean"
-				Output="Debug\BootLoader.exe"
-				PreprocessorDefinitions="WIN32;_DEBUG"
-				IncludeSearchPath="&quot;$(SolutionDir)&quot;;&quot;$(SolutionDir)\Common&quot;;&quot;$(SolutionDir)\Crypto&quot;;&quot;$(MSVC16_ROOT)\Include&quot;"
-				ForcedIncludes=""
-				AssemblySearchPath=""
-				ForcedUsingAssemblies=""
-				CompileAsManaged=""
-			/>
-		</Configuration>
-		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
@@ -229,6 +209,10 @@
 			</File>
 			<File
 				RelativePath=".\BootMemory.h"
+				>
+			</File>
+			<File
+				RelativePath=".\BootStrings.h"
 				>
 			</File>
 			<File

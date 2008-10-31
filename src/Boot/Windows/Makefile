@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2008 TrueCrypt Foundation. All rights reserved.
 #
-# Governed by the TrueCrypt License 2.5 the full text of which is contained
+# Governed by the TrueCrypt License 2.6 the full text of which is contained
 # in the file License.txt included in TrueCrypt binary and source code
 # distribution packages.
 #
@@ -27,20 +27,6 @@ CPPFLAGS = $(CPPFLAGS) /D malloc=malloc_NA
 
 LFLAGS = /NOLOGO /ONERROR:NOEXE /NOI /BATCH
 
-
-!ifdef DEBUG
-
-OBJDIR = Debug
-OUTDIR = $(OBJDIR)
-TARGETEXT = exe
-CPPFLAGS = $(CPPFLAGS) /AM /Zl /G2 /D _DEBUG /D DEBUG /Od /Z7 /D_DOS
-LFLAGS = $(LFLAGS) /CO /STACK:32768
-OBJS =
-LIBS = mlibce
-PROJDIR = ..
-
-!else
-
 OBJDIR = Release
 
 !ifdef RESCUE_DISK
@@ -60,8 +46,6 @@ CPPFLAGS = $(CPPFLAGS) /AT /Zl /f- /G3 /Oe /Os /Ob1 /OV0 /Gs /Gf /Gy /D NDEBUG
 LFLAGS = $(LFLAGS) /NOD /NOE /TINY
 OBJS = $(OUTDIR)\BootCrt.obj
 LIBS = slibce
-
-!endif
 
 !if 1
 SRCDIR = ..
@@ -194,8 +178,6 @@ $(LIBS)
 	$(LD) $(LFLAGS) @$(PROJ).crf
 	del $(PROJ).crf $(PROJ).crf2
 
-!ifndef DEBUG
 	gzip.exe -c -n --best $(PROJ).$(TARGETEXT) >$(PROJ).$(TARGETEXT).gz
 	-dd.exe conv=notrunc,sync bs=512 seek=5 if=$(PROJ).$(TARGETEXT).gz of=$(PROJ).flp 2>NUL:
-!endif
 	cd ..

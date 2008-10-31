@@ -1,7 +1,7 @@
 /*
  Copyright (c) 2008 TrueCrypt Foundation. All rights reserved.
 
- Governed by the TrueCrypt License 2.5 the full text of which is contained
+ Governed by the TrueCrypt License 2.6 the full text of which is contained
  in the file License.txt included in TrueCrypt binary and source code
  distribution packages.
 */
@@ -45,8 +45,11 @@ void PrintChar (char c)
 }
 
 
-void PrintCharAtCusor (char c)
+void PrintCharAtCursor (char c)
 {
+	if (ScreenOutputDisabled)
+		return;
+
 	__asm
 	{
 		mov bx, 7
@@ -146,6 +149,9 @@ void Beep ()
 
 void InitVideoMode ()
 {
+	if (ScreenOutputDisabled)
+		return;
+
 	__asm
 	{
 		// Text mode 80x25
@@ -161,6 +167,9 @@ void InitVideoMode ()
 
 void ClearScreen ()
 {
+	if (ScreenOutputDisabled)
+		return;
+
 	__asm
 	{
 		// White text on black
@@ -182,7 +191,7 @@ void ClearScreen ()
 void PrintBackspace ()
 {
 	PrintChar (TC_BIOS_CHAR_BACKSPACE);
-	PrintCharAtCusor (' ');
+	PrintCharAtCursor (' ');
 }
 
 

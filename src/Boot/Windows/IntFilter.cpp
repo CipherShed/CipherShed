@@ -1,7 +1,7 @@
 /*
  Copyright (c) 2008 TrueCrypt Foundation. All rights reserved.
 
- Governed by the TrueCrypt License 2.5 the full text of which is contained
+ Governed by the TrueCrypt License 2.6 the full text of which is contained
  in the file License.txt included in TrueCrypt binary and source code
  distribution packages.
 */
@@ -14,6 +14,7 @@
 #include "BootDefs.h"
 #include "BootDiskIo.h"
 #include "BootEncryptedIo.h"
+#include "BootStrings.h"
 #include "IntFilter.h"
 
 static uint32 OriginalInt13Handler;
@@ -186,7 +187,7 @@ bool Int13Filter ()
 }
 
 
-#define TC_MAX_MEMORY_MAP_SIZE 32
+#define TC_MAX_MEMORY_MAP_SIZE 36
 
 BiosMemoryMapEntry BiosMemoryMap[TC_MAX_MEMORY_MAP_SIZE];
 static size_t BiosMemoryMapSize;
@@ -293,7 +294,16 @@ static bool CreateNewBiosMemoryMap ()
 	return true;
 
 mapOverflow:
-	PrintError ("BIOS memory map too long");
+	size_t overSize = 0;
+	while (GetNextBiosMemoryMapEntry (entry))
+	{
+		++overSize;
+	}
+
+	PrintError ("MMAP: ", true, false);
+	Print (overSize);
+	PrintEndl();
+
 	return false;
 }
 
@@ -565,6 +575,26 @@ static void Int15FilterEntry ()
 
 bool InstallInterruptFilters ()
 {
+
+#ifndef TC_WINDOWS_BOOT_RESCUE_DISK_MODE
+
+	// If the filters have already been installed, it usually indicates stack corruption
+	// and a consequent reentry of this routine without a system reset.
+
+	uint32 currentInt13Handler;
+	CopyMemory (0, 0x13 * 4, &currentInt13Handler, sizeof (currentInt13Handler));
+
+	if (currentInt13Handler == (uint32) Int13FilterEntry)
+	{
+		PrintError ("Memory corrupted");
+		Print (TC_BOOT_STR_UPGRADE_BIOS);
+
+		GetKeyboardChar();
+		return true;
+	}
+
+#endif
+
 	if (!CreateNewBiosMemoryMap())
 		return false;
 

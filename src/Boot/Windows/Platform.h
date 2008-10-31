@@ -1,7 +1,7 @@
 /*
  Copyright (c) 2008 TrueCrypt Foundation. All rights reserved.
 
- Governed by the TrueCrypt License 2.5 the full text of which is contained
+ Governed by the TrueCrypt License 2.6 the full text of which is contained
  in the file License.txt included in TrueCrypt binary and source code
  distribution packages.
 */
@@ -19,6 +19,7 @@ typedef int bool;
 #define true 1
 
 #define nullptr 0
+#define NULL 0
 
 typedef UINT64_STRUCT uint64;
 
@@ -100,8 +101,8 @@ bool operator< (const uint64 &a, const uint64 &b);
 bool operator>= (const uint64 &a, const uint64 &b);
 bool operator<= (const uint64 &a, const uint64 &b);
 
-void CopyMemory (byte *source, uint16 destSegment, uint16 destOffset, uint16 blockSize);
-void CopyMemory (uint16 sourceSegment, uint16 sourceOffset, byte *destination, uint16 blockSize);
+void CopyMemory (void *source, uint16 destSegment, uint16 destOffset, uint16 blockSize);
+void CopyMemory (uint16 sourceSegment, uint16 sourceOffset, void *destination, uint16 blockSize);
 extern "C" void EraseMemory (void *memory, int size);
 uint32 GetLinearAddress (uint16 segment, uint16 offset);
 bool RegionsIntersect (const uint64 &start1, uint32 length1, const uint64 &start2, const uint64 &end2);

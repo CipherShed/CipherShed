@@ -1,7 +1,7 @@
 ;
 ; Copyright (c) 2008 TrueCrypt Foundation. All rights reserved.
 ;
-; Governed by the TrueCrypt License 2.5 the full text of which is contained
+; Governed by the TrueCrypt License 2.6 the full text of which is contained
 ; in the file License.txt included in TrueCrypt binary and source code
 ; distribution packages.
 ;
@@ -27,9 +27,14 @@ main:
 	xor ax, ax
 	mov ds, ax
 	
+	; Display boot loader name
+	test byte ptr [start + TC_BOOT_SECTOR_USER_CONFIG_OFFSET], TC_BOOT_USER_CFG_FLAG_SILENT_MODE
+	jnz skip_loader_name_msg
+
 	lea si, loader_name_msg
 	call print
-	
+skip_loader_name_msg:
+
 	mov ax, TC_BOOT_LOADER_SEGMENT
 	mov es, ax			; Default boot loader segment
 
@@ -216,7 +221,7 @@ backup_loader_used		db 0
 beep_msg				db 7, 0
 disk_error_msg			db 'Disk error', 13, 10, 7, 0
 loader_damaged_msg		db 'Loader damaged! Use Rescue Disk: Repair Options > Restore', 0
-decompression_err_msg	db 'Decompression error', 7, 0
+decompression_err_msg	db 'DC', 0
 
 ORG 7C00h + 508
 	dw 0, 0AA55h		; Boot sector signature

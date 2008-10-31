@@ -1,7 +1,7 @@
 /*
  Copyright (c) 2008 TrueCrypt Foundation. All rights reserved.
 
- Governed by the TrueCrypt License 2.5 the full text of which is contained
+ Governed by the TrueCrypt License 2.6 the full text of which is contained
  in the file License.txt included in TrueCrypt binary and source code
  distribution packages.
 */
@@ -12,6 +12,7 @@
 #include "BootDebug.h"
 #include "BootDefs.h"
 #include "BootDiskIo.h"
+#include "BootStrings.h"
 
 
 byte SectorBuffer[TC_LB_SIZE];
@@ -166,6 +167,19 @@ static BiosResult ReadWriteSectors (bool write, BiosLbaPacket &dapPacket, byte d
 {
 	CheckStack();
 
+	if (!IsLbaSupported (drive))
+	{
+		DriveGeometry geometry;
+
+		BiosResult result = GetDriveGeometry (drive, geometry, silent);
+		if (result != BiosResultSuccess)
+			return result;
+
+		ChsAddress chs;
+		LbaToChs (geometry, sector, chs);
+		return ReadWriteSectors (write, (uint16) (dapPacket.Buffer >> 16), (uint16) dapPacket.Buffer, drive, chs, sectorCount, silent);
+	}
+
 	dapPacket.Size = sizeof (dapPacket);
 	dapPacket.Reserved = 0;
 	dapPacket.SectorCount = sectorCount;
@@ -210,29 +224,25 @@ BiosResult ReadWriteSectors (bool write, uint16 bufferSegment, uint16 bufferOffs
 	return ReadWriteSectors (write, dapPacket, drive, sector, sectorCount, silent);
 }
 
-
 BiosResult ReadSectors (uint16 bufferSegment, uint16 bufferOffset, byte drive, const uint64 &sector, uint16 sectorCount, bool silent)
 {
-	if (IsLbaSupported (drive))
-		return ReadWriteSectors (false, bufferSegment, bufferOffset, drive, sector, sectorCount, silent);
-
-	DriveGeometry geometry;
-
-	BiosResult result = GetDriveGeometry (drive, geometry, silent);
-	if (result != BiosResultSuccess)
-		return result;
-
-	ChsAddress chs;
-	LbaToChs (geometry, sector, chs);
-	return ReadWriteSectors (false, bufferSegment, bufferOffset, drive, chs, sectorCount, silent);
+	return ReadWriteSectors (false, bufferSegment, bufferOffset, drive, sector, sectorCount, silent);
 }
 
 
 BiosResult ReadSectors (byte *buffer, byte drive, const uint64 &sector, uint16 sectorCount, bool silent)
 {
+	BiosResult result;
 	uint16 codeSeg;
 	__asm mov codeSeg, cs
-	return ReadSectors (codeSeg, (uint16) buffer, drive, sector, sectorCount, silent);
+	
+	result = ReadSectors (BootStarted ? codeSeg : TC_BOOT_LOADER_ALT_SEGMENT, (uint16) buffer, drive, sector, sectorCount, silent);
+
+	// Alternative segment is used to prevent memory corruption caused by buggy BIOSes
+	if (!BootStarted)
+		CopyMemory (TC_BOOT_LOADER_ALT_SEGMENT, (uint16) buffer, buffer, sectorCount * TC_LB_SIZE);
+
+	return result;
 }
 
 
@@ -256,11 +266,9 @@ BiosResult GetDriveGeometry (byte drive, DriveGeometry &geometry, bool silent)
 		int	0x13
 
 		mov	result, ah
-		jc err
 		mov maxCylinderLow, ch
 		mov maxSector, cl
 		mov maxHead, dh
-err:
 		pop es
 	}
 
@@ -273,7 +281,7 @@ err:
 	else if (!silent)
 	{
 		PrintError ("Cannot get geometry of drive ", true, false);
-		Print (drive);
+		PrintHex (drive);
 		PrintEndl();
 	}
 
@@ -312,12 +320,14 @@ void PartitionEntryMBRToPartition (const PartitionEntryMBR &partEntry, Partition
 
 BiosResult ReadWriteMBR (bool write, byte drive, bool silent)
 {
-	ChsAddress chs;
-	chs.Cylinder = 0;
-	chs.Head = 0;
-	chs.Sector = 1;
+	uint64 mbrSector;
+	mbrSector.HighPart = 0;
+	mbrSector.LowPart = 0;
 
-	return ReadWriteSectors (write, SectorBuffer, drive, chs, 1, silent);
+	if (write)
+		return WriteSectors (SectorBuffer, drive, mbrSector, 1, silent);
+
+	return ReadSectors (SectorBuffer, drive, mbrSector, 1, silent);		// Uses alternative segment
 }
 
 
@@ -445,7 +455,7 @@ bool GetActiveAndFollowingPartition (byte drive)
 	if (GetDrivePartitions (drive, &ActivePartition, 1, partCount, true) != BiosResultSuccess || partCount < 1)
 	{
 		ActivePartition.Drive = TC_INVALID_BIOS_DRIVE;
-		PrintError ("No bootable partition found");
+		PrintError (TC_BOOT_STR_NO_BOOT_PARTITION);
 		return false;
 	}
 

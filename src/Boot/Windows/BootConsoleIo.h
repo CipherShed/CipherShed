@@ -1,7 +1,7 @@
 /*
  Copyright (c) 2008 TrueCrypt Foundation. All rights reserved.
 
- Governed by the TrueCrypt License 2.5 the full text of which is contained
+ Governed by the TrueCrypt License 2.6 the full text of which is contained
  in the file License.txt included in TrueCrypt binary and source code
  distribution packages.
 */
@@ -46,14 +46,13 @@ byte GetShiftFlags ();
 int GetString (char *buffer, size_t bufferSize);
 void InitVideoMode ();
 bool IsKeyboardCharAvailable ();
-bool IsLbaSupported (byte drive);
 bool IsPrintable (char c);
 void Print (const char *str);
 void Print (uint32 number);
 void Print (const uint64 &number);
 void PrintBackspace ();
 void PrintChar (char c);
-void PrintCharAtCusor (char c);
+void PrintCharAtCursor (char c);
 void PrintEndl ();
 void PrintEndl (int cnt);
 void PrintRepeatedChar (char c, int n);

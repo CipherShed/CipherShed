@@ -1,7 +1,7 @@
 /*
  Copyright (c) 2008 TrueCrypt Foundation. All rights reserved.
 
- Governed by the TrueCrypt License 2.5 the full text of which is contained
+ Governed by the TrueCrypt License 2.6 the full text of which is contained
  in the file License.txt included in TrueCrypt binary and source code
  distribution packages.
 */
@@ -158,7 +158,7 @@ bool TestInt64 ()
 }
 
 
-void CopyMemory (byte *source, uint16 destSegment, uint16 destOffset, uint16 blockSize)
+void CopyMemory (void *source, uint16 destSegment, uint16 destOffset, uint16 blockSize)
 {
 	__asm
 	{
@@ -174,7 +174,7 @@ void CopyMemory (byte *source, uint16 destSegment, uint16 destOffset, uint16 blo
 }
 
 
-void CopyMemory (uint16 sourceSegment, uint16 sourceOffset, byte *destination, uint16 blockSize)
+void CopyMemory (uint16 sourceSegment, uint16 sourceOffset, void *destination, uint16 blockSize)
 {
 	__asm
 	{

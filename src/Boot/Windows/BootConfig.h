@@ -1,7 +1,7 @@
 /*
  Copyright (c) 2008 TrueCrypt Foundation. All rights reserved.
 
- Governed by the TrueCrypt License 2.5 the full text of which is contained
+ Governed by the TrueCrypt License 2.6 the full text of which is contained
  in the file License.txt included in TrueCrypt binary and source code
  distribution packages.
 */
@@ -19,7 +19,12 @@ extern byte BootLoaderDrive;
 extern byte BootDrive;
 extern bool BootDriveGeometryValid;
 extern DriveGeometry BootDriveGeometry;
-extern bool PreventHiddenSystemBoot;
+extern bool PreventNormalSystemBoot;
+extern bool PreventBootMenu;
+extern char CustomUserMessage[TC_BOOT_SECTOR_USER_MESSAGE_MAX_LENGTH + 1];
+extern uint16 OuterVolumeBackupHeaderCrc;
+
+extern bool BootStarted;
 
 extern CRYPTO_INFO *BootCryptoInfo;
 extern Partition EncryptedVirtualPartition;
@@ -30,6 +35,7 @@ extern uint64 HiddenVolumeStartUnitNo;
 extern uint64 HiddenVolumeStartSector;
 
 
+void ReadBootSectorUserConfiguration ();
 BiosResult UpdateBootSectorConfiguration (byte drive);
 
 #endif // TC_HEADER_Boot_BootConfig
