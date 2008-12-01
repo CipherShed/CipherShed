@@ -398,6 +398,20 @@ BOOL DoRegInstall (HWND hwndDlg, char *szDestDir, BOOL bInstallType)
 	DWORD dw;
 	int x;
 
+	if (SystemEncryptionUpgrade)
+	{
+		if (RegCreateKeyEx (HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\TrueCrypt",
+			0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hkey, &dw) == ERROR_SUCCESS)
+		{
+			strcpy (szTmp, VERSION_STRING);
+			RegSetValueEx (hkey, "DisplayVersion", 0, REG_SZ, (BYTE *) szTmp, strlen (szTmp) + 1);
+
+			RegCloseKey (hkey);
+		}
+
+		return TRUE;
+	}
+
 	strcpy (szDir, szDestDir);
 	x = strlen (szDestDir);
 	if (szDestDir[x - 1] == '\\')
@@ -645,7 +659,16 @@ retry:
 		goto error;
 
 	if (strcmp ("truecrypt", lpszService) == 0)
+	{
+		BootEncryption bootEnc (hwndDlg);
+		if (bootEnc.GetDriverServiceStartType() == SERVICE_BOOT_START)
+		{
+			bootEnc.RegisterFilterDriver (false, false);
+			bootEnc.RegisterFilterDriver (false, true);
+		}
+
 		StatusMessage (hwndDlg, "STOPPING_DRIVER");
+	}
 	else
 		StatusMessageParam (hwndDlg, "STOPPING", lpszService);
 
@@ -808,13 +831,13 @@ BOOL DoDriverUnload (HWND hwndDlg)
 				}
 				catch (...) { }
 
-				if (bUninstallInProgress && driverVersion >= 0x500 && !bootEnc.GetStatus().DeviceFilterActive)
+				if (bUninstallInProgress && driverVersion >= 0x500 && !bootEnc.GetStatus().DriveMounted)
 				{
 					bootEnc.RegisterFilterDriver (false, false);
 					bootEnc.RegisterFilterDriver (false, true);
 					bootEnc.SetDriverServiceStartType (SERVICE_SYSTEM_START);
 				}
-				else if (bDowngrade || driverVersion < 0x500)
+				else if (bUninstallInProgress || bDowngrade)
 				{
 					Error ("SETUP_FAILED_BOOT_DRIVE_ENCRYPTED");
 					return FALSE;
@@ -1377,7 +1400,7 @@ void DoInstall (void *arg)
 	{
 		bOK = FALSE;
 	}
-	else if (UpdateProgressBarProc(80) && !SystemEncryptionUpgrade && DoRegInstall ((HWND) hwndDlg, InstallationPath, bRegisterFileExt ) == FALSE)
+	else if (UpdateProgressBarProc(80) && DoRegInstall ((HWND) hwndDlg, InstallationPath, bRegisterFileExt) == FALSE)
 	{
 		bOK = FALSE;
 	}
