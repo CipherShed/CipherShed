@@ -4,7 +4,7 @@
  Copyright (c) 1998-2000 Paul Le Roux and which is governed by the 'License
  Agreement for Encryption for the Masses'. Modifications and additions to
  the original source code (contained in this file) and all other portions of
- this file are Copyright (c) 2003-2008 TrueCrypt Foundation and are governed
+ this file are Copyright (c) 2003-2009 TrueCrypt Foundation and are governed
  by the TrueCrypt License 2.6 the full text of which is contained in the
  file License.txt included in TrueCrypt binary and source code distribution
  packages. */
@@ -602,7 +602,7 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 			SendMessage (GetDlgItem (hwndDlg, IDC_BOX_TITLE), WM_SETFONT, (WPARAM) hUserBoldFont, (LPARAM) TRUE);
 
-			SetWindowTextW (hwndDlg, lpszTitle);
+			SetWindowText (hwndDlg, "TrueCrypt Setup " VERSION_STRING);
 
 			if (bDevm)
 			{
@@ -654,6 +654,9 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 		{
 			if (nCurPageNo == INTRO_PAGE)
 			{
+				if (nCurrentOS == WIN_7)
+					WarningDirect (L"Please note that this version of TrueCrypt does not support Windows 7. Therefore, some features may not work properly.\n\nPlease check www.truecrypt.org for a new version (which should support Windows 7) shortly after a stable version of Windows 7 has been released.\n\nHowever, until a stable version of Windows 7 is released, we will welcome feedback from Windows 7 beta testers regarding problems with using TrueCrypt under Windows 7 RC. Note: You can submit a bug report at http://www.truecrypt.org/bugs/.");
+
 				if (!IsButtonChecked (GetDlgItem (hCurPage, IDC_AGREE)))
 				{
 					bLicenseAccepted = FALSE;
