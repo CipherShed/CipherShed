@@ -5,7 +5,7 @@
  Agreement for Encryption for the Masses'. Modifications and additions to
  the original source code (contained in this file) and all other portions of
  this file are Copyright (c) 2003-2009 TrueCrypt Foundation and are governed
- by the TrueCrypt License 2.6 the full text of which is contained in the
+ by the TrueCrypt License 2.7 the full text of which is contained in the
  file License.txt included in TrueCrypt binary and source code distribution
  packages. */
 
@@ -406,6 +406,9 @@ BOOL DoRegInstall (HWND hwndDlg, char *szDestDir, BOOL bInstallType)
 			strcpy (szTmp, VERSION_STRING);
 			RegSetValueEx (hkey, "DisplayVersion", 0, REG_SZ, (BYTE *) szTmp, strlen (szTmp) + 1);
 
+			strcpy (szTmp, TC_HOMEPAGE);
+			RegSetValueEx (hkey, "URLInfoAbout", 0, REG_SZ, (BYTE *) szTmp, strlen (szTmp) + 1);
+
 			RegCloseKey (hkey);
 		}
 
@@ -524,7 +527,7 @@ BOOL DoRegInstall (HWND hwndDlg, char *szDestDir, BOOL bInstallType)
 	if (RegSetValueEx (hkey, "Publisher", 0, REG_SZ, (BYTE *) szTmp, strlen (szTmp) + 1) != ERROR_SUCCESS)
 		goto error;
 
-	sprintf (szTmp, "%s&dest=index", TC_APPLINK);
+	strcpy (szTmp, TC_HOMEPAGE);
 	if (RegSetValueEx (hkey, "URLInfoAbout", 0, REG_SZ, (BYTE *) szTmp, strlen (szTmp) + 1) != ERROR_SUCCESS)
 		goto error;
 		
@@ -1112,7 +1115,7 @@ BOOL DoShortcutsInstall (HWND hwndDlg, char *szDestDir, BOOL bProgGroup, BOOL bD
 		f = fopen (szTmp2, "w");
 		if (f)
 		{
-			fprintf (f, "[InternetShortcut]\nURL=%s&dest=index\n", TC_APPLINK);
+			fprintf (f, "[InternetShortcut]\nURL=%s\n", TC_HOMEPAGE);
 			fclose (f);
 		}
 		else
