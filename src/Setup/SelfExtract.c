@@ -1,7 +1,7 @@
 /*
-Copyright (c) 2008 TrueCrypt Foundation. All rights reserved.
+Copyright (c) 2008-2009 TrueCrypt Foundation. All rights reserved.
 
-Governed by the TrueCrypt License 2.7 the full text of which is contained
+Governed by the TrueCrypt License 2.8 the full text of which is contained
 in the file License.txt included in TrueCrypt binary and source code
 distribution packages.
 */
@@ -532,9 +532,9 @@ static void FreeAllFileBuffers (void)
 // For details, see the definition of the DECOMPRESSED_FILE structure.
 BOOL SelfExtractInMemory (char *path)
 {
-	int filePos = 0, fileNo = 0;
-	int fileDataEndPos = 0;
-	int fileDataStartPos = 0;
+	unsigned int filePos = 0, fileNo = 0;
+	unsigned int fileDataEndPos = 0;
+	unsigned int fileDataStartPos = 0;
 	unsigned int uncompressedLen = 0;
 	unsigned int compressedLen = 0;
 	unsigned char *compressedData = NULL;
@@ -607,7 +607,7 @@ BOOL SelfExtractInMemory (char *path)
 	}
 
 	// Decompress the data
-	if (DecompressBuffer (DecompressedData, compressedData, compressedLen) != uncompressedLen)
+	if ((unsigned int) DecompressBuffer (DecompressedData, compressedData, compressedLen) != uncompressedLen)
 	{
 		Error ("DIST_PACKAGE_CORRUPTED");
 		goto sem_end;

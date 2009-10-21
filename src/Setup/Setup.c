@@ -5,17 +5,20 @@
  Agreement for Encryption for the Masses'. Modifications and additions to
  the original source code (contained in this file) and all other portions of
  this file are Copyright (c) 2003-2009 TrueCrypt Foundation and are governed
- by the TrueCrypt License 2.7 the full text of which is contained in the
+ by the TrueCrypt License 2.8 the full text of which is contained in the
  file License.txt included in TrueCrypt binary and source code distribution
  packages. */
 
 #include "Tcdefs.h"
 #include <SrRestorePtApi.h>
+#include <propkey.h>
+#include <propvarutil.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
 #include "Apidrvr.h"
 #include "BootEncryption.h"
+#include "Boot/Windows/BootCommon.h"
 #include "Combo.h"
 #include "ComSetup.h"
 #include "Dlgcode.h"
@@ -29,7 +32,6 @@
 #include "Wizard.h"
 
 #include "../Common/Resource.h"
-#include "../Mount/Mount.h"
 
 using namespace TrueCrypt;
 
@@ -58,6 +60,7 @@ BOOL bChangeMode = FALSE;
 BOOL bDevm = FALSE;
 BOOL bFirstTimeInstall = FALSE;
 BOOL bUninstallInProgress = FALSE;
+BOOL UnloadDriver = TRUE;
 
 BOOL bSystemRestore = TRUE;
 BOOL bDisableSwapFiles = FALSE;
@@ -113,6 +116,26 @@ HRESULT CreateLink (char *lpszPathObj, char *lpszArguments,
 		   description.  */
 		psl->SetPath (lpszPathObj);
 		psl->SetArguments (lpszArguments);
+
+		// Application ID
+		if (strstr (lpszPathObj, TC_APP_NAME ".exe"))
+		{
+			IPropertyStore *propStore;
+
+			if (SUCCEEDED (psl->QueryInterface (IID_PPV_ARGS (&propStore))))
+			{
+				PROPVARIANT propVariant;
+				if (SUCCEEDED (InitPropVariantFromString (TC_APPLICATION_ID, &propVariant)))
+				{
+					if (SUCCEEDED (propStore->SetValue (PKEY_AppUserModel_ID, propVariant)))
+						propStore->Commit();
+
+					PropVariantClear (&propVariant);
+				}
+
+				propStore->Release();
+			}
+		}
 
 		/* Query IShellLink for the IPersistFile interface for saving
 		   the shortcut in persistent storage.  */
@@ -200,6 +223,33 @@ void IconMessage (HWND hwndDlg, char *txt)
 	StatusMessageParam (hwndDlg, "ADDING_ICON", txt);
 }
 
+void DetermineUpgradeDowngradeStatus (BOOL bCloseDriverHandle, LONG *driverVersionPtr)
+{
+	LONG driverVersion = VERSION_NUM;
+
+	if (hDriver == INVALID_HANDLE_VALUE)
+		DriverAttach();
+
+	if (hDriver != INVALID_HANDLE_VALUE)
+	{
+		DWORD dwResult;
+		BOOL bResult = DeviceIoControl (hDriver, TC_IOCTL_GET_DRIVER_VERSION, NULL, 0, &driverVersion, sizeof (driverVersion), &dwResult, NULL);
+
+		if (!bResult)
+			bResult = DeviceIoControl (hDriver, TC_IOCTL_LEGACY_GET_DRIVER_VERSION, NULL, 0, &driverVersion, sizeof (driverVersion), &dwResult, NULL);
+
+		bUpgrade = (bResult && driverVersion < VERSION_NUM);
+		bDowngrade = (bResult && driverVersion > VERSION_NUM);
+
+		if (bCloseDriverHandle)
+		{
+			CloseHandle (hDriver);
+			hDriver = INVALID_HANDLE_VALUE;
+		}
+	}
+
+	*driverVersionPtr = driverVersion;
+}
 
 BOOL DoFilesInstall (HWND hwndDlg, char *szDestDir)
 {
@@ -437,6 +487,10 @@ BOOL DoRegInstall (HWND hwndDlg, char *szDestDir, BOOL bInstallType)
 
 		strcpy (szTmp, "TrueCrypt Volume");
 		if (RegSetValueEx (hkey, "", 0, REG_SZ, (BYTE *) szTmp, strlen (szTmp) + 1) != ERROR_SUCCESS)
+			goto error;
+
+		sprintf (szTmp, "%ws", TC_APPLICATION_ID);
+		if (RegSetValueEx (hkey, "AppUserModelID", 0, REG_SZ, (BYTE *) szTmp, strlen (szTmp) + 1) != ERROR_SUCCESS)
 			goto error;
 
 		RegCloseKey (hkey);
@@ -820,13 +874,7 @@ BOOL DoDriverUnload (HWND hwndDlg)
 		BOOL bResult;
 
 		// Try to determine if it's upgrade (and not reinstall, downgrade, or first-time install).
-		bResult = DeviceIoControl (hDriver, TC_IOCTL_GET_DRIVER_VERSION, NULL, 0, &driverVersion, sizeof (driverVersion), &dwResult, NULL);
-
-		if (!bResult)
-			bResult = DeviceIoControl (hDriver, TC_IOCTL_LEGACY_GET_DRIVER_VERSION, NULL, 0, &driverVersion, sizeof (driverVersion), &dwResult, NULL);
-
-		bUpgrade = bResult && driverVersion < VERSION_NUM;
-		bDowngrade = bResult && driverVersion > VERSION_NUM;
+		DetermineUpgradeDowngradeStatus (FALSE, &driverVersion);
 
 		// Test for encrypted boot drive
 		try
@@ -856,7 +904,7 @@ BOOL DoDriverUnload (HWND hwndDlg)
 				}
 				else if (bUninstallInProgress || bDowngrade)
 				{
-					Error ("SETUP_FAILED_BOOT_DRIVE_ENCRYPTED");
+					Error (bDowngrade ? "SETUP_FAILED_BOOT_DRIVE_ENCRYPTED_DOWNGRADE" : "SETUP_FAILED_BOOT_DRIVE_ENCRYPTED");
 					return FALSE;
 				}
 				else
@@ -873,7 +921,14 @@ BOOL DoDriverUnload (HWND hwndDlg)
 		}
 		catch (...)	{ }
 
-		if (!SystemEncryptionUpgrade)
+		if (!bUninstall
+			&& (bUpgrade || SystemEncryptionUpgrade)
+			&& (!bDevm || SystemEncryptionUpgrade))
+		{
+			UnloadDriver = FALSE;
+		}
+
+		if (UnloadDriver)
 		{
 			int volumesMounted = 0;
 
@@ -923,7 +978,7 @@ BOOL DoDriverUnload (HWND hwndDlg)
 			bOK = FALSE;
 		}
 
-		if (!bOK || !SystemEncryptionUpgrade)
+		if (!bOK || UnloadDriver)
 		{
 			CloseHandle (hDriver);
 			hDriver = INVALID_HANDLE_VALUE;
@@ -951,7 +1006,9 @@ BOOL UpgradeBootLoader (HWND hwndDlg)
 			StatusMessage (hwndDlg, "INSTALLER_UPDATING_BOOT_LOADER");
 
 			bootEnc.InstallBootLoader (true);
-			Info (IsHiddenOSRunning () ? "BOOT_LOADER_UPGRADE_OK_HIDDEN_OS" : "BOOT_LOADER_UPGRADE_OK");
+
+			if (bootEnc.GetInstalledBootLoaderVersion() <= TC_RESCUE_DISK_UPGRADE_NOTICE_MAX_VERSION)
+				Info (IsHiddenOSRunning() ? "BOOT_LOADER_UPGRADE_OK_HIDDEN_OS" : "BOOT_LOADER_UPGRADE_OK");
 		}
 		return TRUE;
 	}
@@ -1182,7 +1239,7 @@ void OutcomePrompt (HWND hwndDlg, BOOL bOK)
 				PostMessage (MainDlg, WM_CLOSE, 0, 0);
 			else if (bFirstTimeInstall && !SystemEncryptionUpgrade && !bUpgrade && !bDowngrade && !bRepairMode)
 				Info ("INSTALL_OK");
-			else if (!(SystemEncryptionUpgrade && bUpgrade))
+			else if (!bRestartRequired)
 				Info ("SETUP_UPDATE_OK");
 		}
 		else
@@ -1415,7 +1472,7 @@ void DoInstall (void *arg)
 	strcat_s (path, sizeof (path), "\\TrueCrypt Setup.exe");
 	DeleteFile (path);
 
-	if (UpdateProgressBarProc(63) && !SystemEncryptionUpgrade && DoServiceUninstall (hwndDlg, "truecrypt") == FALSE)
+	if (UpdateProgressBarProc(63) && UnloadDriver && DoServiceUninstall (hwndDlg, "truecrypt") == FALSE)
 	{
 		bOK = FALSE;
 	}
@@ -1427,7 +1484,7 @@ void DoInstall (void *arg)
 	{
 		bOK = FALSE;
 	}
-	else if (UpdateProgressBarProc(85) && !SystemEncryptionUpgrade && DoDriverInstall (hwndDlg) == FALSE)
+	else if (UpdateProgressBarProc(85) && UnloadDriver && DoDriverInstall (hwndDlg) == FALSE)
 	{
 		bOK = FALSE;
 	}
@@ -1439,6 +1496,9 @@ void DoInstall (void *arg)
 	{
 		bOK = FALSE;
 	}
+
+	if (!UnloadDriver)
+		bRestartRequired = TRUE;
 
 	try
 	{
@@ -1510,12 +1570,12 @@ void DoInstall (void *arg)
 				}
 			}
 		}
+	}
 
-		if (bRestartRequired || (SystemEncryptionUpgrade && bUpgrade))
-		{
-			if (AskYesNo (SystemEncryptionUpgrade ? "UPGRADE_OK_REBOOT_REQUIRED" : "CONFIRM_RESTART") == IDYES)
-				RestartComputer();
-		}
+	if (bOK && bRestartRequired)
+	{
+		if (AskYesNo (bUpgrade ? "UPGRADE_OK_REBOOT_REQUIRED" : "CONFIRM_RESTART") == IDYES)
+			RestartComputer();
 	}
 }
 
@@ -1743,7 +1803,7 @@ BOOL CALLBACK UninstallDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lP
 }
 
 
-int WINAPI WINMAIN (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpszCommandLine, int nCmdShow)
+int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpszCommandLine, int nCmdShow)
 {
 	atexit (localcleanup);
 

@@ -1,7 +1,7 @@
 /*
- Copyright (c) 2008 TrueCrypt Foundation. All rights reserved.
+ Copyright (c) 2008-2009 TrueCrypt Foundation. All rights reserved.
 
- Governed by the TrueCrypt License 2.7 the full text of which is contained
+ Governed by the TrueCrypt License 2.8 the full text of which is contained
  in the file License.txt included in TrueCrypt binary and source code
  distribution packages.
 */
@@ -17,7 +17,7 @@ typedef struct
 	// WARNING: file name is NOT null-terminated (use fileNameLength).
 	unsigned char *fileName;
 	int fileNameLength;
-	__int32 crc;
+	uint32 crc;
 	__int32 fileLength;
 	unsigned char *fileContent;
 } DECOMPRESSED_FILE;
@@ -30,7 +30,7 @@ void __cdecl ExtractAllFilesThread (void *hwndDlg);
 BOOL MakeSelfExtractingPackage (HWND hwndDlg, char *szDestDir);
 BOOL VerifyPackageIntegrity (void);
 BOOL IsSelfExtractingPackage (void);
-void DeobfuscateMagEndMarker (void);
+static void DeobfuscateMagEndMarker (void);
 
 extern char DestExtractPath [TC_MAX_PATH];
 

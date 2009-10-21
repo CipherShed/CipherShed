@@ -5,7 +5,7 @@
  Agreement for Encryption for the Masses'. Modifications and additions to
  the original source code (contained in this file) and all other portions of
  this file are Copyright (c) 2003-2009 TrueCrypt Foundation and are governed
- by the TrueCrypt License 2.7 the full text of which is contained in the
+ by the TrueCrypt License 2.8 the full text of which is contained in the
  file License.txt included in TrueCrypt binary and source code distribution
  packages. */
 
@@ -17,6 +17,7 @@
 #include "Language.h"
 #include "Common/Resource.h"
 #include "Resource.h"
+#include "Setup.h"
 
 enum wizard_pages
 {
@@ -200,36 +201,42 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 			return 1;
 
 		case WIZARD_MODE_PAGE:
-
-			if (bRepairMode)
 			{
-				SetWindowTextW (GetDlgItem (hwndDlg, IDC_WIZARD_MODE_INSTALL), GetString ("REPAIR_REINSTALL"));
-				bExtractOnly = FALSE;
+				LONG driverVersion;
+
+				DetermineUpgradeDowngradeStatus (TRUE, &driverVersion);
+
+				if (bRepairMode)
+				{
+					SetWindowTextW (GetDlgItem (hwndDlg, IDC_WIZARD_MODE_INSTALL), GetString ("REPAIR_REINSTALL"));
+					bExtractOnly = FALSE;
+				}
+				else if (bUpgrade)
+					SetWindowTextW (GetDlgItem (hwndDlg, IDC_WIZARD_MODE_INSTALL), GetString ("UPGRADE"));
+
+				SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), GetString ("SETUP_MODE_TITLE"));
+				SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_INFO), GetString ("SETUP_MODE_INFO"));
+
+				SendMessage (GetDlgItem (hwndDlg, IDC_WIZARD_MODE_INSTALL), WM_SETFONT, (WPARAM) hUserBoldFont, (LPARAM) TRUE);
+				SendMessage (GetDlgItem (hwndDlg, IDC_WIZARD_MODE_EXTRACT_ONLY), WM_SETFONT, (WPARAM) hUserBoldFont, (LPARAM) TRUE);
+
+				CheckButton (GetDlgItem (hwndDlg, bExtractOnly ? IDC_WIZARD_MODE_EXTRACT_ONLY : IDC_WIZARD_MODE_INSTALL));
+
+				SetWindowTextW (GetDlgItem (hwndDlg, IDC_BOX_HELP), GetString ("SETUP_MODE_HELP_EXTRACT"));
+
+				if (!bRepairMode)
+					SetWindowTextW (GetDlgItem (hwndDlg, IDC_BOX_HELP2), GetString (bUpgrade ? "SETUP_MODE_HELP_UPGRADE" : "SETUP_MODE_HELP_INSTALL"));
+
+				EnableWindow (GetDlgItem (hwndDlg, IDC_WIZARD_MODE_EXTRACT_ONLY), !bRepairMode);
+				EnableWindow (GetDlgItem (hwndDlg, IDC_BOX_HELP), !bRepairMode);
+				EnableWindow (GetDlgItem (hwndDlg, IDC_WIZARD_MODE_INSTALL), TRUE);
+
+				SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_NEXT), GetString ("NEXT"));
+				SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_PREV), GetString ("PREV"));
+				SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDCANCEL), GetString ("CANCEL"));
+				EnableWindow (GetDlgItem (GetParent (hwndDlg), IDC_NEXT), TRUE);
+				EnableWindow (GetDlgItem (GetParent (hwndDlg), IDC_PREV), TRUE);
 			}
-
-			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), GetString ("SETUP_MODE_TITLE"));
-			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_INFO), GetString ("SETUP_MODE_INFO"));
-
-			SendMessage (GetDlgItem (hwndDlg, IDC_WIZARD_MODE_INSTALL), WM_SETFONT, (WPARAM) hUserBoldFont, (LPARAM) TRUE);
-			SendMessage (GetDlgItem (hwndDlg, IDC_WIZARD_MODE_EXTRACT_ONLY), WM_SETFONT, (WPARAM) hUserBoldFont, (LPARAM) TRUE);
-
-			CheckButton (GetDlgItem (hwndDlg, bExtractOnly ? IDC_WIZARD_MODE_EXTRACT_ONLY : IDC_WIZARD_MODE_INSTALL));
-
-			SetWindowTextW (GetDlgItem (hwndDlg, IDC_BOX_HELP), GetString ("SETUP_MODE_HELP_EXTRACT"));
-
-			if (!bRepairMode)
-				SetWindowTextW (GetDlgItem (hwndDlg, IDC_BOX_HELP2), GetString ("SETUP_MODE_HELP_INSTALL"));
-
-			EnableWindow (GetDlgItem (hwndDlg, IDC_WIZARD_MODE_EXTRACT_ONLY), !bRepairMode);
-			EnableWindow (GetDlgItem (hwndDlg, IDC_BOX_HELP), !bRepairMode);
-			EnableWindow (GetDlgItem (hwndDlg, IDC_WIZARD_MODE_INSTALL), TRUE);
-
-			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_NEXT), GetString ("NEXT"));
-			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_PREV), GetString ("PREV"));
-			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDCANCEL), GetString ("CANCEL"));
-			EnableWindow (GetDlgItem (GetParent (hwndDlg), IDC_NEXT), TRUE);
-			EnableWindow (GetDlgItem (GetParent (hwndDlg), IDC_PREV), TRUE);
-
 			return 1;
 
 		case EXTRACTION_OPTIONS_PAGE:
@@ -302,49 +309,53 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 			return 1;
 
 		case INSTALL_OPTIONS_PAGE:
-
-			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), GetString ("SETUP_OPTIONS_TITLE"));
-			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_INFO), GetString ("SETUP_OPTIONS_INFO"));
-			SetWindowTextW (GetDlgItem (hwndDlg, IDC_BOX_HELP), GetString ("AUTO_FOLDER_CREATION"));
-
-			InitWizardDestInstallPath ();
-
-			SendMessage (GetDlgItem (hwndDlg, IDC_DESTINATION), EM_LIMITTEXT, TC_MAX_PATH - 1, 0);
-
-			SetDlgItemText (hwndDlg, IDC_DESTINATION, WizardDestInstallPath);
-
-			// System Restore
-			SetCheckBox (hwndDlg, IDC_SYSTEM_RESTORE, bSystemRestore);
-			if (SystemRestoreDll == 0)
 			{
-				SetCheckBox (hwndDlg, IDC_SYSTEM_RESTORE, FALSE);
-				EnableWindow (GetDlgItem (hwndDlg, IDC_SYSTEM_RESTORE), FALSE);
-			}
+				LONG driverVersion;
+
+				DetermineUpgradeDowngradeStatus (TRUE, &driverVersion);
+
+				SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), GetString ("SETUP_OPTIONS_TITLE"));
+				SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_INFO), GetString ("SETUP_OPTIONS_INFO"));
+				SetWindowTextW (GetDlgItem (hwndDlg, IDC_BOX_HELP), GetString ("AUTO_FOLDER_CREATION"));
+
+				InitWizardDestInstallPath ();
+
+				SendMessage (GetDlgItem (hwndDlg, IDC_DESTINATION), EM_LIMITTEXT, TC_MAX_PATH - 1, 0);
+
+				SetDlgItemText (hwndDlg, IDC_DESTINATION, WizardDestInstallPath);
+
+				// System Restore
+				SetCheckBox (hwndDlg, IDC_SYSTEM_RESTORE, bSystemRestore);
+				if (SystemRestoreDll == 0)
+				{
+					SetCheckBox (hwndDlg, IDC_SYSTEM_RESTORE, FALSE);
+					EnableWindow (GetDlgItem (hwndDlg, IDC_SYSTEM_RESTORE), FALSE);
+				}
 
 #if 0
-			// Swap files
-			SetCheckBox (hwndDlg, IDC_DISABLE_PAGING_FILES, bDisableSwapFiles);
-			if (nCurrentOS == WIN_2000)
-			{
-				bDisableSwapFiles = FALSE;
-				SetCheckBox (hwndDlg, IDC_DISABLE_PAGING_FILES, FALSE);
-				EnableWindow (GetDlgItem (hwndDlg, IDC_DISABLE_PAGING_FILES), FALSE);
-			}
+				// Swap files
+				SetCheckBox (hwndDlg, IDC_DISABLE_PAGING_FILES, bDisableSwapFiles);
+				if (nCurrentOS == WIN_2000)
+				{
+					bDisableSwapFiles = FALSE;
+					SetCheckBox (hwndDlg, IDC_DISABLE_PAGING_FILES, FALSE);
+					EnableWindow (GetDlgItem (hwndDlg, IDC_DISABLE_PAGING_FILES), FALSE);
+				}
 #endif // 0
 
-			SetCheckBox (hwndDlg, IDC_ALL_USERS, bForAllUsers);
-			SetCheckBox (hwndDlg, IDC_FILE_TYPE, bRegisterFileExt);
-			SetCheckBox (hwndDlg, IDC_PROG_GROUP, bAddToStartMenu);
-			SetCheckBox (hwndDlg, IDC_DESKTOP_ICON, bDesktopIcon);
+				SetCheckBox (hwndDlg, IDC_ALL_USERS, bForAllUsers);
+				SetCheckBox (hwndDlg, IDC_FILE_TYPE, bRegisterFileExt);
+				SetCheckBox (hwndDlg, IDC_PROG_GROUP, bAddToStartMenu);
+				SetCheckBox (hwndDlg, IDC_DESKTOP_ICON, bDesktopIcon);
 
-			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_NEXT), GetString ("INSTALL"));
-			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_PREV), GetString ("PREV"));
+				SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_NEXT), GetString (bUpgrade ? "UPGRADE" : "INSTALL"));
+				SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_PREV), GetString ("PREV"));
 
-			EnableWindow (GetDlgItem (GetParent (hwndDlg), IDHELP), TRUE);
-			EnableWindow (GetDlgItem (GetParent (hwndDlg), IDC_PREV), TRUE);
-			EnableWindow (GetDlgItem (GetParent (hwndDlg), IDC_NEXT), TRUE);
-			EnableWindow (GetDlgItem (GetParent (hwndDlg), IDCANCEL), TRUE);
-
+				EnableWindow (GetDlgItem (GetParent (hwndDlg), IDHELP), TRUE);
+				EnableWindow (GetDlgItem (GetParent (hwndDlg), IDC_PREV), TRUE);
+				EnableWindow (GetDlgItem (GetParent (hwndDlg), IDC_NEXT), TRUE);
+				EnableWindow (GetDlgItem (GetParent (hwndDlg), IDCANCEL), TRUE);
+			}
 			return 1;
 
 		case INSTALL_PROGRESS_PAGE:
@@ -654,9 +665,6 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 		{
 			if (nCurPageNo == INTRO_PAGE)
 			{
-				if (nCurrentOS == WIN_7)
-					WarningDirect (L"Please note that this version of TrueCrypt does not support Windows 7. Therefore, some features may not work properly.\n\nPlease check www.truecrypt.org for a new version (which should support Windows 7) shortly after a stable version of Windows 7 has been released.\n\nHowever, until a stable version of Windows 7 is released, we will welcome feedback from Windows 7 beta testers regarding problems with using TrueCrypt under Windows 7 RC. Note: You can submit a bug report at http://www.truecrypt.org/bugs/.");
-
 				if (!IsButtonChecked (GetDlgItem (hCurPage, IDC_AGREE)))
 				{
 					bLicenseAccepted = FALSE;
@@ -664,6 +672,9 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				}
 				bLicenseAccepted = TRUE;
 				EnableWindow (GetDlgItem (hwndDlg, IDHELP), TRUE);
+
+				if (nCurrentOS == WIN_2000)
+					WarningDirect (L"Warning: Please note that this may be the last version of TrueCrypt that supports Windows 2000. If you want to be able to upgrade to future versions of TrueCrypt (which is highly recommended), you will need to upgrade to Windows XP or a later version of Windows.\n\nNote: Microsoft will stop issuing security updates for Windows 2000 to the general public on 7/13/2010 (the last non-security update for Windows 2000 was issued to the general public in 2005).");
 			}
 
 			else if (nCurPageNo == WIZARD_MODE_PAGE)
@@ -753,7 +764,7 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 		NormalCursor ();
 
-		SetWindowTextW (GetDlgItem (hwndDlg, IDC_NEXT), GetString (bRestartRequired ? "RESTART" : "FINALIZE"));
+		SetWindowTextW (GetDlgItem (hwndDlg, IDC_NEXT), GetString ("FINALIZE"));
 		EnableWindow (GetDlgItem (hwndDlg, IDC_PREV), FALSE);
 		EnableWindow (GetDlgItem (hwndDlg, IDC_NEXT), TRUE);
 		EnableWindow (GetDlgItem (hwndDlg, IDHELP), FALSE);
@@ -834,15 +845,6 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				return 1;
 			}
 			WaitCursor ();
-		}
-
-		if (bRestartRequired)
-		{
-			if (AskWarnYesNo ("TC_INSTALLER_REQUIRING_RESTART") == IDYES)
-			{
-				RestartComputer();
-			}
-			return 1;
 		}
 
 		if (bOpenContainingFolder && bExtractOnly && bExtractionSuccessful)
