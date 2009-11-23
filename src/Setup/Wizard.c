@@ -3,11 +3,11 @@
  derived from the source code of Encryption for the Masses 2.02a, which is
  Copyright (c) 1998-2000 Paul Le Roux and which is governed by the 'License
  Agreement for Encryption for the Masses'. Modifications and additions to
- the original source code (contained in this file) and all other portions of
- this file are Copyright (c) 2003-2009 TrueCrypt Foundation and are governed
- by the TrueCrypt License 2.8 the full text of which is contained in the
- file License.txt included in TrueCrypt binary and source code distribution
- packages. */
+ the original source code (contained in this file) and all other portions
+ of this file are Copyright (c) 2003-2009 TrueCrypt Developers Association
+ and are governed by the TrueCrypt License 2.8 the full text of which is
+ contained in the file License.txt included in TrueCrypt binary and source
+ code distribution packages. */
 
 #include "Tcdefs.h"
 
@@ -314,6 +314,12 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 				DetermineUpgradeDowngradeStatus (TRUE, &driverVersion);
 
+				if (!bDesktopIconStatusDetermined)
+				{
+					bDesktopIcon = !bUpgrade;
+					bDesktopIconStatusDetermined = TRUE;
+				}
+
 				SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), GetString ("SETUP_OPTIONS_TITLE"));
 				SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_INFO), GetString ("SETUP_OPTIONS_INFO"));
 				SetWindowTextW (GetDlgItem (hwndDlg, IDC_BOX_HELP), GetString ("AUTO_FOLDER_CREATION"));
@@ -323,6 +329,13 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				SendMessage (GetDlgItem (hwndDlg, IDC_DESTINATION), EM_LIMITTEXT, TC_MAX_PATH - 1, 0);
 
 				SetDlgItemText (hwndDlg, IDC_DESTINATION, WizardDestInstallPath);
+
+				if (bUpgrade)
+				{
+					SetWindowTextW (GetDlgItem (hwndDlg, IDT_INSTALL_DESTINATION), GetString ("SETUP_UPGRADE_DESTINATION"));
+					EnableWindow (GetDlgItem (hwndDlg, IDC_DESTINATION), FALSE);
+					EnableWindow (GetDlgItem (hwndDlg, IDC_BROWSE), FALSE);
+				}
 
 				// System Restore
 				SetCheckBox (hwndDlg, IDC_SYSTEM_RESTORE, bSystemRestore);

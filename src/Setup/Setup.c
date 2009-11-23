@@ -3,11 +3,11 @@
  derived from the source code of Encryption for the Masses 2.02a, which is
  Copyright (c) 1998-2000 Paul Le Roux and which is governed by the 'License
  Agreement for Encryption for the Masses'. Modifications and additions to
- the original source code (contained in this file) and all other portions of
- this file are Copyright (c) 2003-2009 TrueCrypt Foundation and are governed
- by the TrueCrypt License 2.8 the full text of which is contained in the
- file License.txt included in TrueCrypt binary and source code distribution
- packages. */
+ the original source code (contained in this file) and all other portions
+ of this file are Copyright (c) 2003-2009 TrueCrypt Developers Association
+ and are governed by the TrueCrypt License 2.8 the full text of which is
+ contained in the file License.txt included in TrueCrypt binary and source
+ code distribution packages. */
 
 #include "Tcdefs.h"
 #include <SrRestorePtApi.h>
@@ -68,6 +68,8 @@ BOOL bForAllUsers = TRUE;
 BOOL bRegisterFileExt = TRUE;
 BOOL bAddToStartMenu = TRUE;
 BOOL bDesktopIcon = TRUE;
+
+BOOL bDesktopIconStatusDetermined = FALSE;
 
 HMODULE volatile SystemRestoreDll = 0;
 
@@ -251,6 +253,20 @@ void DetermineUpgradeDowngradeStatus (BOOL bCloseDriverHandle, LONG *driverVersi
 	*driverVersionPtr = driverVersion;
 }
 
+
+static BOOL IsFileInUse (const string &filePath)
+{
+	HANDLE useTestHandle = CreateFile (filePath.c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
+
+	if (useTestHandle != INVALID_HANDLE_VALUE)
+		CloseHandle (useTestHandle);
+	else if (GetLastError() == ERROR_SHARING_VIOLATION)
+		return TRUE;
+
+	return FALSE;
+}
+
+
 BOOL DoFilesInstall (HWND hwndDlg, char *szDestDir)
 {
 	/* WARNING: Note that, despite its name, this function is used during UNinstallation as well. */
@@ -367,6 +383,16 @@ BOOL DoFilesInstall (HWND hwndDlg, char *szDestDir)
 				else
 				{
 					bResult = TCCopyFile (curFileName, szTmp);
+				}
+
+				if (bResult && strcmp (szFiles[i], "ATrueCrypt.exe") == 0)
+				{
+					string servicePath = GetServiceConfigPath (TC_APP_NAME ".exe");
+					if (FileExists (servicePath.c_str()))
+					{
+						CopyMessage (hwndDlg, (char *) servicePath.c_str());
+						bResult = CopyFile (szTmp, servicePath.c_str(), FALSE);
+					}
 				}
 			}
 		}
@@ -969,13 +995,16 @@ BOOL DoDriverUnload (HWND hwndDlg)
 		}
 
 		// Test for any applications attached to driver
-		bResult = DeviceIoControl (hDriver, TC_IOCTL_GET_DEVICE_REFCOUNT, &refCount, sizeof (refCount), &refCount,
-			sizeof (refCount), &dwResult, NULL);
-
-		if (bOK && bResult && refCount > 1)
+		if (!bUpgrade)
 		{
-			MessageBoxW (hwndDlg, GetString ("CLOSE_TC_FIRST"), lpszTitle, MB_ICONSTOP);
-			bOK = FALSE;
+			bResult = DeviceIoControl (hDriver, TC_IOCTL_GET_DEVICE_REFCOUNT, &refCount, sizeof (refCount), &refCount,
+				sizeof (refCount), &dwResult, NULL);
+
+			if (bOK && bResult && refCount > 1)
+			{
+				MessageBoxW (hwndDlg, GetString ("CLOSE_TC_FIRST"), lpszTitle, MB_ICONSTOP);
+				bOK = FALSE;
+			}
 		}
 
 		if (!bOK || UnloadDriver)
@@ -1437,6 +1466,19 @@ void DoInstall (void *arg)
 		return;
 	}
 
+	if (bUpgrade
+		&& (IsFileInUse (string (InstallationPath) + '\\' + TC_APP_NAME ".exe")
+			|| IsFileInUse (string (InstallationPath) + '\\' + TC_APP_NAME " Format.exe")
+			|| IsFileInUse (string (InstallationPath) + '\\' + TC_APP_NAME " Setup.exe")
+			)
+		)
+	{
+		NormalCursor ();
+		Error ("CLOSE_TC_FIRST");
+		PostMessage (MainDlg, TC_APPMSG_INSTALL_FAILURE, 0, 0);
+		return;
+	}
+
 	UpdateProgressBarProc(12);
 	
 	if (bSystemRestore)
@@ -1506,6 +1548,11 @@ void DoInstall (void *arg)
 	}
 	catch (...)	{ }
 
+	string sysFavorites = GetServiceConfigPath (TC_APPD_FILENAME_SYSTEM_FAVORITE_VOLUMES);
+	string legacySysFavorites = GetProgramConfigPath ("System Favorite Volumes.xml");
+
+	if (FileExists (legacySysFavorites.c_str()) && !FileExists (sysFavorites.c_str()))
+		MoveFile (legacySysFavorites.c_str(), sysFavorites.c_str());
 
 	if (bOK)
 		UpdateProgressBarProc(97);
