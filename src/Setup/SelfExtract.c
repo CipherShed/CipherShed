@@ -1,7 +1,7 @@
 /*
  Copyright (c) 2008-2009 TrueCrypt Developers Association. All rights reserved.
 
- Governed by the TrueCrypt License 2.8 the full text of which is contained in
+ Governed by the TrueCrypt License 3.0 the full text of which is contained in
  the file License.txt included in TrueCrypt binary and source code distribution
  packages.
 */
@@ -226,7 +226,7 @@ BOOL MakeSelfExtractingPackage (HWND hwndDlg, char *szDestDir)
 
 	x = strlen (szDestDir);
 	if (x < 2)
-		return FALSE;
+		goto err;
 
 	if (szDestDir[x - 1] != '\\')
 		strcat (szDestDir, "\\");
@@ -242,7 +242,7 @@ BOOL MakeSelfExtractingPackage (HWND hwndDlg, char *szDestDir)
 	{
 		handleWin32Error (hwndDlg);
 		PkgError ("Cannot copy 'TrueCrypt Setup.exe' to the package");
-		return FALSE;
+		goto err;
 	}
 
 	// Determine the buffer size needed for all the files and meta data and check if all required files exist
@@ -260,7 +260,7 @@ BOOL MakeSelfExtractingPackage (HWND hwndDlg, char *szDestDir)
 			_snprintf (tmpstr, sizeof(tmpstr), "File not found:\n\n'%s'", szTmpFilePath);
 			remove (outputFile);
 			PkgError (tmpstr);
-			return FALSE;
+			goto err;
 		}
 
 		bufLen += (int) GetFileSize64 (szTmpFilePath);
@@ -276,7 +276,7 @@ BOOL MakeSelfExtractingPackage (HWND hwndDlg, char *szDestDir)
 	{
 		PkgError ("Cannot allocate memory for uncompressed data");
 		remove (outputFile);
-		return FALSE;
+		goto err;
 	}
 
 
@@ -285,7 +285,7 @@ BOOL MakeSelfExtractingPackage (HWND hwndDlg, char *szDestDir)
 	{
 		PkgError ("Cannot write the start marker");
 		remove (outputFile);
-		return FALSE;
+		goto err;
 	}
 
 
@@ -309,7 +309,7 @@ BOOL MakeSelfExtractingPackage (HWND hwndDlg, char *szDestDir)
 			_snprintf (tmpstr, sizeof(tmpstr), "Cannot load file \n'%s'", szTmpFilePath);
 			remove (outputFile);
 			PkgError (tmpstr);
-			goto msep_err;
+			goto err;
 		}
 
 		// Copy the filename length to the main buffer
@@ -342,7 +342,7 @@ BOOL MakeSelfExtractingPackage (HWND hwndDlg, char *szDestDir)
 	{
 		remove (outputFile);
 		PkgError ("Cannot write the total size of the uncompressed data");
-		return FALSE;
+		goto err;
 	}
 
 	// Compress all the files and meta data in the buffer to create a solid archive
@@ -352,7 +352,7 @@ BOOL MakeSelfExtractingPackage (HWND hwndDlg, char *szDestDir)
 	{
 		remove (outputFile);
 		PkgError ("Cannot allocate memory for compressed data");
-		return FALSE;
+		goto err;
 	}
 
 	compressedDataLen = CompressBuffer (compressedBuffer, buffer, uncompressedDataLen);
@@ -360,10 +360,11 @@ BOOL MakeSelfExtractingPackage (HWND hwndDlg, char *szDestDir)
 	{
 		remove (outputFile);
 		PkgError ("Failed to compress the data");
-		return FALSE;
+		goto err;
 	}
 
 	free (buffer);
+	buffer = NULL;
 
 	// Write the total size of the compressed data
 	szTmp32bitPtr = szTmp32bit;
@@ -372,7 +373,7 @@ BOOL MakeSelfExtractingPackage (HWND hwndDlg, char *szDestDir)
 	{
 		remove (outputFile);
 		PkgError ("Cannot write the total size of the compressed data");
-		return FALSE;
+		goto err;
 	}
 
 	// Write the compressed data
@@ -380,7 +381,7 @@ BOOL MakeSelfExtractingPackage (HWND hwndDlg, char *szDestDir)
 	{
 		remove (outputFile);
 		PkgError ("Cannot write compressed data to the package");
-		return FALSE;
+		goto err;
 	}
 
 	// Write the end marker
@@ -388,10 +389,11 @@ BOOL MakeSelfExtractingPackage (HWND hwndDlg, char *szDestDir)
 	{
 		remove (outputFile);
 		PkgError ("Cannot write the end marker");
-		return FALSE;
+		goto err;
 	}
 
 	free (compressedBuffer);
+	compressedBuffer = NULL;
 
 	// Compute and write CRC-32 hash of the entire package
 	{
@@ -405,7 +407,7 @@ BOOL MakeSelfExtractingPackage (HWND hwndDlg, char *szDestDir)
 			handleWin32Error (hwndDlg);
 			remove (outputFile);
 			PkgError ("Cannot load the package to compute CRC");
-			return FALSE;
+			goto err;
 		}
 
 		// Zero all bytes that change when the exe is digitally signed (except appended blocks).
@@ -413,23 +415,26 @@ BOOL MakeSelfExtractingPackage (HWND hwndDlg, char *szDestDir)
 
 		szTmp32bitPtr = szTmp32bit;
 		mputLong (szTmp32bitPtr, GetCrc32 (tmpBuffer, tmpFileSize));
+		free (tmpBuffer);
+
 		if (!SaveBufferToFile (szTmp32bit, outputFile, sizeof (szTmp32bit), TRUE))
 		{
 			remove (outputFile);
 			PkgError ("Cannot write the total size of the compressed data");
-			return FALSE;
+			goto err;
 		}
-
-		free (tmpBuffer);
 	}
 
 	sprintf (tmpStr, "Self-extracting package successfully created (%s)", outputFile);
 	PkgInfo (tmpStr);
 	return TRUE;
 
-msep_err:
-	free (buffer);
-	free (compressedBuffer);
+err:
+	if (buffer)
+		free (buffer);
+	if (compressedBuffer)
+		free (compressedBuffer);
+
 	return FALSE;
 }
 

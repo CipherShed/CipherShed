@@ -4,13 +4,14 @@
  Copyright (c) 1998-2000 Paul Le Roux and which is governed by the 'License
  Agreement for Encryption for the Masses'. Modifications and additions to
  the original source code (contained in this file) and all other portions
- of this file are Copyright (c) 2003-2009 TrueCrypt Developers Association
- and are governed by the TrueCrypt License 2.8 the full text of which is
+ of this file are Copyright (c) 2003-2010 TrueCrypt Developers Association
+ and are governed by the TrueCrypt License 3.0 the full text of which is
  contained in the file License.txt included in TrueCrypt binary and source
  code distribution packages. */
 
 #include "Tcdefs.h"
 #include <SrRestorePtApi.h>
+#include <io.h>
 #include <propkey.h>
 #include <propvarutil.h>
 #include <sys/types.h>
@@ -47,6 +48,7 @@ char InstallationPath[TC_MAX_PATH];
 char SetupFilesDir[TC_MAX_PATH];
 char UninstallBatch[MAX_PATH];
 
+LONG InstalledVersion = 0;
 BOOL bUninstall = FALSE;
 BOOL bRestartRequired = FALSE;	// If TRUE, the installer does not allow the user to exit it until he restarts the computer. This blocks the app setup mutex and the user cannot run TrueCrypt until he restarts.
 BOOL bMakePackage = FALSE;
@@ -55,6 +57,7 @@ BOOL Rollback = FALSE;
 BOOL bUpgrade = FALSE;
 BOOL bDowngrade = FALSE;
 BOOL SystemEncryptionUpgrade = FALSE;
+BOOL PortableMode = FALSE;
 BOOL bRepairMode = FALSE;
 BOOL bChangeMode = FALSE;
 BOOL bDevm = FALSE;
@@ -240,8 +243,13 @@ void DetermineUpgradeDowngradeStatus (BOOL bCloseDriverHandle, LONG *driverVersi
 		if (!bResult)
 			bResult = DeviceIoControl (hDriver, TC_IOCTL_LEGACY_GET_DRIVER_VERSION, NULL, 0, &driverVersion, sizeof (driverVersion), &dwResult, NULL);
 
+		if (bResult)
+			InstalledVersion = driverVersion;
+
 		bUpgrade = (bResult && driverVersion < VERSION_NUM);
 		bDowngrade = (bResult && driverVersion > VERSION_NUM);
+
+		PortableMode = DeviceIoControl (hDriver, TC_IOCTL_GET_PORTABLE_MODE_STATUS, NULL, 0, NULL, 0, &dwResult, NULL);
 
 		if (bCloseDriverHandle)
 		{
@@ -347,12 +355,15 @@ BOOL DoFilesInstall (HWND hwndDlg, char *szDestDir)
 			}
 			else
 			{
+				BOOL driver64 = FALSE;
+
 				strncpy (curFileName, szFiles[i] + 1, strlen (szFiles[i]) - 1);
 				curFileName [strlen (szFiles[i]) - 1] = 0;
 
 				if (Is64BitOs ()
 					&& strcmp (szFiles[i], "Dtruecrypt.sys") == 0)
 				{
+					driver64 = TRUE;
 					strncpy (curFileName, FILENAME_64BIT_DRIVER, sizeof (FILENAME_64BIT_DRIVER));
 				}
 
@@ -370,11 +381,44 @@ BOOL DoFilesInstall (HWND hwndDlg, char *szDestDir)
 							Decompressed_Files[fileNo].fileName, 
 							min (strlen (curFileName), (size_t) Decompressed_Files[fileNo].fileNameLength)) == 0)
 						{
+							// Dump filter driver cannot be installed to SysWOW64 directory
+							if (driver64 && !EnableWow64FsRedirection (FALSE))
+							{
+								handleWin32Error (hwndDlg);
+								bResult = FALSE;
+								goto err;
+							}
+
 							bResult = SaveBufferToFile (
 								(char *) Decompressed_Files[fileNo].fileContent,
 								szTmp,
 								Decompressed_Files[fileNo].fileLength, 
 								FALSE);
+
+							if (driver64)
+							{
+								if (!EnableWow64FsRedirection (TRUE))
+								{
+									handleWin32Error (hwndDlg);
+									bResult = FALSE;
+									goto err;
+								}
+
+								if (!bResult)
+									goto err;
+
+								if (bUpgrade && InstalledVersion < 0x700)
+								{
+									bResult = WriteLocalMachineRegistryString ("SYSTEM\\CurrentControlSet\\Services\\truecrypt", "ImagePath", "System32\\drivers\\truecrypt.sys", TRUE);
+									if (!bResult)
+									{
+										handleWin32Error (hwndDlg);
+										goto err;
+									}
+
+									DeleteFile (szTmp);
+								}
+							}
 
 							break;
 						}
@@ -382,7 +426,13 @@ BOOL DoFilesInstall (HWND hwndDlg, char *szDestDir)
 				}
 				else
 				{
+					if (driver64)
+						EnableWow64FsRedirection (FALSE);
+
 					bResult = TCCopyFile (curFileName, szTmp);
+
+					if (driver64)
+						EnableWow64FsRedirection (TRUE);
 				}
 
 				if (bResult && strcmp (szFiles[i], "ATrueCrypt.exe") == 0)
@@ -401,6 +451,7 @@ BOOL DoFilesInstall (HWND hwndDlg, char *szDestDir)
 			bResult = StatDeleteFile (szTmp);
 		}
 
+err:
 		if (bResult == FALSE)
 		{
 			LPVOID lpMsgBuf;
@@ -610,7 +661,7 @@ BOOL DoRegInstall (HWND hwndDlg, char *szDestDir, BOOL bInstallType)
 	strcpy (szTmp, TC_HOMEPAGE);
 	if (RegSetValueEx (hkey, "URLInfoAbout", 0, REG_SZ, (BYTE *) szTmp, strlen (szTmp) + 1) != ERROR_SUCCESS)
 		goto error;
-		
+
 	bOK = TRUE;
 
 error:
@@ -709,9 +760,7 @@ BOOL DoRegUninstall (HWND hwndDlg, BOOL bRemoveDeprecated)
 
 	if (!bRemoveDeprecated)
 	{
-		// Split the string in order to prevent some antivirus packages from falsely reporting  
-		// TrueCrypt.exe to contain a possible Trojan horse because of this string (heuristic scan).
-		sprintf (regk, "%s%s", "Software\\Microsoft\\Windows\\Curren", "tVersion\\Run");
+		GetStartupRegKeyName (regk);
 		DeleteRegistryValue (regk, "TrueCrypt");
 
 		RegDeleteKey (HKEY_LOCAL_MACHINE, "Software\\Classes\\.tc");
@@ -759,8 +808,9 @@ retry:
 			BootEncryption bootEnc (hwndDlg);
 			if (bootEnc.GetDriverServiceStartType() == SERVICE_BOOT_START)
 			{
-				bootEnc.RegisterFilterDriver (false, false);
-				bootEnc.RegisterFilterDriver (false, true);
+				try { bootEnc.RegisterFilterDriver (false, BootEncryption::DriveFilter); } catch (...) { }
+				try { bootEnc.RegisterFilterDriver (false, BootEncryption::VolumeFilter); } catch (...) { }
+				try { bootEnc.RegisterFilterDriver (false, BootEncryption::DumpFilter); } catch (...) { }
 			}
 		}
 		catch (...) { }
@@ -924,8 +974,9 @@ BOOL DoDriverUnload (HWND hwndDlg)
 
 				if (bUninstallInProgress && driverVersion >= 0x500 && !bootEnc.GetStatus().DriveMounted)
 				{
-					bootEnc.RegisterFilterDriver (false, false);
-					bootEnc.RegisterFilterDriver (false, true);
+					try { bootEnc.RegisterFilterDriver (false, BootEncryption::DriveFilter); } catch (...) { }
+					try { bootEnc.RegisterFilterDriver (false, BootEncryption::VolumeFilter); } catch (...) { }
+					try { bootEnc.RegisterFilterDriver (false, BootEncryption::DumpFilter); } catch (...) { }
 					bootEnc.SetDriverServiceStartType (SERVICE_SYSTEM_START);
 				}
 				else if (bUninstallInProgress || bDowngrade)
@@ -935,13 +986,11 @@ BOOL DoDriverUnload (HWND hwndDlg)
 				}
 				else
 				{
-					if (CurrentOSMajor == 6 && CurrentOSMinor == 0 && CurrentOSServicePack < 1
-						&& AskWarnNoYes ("SYS_ENCRYPTION_VISTA_SP1_RECOMMENDED") == IDNO)
-					{
-						AbortProcessSilent();
-					}
+					if (CurrentOSMajor == 6 && CurrentOSMinor == 0 && CurrentOSServicePack < 1)
+						AbortProcess ("SYS_ENCRYPTION_UPGRADE_UNSUPPORTED_ON_VISTA_SP0");
 
 					SystemEncryptionUpgrade = TRUE;
+					PortableMode = FALSE;
 				}
 			}
 		}
@@ -953,6 +1002,9 @@ BOOL DoDriverUnload (HWND hwndDlg)
 		{
 			UnloadDriver = FALSE;
 		}
+
+		if (PortableMode && !SystemEncryptionUpgrade)
+			UnloadDriver = TRUE;
 
 		if (UnloadDriver)
 		{
@@ -1202,6 +1254,8 @@ BOOL DoShortcutsInstall (HWND hwndDlg, char *szDestDir, BOOL bProgGroup, BOOL bD
 		if (f)
 		{
 			fprintf (f, "[InternetShortcut]\nURL=%s\n", TC_HOMEPAGE);
+
+			CheckFileStreamWriteErrors (f, szTmp2);
 			fclose (f);
 		}
 		else
@@ -1310,7 +1364,7 @@ static void SetSystemRestorePoint (HWND hwndDlg, BOOL finalize)
 		StatusMessage (hwndDlg, "CREATING_SYS_RESTORE");
 
 		RestPtInfo.dwEventType = BEGIN_SYSTEM_CHANGE;
-		RestPtInfo.dwRestorePtType = APPLICATION_INSTALL;
+		RestPtInfo.dwRestorePtType = bUninstall ? APPLICATION_UNINSTALL : APPLICATION_INSTALL | DEVICE_DRIVER_INSTALL;
 		RestPtInfo.llSequenceNumber = 0;
 		strcpy (RestPtInfo.szDescription, bUninstall ? "TrueCrypt uninstallation" : "TrueCrypt installation");
 
@@ -1407,6 +1461,8 @@ void DoUninstall (void *arg)
 					InstallationPath,
 					UninstallBatch
 					);
+
+				CheckFileStreamWriteErrors (f, UninstallBatch);
 				fclose (f);
 			}
 		}
@@ -1438,9 +1494,9 @@ void DoInstall (void *arg)
 	BootEncryption bootEnc (hwndDlg);
 
 	// Refresh the main GUI (wizard thread)
-	InvalidateRect (GetDlgItem (MainDlg, IDD_INSTL_DLG), NULL, TRUE);
+	InvalidateRect (MainDlg, NULL, TRUE);
 
-	ClearLogWindow(hwndDlg);
+	ClearLogWindow (hwndDlg);
 
 	if (mkfulldir (InstallationPath, TRUE) != 0)
 	{
@@ -1508,7 +1564,92 @@ void DoInstall (void *arg)
 	if (!SystemEncryptionUpgrade)
 		DoRegUninstall ((HWND) hwndDlg, TRUE);
 
-	UpdateProgressBarProc(62);
+	if (SystemEncryptionUpgrade && InstalledVersion < 0x700)
+	{
+		try
+		{
+			bootEnc.RegisterFilterDriver (false, BootEncryption::DumpFilter);
+		}
+		catch (...) { }
+
+		try
+		{
+			bootEnc.RegisterFilterDriver (true, BootEncryption::DumpFilter);
+		}
+		catch (Exception &e)
+		{
+			try
+			{
+				bootEnc.RegisterFilterDriver (false, BootEncryption::DumpFilter);
+			}
+			catch (...) { }
+
+			e.Show (hwndDlg);
+
+			bOK = FALSE;
+			goto outcome;
+		}
+
+		if (ReadDriverConfigurationFlags() & TC_DRIVER_CONFIG_CACHE_BOOT_PASSWORD_FOR_SYS_FAVORITES)
+		{
+			WriteLocalMachineRegistryString ("SYSTEM\\CurrentControlSet\\Control\\SafeBoot\\Minimal\\" TC_SYSTEM_FAVORITES_SERVICE_NAME, NULL, "Service", FALSE);
+			WriteLocalMachineRegistryString ("SYSTEM\\CurrentControlSet\\Control\\SafeBoot\\Network\\" TC_SYSTEM_FAVORITES_SERVICE_NAME, NULL, "Service", FALSE);
+		}
+	}
+
+	UpdateProgressBarProc(61);
+
+	if (bUpgrade && InstalledVersion < 0x700)
+	{
+		bool bMountFavoritesOnLogon = ConfigReadInt ("MountFavoritesOnLogon", FALSE) != 0;
+		bool bOpenExplorerWindowAfterMount = ConfigReadInt ("OpenExplorerWindowAfterMount", FALSE) != 0;
+
+		if (bMountFavoritesOnLogon || bOpenExplorerWindowAfterMount)
+		{
+			char *favoritesFilename = GetConfigPath (TC_APPD_FILENAME_FAVORITE_VOLUMES);
+			DWORD size;
+			char *favoritesXml = LoadFile (favoritesFilename, &size);
+
+			if (favoritesXml && size != 0)
+			{
+				string favorites;
+				favorites.insert (0, favoritesXml, size);
+
+				size_t p = favorites.find ("<volume ");
+				while (p != string::npos)
+				{
+					if (bMountFavoritesOnLogon)
+						favorites.insert (p + 8, "mountOnLogOn=\"1\" ");
+
+					if (bOpenExplorerWindowAfterMount)
+						favorites.insert (p + 8, "openExplorerWindow=\"1\" ");
+
+					p = favorites.find ("<volume ", p + 1);
+				}
+
+				SaveBufferToFile (favorites.c_str(), favoritesFilename, favorites.size(), FALSE);
+
+				if (bMountFavoritesOnLogon)
+				{
+					char regk[64];
+					char regVal[MAX_PATH * 2];
+
+					GetStartupRegKeyName (regk);
+
+					ReadRegistryString (regk, "TrueCrypt", "", regVal, sizeof (regVal));
+
+					if (strstr (regVal, "favorites"))
+					{
+						strcat_s (regVal, sizeof (regVal), " /a logon");
+						WriteRegistryString (regk, "TrueCrypt", regVal);
+					}
+				}
+			}
+
+			if (favoritesXml)
+				free (favoritesXml);
+		}
+	}
 
 	GetWindowsDirectory (path, sizeof (path));
 	strcat_s (path, sizeof (path), "\\TrueCrypt Setup.exe");
@@ -1548,11 +1689,14 @@ void DoInstall (void *arg)
 	}
 	catch (...)	{ }
 
-	string sysFavorites = GetServiceConfigPath (TC_APPD_FILENAME_SYSTEM_FAVORITE_VOLUMES);
-	string legacySysFavorites = GetProgramConfigPath ("System Favorite Volumes.xml");
+	if (SystemEncryptionUpgrade && InstalledVersion == 0x630)
+	{
+		string sysFavorites = GetServiceConfigPath (TC_APPD_FILENAME_SYSTEM_FAVORITE_VOLUMES);
+		string legacySysFavorites = GetProgramConfigPath ("System Favorite Volumes.xml");
 
-	if (FileExists (legacySysFavorites.c_str()) && !FileExists (sysFavorites.c_str()))
-		MoveFile (legacySysFavorites.c_str(), sysFavorites.c_str());
+		if (FileExists (legacySysFavorites.c_str()) && !FileExists (sysFavorites.c_str()))
+			MoveFile (legacySysFavorites.c_str(), sysFavorites.c_str());
+	}
 
 	if (bOK)
 		UpdateProgressBarProc(97);
@@ -1581,9 +1725,13 @@ void DoInstall (void *arg)
 		Rollback = FALSE;
 		Silent = FALSE;
 
-		StatusMessage (hwndDlg, "ROLLBACK");
+		if (SystemEncryptionUpgrade)
+			Warning ("SYS_ENC_UPGRADE_FAILED");
+		else
+			StatusMessage (hwndDlg, "ROLLBACK");
 	}
 
+outcome:
 	OutcomePrompt (hwndDlg, bOK);
 
 	if (!bOK)
@@ -1742,6 +1890,20 @@ void SetInstallationPath (HWND hwndDlg)
 		// Default "Program Files" path. 
 		SHGetSpecialFolderLocation (hwndDlg, CSIDL_PROGRAM_FILES, &itemList);
 		SHGetPathFromIDList (itemList, path);
+
+		if (Is64BitOs())
+		{
+			// Use a unified default installation path (registry redirection of %ProgramFiles% does not work if the installation path is user-selectable)
+			string s = path;
+			size_t p = s.find (" (x86)");
+			if (p != string::npos)
+			{
+				s = s.substr (0, p);
+				if (_access (s.c_str(), 0) != -1)
+					strcpy_s (path, sizeof (path), s.c_str());
+			}
+		}
+
 		strncat (path, "\\TrueCrypt\\", min (strlen("\\TrueCrypt\\"), sizeof(path)-strlen(path)-1));
 		strncpy (InstallationPath, path, sizeof(InstallationPath)-1);
 	}
@@ -1906,7 +2068,7 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpszComm
 			bDevm = TRUE;
 		}
 	}
- 
+
 	if (bMakePackage)
 	{
 		/* Create self-extracting package */

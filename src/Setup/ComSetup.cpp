@@ -1,10 +1,16 @@
 /*
- Copyright (c) 2007 TrueCrypt Developers Association. All rights reserved.
+ Copyright (c) 2007-2010 TrueCrypt Developers Association. All rights reserved.
 
- Governed by the TrueCrypt License 2.8 the full text of which is contained in
+ Governed by the TrueCrypt License 3.0 the full text of which is contained in
  the file License.txt included in TrueCrypt binary and source code distribution
  packages.
 */
+
+#define TC_MAIN_COM_VERSION_MAJOR 2
+#define TC_MAIN_COM_VERSION_MINOR 4
+
+#define TC_FORMAT_COM_VERSION_MAJOR 2
+#define TC_FORMAT_COM_VERSION_MINOR 4
 
 #include <atlbase.h>
 #include <statreg.h>
@@ -24,8 +30,8 @@ extern "C" BOOL RegisterComServers (char *modulePath)
 	wsprintfW (mainModule, L"%hsTrueCrypt.exe", modulePath);
 	wsprintfW (formatModule, L"%hsTrueCrypt Format.exe", modulePath);
 
-	UnRegisterTypeLib (LIBID_TrueCryptMainCom, 1, 0, 0, SYS_WIN32);
-	UnRegisterTypeLib (LIBID_TrueCryptFormatCom, 1, 0, 0, SYS_WIN32);
+	UnRegisterTypeLib (LIBID_TrueCryptMainCom, TC_MAIN_COM_VERSION_MAJOR, TC_MAIN_COM_VERSION_MINOR, 0, SYS_WIN32);
+	UnRegisterTypeLib (LIBID_TrueCryptFormatCom, TC_FORMAT_COM_VERSION_MAJOR, TC_FORMAT_COM_VERSION_MINOR, 0, SYS_WIN32);
 
 	CRegObject ro;
 	ro.FinalConstruct ();
@@ -57,9 +63,9 @@ extern "C" BOOL UnregisterComServers (char *modulePath)
 {
 	BOOL ret;
 
-	if (UnRegisterTypeLib (LIBID_TrueCryptMainCom, 1, 0, 0, SYS_WIN32) != S_OK)
+	if (UnRegisterTypeLib (LIBID_TrueCryptMainCom, TC_MAIN_COM_VERSION_MAJOR, TC_MAIN_COM_VERSION_MINOR, 0, SYS_WIN32) != S_OK)
 		return FALSE;
-	if (UnRegisterTypeLib (LIBID_TrueCryptFormatCom, 1, 0, 0, SYS_WIN32) != S_OK)
+	if (UnRegisterTypeLib (LIBID_TrueCryptFormatCom, TC_FORMAT_COM_VERSION_MAJOR, TC_FORMAT_COM_VERSION_MINOR, 0, SYS_WIN32) != S_OK)
 		return FALSE;
 
 	wchar_t module[1024];
