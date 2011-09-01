@@ -537,11 +537,11 @@ static void FreeAllFileBuffers (void)
 // For details, see the definition of the DECOMPRESSED_FILE structure.
 BOOL SelfExtractInMemory (char *path)
 {
-	unsigned int filePos = 0, fileNo = 0;
-	unsigned int fileDataEndPos = 0;
-	unsigned int fileDataStartPos = 0;
-	unsigned int uncompressedLen = 0;
-	unsigned int compressedLen = 0;
+	int filePos = 0, fileNo = 0;
+	int fileDataEndPos = 0;
+	int fileDataStartPos = 0;
+	int uncompressedLen = 0;
+	int compressedLen = 0;
 	unsigned char *compressedData = NULL;
 	unsigned char *bufPos = NULL, *bufEndPos = NULL;
 
@@ -612,7 +612,7 @@ BOOL SelfExtractInMemory (char *path)
 	}
 
 	// Decompress the data
-	if ((unsigned int) DecompressBuffer (DecompressedData, compressedData, compressedLen) != uncompressedLen)
+	if (DecompressBuffer (DecompressedData, compressedData, compressedLen) != uncompressedLen)
 	{
 		Error ("DIST_PACKAGE_CORRUPTED");
 		goto sem_end;

@@ -50,7 +50,7 @@ char UninstallBatch[MAX_PATH];
 
 LONG InstalledVersion = 0;
 BOOL bUninstall = FALSE;
-BOOL bRestartRequired = FALSE;	// If TRUE, the installer does not allow the user to exit it until he restarts the computer. This blocks the app setup mutex and the user cannot run TrueCrypt until he restarts.
+BOOL bRestartRequired = FALSE;
 BOOL bMakePackage = FALSE;
 BOOL bDone = FALSE;
 BOOL Rollback = FALSE;
@@ -61,7 +61,7 @@ BOOL PortableMode = FALSE;
 BOOL bRepairMode = FALSE;
 BOOL bChangeMode = FALSE;
 BOOL bDevm = FALSE;
-BOOL bFirstTimeInstall = FALSE;
+BOOL bPossiblyFirstTimeInstall = FALSE;
 BOOL bUninstallInProgress = FALSE;
 BOOL UnloadDriver = TRUE;
 
@@ -1067,7 +1067,10 @@ BOOL DoDriverUnload (HWND hwndDlg)
 	}
 	else
 	{
-		bFirstTimeInstall = TRUE;
+		// Note that the driver may have already been unloaded during this session (e.g. retry after an error, etc.) so it is not 
+		// guaranteed that the user is installing TrueCrypt for the first time now (we also cannot know if the user has already
+		// installed and used TrueCrypt on another system before).
+		bPossiblyFirstTimeInstall = TRUE;
 	}
 
 	return bOK;
@@ -1318,12 +1321,15 @@ void OutcomePrompt (HWND hwndDlg, BOOL bOK)
 
 		if (bUninstall == FALSE)
 		{
-			if (bDevm)
-				PostMessage (MainDlg, WM_CLOSE, 0, 0);
-			else if (bFirstTimeInstall && !SystemEncryptionUpgrade && !bUpgrade && !bDowngrade && !bRepairMode)
-				Info ("INSTALL_OK");
-			else if (!bRestartRequired)
-				Info ("SETUP_UPDATE_OK");
+			if (!DonEnabled || DonPagePos != 4)
+			{
+				if (bDevm)
+					PostMessage (MainDlg, WM_CLOSE, 0, 0);
+				else if (bPossiblyFirstTimeInstall && !SystemEncryptionUpgrade && !bUpgrade && !bDowngrade && !bRepairMode)
+					Info ("INSTALL_OK");
+				else if (!bRestartRequired || (DonEnabled && DonPagePos == 3))
+					Info ("SETUP_UPDATE_OK");
+			}
 		}
 		else
 		{
@@ -1709,7 +1715,9 @@ void DoInstall (void *arg)
 		UpdateProgressBarProc(100);
 		UninstallBatch[0] = 0;
 		StatusMessage (hwndDlg, "INSTALL_COMPLETED");
-		PostMessage (MainDlg, TC_APPMSG_INSTALL_SUCCESS, 0, 0);
+
+		if (!DonEnabled || DonPagePos != 3)
+			PostMessage (MainDlg, TC_APPMSG_INSTALL_SUCCESS, 0, 0);
 	}
 	else
 	{
@@ -1734,6 +1742,9 @@ void DoInstall (void *arg)
 outcome:
 	OutcomePrompt (hwndDlg, bOK);
 
+	if (bOK && DonEnabled && DonPagePos == 3)
+		PostMessage (MainDlg, TC_APPMSG_INSTALL_SUCCESS, 0, 0);
+
 	if (!bOK)
 	{
 		PostMessage (MainDlg, TC_APPMSG_INSTALL_FAILURE, 0, 0);
@@ -1748,18 +1759,20 @@ outcome:
 				{
 					SavePostInstallTasksSettings (TC_POST_INSTALL_CFG_RELEASE_NOTES);
 				}
-				else if (AskYesNo ("AFTER_UPGRADE_RELEASE_NOTES") == IDYES)
+				else if ((!DonEnabled || DonPagePos == 2)
+					&& AskYesNo ("AFTER_UPGRADE_RELEASE_NOTES") == IDYES)
 				{
 					Applink ("releasenotes", TRUE, "");
 				}
 			}
-			else if (bFirstTimeInstall)
+			else if (bPossiblyFirstTimeInstall)
 			{
 				if (bRestartRequired || SystemEncryptionUpgrade)
 				{
 					SavePostInstallTasksSettings (TC_POST_INSTALL_CFG_TUTORIAL);
 				}
-				else if (AskYesNo ("AFTER_INSTALL_TUTORIAL") == IDYES)
+				else if ((!DonEnabled || DonPagePos == 2)
+					&& AskYesNo ("AFTER_INSTALL_TUTORIAL") == IDYES)
 				{
 					Applink ("beginnerstutorial", TRUE, "");
 				}
@@ -1767,10 +1780,13 @@ outcome:
 		}
 	}
 
-	if (bOK && bRestartRequired)
+	if (!DonEnabled || DonPagePos == 2)
 	{
-		if (AskYesNo (bUpgrade ? "UPGRADE_OK_REBOOT_REQUIRED" : "CONFIRM_RESTART") == IDYES)
-			RestartComputer();
+		if (bOK && bRestartRequired)
+		{
+			if (AskYesNo (bUpgrade ? "UPGRADE_OK_REBOOT_REQUIRED" : "CONFIRM_RESTART") == IDYES)
+				RestartComputer();
+		}
 	}
 }
 

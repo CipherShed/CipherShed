@@ -12,6 +12,8 @@
 #include "Tcdefs.h"
 #include <Shlobj.h>
 #include <io.h>
+#include <stdio.h>
+#include <time.h>
 #include "SelfExtract.h"
 #include "Wizard.h"
 #include "Dlgcode.h"
@@ -29,7 +31,8 @@ enum wizard_pages
 	INSTALL_OPTIONS_PAGE,
 	INSTALL_PROGRESS_PAGE,
 	EXTRACTION_OPTIONS_PAGE,
-	EXTRACTION_PROGRESS_PAGE
+	EXTRACTION_PROGRESS_PAGE,
+	DONATIONS_PAGE
 };
 
 HWND hCurPage = NULL;		/* Handle to current wizard page */
@@ -50,6 +53,24 @@ BOOL bInProgress = FALSE;
 
 int nPbar = 0;			/* Control ID of progress bar */
 
+BOOL DonEnabled = TRUE;
+static HFONT hDonTextFont;
+static HFONT hDonHyperlinkFont;
+static BOOL OsPrngAvailable;
+static HCRYPTPROV hCryptProv;
+static int DonCtrlType;
+static int DonTextId;
+static int DonCaptionId;
+int DonPagePos;
+static int DonColorSchemeId;
+static int DonFontId;
+static COLORREF DonTextColor;
+static COLORREF DonLinkColor;
+static COLORREF DonBkgColor;
+
+wstring DonText = L"";
+wstring DonCaption = L"";
+
 void localcleanupwiz (void)
 {
 	/* Delete buffered bitmaps (if any) */
@@ -57,6 +78,18 @@ void localcleanupwiz (void)
 	{
 		DeleteObject ((HGDIOBJ) hbmWizardBitmapRescaled);
 		hbmWizardBitmapRescaled = NULL;
+	}
+
+	if (DonEnabled)
+	{
+		if (hCryptProv != 0)
+			CryptReleaseContext (hCryptProv, 0);
+
+		OsPrngAvailable = FALSE;
+		hCryptProv = 0;
+
+		DeleteObject (hDonTextFont);
+		DeleteObject (hDonHyperlinkFont);
 	}
 }
 
@@ -81,6 +114,8 @@ void LoadPage (HWND hwndDlg, int nPageNo)
 	{
 		DestroyWindow (hCurPage);
 	}
+
+	InvalidateRect (GetDlgItem (MainDlg, IDC_MAIN_CONTENT_CANVAS), NULL, TRUE);
 
 	GetWindowRect (GetDlgItem (hwndDlg, IDC_POS_BOX), &rW);
 
@@ -117,6 +152,11 @@ void LoadPage (HWND hwndDlg, int nPageNo)
 		hCurPage = CreateDialogW (hInst, MAKEINTRESOURCEW (IDD_PROGRESS_PAGE_DLG), hwndDlg,
 					 (DLGPROC) PageDialogProc);
 		break;
+
+	case DONATIONS_PAGE:
+		hCurPage = CreateDialogW (hInst, MAKEINTRESOURCEW (IDD_DONATIONS_PAGE_DLG), hwndDlg,
+					 (DLGPROC) PageDialogProc);
+		break;
 	}
 
 	rD.left = 15;
@@ -133,6 +173,34 @@ void LoadPage (HWND hwndDlg, int nPageNo)
 
 	/* Refresh the graphics (white background of some texts, etc.) */
 	RefreshUIGFX ();
+}
+
+
+static int GetDonVal (int minVal, int maxVal)
+{
+	static BOOL prngInitialized = FALSE;
+	static unsigned __int8 buffer [2];
+
+	if (!prngInitialized)
+	{
+		if (!CryptAcquireContext (&hCryptProv, NULL, NULL, PROV_RSA_FULL, 0)
+			&& !CryptAcquireContext (&hCryptProv, NULL, NULL, PROV_RSA_FULL, CRYPT_NEWKEYSET))
+			OsPrngAvailable = FALSE;
+		else
+			OsPrngAvailable = TRUE;
+
+		srand ((unsigned int) time (NULL));
+		rand(); // Generate and discard the inital value, as it always appears to be somewhat non-random.
+
+		prngInitialized = TRUE;
+	}
+
+	if (OsPrngAvailable && CryptGenRandom (hCryptProv, sizeof (buffer), buffer) != 0) 
+	{
+		return  ((int) ((double) *((uint16 *) buffer) / (0xFFFF+1) * (maxVal + 1 - minVal)) + minVal);
+	}
+	else
+		return  ((int) ((double) rand() / (RAND_MAX+1) * (maxVal + 1 - minVal)) + minVal);
 }
 
 
@@ -173,16 +241,16 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 					exit (1);
 				}
 
-				/* Some of the following texts cannot be localized by third parties for legal reasons. */
+				/* For legal reasons, some of the following texts cannot be localized by third parties. */
 
 				SetCheckBox (hwndDlg, IDC_AGREE, bLicenseAccepted);
 
-				SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), L"License");
+				SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), L"Please read the license terms");
 				SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_INFO), L"You must accept these license terms before you can use, extract, or install TrueCrypt.");
-				SetWindowTextW (GetDlgItem (hwndDlg, IDC_BOX_HELP), L"IMPORTANT: By checking the checkbox below and clicking Accept, you accept these license terms and agree to be bound by and to comply with them. Click the 'arrow down' icon to see the rest of the license.");
+				SetWindowTextW (GetDlgItem (hwndDlg, IDC_BOX_HELP), L"IMPORTANT: By checking the checkbox below, you accept these license terms and signify that you understand and agree to them. Please click the 'arrow down' icon to see the rest of the license.");	// Cannot be localized by third parties (for legal reasons).
 				//SendMessage (GetDlgItem (hwndDlg, IDC_BOX_HELP), WM_SETFONT, (WPARAM) hUserBoldFont, (LPARAM) TRUE);
 
-				SetWindowTextW (GetDlgItem (hwndDlg, IDC_AGREE), L"I a&ccept and agree to be bound by the license terms");
+				SetWindowTextW (GetDlgItem (hwndDlg, IDC_AGREE), L"I &accept the license terms");	// Cannot be localized by third parties (for legal reasons).
 				//SetWindowTextW (GetDlgItem (hwndDlg, IDC_DISAGREE), L"I &do not accept the license terms");
 
 				//SendMessage (GetDlgItem (hwndDlg, IDC_AGREE), WM_SETFONT, (WPARAM) hUserBoldFont, (LPARAM) TRUE);
@@ -190,7 +258,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 				EnableWindow (GetDlgItem (hwndDlg, IDC_AGREE), TRUE);
 
-				SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_NEXT), L"&Accept");	// Cannot be localized by third parties for legal reasons.
+				SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_NEXT), GetString ("NEXT"));
 				SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_PREV), GetString ("PREV"));
 				SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDCANCEL), GetString ("CANCEL"));
 
@@ -260,8 +328,10 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_INFO), GetString ("EXTRACTION_OPTIONS_INFO"));
 			SetWindowTextW (GetDlgItem (hwndDlg, IDC_BOX_HELP), GetString ("AUTO_FOLDER_CREATION"));
 
-			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_NEXT), GetString ("EXTRACT"));
+			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_NEXT), GetString ((DonEnabled && DonPagePos == 2) ? "NEXT" : "EXTRACT"));
 			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_PREV), GetString ("PREV"));
+
+			EnableWindow (GetDlgItem (GetParent (hwndDlg), IDHELP), TRUE);
 			EnableWindow (GetDlgItem (GetParent (hwndDlg), IDC_PREV), TRUE);
 			EnableWindow (GetDlgItem (GetParent (hwndDlg), IDC_NEXT), TRUE);
 			EnableWindow (GetDlgItem (GetParent (hwndDlg), IDCANCEL), TRUE);
@@ -358,7 +428,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				SetCheckBox (hwndDlg, IDC_PROG_GROUP, bAddToStartMenu);
 				SetCheckBox (hwndDlg, IDC_DESKTOP_ICON, bDesktopIcon);
 
-				SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_NEXT), GetString (bUpgrade ? "UPGRADE" : "INSTALL"));
+				SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_NEXT), GetString ((DonEnabled && DonPagePos == 2) ? "NEXT" : (bUpgrade ? "UPGRADE" : "INSTALL")));
 				SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_PREV), GetString ("PREV"));
 
 				EnableWindow (GetDlgItem (GetParent (hwndDlg), IDHELP), TRUE);
@@ -415,7 +485,178 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 			return 1;
 
+		case DONATIONS_PAGE:
+
+			if (DonPagePos != 2)
+			{
+				// Final page
+
+				SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), GetString (bExtractOnly ? "EXTRACTION_FINISHED_TITLE_DON" : (bUpgrade ? "SETUP_FINISHED_UPGRADE_TITLE_DON" : "SETUP_FINISHED_TITLE_DON")));
+				SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_INFO), GetString ("SETUP_FINISHED_INFO_DON"));
+			}
+			else
+			{
+				// Non-final page
+
+				SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_NEXT), GetString (bExtractOnly ? "EXTRACT" : (bUpgrade ? "UPGRADE" : "INSTALL")));
+
+				SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), GetString ("CONSIDER_MAKING_A_DONATION"));
+				SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_INFO), GetString (bExtractOnly ? "SETUP_DON_EXTRACT_INFO" : (bUpgrade ? "SETUP_DON_UPGRADE_INFO" : "SETUP_DON_INSTALL_INFO")));
+			}
+
+			switch (DonTextId)
+			{
+			case 2:
+				DonText = L"Please help us by making a donation.";
+				break;
+			case 3:
+				DonText = L"Please help us by donating.";
+				break;
+			case 4:
+				DonText = L"Please consider making a donation.";
+				break;
+			case 5:
+				DonText = L"Please consider donating.";
+				break;
+			}
+
+			switch (DonCaptionId)
+			{
+			case 2:
+				DonCaption = L"Make a donation";
+				break;
+			case 3:
+				DonCaption = L"Donate now";
+				break;
+			}
+
+			if (DonCtrlType != 2)
+				DonCaption += L"...";
+
+
+			// Colors
+
+			switch (DonColorSchemeId)
+			{
+			case 2:
+				// Default OS colors (foreground and background) + blue hyperlink
+				DonLinkColor = RGB (12, 95, 255);
+				break;
+
+			case 3:
+				// Red
+				DonTextColor = RGB (255, 255, 255);
+				DonLinkColor = RGB (0, 0, 255);
+				DonBkgColor = RGB (255, 0, 0);
+				break;
+
+			case 4:
+				// Yellow
+				DonTextColor = RGB (255, 15, 49);
+				DonLinkColor = RGB (32, 135, 238);
+				DonBkgColor = RGB (255, 255, 0);
+				break;
+
+			case 5:
+				// Light red
+				DonTextColor = RGB (255, 255, 255);
+				DonLinkColor = RGB (12, 95, 255);
+				DonBkgColor = RGB (255, 141, 144);
+				break;
+
+			case 6:
+				// Pink
+				DonTextColor = RGB (255, 255, 255);
+				DonLinkColor = RGB (72, 135, 255);
+				DonBkgColor = RGB (248, 148, 207);
+				break;
+
+			case 7:
+				// White + red text
+				DonTextColor = RGB (255, 15, 49);
+				DonLinkColor = RGB (12, 115, 218);
+				DonBkgColor = RGB (255, 255, 255);
+				break;
+
+			case 8:
+				// Blue
+				DonTextColor = RGB (255, 255, 255);
+				DonLinkColor = RGB (20, 40, 204);
+				DonBkgColor = RGB (54, 140, 255);
+				break;
+
+			case 9:
+				// Green
+				DonTextColor = RGB (255, 255, 255);
+				DonLinkColor = RGB (12, 95, 255);
+				DonBkgColor = RGB (70, 180, 80);
+				break;
+			}
+
+
+			{
+				// Fonts
+
+				LOGFONTW lf;
+				memset (&lf, 0, sizeof(lf));
+				wstring fontFaceName = L"";
+
+				switch (DonFontId)
+				{
+				case 2:
+					fontFaceName = L"Tahoma";
+					break;
+				case 3:
+					fontFaceName = L"Times New Roman";
+					break;
+				}
+
+				// Main font
+				wcsncpy (lf.lfFaceName, fontFaceName.c_str(), sizeof (lf.lfFaceName)/2);
+				lf.lfHeight = CompensateDPIFont (-21);
+				lf.lfWeight = FW_NORMAL;
+				lf.lfWidth = 0;
+				lf.lfEscapement = 0;
+				lf.lfOrientation = 0;
+				lf.lfItalic = FALSE;
+				lf.lfUnderline = FALSE;
+				lf.lfStrikeOut = FALSE;
+				lf.lfCharSet = DEFAULT_CHARSET;
+				lf.lfOutPrecision = OUT_DEFAULT_PRECIS;
+				lf.lfClipPrecision = CLIP_DEFAULT_PRECIS;
+				lf.lfQuality = PROOF_QUALITY;
+				lf.lfPitchAndFamily = FF_DONTCARE;
+				hDonTextFont = CreateFontIndirectW (&lf);
+
+				// Hyperlink font
+				wcsncpy (lf.lfFaceName, fontFaceName.c_str(), sizeof (lf.lfFaceName)/2);
+				lf.lfHeight = CompensateDPIFont (-18);
+				lf.lfUnderline = TRUE;
+				hDonHyperlinkFont = CreateFontIndirectW (&lf);
+			}
+
+
+			switch (DonCtrlType)
+			{
+			case 2:	// Hyperlink
+
+				ShowWindow(GetDlgItem(hwndDlg, IDC_DONATE), SW_HIDE);
+				ShowWindow(GetDlgItem(hwndDlg, IDC_DONATIONS_LINK), SW_SHOW);
+				SetWindowTextW (GetDlgItem(hwndDlg, IDC_DONATIONS_LINK), DonCaption.c_str());
+				ToCustHyperlink (hwndDlg, IDC_DONATIONS_LINK, hDonHyperlinkFont);
+				break;
+
+			case 3:	// Button
+
+				ShowWindow(GetDlgItem(hwndDlg, IDC_DONATIONS_LINK), SW_HIDE);
+				ShowWindow(GetDlgItem(hwndDlg, IDC_DONATE), SW_SHOW);
+				SetWindowTextW (GetDlgItem(hwndDlg, IDC_DONATE), DonCaption.c_str());
+				break;
+			}
+
+			return 1;
 		}
+
 		return 0;
 
 	case WM_HELP:
@@ -521,6 +762,83 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 			}
 		}
 
+		if (nCurPageNo == DONATIONS_PAGE)
+		{
+			switch (lw)
+			{
+			case IDC_DONATE:
+			case IDC_DONATIONS_LINK:
+				{
+					char tmpstr [200];
+
+					sprintf (tmpstr, "&ref=%d-%d-%d-%d-%d-%d", DonCaptionId, DonFontId, DonCtrlType, DonPagePos, DonTextId, DonColorSchemeId);
+
+					Applink ("donate", FALSE, tmpstr);
+				}
+				return 1;
+			}
+		}
+
+		return 0;
+
+
+	case WM_PAINT:
+
+		if (nCurPageNo == DONATIONS_PAGE)
+		{
+			PAINTSTRUCT tmpPaintStruct;
+			HDC hdc = BeginPaint (hCurPage, &tmpPaintStruct); 
+
+			SelectObject (hdc, hDonTextFont);
+
+			if (DonColorSchemeId != 2)
+			{
+				HBRUSH tmpBrush = CreateSolidBrush (DonBkgColor);
+				
+				RECT trect;
+
+				trect.left = 0;
+				trect.right = CompensateXDPI (526);
+				trect.top  = 0;
+				trect.bottom = CompensateYDPI (246);
+
+				FillRect (hdc, &trect, tmpBrush);
+
+				SetTextColor (hdc, DonTextColor);
+				SetBkColor (hdc, DonBkgColor);
+			}
+
+			SetTextAlign(hdc, TA_CENTER);
+
+			TextOutW (hdc,
+				CompensateXDPI (258),
+				CompensateYDPI ((DonColorSchemeId == 2 || DonCtrlType != 2) ? 70 : 93),
+				DonText.c_str(), 
+				DonText.length()); 
+			
+			EndPaint (hCurPage, &tmpPaintStruct); 
+			ReleaseDC (hCurPage, hdc);
+
+		}
+		return 0; 
+
+
+	case WM_CTLCOLORSTATIC:
+
+		if (nCurPageNo == DONATIONS_PAGE && (HWND) lParam == GetDlgItem (hCurPage, IDC_DONATIONS_LINK))
+		{
+			// Hyperlink color
+			SetTextColor ((HDC) wParam, DonLinkColor);
+		}
+
+		/* This maintains the background under the transparent-backround texts */
+
+		SetBkMode ((HDC) wParam, TRANSPARENT);
+		return ((LONG) (HBRUSH) (GetStockObject (NULL_BRUSH)));
+
+
+	case WM_ERASEBKGND:
+
 		return 0;
 	}
 
@@ -610,6 +928,20 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 			SetWindowText (hwndDlg, "TrueCrypt Setup " VERSION_STRING);
 
+			if (DonEnabled)
+			{
+				// 2 - displayed before installation, all messageboxes and prompts displayed as usual (as in earlier versions without a donations page).
+				// 3 - displayed after installation *and* after a messagebox ('install/upgrade/extraction successful') is closed by the user. The following prompts are postponed to time when the user clicks Finish: restart required, tutorial, release notes.
+				// 4 - displayed after installation. No message box is displayed after successful install/update. The following prompts are postponed to time when the user clicks Finish: restart required, tutorial, release notes.
+				DonPagePos = GetDonVal (2, 4);	
+
+				DonCaptionId = GetDonVal (2, 3);
+				DonFontId = GetDonVal (2, 3);
+				DonCtrlType = GetDonVal (2, 3);	// 2 - hyperlink, 3 - button
+				DonTextId = GetDonVal (2, 5);
+				DonColorSchemeId = GetDonVal (2, 9);
+			}
+
 			if (bDevm)
 			{
 				InitWizardDestInstallPath ();
@@ -669,7 +1001,20 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				EnableWindow (GetDlgItem (hwndDlg, IDHELP), TRUE);
 
 				if (nCurrentOS == WIN_2000)
+				{
 					WarningDirect (L"Warning: Please note that this may be the last version of TrueCrypt that supports Windows 2000. If you want to be able to upgrade to future versions of TrueCrypt (which is highly recommended), you will need to upgrade to Windows XP or a later version of Windows.\n\nNote: Microsoft stopped issuing security updates for Windows 2000 to the general public on 7/13/2010 (the last non-security update for Windows 2000 was issued to the general public in 2005).");
+
+
+					HKEY hkey;
+
+					if (RegOpenKeyEx (HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Updates\\Windows 2000\\SP5\\Update Rollup 1", 0, KEY_READ, &hkey) != ERROR_SUCCESS)
+					{
+						ErrorDirect (L"TrueCrypt requires Update Rollup 1 for Windows 2000 SP4 to be installed.\n\nFor more information, see http://support.microsoft.com/kb/891861");
+						AbortProcessSilent ();
+					}
+
+					RegCloseKey (hkey);
+				}
 			}
 
 			else if (nCurPageNo == WIZARD_MODE_PAGE)
@@ -690,13 +1035,33 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 			else if (nCurPageNo == EXTRACTION_OPTIONS_PAGE)
 			{
 				GetWindowText (GetDlgItem (hCurPage, IDC_DESTINATION), WizardDestExtractPath, sizeof (WizardDestExtractPath));
-				bStartExtraction = TRUE;
+
+				if (DonEnabled && DonPagePos == 2)
+				{
+					nCurPageNo = DONATIONS_PAGE;
+					LoadPage (hwndDlg, DONATIONS_PAGE);
+					return 1;
+				}
+				else
+				{
+					bStartExtraction = TRUE;
+				}
 			}
-			
+
 			else if (nCurPageNo == INSTALL_OPTIONS_PAGE)
 			{
 				GetWindowText (GetDlgItem (hCurPage, IDC_DESTINATION), WizardDestInstallPath, sizeof (WizardDestInstallPath));
-				bStartInstall = TRUE;
+
+				if (DonEnabled && DonPagePos == 2)
+				{
+					nCurPageNo = DONATIONS_PAGE;
+					LoadPage (hwndDlg, DONATIONS_PAGE);
+					return 1;
+				}
+				else
+				{
+					bStartInstall = TRUE;
+				}
 			}
 
 			else if (nCurPageNo == INSTALL_PROGRESS_PAGE)
@@ -708,6 +1073,60 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 			else if (nCurPageNo == EXTRACTION_PROGRESS_PAGE)
 			{
 				PostMessage (hwndDlg, WM_CLOSE, 0, 0);
+				return 1;
+			}
+
+			else if (nCurPageNo == DONATIONS_PAGE)
+			{
+				if (DonPagePos != 2)
+				{
+					// 'Finish' button clicked
+
+					if (!IsHiddenOSRunning())	// A hidden OS user should not see the post-install notes twice (on decoy OS and then on hidden OS).
+					{
+						if (!bRestartRequired && !SystemEncryptionUpgrade)	// In those cases, tutorial or release notes should have already been saved as post-install tasks
+						{
+							if (bUpgrade)
+							{
+								if (AskYesNo ("AFTER_UPGRADE_RELEASE_NOTES") == IDYES)
+								{
+									Applink ("releasenotes", TRUE, "");
+								}
+							}
+							else if (bPossiblyFirstTimeInstall)
+							{
+								if (AskYesNo ("AFTER_INSTALL_TUTORIAL") == IDYES)
+								{
+									Applink ("beginnerstutorial", TRUE, "");
+								}
+							}
+						}
+					}
+
+					if (bRestartRequired)
+					{
+						if (AskYesNo (bUpgrade ? "UPGRADE_OK_REBOOT_REQUIRED" : "CONFIRM_RESTART") == IDYES)
+							RestartComputer();
+					}
+
+					PostMessage (hwndDlg, WM_CLOSE, 0, 0);
+				}
+				else
+				{
+					if (bExtractOnly)
+					{
+						bStartExtraction = TRUE;
+						nCurPageNo = EXTRACTION_PROGRESS_PAGE;
+						LoadPage (hwndDlg, EXTRACTION_PROGRESS_PAGE);
+					}
+					else
+					{
+						bStartInstall = TRUE;
+						nCurPageNo = INSTALL_PROGRESS_PAGE;
+						LoadPage (hwndDlg, INSTALL_PROGRESS_PAGE);
+					}
+				}
+
 				return 1;
 			}
 
@@ -734,6 +1153,18 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				GetWindowText (GetDlgItem (hCurPage, IDC_DESTINATION), WizardDestInstallPath, sizeof (WizardDestInstallPath));
 			}
 
+			else if (nCurPageNo == DONATIONS_PAGE && DonPagePos == 2)
+			{
+				if (bExtractOnly)
+					nCurPageNo = EXTRACTION_OPTIONS_PAGE;
+				else
+					nCurPageNo = INSTALL_OPTIONS_PAGE;
+
+				LoadPage (hwndDlg, nCurPageNo);
+				return 1;
+			}
+
+
 			LoadPage (hwndDlg, --nCurPageNo);
 
 			return 1;
@@ -741,15 +1172,55 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 		return 0;
 
+
+
+	case WM_PAINT:
+
+		if (nCurPageNo == DONATIONS_PAGE && DonEnabled && DonColorSchemeId != 2)
+		{
+			HWND hwndItem = GetDlgItem (MainDlg, IDC_MAIN_CONTENT_CANVAS);
+
+			PAINTSTRUCT tmpPaintStruct;
+			HDC hdc = BeginPaint (hwndItem, &tmpPaintStruct); 
+
+			if (DonColorSchemeId != 2)
+			{
+				HBRUSH tmpBrush = CreateSolidBrush (DonBkgColor);
+				
+				RECT trect;
+
+				trect.left = CompensateXDPI (1);
+				trect.right = CompensateXDPI (560);
+				trect.top  = CompensateYDPI (DonColorSchemeId == 7 ? 11 : 0);
+				trect.bottom = CompensateYDPI (260);
+
+				FillRect (hdc, &trect, tmpBrush);
+			}
+					
+			EndPaint(hwndItem, &tmpPaintStruct); 
+			ReleaseDC (hwndItem, hdc);
+		}
+		return 0; 
+
+
+
 	case WM_CTLCOLORSTATIC:
 
-		/* This maintains the white background under the transparent-backround texts */
+		if ((HWND) lParam != GetDlgItem (MainDlg, IDC_MAIN_CONTENT_CANVAS))
+		{
+			/* This maintains the background under the transparent-backround texts. The above 'if' statement allows
+			colored background to be erased automatically when leaving a page that uses it. */
 
-		SetBkMode ((HDC) wParam, TRANSPARENT);
-		return ((LONG) (HBRUSH) (GetStockObject (NULL_BRUSH)));
+			SetBkMode ((HDC) wParam, TRANSPARENT);
+			return ((LONG) (HBRUSH) (GetStockObject (NULL_BRUSH)));
+		}
+
 
 	case WM_ERASEBKGND:
+
 		return 0;
+
+
 
 	case TC_APPMSG_INSTALL_SUCCESS:
 		
@@ -757,37 +1228,56 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 		
 		bInProgress = FALSE;
 
+		if (DonEnabled && DonPagePos != 2)
+		{
+			nCurPageNo = DONATIONS_PAGE;
+			LoadPage (hwndDlg, DONATIONS_PAGE);
+		}
+		else
+		{
+			SetWindowTextW (GetDlgItem (hwndDlg, IDC_BOX_TITLE), GetString ("SETUP_FINISHED_TITLE"));
+			SetWindowTextW (GetDlgItem (hwndDlg, IDC_BOX_INFO), GetString (bRestartRequired ? "SETUP_FINISHED_INFO_RESTART_REQUIRED" : "SETUP_FINISHED_INFO"));
+		}
+
 		NormalCursor ();
 
 		SetWindowTextW (GetDlgItem (hwndDlg, IDC_NEXT), GetString ("FINALIZE"));
+
 		EnableWindow (GetDlgItem (hwndDlg, IDC_PREV), FALSE);
 		EnableWindow (GetDlgItem (hwndDlg, IDC_NEXT), TRUE);
 		EnableWindow (GetDlgItem (hwndDlg, IDHELP), FALSE);
 		EnableWindow (GetDlgItem (hwndDlg, IDCANCEL), FALSE);
 
-		SetWindowTextW (GetDlgItem (hwndDlg, IDC_BOX_TITLE), GetString ("SETUP_FINISHED_TITLE"));
-		SetWindowTextW (GetDlgItem (hwndDlg, IDC_BOX_INFO), GetString (bRestartRequired ? "SETUP_FINISHED_INFO_RESTART_REQUIRED" : "SETUP_FINISHED_INFO"));
 
 		RefreshUIGFX ();
 		return 1;
 
 	case TC_APPMSG_INSTALL_FAILURE:
 		
-		/* Extraction failed */
-		
+		/* Installation failed */
+
 		bInProgress = FALSE;
 
 		NormalCursor ();
 
-		nCurPageNo = INSTALL_OPTIONS_PAGE;
-		LoadPage (hwndDlg, nCurPageNo);
+		SetWindowTextW (GetDlgItem (hwndDlg, IDC_BOX_TITLE), GetString ("INSTALL_FAILED"));
+		SetWindowTextW (GetDlgItem (hwndDlg, IDC_BOX_INFO), L"");
+
+		SetWindowTextW (GetDlgItem (hwndDlg, IDCANCEL), GetString ("IDCLOSE"));
+		EnableWindow (GetDlgItem (hwndDlg, IDHELP), TRUE);
+		EnableWindow (GetDlgItem (hwndDlg, IDC_PREV), FALSE);
+		EnableWindow (GetDlgItem (hwndDlg, IDC_NEXT), FALSE);
+		EnableWindow (GetDlgItem (hwndDlg, IDCANCEL), TRUE);
+
+		RefreshUIGFX();
+
 		return 1;
 
 	case TC_APPMSG_EXTRACTION_SUCCESS:
 		
 		/* Extraction completed successfully */
 
-		InvalidateRect (GetDlgItem (MainDlg, IDD_INSTL_DLG), NULL, TRUE);
+		UpdateProgressBarProc(100);
 
 		bInProgress = FALSE;
 		bExtractionSuccessful = TRUE;
@@ -796,26 +1286,40 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 		StatusMessage (hCurPage, "EXTRACTION_FINISHED_INFO");
 
-		SetWindowTextW (GetDlgItem (hwndDlg, IDC_NEXT), GetString ("FINALIZE"));
 		EnableWindow (GetDlgItem (hwndDlg, IDC_PREV), FALSE);
 		EnableWindow (GetDlgItem (hwndDlg, IDC_NEXT), TRUE);
 		EnableWindow (GetDlgItem (hwndDlg, IDHELP), FALSE);
 		EnableWindow (GetDlgItem (hwndDlg, IDCANCEL), FALSE);
 
-		SetWindowTextW (GetDlgItem (hwndDlg, IDC_BOX_TITLE), GetString ("EXTRACTION_FINISHED_TITLE"));
-		SetWindowTextW (GetDlgItem (hwndDlg, IDC_BOX_INFO), GetString ("EXTRACTION_FINISHED_INFO"));
+		if (DonEnabled && DonPagePos != 2)
+		{
+			RefreshUIGFX ();
 
-		RefreshUIGFX ();
-		UpdateProgressBarProc(100);
+			if (DonPagePos == 3)
+				Info ("EXTRACTION_FINISHED_INFO");
 
-		Info ("EXTRACTION_FINISHED_INFO");
+			SetWindowTextW (GetDlgItem (hwndDlg, IDC_NEXT), GetString ("FINALIZE"));
+
+			nCurPageNo = DONATIONS_PAGE;
+			LoadPage (hwndDlg, DONATIONS_PAGE);
+		}
+		else
+		{
+			SetWindowTextW (GetDlgItem (hwndDlg, IDC_NEXT), GetString ("FINALIZE"));
+			SetWindowTextW (GetDlgItem (hwndDlg, IDC_BOX_TITLE), GetString ("EXTRACTION_FINISHED_TITLE"));
+			SetWindowTextW (GetDlgItem (hwndDlg, IDC_BOX_INFO), GetString ("EXTRACTION_FINISHED_INFO"));
+
+			RefreshUIGFX ();
+
+			Info ("EXTRACTION_FINISHED_INFO");
+		}
 
 		return 1;
 
 	case TC_APPMSG_EXTRACTION_FAILURE:
 		
 		/* Extraction failed */
-		
+
 		bInProgress = FALSE;
 
 		NormalCursor ();
@@ -824,10 +1328,19 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 		UpdateProgressBarProc(0);
 
+		SetWindowTextW (GetDlgItem (hwndDlg, IDC_BOX_TITLE), GetString ("EXTRACTION_FAILED"));
+		SetWindowTextW (GetDlgItem (hwndDlg, IDC_BOX_INFO), L"");
+
+		SetWindowTextW (GetDlgItem (hwndDlg, IDCANCEL), GetString ("IDCLOSE"));
+		EnableWindow (GetDlgItem (hwndDlg, IDHELP), TRUE);
+		EnableWindow (GetDlgItem (hwndDlg, IDC_PREV), FALSE);
+		EnableWindow (GetDlgItem (hwndDlg, IDC_NEXT), FALSE);
+		EnableWindow (GetDlgItem (hwndDlg, IDCANCEL), TRUE);
+
+		RefreshUIGFX();
+
 		Error ("EXTRACTION_FAILED");
 
-		nCurPageNo = EXTRACTION_OPTIONS_PAGE;
-		LoadPage (hwndDlg, nCurPageNo);
 		return 1;
 
 	case WM_CLOSE:

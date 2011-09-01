@@ -78,6 +78,7 @@ BOOL CALLBACK InstallDlgProc ( HWND hwndDlg , UINT msg , WPARAM wParam , LPARAM 
 extern BOOL bDevm;
 extern BOOL Rollback;
 extern BOOL bUpgrade;
+extern BOOL bPossiblyFirstTimeInstall;
 extern BOOL bRepairMode;
 extern BOOL bSystemRestore;
 extern BOOL bDisableSwapFiles;

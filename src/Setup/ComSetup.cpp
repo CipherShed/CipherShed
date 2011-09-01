@@ -13,9 +13,11 @@
 #define TC_FORMAT_COM_VERSION_MINOR 4
 
 #include <atlbase.h>
+#include <comdef.h>
 #include <statreg.h>
 #include <windows.h>
 #include "ComSetup.h"
+#include "Dlgcode.h"
 #include "Resource.h"
 #include "../Mount/MainCom_i.c"
 #include "../Format/FormatCom_i.c"
@@ -23,7 +25,7 @@
 
 extern "C" BOOL RegisterComServers (char *modulePath)
 {
-	BOOL ret = FALSE;
+	BOOL ret = TRUE;
 	wchar_t mainModule[1024], formatModule[1024];
 	CComPtr<ITypeLib> tl, tl2;
 
@@ -33,27 +35,25 @@ extern "C" BOOL RegisterComServers (char *modulePath)
 	UnRegisterTypeLib (LIBID_TrueCryptMainCom, TC_MAIN_COM_VERSION_MAJOR, TC_MAIN_COM_VERSION_MINOR, 0, SYS_WIN32);
 	UnRegisterTypeLib (LIBID_TrueCryptFormatCom, TC_FORMAT_COM_VERSION_MAJOR, TC_FORMAT_COM_VERSION_MINOR, 0, SYS_WIN32);
 
-	CRegObject ro;
-	ro.FinalConstruct ();
-
-	ro.AddReplacement (L"MAIN_MODULE", mainModule);
-	ro.AddReplacement (L"FORMAT_MODULE", formatModule);
-
 	wchar_t setupModule[MAX_PATH];
 	GetModuleFileNameW (NULL, setupModule, sizeof (setupModule) / sizeof (setupModule[0]));
-	if (ro.ResourceRegister (setupModule, IDR_COMREG, L"REGISTRY") != S_OK)
-		goto error;
 
-	if (LoadTypeLib (mainModule, &tl) != S_OK
-		|| RegisterTypeLib (tl, mainModule, 0) != S_OK)
-		goto error;
+	CRegObject ro;
+	HRESULT r;
 
-	if (LoadTypeLib (formatModule, &tl2) != S_OK
-		|| RegisterTypeLib (tl2, formatModule, 0) != S_OK)
-		goto error;
+	if (!SUCCEEDED (r = ro.FinalConstruct ())
+		|| !SUCCEEDED (r = ro.AddReplacement (L"MAIN_MODULE", mainModule))
+		|| !SUCCEEDED (r = ro.AddReplacement (L"FORMAT_MODULE", formatModule))
+		|| !SUCCEEDED (r = ro.ResourceRegister (setupModule, IDR_COMREG, L"REGISTRY"))
+		|| !SUCCEEDED (r = LoadTypeLib (mainModule, &tl))
+		|| !SUCCEEDED (r = RegisterTypeLib (tl, mainModule, 0))
+		|| !SUCCEEDED (r = LoadTypeLib (formatModule, &tl2))
+		|| !SUCCEEDED (r = RegisterTypeLib (tl2, formatModule, 0)))
+	{
+		MessageBox (MainDlg, _com_error (r).ErrorMessage(), TC_APP_NAME, MB_ICONERROR);
+		ret = FALSE;
+	}
 
-	ret = TRUE;
-error:
 	ro.FinalRelease ();
 	return ret;
 }
