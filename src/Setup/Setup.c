@@ -4,7 +4,7 @@
  Copyright (c) 1998-2000 Paul Le Roux and which is governed by the 'License
  Agreement for Encryption for the Masses'. Modifications and additions to
  the original source code (contained in this file) and all other portions
- of this file are Copyright (c) 2003-2010 TrueCrypt Developers Association
+ of this file are Copyright (c) 2003-2012 TrueCrypt Developers Association
  and are governed by the TrueCrypt License 3.0 the full text of which is
  contained in the file License.txt included in TrueCrypt binary and source
  code distribution packages. */
@@ -56,7 +56,7 @@ BOOL bDone = FALSE;
 BOOL Rollback = FALSE;
 BOOL bUpgrade = FALSE;
 BOOL bDowngrade = FALSE;
-BOOL SystemEncryptionUpgrade = FALSE;
+BOOL SystemEncryptionUpdate = FALSE;
 BOOL PortableMode = FALSE;
 BOOL bRepairMode = FALSE;
 BOOL bChangeMode = FALSE;
@@ -525,7 +525,7 @@ BOOL DoRegInstall (HWND hwndDlg, char *szDestDir, BOOL bInstallType)
 	DWORD dw;
 	int x;
 
-	if (SystemEncryptionUpgrade)
+	if (SystemEncryptionUpdate)
 	{
 		if (RegCreateKeyEx (HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\TrueCrypt",
 			0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hkey, &dw) == ERROR_SUCCESS)
@@ -989,7 +989,7 @@ BOOL DoDriverUnload (HWND hwndDlg)
 					if (CurrentOSMajor == 6 && CurrentOSMinor == 0 && CurrentOSServicePack < 1)
 						AbortProcess ("SYS_ENCRYPTION_UPGRADE_UNSUPPORTED_ON_VISTA_SP0");
 
-					SystemEncryptionUpgrade = TRUE;
+					SystemEncryptionUpdate = TRUE;
 					PortableMode = FALSE;
 				}
 			}
@@ -997,13 +997,13 @@ BOOL DoDriverUnload (HWND hwndDlg)
 		catch (...)	{ }
 
 		if (!bUninstall
-			&& (bUpgrade || SystemEncryptionUpgrade)
-			&& (!bDevm || SystemEncryptionUpgrade))
+			&& (bUpgrade || SystemEncryptionUpdate)
+			&& (!bDevm || SystemEncryptionUpdate))
 		{
 			UnloadDriver = FALSE;
 		}
 
-		if (PortableMode && !SystemEncryptionUpgrade)
+		if (PortableMode && !SystemEncryptionUpdate)
 			UnloadDriver = TRUE;
 
 		if (UnloadDriver)
@@ -1079,7 +1079,7 @@ BOOL DoDriverUnload (HWND hwndDlg)
 
 BOOL UpgradeBootLoader (HWND hwndDlg)
 {
-	if (!SystemEncryptionUpgrade)
+	if (!SystemEncryptionUpdate)
 		return TRUE;
 
 	try
@@ -1321,15 +1321,12 @@ void OutcomePrompt (HWND hwndDlg, BOOL bOK)
 
 		if (bUninstall == FALSE)
 		{
-			if (!DonEnabled || DonPagePos != 4)
-			{
-				if (bDevm)
-					PostMessage (MainDlg, WM_CLOSE, 0, 0);
-				else if (bPossiblyFirstTimeInstall && !SystemEncryptionUpgrade && !bUpgrade && !bDowngrade && !bRepairMode)
-					Info ("INSTALL_OK");
-				else if (!bRestartRequired || (DonEnabled && DonPagePos == 3))
-					Info ("SETUP_UPDATE_OK");
-			}
+			if (bDevm)
+				PostMessage (MainDlg, WM_CLOSE, 0, 0);
+			else if (bPossiblyFirstTimeInstall || bRepairMode || (!bUpgrade && !bDowngrade))
+				Info ("INSTALL_OK");
+			else
+				Info ("SETUP_UPDATE_OK");
 		}
 		else
 		{
@@ -1567,10 +1564,10 @@ void DoInstall (void *arg)
 	
 	UpdateProgressBarProc(55);
 
-	if (!SystemEncryptionUpgrade)
+	if (!SystemEncryptionUpdate)
 		DoRegUninstall ((HWND) hwndDlg, TRUE);
 
-	if (SystemEncryptionUpgrade && InstalledVersion < 0x700)
+	if (SystemEncryptionUpdate && InstalledVersion < 0x700)
 	{
 		try
 		{
@@ -1677,7 +1674,7 @@ void DoInstall (void *arg)
 	{
 		bOK = FALSE;
 	}
-	else if (UpdateProgressBarProc(90) && SystemEncryptionUpgrade && UpgradeBootLoader (hwndDlg) == FALSE)
+	else if (UpdateProgressBarProc(90) && SystemEncryptionUpdate && UpgradeBootLoader (hwndDlg) == FALSE)
 	{
 		bOK = FALSE;
 	}
@@ -1695,7 +1692,7 @@ void DoInstall (void *arg)
 	}
 	catch (...)	{ }
 
-	if (SystemEncryptionUpgrade && InstalledVersion == 0x630)
+	if (SystemEncryptionUpdate && InstalledVersion == 0x630)
 	{
 		string sysFavorites = GetServiceConfigPath (TC_APPD_FILENAME_SYSTEM_FAVORITE_VOLUMES);
 		string legacySysFavorites = GetProgramConfigPath ("System Favorite Volumes.xml");
@@ -1715,79 +1712,68 @@ void DoInstall (void *arg)
 		UpdateProgressBarProc(100);
 		UninstallBatch[0] = 0;
 		StatusMessage (hwndDlg, "INSTALL_COMPLETED");
-
-		if (!DonEnabled || DonPagePos != 3)
-			PostMessage (MainDlg, TC_APPMSG_INSTALL_SUCCESS, 0, 0);
 	}
 	else
 	{
 		UpdateProgressBarProc(0);
-		bUninstall = TRUE;
-		Rollback = TRUE;
-		Silent = TRUE;
 
-		if (!SystemEncryptionUpgrade)
+		if (!SystemEncryptionUpdate)
+		{
+			bUninstall = TRUE;
+			Rollback = TRUE;
+			Silent = TRUE;
+
 			DoUninstall (hwndDlg);
 
-		bUninstall = FALSE;
-		Rollback = FALSE;
-		Silent = FALSE;
+			bUninstall = FALSE;
+			Rollback = FALSE;
+			Silent = FALSE;
 
-		if (SystemEncryptionUpgrade)
-			Warning ("SYS_ENC_UPGRADE_FAILED");
-		else
 			StatusMessage (hwndDlg, "ROLLBACK");
+		}
+		else
+		{
+			Warning ("SYS_ENC_UPGRADE_FAILED");
+		}
 	}
 
 outcome:
 	OutcomePrompt (hwndDlg, bOK);
 
-	if (bOK && DonEnabled && DonPagePos == 3)
-		PostMessage (MainDlg, TC_APPMSG_INSTALL_SUCCESS, 0, 0);
-
-	if (!bOK)
-	{
-		PostMessage (MainDlg, TC_APPMSG_INSTALL_FAILURE, 0, 0);
-	}
-	else if (!bUninstall && !bDevm)
+	if (bOK && !bUninstall && !bDowngrade && !bRepairMode && !bDevm)
 	{
 		if (!IsHiddenOSRunning())	// A hidden OS user should not see the post-install notes twice (on decoy OS and then on hidden OS).
 		{
-			if (bUpgrade)
+			if (bRestartRequired || SystemEncryptionUpdate)
 			{
-				if (bRestartRequired || SystemEncryptionUpgrade)
+				// Restart required
+
+				if (bUpgrade)
 				{
 					SavePostInstallTasksSettings (TC_POST_INSTALL_CFG_RELEASE_NOTES);
 				}
-				else if ((!DonEnabled || DonPagePos == 2)
-					&& AskYesNo ("AFTER_UPGRADE_RELEASE_NOTES") == IDYES)
-				{
-					Applink ("releasenotes", TRUE, "");
-				}
-			}
-			else if (bPossiblyFirstTimeInstall)
-			{
-				if (bRestartRequired || SystemEncryptionUpgrade)
+				else if (bPossiblyFirstTimeInstall)
 				{
 					SavePostInstallTasksSettings (TC_POST_INSTALL_CFG_TUTORIAL);
 				}
-				else if ((!DonEnabled || DonPagePos == 2)
-					&& AskYesNo ("AFTER_INSTALL_TUTORIAL") == IDYES)
+			}
+			else
+			{
+				// No restart will be required
+
+				if (bUpgrade)
 				{
-					Applink ("beginnerstutorial", TRUE, "");
+					bPromptReleaseNotes = TRUE;
+				}
+				else if (bPossiblyFirstTimeInstall)
+				{
+					bPromptTutorial = TRUE;
 				}
 			}
 		}
 	}
 
-	if (!DonEnabled || DonPagePos == 2)
-	{
-		if (bOK && bRestartRequired)
-		{
-			if (AskYesNo (bUpgrade ? "UPGRADE_OK_REBOOT_REQUIRED" : "CONFIRM_RESTART") == IDYES)
-				RestartComputer();
-		}
-	}
+	PostMessage (MainDlg, bOK ? TC_APPMSG_INSTALL_SUCCESS : TC_APPMSG_INSTALL_FAILURE, 0, 0);
 }
 
 

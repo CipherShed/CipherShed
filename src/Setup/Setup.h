@@ -87,7 +87,7 @@ extern BOOL bRegisterFileExt;
 extern BOOL bAddToStartMenu;
 extern BOOL bDesktopIcon;
 extern BOOL bDesktopIconStatusDetermined;
-extern BOOL SystemEncryptionUpgrade;
+extern BOOL SystemEncryptionUpdate;
 extern BOOL bRestartRequired;
 extern HMODULE volatile SystemRestoreDll;
 extern char InstallationPath[TC_MAX_PATH];

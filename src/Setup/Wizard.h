@@ -21,8 +21,8 @@ void localcleanupwiz (void);
 BOOL CALLBACK PageDialogProc ( HWND hwndDlg , UINT uMsg , WPARAM wParam , LPARAM lParam );
 BOOL CALLBACK MainDialogProc ( HWND hwndDlg , UINT uMsg , WPARAM wParam , LPARAM lParam );
 
-extern BOOL DonEnabled;
-extern int DonPagePos;
+extern BOOL bPromptTutorial;
+extern BOOL bPromptReleaseNotes;
 
 #ifdef __cplusplus
 }

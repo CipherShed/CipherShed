@@ -28,8 +28,8 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 7,1,0,0
- PRODUCTVERSION 7,1,0,0
+ FILEVERSION 7,1,1,0
+ PRODUCTVERSION 7,1,1,0
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -46,11 +46,11 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "TrueCrypt Foundation"
             VALUE "FileDescription", "TrueCrypt Setup"
-            VALUE "FileVersion", "7.1"
+            VALUE "FileVersion", "7.1a"
             VALUE "LegalTrademarks", "TrueCrypt"
             VALUE "OriginalFilename", "TrueCrypt Setup.exe"
             VALUE "ProductName", "TrueCrypt"
-            VALUE "ProductVersion", "7.1"
+            VALUE "ProductVersion", "7.1a"
         END
     END
     BLOCK "VarFileInfo"
@@ -182,8 +182,7 @@ STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
 EXSTYLE WS_EX_TRANSPARENT
 FONT 8, "MS Shell Dlg", 0, 0, 0x0
 BEGIN
-    PUSHBUTTON      "",IDC_DONATE,124,94,96,14
-    CTEXT           "",IDC_DONATIONS_LINK,6,81,331,9,SS_NOTIFY,WS_EX_TRANSPARENT
+    PUSHBUTTON      "Donate now...",IDC_DONATE,124,94,96,14
 END
 
 
