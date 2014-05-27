@@ -255,10 +255,6 @@
 					/>
 				</FileConfiguration>
 			</File>
-			<File
-				RelativePath="..\Common\Xml.c"
-				>
-			</File>
 			<Filter
 				Name="Common"
 				>
@@ -324,6 +320,10 @@
 				</File>
 				<File
 					RelativePath="..\Common\Registry.c"
+					>
+				</File>
+				<File
+					RelativePath="..\Common\Xml.c"
 					>
 				</File>
 			</Filter>

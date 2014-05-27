@@ -19,7 +19,6 @@ extern "C" {
 // Specifies what files to install, where (determined by the prefix), and in what order
 static char *szFiles[]=
 {
-	"ATrueCrypt User Guide.pdf",
 	"ALicense.txt",
 	"ATrueCrypt.exe",
 	"ATrueCrypt Format.exe",
@@ -32,7 +31,6 @@ static char *szFiles[]=
 // Specifies what files are included in self-extracting packages (no other files will be packaged or extracted).
 static char *szCompressedFiles[]=
 {
-	"TrueCrypt User Guide.pdf",
 	"License.txt",
 	"TrueCrypt.exe",
 	"TrueCrypt Format.exe",

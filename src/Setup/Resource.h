@@ -16,7 +16,6 @@
 #define IDD_INSTL_DLG                   111
 #define IDD_WIZARD_MODE_PAGE_DLG        112
 #define IDD_PROGRESS_PAGE_DLG           113
-#define IDD_DONATIONS_PAGE_DLG          114
 #define IDC_DESTINATION                 1000
 #define IDC_BOX_TITLE                   1001
 #define IDC_BROWSE                      1002
@@ -49,16 +48,15 @@
 #define IDC_POS_BOX                     1029
 #define IDC_BITMAP_SETUP_WIZARD         1030
 #define IDC_MAIN_CONTENT_CANVAS         1031
-#define IDC_DONATE                      1032
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        115
+#define _APS_NEXT_RESOURCE_VALUE        114
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1033
+#define _APS_NEXT_CONTROL_VALUE         1032
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

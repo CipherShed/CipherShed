@@ -481,6 +481,8 @@ err:
 		}
 	}
 
+	DeleteFile ((string(szDestDir) + "\\TrueCrypt User Guide.pdf").c_str());
+
 	// Language pack
 	if (bUninstall == FALSE)
 	{
@@ -533,8 +535,7 @@ BOOL DoRegInstall (HWND hwndDlg, char *szDestDir, BOOL bInstallType)
 			strcpy (szTmp, VERSION_STRING);
 			RegSetValueEx (hkey, "DisplayVersion", 0, REG_SZ, (BYTE *) szTmp, strlen (szTmp) + 1);
 
-			strcpy (szTmp, TC_HOMEPAGE);
-			RegSetValueEx (hkey, "URLInfoAbout", 0, REG_SZ, (BYTE *) szTmp, strlen (szTmp) + 1);
+			RegDeleteValue (hkey, "URLInfoAbout");
 
 			RegCloseKey (hkey);
 		}
@@ -658,9 +659,7 @@ BOOL DoRegInstall (HWND hwndDlg, char *szDestDir, BOOL bInstallType)
 	if (RegSetValueEx (hkey, "Publisher", 0, REG_SZ, (BYTE *) szTmp, strlen (szTmp) + 1) != ERROR_SUCCESS)
 		goto error;
 
-	strcpy (szTmp, TC_HOMEPAGE);
-	if (RegSetValueEx (hkey, "URLInfoAbout", 0, REG_SZ, (BYTE *) szTmp, strlen (szTmp) + 1) != ERROR_SUCCESS)
-		goto error;
+	RegDeleteValue(hkey, "URLInfoAbout");
 
 	bOK = TRUE;
 
@@ -1229,8 +1228,6 @@ BOOL DoShortcutsInstall (HWND hwndDlg, char *szDestDir, BOOL bProgGroup, BOOL bD
 
 	if (bProgGroup)
 	{
-		FILE *f;
-
 		if (mkfulldir (szLinkDir, TRUE) != 0)
 		{
 			if (mkfulldir (szLinkDir, FALSE) != 0)
@@ -1252,17 +1249,7 @@ BOOL DoShortcutsInstall (HWND hwndDlg, char *szDestDir, BOOL bProgGroup, BOOL bD
 			goto error;
 
 		sprintf (szTmp2, "%s%s", szLinkDir, "\\TrueCrypt Website.url");
-		IconMessage (hwndDlg, szTmp2);
-		f = fopen (szTmp2, "w");
-		if (f)
-		{
-			fprintf (f, "[InternetShortcut]\nURL=%s\n", TC_HOMEPAGE);
-
-			CheckFileStreamWriteErrors (f, szTmp2);
-			fclose (f);
-		}
-		else
-			goto error;
+		DeleteFile (szTmp2);
 
 		sprintf (szTmp, "%s%s", szDir, "TrueCrypt Setup.exe");
 		sprintf (szTmp2, "%s%s", szLinkDir, "\\Uninstall TrueCrypt.lnk");
@@ -1739,40 +1726,6 @@ void DoInstall (void *arg)
 
 outcome:
 	OutcomePrompt (hwndDlg, bOK);
-
-	if (bOK && !bUninstall && !bDowngrade && !bRepairMode && !bDevm)
-	{
-		if (!IsHiddenOSRunning())	// A hidden OS user should not see the post-install notes twice (on decoy OS and then on hidden OS).
-		{
-			if (bRestartRequired || SystemEncryptionUpdate)
-			{
-				// Restart required
-
-				if (bUpgrade)
-				{
-					SavePostInstallTasksSettings (TC_POST_INSTALL_CFG_RELEASE_NOTES);
-				}
-				else if (bPossiblyFirstTimeInstall)
-				{
-					SavePostInstallTasksSettings (TC_POST_INSTALL_CFG_TUTORIAL);
-				}
-			}
-			else
-			{
-				// No restart will be required
-
-				if (bUpgrade)
-				{
-					bPromptReleaseNotes = TRUE;
-				}
-				else if (bPossiblyFirstTimeInstall)
-				{
-					bPromptTutorial = TRUE;
-				}
-			}
-		}
-	}
-
 	PostMessage (MainDlg, bOK ? TC_APPMSG_INSTALL_SUCCESS : TC_APPMSG_INSTALL_FAILURE, 0, 0);
 }
 
@@ -2070,6 +2023,8 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpszComm
 			bDevm = TRUE;
 		}
 	}
+	else
+		WarningTopMost ("INSECURE_APP");
 
 	if (bMakePackage)
 	{
