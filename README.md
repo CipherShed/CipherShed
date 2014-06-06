@@ -3,6 +3,8 @@ CipherShed is on-the-fly encryption software based off of the discontinued [True
 
 URLs: [http://ciphershed.org][MAIN] and our [GitHub][GH]
 
+For info on compiling the sources under Linux, see here: [http://truecrypt.ch:2080/t/linux-build-from-source/46]
+
 ## Project Goals
 * Audit and defend the security of the existing TrueCrypt 7.1a code base.
 * Improve security using modern techniques such as memory-hard password hashing.
