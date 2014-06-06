@@ -3,7 +3,14 @@ CipherShed is on-the-fly encryption software based off of the discontinued [True
 
 URLs: [http://ciphershed.org][MAIN] and our [GitHub][GH]
 
-For info on compiling the sources under Linux, see here: [http://truecrypt.ch:2080/t/linux-build-from-source/46]
+To compile the sources under Ubuntu / Debian, copy these three missing files over from RSA
+* wget 'ftp://ftp.rsasecurity.com/pub/pkcs/pkcs-11/v2-20/pkcs11.h' 
+* wget 'ftp://ftp.rsasecurity.com/pub/pkcs/pkcs-11/v2-20/pkcs11f.h' 
+* wget 'ftp://ftp.rsasecurity.com/pub/pkcs/pkcs-11/v2-20/pkcs11t.h'
+
+and then compile with
+
+* LIBS="-ldl" make
 
 ## Project Goals
 * Audit and defend the security of the existing TrueCrypt 7.1a code base.
