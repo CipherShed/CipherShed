@@ -35,3 +35,14 @@ Please use the following means for contributions, questions, and support.
 [ML]: http://www.freelists.org/list/geekcrypt
 [WC]: https://webchat.oftc.net/?channels=%23CipherShed
 [IRC]: ircs://irc.oftc.net:6697/CipherShed
+
+Initial signature:
+
+Bill Cox verified and asserts that all files in the CipherShed commit:
+    bb17dcbf0af66362fb119217f5478a016fe60856
+are identical to the original TrueCrypt 7.1a source files extracted from 
+    TrueCrypt 7.1a Source.tar.gz
+with sha256sum:
+    e6214e911d0bbededba274a2f8f8d7b3f6f6951e20f1c3a598fc7a23af81c8dc
+Some files have been added, but there are no other changes.  This commit should have a
+verified signature by Bill Cox, GPG key id 0xD684193E
