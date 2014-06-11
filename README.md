@@ -1,18 +1,16 @@
-# CipherShed
-CipherShed is on-the-fly encryption software based off of the discontinued [TrueCrypt][TC] project.
+# CipherShed #
+CipherShed is cross-platform on-the-fly encryption software.
 
-For more information, please see our website at [https://ciphershed.org][MAIN].
+For more information, please see our website at [https://ciphershed.org](https://ciphershed.org).
 
-[TC]: https://en.wikipedia.org/wiki/TrueCrypt
-[MAIN]: https://ciphershed.org/
+The source tarball, `TrueCrypt 7.1a Source.tar.gz`, has been verified to be original using cryptographic hashes. The extracted files have been verified as well (`README.md` file added, but nothing else changed). The checksums are included with the tarball in the initial commit.
 
-Initial signature:
+Please verify and scrutinize everything we do!
 
-Bill Cox verified and asserts that all files in the CipherShed commit:
-    bb17dcbf0af66362fb119217f5478a016fe60856
-are identical to the original TrueCrypt 7.1a source files extracted from 
-    TrueCrypt 7.1a Source.tar.gz
-with sha256sum:
-    e6214e911d0bbededba274a2f8f8d7b3f6f6951e20f1c3a598fc7a23af81c8dc
-Some files have been added, but there are no other changes.  This commit should have a
-verified signature by Bill Cox, GPG key id 0xD684193E
+## How to Contribute ##
+ * **All commits must be signed (`git commit --gpg-sign`) by GnuPG.**
+ * Please fork the CipherShed repository, create a branch, and send pull requests with your changes. Don't forget to cleanup the branch when finished!
+ * Please use in-line comments and stay involved in discussions.
+ * Please use our [GitHub issue tracker](https://github.com/CipherShed/CipherShed/issues).
+ * Information on compiling can be found [here](https://ciphershed.org/Compile).
+ * Licensing information can be found [here](https://ciphershed.org/License).
