@@ -46,10 +46,10 @@ enum
 
 #define TC_APPLICATION_ID	L"TrueCryptFoundation.TrueCrypt"
 
-#define TC_MUTEX_NAME_SYSENC				"Global\\TrueCrypt System Encryption Wizard"
-#define TC_MUTEX_NAME_NONSYS_INPLACE_ENC	"Global\\TrueCrypt In-Place Encryption Wizard"
-#define TC_MUTEX_NAME_APP_SETUP				"Global\\TrueCrypt Setup"
-#define TC_MUTEX_NAME_DRIVER_SETUP			"Global\\TrueCrypt Driver Setup"
+#define TC_MUTEX_NAME_SYSENC				"Global\\CipherShed System Encryption Wizard"
+#define TC_MUTEX_NAME_NONSYS_INPLACE_ENC	"Global\\CipherShed In-Place Encryption Wizard"
+#define TC_MUTEX_NAME_APP_SETUP				"Global\\CipherShed Setup"
+#define TC_MUTEX_NAME_DRIVER_SETUP			"Global\\CipherShed Driver Setup"
 
 #define IDC_ABOUT 0x7fff	/* ID for AboutBox on system menu in wm_user range */
 

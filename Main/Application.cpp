@@ -42,7 +42,7 @@ namespace TrueCrypt
 		if (!Core->IsInPortableMode())
 		{
 #ifdef TC_MACOSX
-			wxFileName configPath (L"~/Library/Application Support/TrueCrypt");
+			wxFileName configPath (L"~/Library/Application Support/CipherShed");
 			configPath.Normalize();
 			configDir = wstring (configPath.GetFullPath());
 #else
