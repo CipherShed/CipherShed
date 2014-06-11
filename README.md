@@ -4,7 +4,7 @@ Cross-platform on-the-fly encryption software.
 For more information, please see our website at [https://ciphershed.org](https://ciphershed.org).
 
 The source archives, `TrueCrypt 7.1a Source.tar.gz` and `TrueCrypt 7.1a Source.zip`, have been verified to be original.
-Please see the details of this verification in the `Source.Verification.txt` file.
+Please see the details of this verification in the `Source.Verification.txt` file in commit `3b505ca`.
 
 Please verify, triple-check, and scrutinize everything we do! Feel free to contact us with questions/concerns/challenges.
 We're only human, after all ;-)
