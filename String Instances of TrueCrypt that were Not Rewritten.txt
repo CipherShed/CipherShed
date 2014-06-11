@@ -1,0 +1,36 @@
+I have changed as many instances of the word truecrypt found in the project as i could. I did not change it if:
+-it was not a value (i.e. the namespace, the constant *names*)
+-it was being used as the name of who's product this is
+-it was being used as a trademark
+-it was suspected to be part of the container format
+-it was a license or legal info
+-if i did not understand what it was being used for to prevent destroying the file format
+
+Below is a list of files with "truecrypt" occurences and the reason(s) i decided not to change it and have others take a look at it.
+
+Questionable ocurrences:
+-build/resources/macosx/info.plist.xml (didn't look to far into what this was considering it's in mac, and i am net to mac)
+-end of apidrvr.h (looked like it might have been file format at a glance)
+-common/dlgcode.c (link)
+-common/dlgcode.h (used with word "Foundation", didn't know how to correct)
+-common/language.c (link)
+-common/language.xml (the term "TrueCrypt Website", links (lots), and the nearby use of the term "Legal Notices")
+-common/tcdefs.h (the phrase "Released by TrueCrypt Foundation", and multiple links)
+-common/xml.c (a lot of the functions that use the term truecrypt are related to headers and footers, they may be part of the file format)
+-driver/driver.rc (CompanyName as "TrueCrypt Foundation" and LegalTrademarks as "TrueCrypt")
+-driver/driver.vcproj (i didn't even look at)
+-driver/ntdriver.c (i wasn't sure of the context of the function IsVolumeClassFilterRegistered())
+-format/format.rc (use of "TrueCrypt Foundation" and LegalTrademarks field)
+-format/format.vcproj (didn't even look at)
+-format/formatcom.idl (i wasn't sure of the context)
+-forms/aboutdialog.cpp (link, copyright)
+-forms/forms.cpp (term "TrueCrypt Website")
+-forms/truecrypt.fbp (namespace property (i left the name of the truecrypt namespace), something labeled "TrueCrypt Website", nearby use of the term "Legal Notices")
+-unix/fatalerrorhandler.cpp (c/c++ namespace syntax usage in a string (i left the name of the truecrypt namespace))
+-unix/resources.cpp (c/c++ constant name usage in a string)
+-unix/userinterface.cpp (c/c++ namespace syntax usage in a string (i left the name of the truecrypt namespace))
+-unix/xml.cpp (the same code that was marked as header and footer earlier in this text document)
+-mount/maincom.idl (i wasn't sure of the context)
+-mount/mount.c (c/c++ constant name usage in a string)
+-mount/mount.rc (use of "TrueCrypt Foundation", LegalTrademarks property, and "TrueCrypt Website")
+-mount/mount.vcproj (didn't even look at)
