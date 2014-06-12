@@ -1,28 +1,18 @@
-# CipherShed
-CipherShed is on-the-fly encryption software based off of the discontinued [TrueCrypt][TC] project.
+# CipherShed #
+Cross-platform on-the-fly encryption software.
 
-URLs: [http://ciphershed.org][MAIN] and our [GitHub][GH]
+For more information, please see our website at [https://ciphershed.org](https://ciphershed.org).
 
-## Project Goals
-* Audit and defend the security of the existing TrueCrypt 7.1a code base.
-* Improve security using modern techniques such as memory-hard password hashing.
-* Secure the code through audits, simplification, and a secure architecture.
-* Migrate towards a truly FOSS code base.
-* Work closely with existing efforts such as [OpenCryptoAuditProject][OCAP], [LUKS][LUKS], [GELI][GELI], and [tc-play][TCP].
+The source archives, `TrueCrypt 7.1a Source.tar.gz` and `TrueCrypt 7.1a Source.zip`, have been verified to be original.
+Please see the details of this verification in the `Source.Verification.txt` file.
 
-## Getting Involved
-Please use the following means for contributions, questions, and support.
+Please verify, triple-check, and scrutinize everything we do! Feel free to contact us with questions/concerns/challenges.
+We're only human, after all ;-)
 
-* The [mailing list][ML] on FreeLists
-* The [#CipherShed IRC channel][WC] on OFTC: [ircs://irc.oftc.net:6697/CipherShed][IRC]
-
-[TC]: https://en.wikipedia.org/wiki/TrueCrypt
-[MAIN]: http://ciphershed.org/
-[GH]: https://github.com/CipherShed/CipherShed
-[OCAP]: https://opencryptoaudit.org/
-[LUKS]: https://code.google.com/p/cryptsetup/
-[GELI]: https://en.wikipedia.org/wiki/Geli_(software)
-[TCP]: https://github.com/bwalex/tc-play
-[ML]: http://www.freelists.org/list/geekcrypt
-[WC]: https://webchat.oftc.net/?channels=%23CipherShed
-[IRC]: ircs://irc.oftc.net:6697/CipherShed
+## How to Contribute ##
+ * **All commits must be signed (`git commit --gpg-sign`) by GnuPG.**
+ * Please fork the CipherShed repository, create a branch if you so desire, and send pull requests with your changes.
+ * Please use in-line comments and stay involved in discussions.
+ * Please use our [GitHub issue tracker](https://github.com/CipherShed/CipherShed/issues).
+ * Information on compiling can be found [here](https://ciphershed.org/Compile).
+ * Licensing information can be found [here](https://ciphershed.org/License).
