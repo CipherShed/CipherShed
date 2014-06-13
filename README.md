@@ -16,5 +16,3 @@ We're only human, after all ;-)
  * Please use our [GitHub issue tracker](https://github.com/CipherShed/CipherShed/issues).
  * Information on compiling can be found [here](https://ciphershed.org/Compile).
  * Licensing information can be found [here](https://ciphershed.org/License).
- *
- * Test-commit
