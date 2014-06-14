@@ -145,6 +145,7 @@ Copyright Information
 ---------------------
 This software as a whole:
 Copyright (c) 2014 The CipherShed Project. All rights reserved.
+Copyright (c) 2012 TrueCrypt Developers Association. All rights reserved.
 
 Portions of this software:
 Copyright (c) 2003-2012 TrueCrypt Developers Association. All rights reserved.
@@ -153,6 +154,8 @@ Copyright (c) 1998-2008 Brian Gladman, Worcester, UK. All rights reserved.
 Copyright (c) 2002-2004 Mark Adler. All rights reserved.
 For more information, please see the legal notices attached to parts of the
 source code.
+
+Based on TrueCrypt, freely available at http://www.truecrypt.org/
 
 Trademark Information
 ---------------------
