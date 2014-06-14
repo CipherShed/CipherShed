@@ -12,7 +12,7 @@
 #include "Platform/Platform.h"
 #include "Common/Crypto.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	class EncryptionTest 
 	{

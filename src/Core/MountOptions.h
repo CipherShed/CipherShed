@@ -15,7 +15,7 @@
 #include "Volume/VolumeSlot.h"
 #include "Volume/VolumePassword.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	struct MountOptions : public Serializable
 	{

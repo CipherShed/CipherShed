@@ -28,7 +28,7 @@
  for optimisation details.
 */
 
-/* Adapted for TrueCrypt */
+/* Adapted for CipherShed */
 
 #ifndef _AES_H
 #define _AES_H

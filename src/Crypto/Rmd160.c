@@ -7,7 +7,7 @@
  * This code is in the public domain; do with it what you wish.
  */
 
-/* Adapted for TrueCrypt */
+/* Adapted for CipherShed */
 
 #include <memory.h>
 #include "Common/Tcdefs.h"

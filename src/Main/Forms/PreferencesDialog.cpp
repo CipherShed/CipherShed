@@ -18,7 +18,7 @@
 #include "Volume/Cipher.h"
 #include "PreferencesDialog.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	PreferencesDialog::PreferencesDialog (wxWindow* parent)
 		: PreferencesDialogBase (parent),
@@ -114,7 +114,7 @@ namespace TrueCrypt
 
 #ifdef TC_MACOSX
 		DismountOnScreenSaverCheckBox->Show (false);
-		DismountOnLogOffCheckBox->SetLabel (_("TrueCrypt quits"));
+		DismountOnLogOffCheckBox->SetLabel (_("CipherShed quits"));
 		OpenExplorerWindowAfterMountCheckBox->SetLabel (_("Open Finder window for successfully mounted volume"));
 
 		MountRemovableCheckBox->Show (false);

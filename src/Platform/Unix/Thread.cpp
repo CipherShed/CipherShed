@@ -12,7 +12,7 @@
 #include "Platform/Thread.h"
 #include "Platform/SystemLog.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	void Thread::Join () const
 	{

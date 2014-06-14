@@ -18,20 +18,20 @@
 #include "Mount.h"
 #include "Password.h"
 
-using namespace TrueCrypt;
+using namespace CipherShed;
 
 static volatile LONG ObjectCount = 0;
 
-class TrueCryptMainCom : public ITrueCryptMainCom
+class CipherShedMainCom : public ICipherShedMainCom
 {
 
 public:
-	TrueCryptMainCom (DWORD messageThreadId) : RefCount (0), MessageThreadId (messageThreadId)
+	CipherShedMainCom (DWORD messageThreadId) : RefCount (0), MessageThreadId (messageThreadId)
 	{
 		InterlockedIncrement (&ObjectCount);
 	}
 
-	~TrueCryptMainCom ()
+	~CipherShedMainCom ()
 	{
 		if (InterlockedDecrement (&ObjectCount) == 0)
 			PostThreadMessage (MessageThreadId, WM_APP, 0, 0);
@@ -55,7 +55,7 @@ public:
 
 	virtual HRESULT STDMETHODCALLTYPE QueryInterface (REFIID riid, void **ppvObject)
 	{
-		if (riid == IID_IUnknown || riid == IID_ITrueCryptMainCom)
+		if (riid == IID_IUnknown || riid == IID_ICipherShedMainCom)
 			*ppvObject = this;
 		else
 		{
@@ -149,13 +149,13 @@ extern "C" BOOL ComServerMain ()
 {
 	SetProcessShutdownParameters (0x100, 0);
 
-	TrueCryptFactory<TrueCryptMainCom> factory (GetCurrentThreadId ());
+	CipherShedFactory<CipherShedMainCom> factory (GetCurrentThreadId ());
 	DWORD cookie;
 
 	if (IsUacSupported ())
 		UacElevated = TRUE;
 
-	if (CoRegisterClassObject (CLSID_TrueCryptMainCom, (LPUNKNOWN) &factory,
+	if (CoRegisterClassObject (CLSID_CipherShedMainCom, (LPUNKNOWN) &factory,
 		CLSCTX_LOCAL_SERVER, REGCLS_SINGLEUSE, &cookie) != S_OK)
 		return FALSE;
 
@@ -179,15 +179,15 @@ extern "C" BOOL ComServerMain ()
 }
 
 
-static BOOL ComGetInstance (HWND hWnd, ITrueCryptMainCom **tcServer)
+static BOOL ComGetInstance (HWND hWnd, ICipherShedMainCom **tcServer)
 {
-	return ComGetInstanceBase (hWnd, CLSID_TrueCryptMainCom, IID_ITrueCryptMainCom, (void **) tcServer);
+	return ComGetInstanceBase (hWnd, CLSID_CipherShedMainCom, IID_ICipherShedMainCom, (void **) tcServer);
 }
 
 
-ITrueCryptMainCom *GetElevatedInstance (HWND parent)
+ICipherShedMainCom *GetElevatedInstance (HWND parent)
 {
-	ITrueCryptMainCom *instance;
+	ICipherShedMainCom *instance;
 
 	if (!ComGetInstance (parent, &instance))
 		throw UserAbort (SRC_POS);
@@ -198,7 +198,7 @@ ITrueCryptMainCom *GetElevatedInstance (HWND parent)
 
 extern "C" void UacAnalyzeKernelMiniDump (HWND hwndDlg)
 {
-	CComPtr<ITrueCryptMainCom> tc;
+	CComPtr<ICipherShedMainCom> tc;
 
 	CoInitialize (NULL);
 
@@ -215,7 +215,7 @@ extern "C" void UacAnalyzeKernelMiniDump (HWND hwndDlg)
 
 extern "C" int UacBackupVolumeHeader (HWND hwndDlg, BOOL bRequireConfirmation, char *lpszVolume)
 {
-	CComPtr<ITrueCryptMainCom> tc;
+	CComPtr<ICipherShedMainCom> tc;
 	int r;
 
 	CoInitialize (NULL);
@@ -233,7 +233,7 @@ extern "C" int UacBackupVolumeHeader (HWND hwndDlg, BOOL bRequireConfirmation, c
 
 extern "C" int UacRestoreVolumeHeader (HWND hwndDlg, char *lpszVolume)
 {
-	CComPtr<ITrueCryptMainCom> tc;
+	CComPtr<ICipherShedMainCom> tc;
 	int r;
 
 	CoInitialize (NULL);
@@ -251,7 +251,7 @@ extern "C" int UacRestoreVolumeHeader (HWND hwndDlg, char *lpszVolume)
 
 extern "C" int UacChangePwd (char *lpszVolume, Password *oldPassword, Password *newPassword, int pkcs5, HWND hwndDlg)
 {
-	CComPtr<ITrueCryptMainCom> tc;
+	CComPtr<ICipherShedMainCom> tc;
 	int r;
 
 	if (ComGetInstance (hwndDlg, &tc))

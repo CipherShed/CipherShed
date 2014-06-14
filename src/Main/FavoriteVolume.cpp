@@ -11,7 +11,7 @@
 #include "FavoriteVolume.h"
 #include "Xml.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	FavoriteVolumeList FavoriteVolume::LoadList ()
 	{

@@ -12,7 +12,7 @@
 #include "Forms.h"
 #include "Main/Main.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	class WizardFrame : public WizardFrameBase
 	{

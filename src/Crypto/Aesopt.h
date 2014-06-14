@@ -91,7 +91,7 @@
           AES_RETURN decrypt(const unsigned char *in, unsigned char *out) const
 */
 
-/* Adapted for TrueCrypt */
+/* Adapted for CipherShed */
 
 #if !defined( _AESOPT_H )
 #define _AESOPT_H

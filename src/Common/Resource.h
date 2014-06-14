@@ -2,13 +2,13 @@
 // Microsoft Visual C++ generated include file.
 // Used by Common.rc
 //
-#define IDI_TRUECRYPT_ICON              501
-#define IDI_TRUECRYPT_VOL_ICON          502
+#define IDI_CIPHERSHED_ICON              501
+#define IDI_CIPHERSHED_VOL_ICON          502
 #define IDD_BENCHMARK_DLG               503
 #define IDD_MOUNT_OPTIONS               504
 #define IDD_KEYFILES                    505
 #define IDR_LANGUAGE                    506
-#define IDI_TRUECRYPT                   507
+#define IDI_CIPHERSHED                   507
 #define IDD_ABOUT_DLG                   508
 #define IDD_COMMANDHELP_DLG             509
 #define IDD_RAWDEVICES_DLG              510
@@ -42,7 +42,7 @@
 #define IDD_TOKEN_KEYFILES              538
 #define IDD_NEW_TOKEN_KEYFILE           539
 #define IDD_RANDOM_POOL_ENRICHMENT      540
-#define IDI_TRUECRYPT_MOUNTED_ICON      541
+#define IDI_CIPHERSHED_MOUNTED_ICON      541
 #define IDC_HW_AES_LABEL_LINK           5000
 #define IDC_HW_AES                      5001
 #define IDC_PARALLELIZATION_LABEL_LINK  5002

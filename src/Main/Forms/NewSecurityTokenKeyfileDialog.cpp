@@ -10,7 +10,7 @@
 #include "Main/GraphicUserInterface.h"
 #include "NewSecurityTokenKeyfileDialog.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	NewSecurityTokenKeyfileDialog::NewSecurityTokenKeyfileDialog (wxWindow* parent, const wstring &keyfileName) : NewSecurityTokenKeyfileDialogBase (parent)
 	{

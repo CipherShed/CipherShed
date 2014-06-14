@@ -16,7 +16,7 @@
 #include <sys/types.h>
 #endif
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	struct UserId
 	{

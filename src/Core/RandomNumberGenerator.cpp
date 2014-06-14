@@ -15,7 +15,7 @@
 #include "RandomNumberGenerator.h"
 #include "Volume/Crc32.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	void RandomNumberGenerator::AddSystemDataToPool (bool fast)
 	{

@@ -13,7 +13,7 @@
 #include "Platform/Functor.h"
 #include "Main/Main.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	class VolumePasswordPanel : public VolumePasswordPanelBase
 	{

@@ -10,7 +10,7 @@
 #include "Main/GraphicUserInterface.h"
 #include "SelectDirectoryWizardPage.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	bool SelectDirectoryWizardPage::IsValid ()
 	{

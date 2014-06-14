@@ -22,7 +22,7 @@
 
 // For specifications of the volume header see Common/Volumes.c
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	typedef uint64 VolumeTime;
 

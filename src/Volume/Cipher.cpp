@@ -19,7 +19,7 @@
 #	include "Crypto/Aes_hw_cpu.h"
 #endif
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	Cipher::Cipher () : Initialized (false)
 	{

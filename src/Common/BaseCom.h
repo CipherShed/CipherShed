@@ -12,14 +12,14 @@
 #include <guiddef.h>
 
 template <class TClass>
-class TrueCryptFactory : public IClassFactory
+class CipherShedFactory : public IClassFactory
 {
 
 public:
-	TrueCryptFactory (DWORD messageThreadId) : 
+	CipherShedFactory (DWORD messageThreadId) : 
 		RefCount (1), ServerLockCount (0), MessageThreadId (messageThreadId) { }
 
-	~TrueCryptFactory () { }
+	~CipherShedFactory () { }
 	
 	virtual ULONG STDMETHODCALLTYPE AddRef ()
 	{

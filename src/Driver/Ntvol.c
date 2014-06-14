@@ -280,7 +280,7 @@ NTSTATUS TCOpenVolume (PDEVICE_OBJECT DeviceObject,
 	{
 		// Try to gain "raw" access to the partition in case there is a live filesystem on it (otherwise, 
 		// the NTFS driver guards hidden sectors and prevents mounting using a backup header e.g. after the user 
-		// accidentally quick-formats a dismounted partition-hosted TrueCrypt volume as NTFS).
+		// accidentally quick-formats a dismounted partition-hosted CipherShed volume as NTFS).
 
 		PFILE_OBJECT pfoTmpDeviceFile = NULL;
 
@@ -445,7 +445,7 @@ NTSTATUS TCOpenVolume (PDEVICE_OBJECT DeviceObject,
 			// If FSCTL_ALLOW_EXTENDED_DASD_IO failed and there is a live filesystem on the partition, then the
 			// filesystem driver may report EOF when we are reading hidden sectors (when the filesystem is 
 			// shorter than the partition). This can happen for example after the user quick-formats a dismounted
-			// partition-hosted TrueCrypt volume and then tries to mount the volume using the embedded backup header.
+			// partition-hosted CipherShed volume and then tries to mount the volume using the embedded backup header.
 			memset (readBuffer, 0, TC_VOLUME_HEADER_EFFECTIVE_SIZE);
 		}
 

@@ -21,7 +21,7 @@
 #include "HostDevice.h"
 #include "MountOptions.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	class CoreBase
 	{

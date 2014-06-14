@@ -12,7 +12,7 @@
 #ifndef TCDEFS_H
 #define TCDEFS_H
 
-#define TC_APP_NAME						"TrueCrypt"
+#define TC_APP_NAME						"CipherShed"
 
 // Version displayed to user 
 #define VERSION_STRING					"7.1a"
@@ -247,19 +247,19 @@ void EraseMemory (void *memory, int size);
 #define TC_MAX_PATH		260	/* Includes the null terminator */
 #endif
 
-#define TC_STR_RELEASED_BY "Released by TrueCrypt Foundation on " TC_STR_RELEASE_DATE
+#define TC_STR_RELEASED_BY "Released by CipherShed on " TC_STR_RELEASE_DATE
 
 #define MAX_URL_LENGTH	2084 /* Internet Explorer limit. Includes the terminating null character. */
 
-#define TC_HOMEPAGE "http://www.truecrypt.org/"
-#define TC_APPLINK "http://www.truecrypt.org/applink?version=" VERSION_STRING
-#define TC_APPLINK_SECURE "https://www.truecrypt.org/applink?version=" VERSION_STRING
+#define TC_HOMEPAGE "https://ciphershed.org/"
+#define TC_APPLINK "http://ciphershed.org/applink?version=" VERSION_STRING
+#define TC_APPLINK_SECURE "https://ciphershed.org/applink?version=" VERSION_STRING
 
 enum
 {
 	/* WARNING: ADD ANY NEW CODES AT THE END (DO NOT INSERT THEM BETWEEN EXISTING). DO *NOT* DELETE ANY 
 	EXISTING CODES! Changing these values or their meanings may cause incompatibility with other versions
-	(for example, if a new version of the TrueCrypt installer receives an error code from an installed 
+	(for example, if a new version of the CipherShed installer receives an error code from an installed 
 	driver whose version is lower, it will report and interpret the error incorrectly). */
 
 	ERR_SUCCESS								= 0,

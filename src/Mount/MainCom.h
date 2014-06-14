@@ -14,7 +14,7 @@
 #ifdef __cplusplus
 
 #include "MainCom_h.h"
-ITrueCryptMainCom *GetElevatedInstance (HWND parent);
+ICipherShedMainCom *GetElevatedInstance (HWND parent);
 
 extern "C" {
 #endif
