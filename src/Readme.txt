@@ -1,21 +1,22 @@
-This archive contains the source code of TrueCrypt 7.1a.
-
+This archive contains the source code of CipherShed.
 
 Important
 =========
-
 You may use the source code contained in this archive only if you accept and
 agree to the license terms contained in the file 'License.txt', which is
 included in this archive.
 
-Note that the license specifies, for example, that a derived work must not be
-called 'TrueCrypt'.
+NOTE
+====
+All information in this Readme.txt file is available on our website,
+https://ciphershed.org
 
-
+Although we try our best to keep things updated, the information on
+the website should be considered more up-to-date and supersedes that
+of this document.
 
 Contents
 ========
-
 I. Windows
 	Requirements for Building TrueCrypt for Windows
 	Instructions for Building TrueCrypt for Windows
@@ -24,22 +25,13 @@ II. Linux and Mac OS X
 	Requirements for Building TrueCrypt for Linux and Mac OS X
 	Instructions for Building TrueCrypt for Linux and Mac OS X
 	
-III. FreeBSD and OpenSolaris
-
-IV. Third-Party Developers (Contributors)
-
-V. Legal Information
-
-VI. Further Information
-
-
+III. Legal Information
 
 I. Windows
 ==========
 
 Requirements for Building TrueCrypt for Windows:
 ------------------------------------------------
-
 - Microsoft Visual C++ 2008 SP1 (Professional Edition or compatible)
 - Microsoft Visual C++ 1.52 (available from MSDN Subscriber Downloads)
 - Microsoft Windows SDK for Windows 7 (configured for Visual C++)
@@ -71,7 +63,6 @@ use different versions of the required SDKs).
 
 Instructions for Building TrueCrypt for Windows:
 ------------------------------------------------
-
 1) Create an environment variable 'MSVC16_ROOT' pointing to the folder 'MSVC15'
    extracted from the Visual C++ 1.52 self-extracting package.
 
@@ -97,14 +88,10 @@ Instructions for Building TrueCrypt for Windows:
 7) If successful, there should be newly built TrueCrypt binaries in the
    'Release' folder.
 
-
-
 II. Linux and Mac OS X
 ======================
-
 Requirements for Building TrueCrypt for Linux and Mac OS X:
 -----------------------------------------------------------
-
 - GNU Make
 - GNU C++ Compiler 4.0 or compatible
 - Apple Xcode (Mac OS X only)
@@ -122,7 +109,6 @@ Requirements for Building TrueCrypt for Linux and Mac OS X:
 
 Instructions for Building TrueCrypt for Linux and Mac OS X:
 -----------------------------------------------------------
-
 1) Change the current directory to the root of the TrueCrypt source code.
 
 2) If you have no wxWidgets shared library installed, run the following
@@ -153,39 +139,12 @@ library, use the 'NOGUI' parameter:
    $ make NOGUI=1 WX_ROOT=/usr/src/wxWidgets wxbuild
    $ make NOGUI=1 WXSTATIC=1
 
-
-
-III. FreeBSD and OpenSolaris
-============================
-
-Support status for FreeBSD: http://www.truecrypt.org/misc/freebsd
-Support status for OpenSolaris: http://www.truecrypt.org/misc/opensolaris
-
-
-
-IV. Third-Party Developers (Contributors)
-=========================================
-
-If you intend to implement a feature, please contact us first to make sure:
-
-1) That the feature has not been implemented (we may have already implemented
-   it, but haven't released the code yet).
-2) That the feature is acceptable.
-3) Whether we need help of third-party developers with implementing the feature.
-
-Information on how to contact us can be found at:
-http://www.truecrypt.org/contact
-
-
-
-V. Legal Information
+III. Legal Information
 ====================
-
 Copyright Information
 ---------------------
-
 This software as a whole:
-Copyright (c) 2012 TrueCrypt Developers Association. All rights reserved.
+Copyright (c) 2014 The CipherShed Project. All rights reserved.
 
 Portions of this software:
 Copyright (c) 2003-2012 TrueCrypt Developers Association. All rights reserved.
@@ -200,10 +159,3 @@ Trademark Information
 
 Any trademarks contained in the source code, binaries, and/or in the 
 documentation, are the sole property of their respective owners.
-
-
-
-VI. Further Information
-=======================
-
-http://www.truecrypt.org
