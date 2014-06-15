@@ -12,7 +12,7 @@
 #include "Platform/PlatformBase.h"
 #include "Dlgcode.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	struct Exception
 	{
@@ -56,7 +56,7 @@ namespace TrueCrypt
 		void Show (HWND parent) const
 		{
 			string msgBody = "Parameter incorrect.\n\n\n(If you report a bug in connection with this, please include the following technical information in the bug report:\n" + string (SrcPos) + ")";
-			MessageBox (parent, msgBody.c_str(), "TrueCrypt", MB_ICONERROR | MB_SETFOREGROUND);
+			MessageBox (parent, msgBody.c_str(), "CipherShed", MB_ICONERROR | MB_SETFOREGROUND);
 		}
 
 		const char *SrcPos;

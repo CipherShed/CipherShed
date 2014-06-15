@@ -375,7 +375,7 @@ void CreateFullVolumePath (char *lpszDiskFile, const char *lpszFileName, BOOL * 
 int FakeDosNameForDevice (const char *lpszDiskFile, char *lpszDosDevice, char *lpszCFDevice, BOOL bNameOnly)
 {
 	BOOL bDosLinkCreated = TRUE;
-	sprintf (lpszDosDevice, "truecrypt%lu", GetCurrentProcessId ());
+	sprintf (lpszDosDevice, "ciphershed%lu", GetCurrentProcessId ());
 
 	if (bNameOnly == FALSE)
 		bDosLinkCreated = DefineDosDevice (DDD_RAW_TARGET_PATH, lpszDosDevice, lpszDiskFile);
@@ -870,7 +870,7 @@ BOOL CALLBACK AboutDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam
 			LocalizeDialog (hwndDlg, "IDD_ABOUT_DLG");
 
 			// Hyperlink
-			SetWindowText (GetDlgItem (hwndDlg, IDC_HOMEPAGE), "www.truecrypt.org");
+			SetWindowText (GetDlgItem (hwndDlg, IDC_HOMEPAGE), "ciphershed.org");
 			ToHyperlink (hwndDlg, IDC_HOMEPAGE);
 
 			// Logo area background (must not keep aspect ratio; must retain Windows-imposed distortion)
@@ -2037,7 +2037,7 @@ uint32 ReadDriverConfigurationFlags ()
 {
 	DWORD configMap;
 
-	if (!ReadLocalMachineRegistryDword ("SYSTEM\\CurrentControlSet\\Services\\truecrypt", TC_DRIVER_CONFIG_REG_VALUE_NAME, &configMap))
+	if (!ReadLocalMachineRegistryDword ("SYSTEM\\CurrentControlSet\\Services\\ciphershed", TC_DRIVER_CONFIG_REG_VALUE_NAME, &configMap))
 		configMap = 0;
 
 	return configMap;
@@ -2048,7 +2048,7 @@ uint32 ReadEncryptionThreadPoolFreeCpuCountLimit ()
 {
 	DWORD count;
 
-	if (!ReadLocalMachineRegistryDword ("SYSTEM\\CurrentControlSet\\Services\\truecrypt", TC_ENCRYPTION_FREE_CPU_COUNT_REG_VALUE_NAME, &count))
+	if (!ReadLocalMachineRegistryDword ("SYSTEM\\CurrentControlSet\\Services\\ciphershed", TC_ENCRYPTION_FREE_CPU_COUNT_REG_VALUE_NAME, &count))
 		count = 0;
 
 	return count;
@@ -2417,7 +2417,7 @@ void InitApp (HINSTANCE hInstance, char *lpszCommandLine)
 	}
 
 #ifndef SETUP
-	wc.hIcon = LoadIcon (hInstance, MAKEINTRESOURCE (IDI_TRUECRYPT_ICON));
+	wc.hIcon = LoadIcon (hInstance, MAKEINTRESOURCE (IDI_CIPHERSHED_ICON));
 #else
 #include "../setup/resource.h"
 	wc.hIcon = LoadIcon (hInstance, MAKEINTRESOURCE (IDI_SETUP));
@@ -3196,9 +3196,9 @@ BOOL DoDriverInstall (HWND hwndDlg)
 	StatusMessage (hwndDlg, "INSTALLING_DRIVER");
 #endif
 
-	hService = CreateService (hManager, "truecrypt", "truecrypt",
+	hService = CreateService (hManager, "ciphershed", "ciphershed",
 		SERVICE_ALL_ACCESS, SERVICE_KERNEL_DRIVER, SERVICE_SYSTEM_START, SERVICE_ERROR_NORMAL,
-		"System32\\drivers\\truecrypt.sys",
+		"System32\\drivers\\ciphershed.sys",
 		NULL, NULL, NULL, NULL, NULL);
 
 	if (hService == NULL)
@@ -3206,7 +3206,7 @@ BOOL DoDriverInstall (HWND hwndDlg)
 	else
 		CloseServiceHandle (hService);
 
-	hService = OpenService (hManager, "truecrypt", SERVICE_ALL_ACCESS);
+	hService = OpenService (hManager, "ciphershed", SERVICE_ALL_ACCESS);
 	if (hService == NULL)
 		goto error;
 
@@ -3250,7 +3250,7 @@ static int DriverLoad ()
 	char *tmp;
 	DWORD startType;
 
-	if (ReadLocalMachineRegistryDword ("SYSTEM\\CurrentControlSet\\Services\\truecrypt", "Start", &startType) && startType == SERVICE_BOOT_START)
+	if (ReadLocalMachineRegistryDword ("SYSTEM\\CurrentControlSet\\Services\\ciphershed", "Start", &startType) && startType == SERVICE_BOOT_START)
 		return ERR_PARAMETER_INCORRECT;
 
 	GetModuleFileName (NULL, driverPath, sizeof (driverPath));
@@ -3261,7 +3261,7 @@ static int DriverLoad ()
 		tmp = driverPath + 1;
 	}
 
-	strcpy (tmp, !Is64BitOs () ? "\\truecrypt.sys" : "\\truecrypt-x64.sys");
+	strcpy (tmp, !Is64BitOs () ? "\\ciphershed.sys" : "\\ciphershed-x64.sys");
 
 	file = FindFirstFile (driverPath, &find);
 
@@ -3285,7 +3285,7 @@ static int DriverLoad ()
 		return ERR_OS_ERROR;
 	}
 
-	hService = OpenService (hManager, "truecrypt", SERVICE_ALL_ACCESS);
+	hService = OpenService (hManager, "ciphershed", SERVICE_ALL_ACCESS);
 	if (hService != NULL)
 	{
 		// Remove stale service (driver is not loaded but service exists)
@@ -3294,7 +3294,7 @@ static int DriverLoad ()
 		Sleep (500);
 	}
 
-	hService = CreateService (hManager, "truecrypt", "truecrypt",
+	hService = CreateService (hManager, "ciphershed", "ciphershed",
 		SERVICE_ALL_ACCESS, SERVICE_KERNEL_DRIVER, SERVICE_DEMAND_START, SERVICE_ERROR_NORMAL,
 		driverPath, NULL, NULL, NULL, NULL, NULL);
 
@@ -3371,7 +3371,7 @@ BOOL DriverUnload ()
 	if (hManager == NULL)
 		goto error;
 
-	hService = OpenService (hManager, "truecrypt", SERVICE_ALL_ACCESS);
+	hService = OpenService (hManager, "ciphershed", SERVICE_ALL_ACCESS);
 	if (hService == NULL)
 		goto error;
 
@@ -7585,7 +7585,7 @@ void TaskBarIconDisplayBalloonTooltip (HWND hwnd, wchar_t *headline, wchar_t *te
 
 	tnid.cbSize = sizeof (tnid); 
 	tnid.hWnd = hwnd; 
-	tnid.uID = IDI_TRUECRYPT_ICON; 
+	tnid.uID = IDI_CIPHERSHED_ICON; 
 	//tnid.uVersion = (IsOSAtLeast (WIN_VISTA) ? NOTIFYICON_VERSION_4 : NOTIFYICON_VERSION);
 
 	//Shell_NotifyIconW (NIM_SETVERSION, &tnid);
