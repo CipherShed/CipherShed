@@ -709,7 +709,7 @@ int CreateVolumeHeaderInMemory (BOOL bBoot, char *header, int ea, int mode, Pass
 
 	if (masterKeydata == NULL)
 	{
-		// We have no master key data (creating a new volume) so we'll use the TrueCrypt RNG to generate them
+		// We have no master key data (creating a new volume) so we'll use the CipherShed RNG to generate them
 
 		int bytesNeeded;
 
