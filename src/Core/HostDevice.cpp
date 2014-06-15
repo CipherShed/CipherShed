@@ -9,7 +9,7 @@
 #include "HostDevice.h"
 #include "Platform/SerializerFactory.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	void HostDevice::Deserialize (shared_ptr <Stream> stream)
 	{
