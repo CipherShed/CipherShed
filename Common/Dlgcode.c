@@ -61,7 +61,7 @@
 #include "Setup/Setup.h"
 #endif
 
-using namespace TrueCrypt;
+using namespace CipherShed;
 
 LONG DriverVersion;
 
@@ -139,8 +139,8 @@ volatile HANDLE hNonSysInplaceEncMutex = NULL;
 register the driver or from trying to launch it in portable mode at the same time. */
 volatile HANDLE hDriverSetupMutex = NULL;
 
-/* This mutex is used to prevent users from running the main TrueCrypt app or the wizard while an instance
-of the TrueCrypt installer is running (which is also useful for enforcing restart before the apps can be used). */
+/* This mutex is used to prevent users from running the main CipherShed app or the wizard while an instance
+of the CipherShed installer is running (which is also useful for enforcing restart before the apps can be used). */
 volatile HANDLE hAppSetupMutex = NULL;
 
 HINSTANCE hInst = NULL;
@@ -890,7 +890,7 @@ BOOL CALLBACK AboutDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam
 
 			// Version
 			SendMessage (GetDlgItem (hwndDlg, IDT_ABOUT_VERSION), WM_SETFONT, (WPARAM) hUserBoldFont, 0);
-			sprintf (szTmp, "TrueCrypt %s", VERSION_STRING);
+			sprintf (szTmp, "CipherShed %s", VERSION_STRING);
 #if (defined(_DEBUG) || defined(DEBUG))
 			strcat (szTmp, "  (debug)");
 #endif
@@ -921,9 +921,7 @@ BOOL CALLBACK AboutDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam
 			"Copyright \xA9 2002-2004 Mark Adler. All Rights Reserved.\r\n\r\n"
 
 			"This software as a whole:\r\n"
-			"Copyright \xA9 2012 TrueCrypt Developers Association. All rights reserved.\r\n\r\n"
-
-			"A TrueCrypt Foundation Release");
+			"Copyright \xA9 2012 TrueCrypt Developers Association. All rights reserved.");
 
 		return 1;
 
@@ -1676,7 +1674,7 @@ void ExceptionHandlerThread (void *threadArg)
 	{
 	case STATUS_IN_PAGE_ERROR:
 	case 0xeedfade:
-		// Exception not caused by TrueCrypt
+		// Exception not caused by CipherShed
 		MessageBoxW (0, GetString ("EXCEPTION_REPORT_EXT"),
 			GetString ("EXCEPTION_REPORT_TITLE"),
 			MB_ICONERROR | MB_OK | MB_SETFOREGROUND | MB_TOPMOST);
@@ -1964,7 +1962,7 @@ void CloseAppSetupMutex (void)
 }
 
 
-BOOL IsTrueCryptInstallerRunning (void)
+BOOL IsCipherShedInstallerRunning (void)
 {
 	return (MutexExistsOnSystem (TC_MUTEX_NAME_APP_SETUP));
 }
@@ -2329,12 +2327,12 @@ void InitApp (HINSTANCE hInstance, char *lpszCommandLine)
 		wcex.cbSize = sizeof(WNDCLASSEX); 
 		wcex.lpfnWndProc = (WNDPROC) NonInstallUacWndProc;
 		wcex.hInstance = hInstance;
-		wcex.lpszClassName = "TrueCrypt";
+		wcex.lpszClassName = "CipherShed";
 		RegisterClassEx (&wcex);
 
 		// A small transparent window is necessary to bring the new instance to foreground
 		hWnd = CreateWindowEx (WS_EX_TOOLWINDOW | WS_EX_LAYERED,
-			"TrueCrypt", "TrueCrypt", 0,
+			"CipherShed", "CipherShed", 0,
 			GetSystemMetrics (SM_CXSCREEN)/2,
 			GetSystemMetrics (SM_CYSCREEN)/2,
 			1, 1, NULL, NULL, hInstance, NULL);
@@ -2485,11 +2483,11 @@ void InitHelpFileName (void)
 		if (strcmp (GetPreferredLangId(), "en") == 0
 			|| GetPreferredLangId() == NULL)
 		{
-			strcpy (++lpszTmp, "TrueCrypt User Guide.pdf");
+			strcpy (++lpszTmp, "CipherShed User Guide.pdf");
 		}
 		else
 		{
-			sprintf (szTemp, "TrueCrypt User Guide.%s.pdf", GetPreferredLangId());
+			sprintf (szTemp, "CipherShed User Guide.%s.pdf", GetPreferredLangId());
 			strcpy (++lpszTmp, szTemp);
 		}
 
@@ -2498,7 +2496,7 @@ void InitHelpFileName (void)
 		lpszTmp = strrchr (szHelpFile2, '\\');
 		if (lpszTmp)
 		{
-			strcpy (++lpszTmp, "TrueCrypt User Guide.pdf");
+			strcpy (++lpszTmp, "CipherShed User Guide.pdf");
 		}
 	}
 }
@@ -2778,7 +2776,7 @@ BOOL CALLBACK TextInfoDialogBoxDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, L
 				break;
 
 			case TC_TBXID_SYS_ENC_RESCUE_DISK:
-				PrintHardCopyTextUTF16 ((wchar_t *) GetRescueDiskHelpString ().c_str(), "TrueCrypt Rescue Disk Help", GetRescueDiskHelpString ().length () * 2);
+				PrintHardCopyTextUTF16 ((wchar_t *) GetRescueDiskHelpString ().c_str(), "CipherShed Rescue Disk Help", GetRescueDiskHelpString ().length () * 2);
 				break;
 
 			case TC_TBXID_DECOY_OS_INSTRUCTIONS:
@@ -3994,7 +3992,7 @@ void LocalizeDialog (HWND hwnd, char *stringId)
 	SendMessage (hwnd, WM_SETFONT, (WPARAM) hUserFont, 0);
 
 	if (stringId == NULL)
-		SetWindowText (hwnd, "TrueCrypt");
+		SetWindowText (hwnd, "CipherShed");
 	else
 		SetWindowTextW (hwnd, GetString (stringId));
 	
@@ -7005,7 +7003,7 @@ BOOL IsNonInstallMode ()
 			// We can't use GetConfigPath() here because it would call us back (indirect recursion)
 			if (SUCCEEDED(SHGetFolderPath (NULL, CSIDL_APPDATA, NULL, 0, path)))
 			{
-				strcat (path, "\\TrueCrypt\\");
+				strcat (path, "\\CipherShed\\");
 				strcat (path, TC_APPD_FILENAME_SYSTEM_ENCRYPTION);
 
 				if (FileExists (path))
@@ -7031,7 +7029,7 @@ BOOL IsNonInstallMode ()
 
 	// The following test may be unreliable in some cases (e.g. after the user selects restore "Last Known Good
 	// Configuration" from the Windows boot menu).
-	if (RegOpenKeyEx (HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\TrueCrypt", 0, KEY_READ, &hkey) == ERROR_SUCCESS)
+	if (RegOpenKeyEx (HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\CipherShed", 0, KEY_READ, &hkey) == ERROR_SUCCESS)
 	{
 		RegCloseKey (hkey);
 		return FALSE;
@@ -7066,7 +7064,7 @@ void SetListScrollHPos (HWND hList, int topMostVisibleItem)
 }
 
 
-// Adds or removes TrueCrypt.exe to/from the system startup sequence (with appropriate command line arguments)
+// Adds or removes CipherShed.exe to/from the system startup sequence (with appropriate command line arguments)
 void ManageStartupSeq (void)
 {
 	if (!IsNonInstallMode ())
@@ -7086,7 +7084,7 @@ void ManageStartupSeq (void)
 				char *tmp = NULL;
 
 				if (tmp = strrchr (exe, '\\'))
-					strcpy (++tmp, "TrueCrypt.exe");
+					strcpy (++tmp, "CipherShed.exe");
 			}
 #endif
 			strcat (exe, "\" /q preferences /a logon");
@@ -7094,15 +7092,15 @@ void ManageStartupSeq (void)
 			if (bMountDevicesOnLogon) strcat (exe, " /a devices");
 			if (bMountFavoritesOnLogon) strcat (exe, " /a favorites");
 
-			WriteRegistryString (regk, "TrueCrypt", exe);
+			WriteRegistryString (regk, "CipherShed", exe);
 		}
 		else
-			DeleteRegistryValue (regk, "TrueCrypt");
+			DeleteRegistryValue (regk, "CipherShed");
 	}
 }
 
 
-// Adds or removes the TrueCrypt Volume Creation Wizard to/from the system startup sequence
+// Adds or removes the CipherShed Volume Creation Wizard to/from the system startup sequence
 void ManageStartupSeqWiz (BOOL bRemove, const char *arg)
 {
 	char regk [64];
@@ -7119,7 +7117,7 @@ void ManageStartupSeqWiz (BOOL bRemove, const char *arg)
 				char *tmp = NULL;
 
 				if (tmp = strrchr (exe, '\\'))
-					strcpy (++tmp, "TrueCrypt Format.exe");
+					strcpy (++tmp, "CipherShed Format.exe");
 			}
 #endif
 
@@ -7129,14 +7127,14 @@ void ManageStartupSeqWiz (BOOL bRemove, const char *arg)
 			strcat (exe, arg);
 		}
 
-		WriteRegistryString (regk, "TrueCrypt Format", exe);
+		WriteRegistryString (regk, "CipherShed Format", exe);
 	}
 	else
-		DeleteRegistryValue (regk, "TrueCrypt Format");
+		DeleteRegistryValue (regk, "CipherShed Format");
 }
 
 
-// Delete the last used Windows file selector path for TrueCrypt from the registry
+// Delete the last used Windows file selector path for CipherShed from the registry
 void CleanLastVisitedMRU (void)
 {
 	WCHAR exeFilename[MAX_PATH];
@@ -7515,7 +7513,7 @@ char *GetConfigPath (char *fileName)
 
 	if (SUCCEEDED(SHGetFolderPath (NULL, CSIDL_APPDATA | CSIDL_FLAG_CREATE, NULL, 0, path)))
 	{
-		strcat (path, "\\TrueCrypt\\");
+		strcat (path, "\\CipherShed\\");
 		CreateDirectory (path, NULL);
 		strcat (path, fileName);
 	}
@@ -7532,7 +7530,7 @@ char *GetProgramConfigPath (char *fileName)
 
 	if (SUCCEEDED (SHGetFolderPath (NULL, CSIDL_COMMON_APPDATA | CSIDL_FLAG_CREATE, NULL, 0, path)))
 	{
-		strcat (path, "\\TrueCrypt\\");
+		strcat (path, "\\CipherShed\\");
 		CreateDirectory (path, NULL);
 		strcat (path, fileName);
 	}
@@ -7612,7 +7610,7 @@ void InfoBalloon (char *headingStringId, char *textStringId)
 		return;
 
 	TaskBarIconDisplayBalloonTooltip (MainDlg,
-		headingStringId == NULL ? L"TrueCrypt" : GetString (headingStringId), 
+		headingStringId == NULL ? L"CipherShed" : GetString (headingStringId), 
 		textStringId == NULL ? L" " : GetString (textStringId), 
 		FALSE);
 }
@@ -7625,7 +7623,7 @@ void InfoBalloonDirect (wchar_t *headingString, wchar_t *textString)
 		return;
 
 	TaskBarIconDisplayBalloonTooltip (MainDlg,
-		headingString == NULL ? L"TrueCrypt" : headingString, 
+		headingString == NULL ? L"CipherShed" : headingString, 
 		textString == NULL ? L" " : textString, 
 		FALSE);
 }
@@ -7638,7 +7636,7 @@ void WarningBalloon (char *headingStringId, char *textStringId)
 		return;
 
 	TaskBarIconDisplayBalloonTooltip (MainDlg,
-		headingStringId == NULL ? L"TrueCrypt" : GetString (headingStringId), 
+		headingStringId == NULL ? L"CipherShed" : GetString (headingStringId), 
 		textStringId == NULL ? L" " : GetString (textStringId), 
 		TRUE);
 }
@@ -7651,7 +7649,7 @@ void WarningBalloonDirect (wchar_t *headingString, wchar_t *textString)
 		return;
 
 	TaskBarIconDisplayBalloonTooltip (MainDlg,
-		headingString == NULL ? L"TrueCrypt" : headingString, 
+		headingString == NULL ? L"CipherShed" : headingString, 
 		textString == NULL ? L" " : textString, 
 		TRUE);
 }
@@ -8085,7 +8083,7 @@ void DebugMsgBox (char *format, ...)
 	_vsnprintf (buf, sizeof (buf), format, val);
 	va_end(val);
 
-	MessageBox (MainDlg, buf, "TrueCrypt debug", 0);
+	MessageBox (MainDlg, buf, "CipherShed debug", 0);
 }
 
 
@@ -8384,7 +8382,7 @@ BOOL CALLBACK CloseTCWindowsEnum (HWND hwnd, LPARAM lParam)
 	{
 		char name[1024] = { 0 };
 		GetWindowText (hwnd, name, sizeof (name) - 1);
-		if (hwnd != MainDlg && strstr (name, "TrueCrypt"))
+		if (hwnd != MainDlg && strstr (name, "CipherShed"))
 		{
 			PostMessage (hwnd, TC_APPMSG_CLOSE_BKG_TASK, 0, 0);
 
@@ -8409,7 +8407,7 @@ BOOL CALLBACK FindTCWindowEnum (HWND hwnd, LPARAM lParam)
 	{
 		char name[32] = { 0 };
 		GetWindowText (hwnd, name, sizeof (name) - 1);
-		if (hwnd != MainDlg && strcmp (name, "TrueCrypt") == 0)
+		if (hwnd != MainDlg && strcmp (name, "CipherShed") == 0)
 		{
 			if (lParam != 0)
 				*((HWND *)lParam) = hwnd;
@@ -8504,7 +8502,7 @@ int OpenVolume (OpenVolumeContext *context, const char *volumePath, Password *pa
 	{
 		// Try to gain "raw" access to the partition in case there is a live filesystem on it (otherwise, 
 		// the NTFS driver guards hidden sectors and prevents e.g. header backup restore after the user 
-		// accidentally quick-formats a dismounted partition-hosted TrueCrypt volume as NTFS, etc.)
+		// accidentally quick-formats a dismounted partition-hosted CipherShed volume as NTFS, etc.)
 
 		DeviceIoControl (context->HostFileHandle, FSCTL_ALLOW_EXTENDED_DASD_IO, NULL, 0, NULL, 0, &dwResult, NULL);
 	}
@@ -8610,7 +8608,7 @@ int OpenVolume (OpenVolumeContext *context, const char *volumePath, Password *pa
 			// If FSCTL_ALLOW_EXTENDED_DASD_IO failed and there is a live filesystem on the partition, then the
 			// filesystem driver may report EOF when we are reading hidden sectors (when the filesystem is 
 			// shorter than the partition). This can happen for example after the user quick-formats a dismounted
-			// partition-hosted TrueCrypt volume and then tries to read the embedded backup header.
+			// partition-hosted CipherShed volume and then tries to read the embedded backup header.
 
 			memset (buffer, 0, sizeof (buffer));
 		}
@@ -9580,8 +9578,8 @@ BOOL RemoveDeviceWriteProtection (HWND hwndDlg, char *devicePath)
 	if (GetTempPath (sizeof (temp), temp) == 0)
 		return FALSE;
 
-	_snprintf (cmdBatch, sizeof (cmdBatch), "%s\\TrueCrypt_Write_Protection_Removal.cmd", temp);
-	_snprintf (diskpartScript, sizeof (diskpartScript), "%s\\TrueCrypt_Write_Protection_Removal.diskpart", temp);
+	_snprintf (cmdBatch, sizeof (cmdBatch), "%s\\CipherShed_Write_Protection_Removal.cmd", temp);
+	_snprintf (diskpartScript, sizeof (diskpartScript), "%s\\CipherShed_Write_Protection_Removal.diskpart", temp);
 
 	FILE *f = fopen (cmdBatch, "w");
 	if (!f)
@@ -9630,7 +9628,7 @@ void EnableElevatedCursorChange (HWND parent)
 	// Create a transparent window to work around a UAC issue preventing change of the cursor
 	if (UacElevated)
 	{
-		const char *className = "TrueCryptEnableElevatedCursorChange";
+		const char *className = "CipherShedEnableElevatedCursorChange";
 		WNDCLASSEX winClass;
 		HWND hWnd;
 
@@ -9641,7 +9639,7 @@ void EnableElevatedCursorChange (HWND parent)
 		winClass.lpszClassName = className;
 		RegisterClassEx (&winClass);
 
-		hWnd = CreateWindowEx (WS_EX_TOOLWINDOW | WS_EX_LAYERED, className, "TrueCrypt UAC", 0, 0, 0, GetSystemMetrics (SM_CXSCREEN), GetSystemMetrics (SM_CYSCREEN), parent, NULL, hInst, NULL);
+		hWnd = CreateWindowEx (WS_EX_TOOLWINDOW | WS_EX_LAYERED, className, "CipherShed UAC", 0, 0, 0, GetSystemMetrics (SM_CXSCREEN), GetSystemMetrics (SM_CYSCREEN), parent, NULL, hInst, NULL);
 		SetLayeredWindowAttributes (hWnd, 0, 1, LWA_ALPHA);
 		ShowWindow (hWnd, SW_SHOWNORMAL);
 

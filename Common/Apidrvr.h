@@ -176,7 +176,7 @@ typedef struct
 typedef struct
 {
 	wchar_t wszFileName[TC_MAX_PATH];		// Volume to be "open tested"
-	BOOL bDetectTCBootLoader;			// Whether the driver is to determine if the first sector contains a portion of the TrueCrypt Boot Loader
+	BOOL bDetectTCBootLoader;			// Whether the driver is to determine if the first sector contains a portion of the CipherShed Boot Loader
 	BOOL TCBootLoaderDetected;
 	BOOL DetectFilesystem;
 	BOOL FilesystemDetected;
@@ -221,7 +221,7 @@ typedef struct
 	int64 HiddenSystemPartitionStart;
 
 	// Number of times the filter driver answered that an unencrypted volume
-	// is read-only (or mounted an outer/normal TrueCrypt volume as read only)
+	// is read-only (or mounted an outer/normal CipherShed volume as read only)
 	uint32 HiddenSysLeakProtectionCount;
 
 } BootEncryptionStatus;
@@ -296,17 +296,17 @@ typedef struct
 #define DRIVER_STR
 #endif
 
-#define TC_UNIQUE_ID_PREFIX "TrueCryptVolume"
-#define TC_MOUNT_PREFIX L"\\Device\\TrueCryptVolume"
+#define TC_UNIQUE_ID_PREFIX "CipherShedVolume"
+#define TC_MOUNT_PREFIX L"\\Device\\CipherShedVolume"
 
-#define NT_MOUNT_PREFIX DRIVER_STR("\\Device\\TrueCryptVolume")
-#define NT_ROOT_PREFIX DRIVER_STR("\\Device\\TrueCrypt")
+#define NT_MOUNT_PREFIX DRIVER_STR("\\Device\\CipherShedVolume")
+#define NT_ROOT_PREFIX DRIVER_STR("\\Device\\CipherShed")
 #define DOS_MOUNT_PREFIX DRIVER_STR("\\DosDevices\\")
-#define DOS_ROOT_PREFIX DRIVER_STR("\\DosDevices\\TrueCrypt")
-#define WIN32_ROOT_PREFIX DRIVER_STR("\\\\.\\TrueCrypt")
+#define DOS_ROOT_PREFIX DRIVER_STR("\\DosDevices\\CipherShed")
+#define WIN32_ROOT_PREFIX DRIVER_STR("\\\\.\\CipherShed")
 
-#define TC_DRIVER_CONFIG_REG_VALUE_NAME DRIVER_STR("TrueCryptConfig")
-#define TC_ENCRYPTION_FREE_CPU_COUNT_REG_VALUE_NAME DRIVER_STR("TrueCryptEncryptionFreeCpuCount")
+#define TC_DRIVER_CONFIG_REG_VALUE_NAME DRIVER_STR("CipherShedConfig")
+#define TC_ENCRYPTION_FREE_CPU_COUNT_REG_VALUE_NAME DRIVER_STR("CipherShedEncryptionFreeCpuCount")
 
 // WARNING: Modifying the following values can introduce incompatibility with previous versions.
 #define TC_DRIVER_CONFIG_CACHE_BOOT_PASSWORD						0x1
