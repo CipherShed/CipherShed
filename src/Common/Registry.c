@@ -281,6 +281,6 @@ void DeleteRegistryValue (char *subKey, char *name)
 void GetStartupRegKeyName (char *regk)
 {
 	// The string is split in order to prevent some antivirus packages from falsely reporting  
-	// TrueCrypt.exe to contain a possible Trojan horse because of this string (heuristic scan).
+	// CipherShed.exe to contain a possible Trojan horse because of this string (heuristic scan).
 	sprintf (regk, "%s%s", "Software\\Microsoft\\Windows\\Curren", "tVersion\\Run");
 }

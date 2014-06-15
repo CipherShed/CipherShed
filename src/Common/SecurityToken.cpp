@@ -30,7 +30,7 @@
 
 using namespace std;
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	SecurityTokenKeyfile::SecurityTokenKeyfile (const SecurityTokenKeyfilePath &path)
 	{
