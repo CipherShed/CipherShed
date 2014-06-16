@@ -9,7 +9,7 @@
 #include <stdexcept>
 #include "SerializerFactory.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	void SerializerFactory::Deinitialize ()
 	{
