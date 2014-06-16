@@ -11,7 +11,7 @@
 
 #include "Platform/Platform.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	class Hash;
 	typedef list < shared_ptr <Hash> > HashList;

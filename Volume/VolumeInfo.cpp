@@ -10,7 +10,7 @@
 #include "VolumeInfo.h"
 #include "Platform/SerializerFactory.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	void VolumeInfo::Deserialize (shared_ptr <Stream> stream)
 	{

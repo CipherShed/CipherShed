@@ -8,7 +8,7 @@
 
 #include "VolumePasswordCache.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	CachedPasswordList VolumePasswordCache::GetPasswords ()
 	{

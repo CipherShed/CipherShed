@@ -12,7 +12,7 @@
 #include "Platform/Platform.h"
 #include "VolumePassword.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	typedef list < shared_ptr < VolumePassword > > CachedPasswordList;
 
