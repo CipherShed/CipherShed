@@ -19,7 +19,7 @@
 
 using namespace std;
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	vector <FavoriteVolume> FavoriteVolumes;
 	vector <FavoriteVolume> SystemFavoriteVolumes;
