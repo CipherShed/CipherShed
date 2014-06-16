@@ -20,7 +20,7 @@
 #include "Thread.h"
 #include "Common/Tcdefs.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	// make_shared_auto, File, Stream, MemoryStream, Endian, Serializer, Serializable
 	void PlatformTest::SerializerTest ()
@@ -33,7 +33,7 @@ namespace TrueCrypt
 
 		try
 		{
-			file->Open ("truecrypt-serializer-test.tmp", File::CreateReadWrite);
+			file->Open ("ciphershed-serializer-test.tmp", File::CreateReadWrite);
 			stream = shared_ptr <Stream> (new FileStream (file));
 		}
 		catch (...) { }
