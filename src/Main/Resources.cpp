@@ -149,7 +149,7 @@ namespace CipherShed
 	wxIcon Resources::GetCipherShedIcon ()
 	{
 #ifdef TC_WINDOWS
-		return wxIcon (L"IDI_TRUECRYPT_ICON", wxBITMAP_TYPE_ICO_RESOURCE, 16, 16);
+		return wxIcon (L"IDI_CIPHERSHED_ICON", wxBITMAP_TYPE_ICO_RESOURCE, 16, 16);
 #else
 #		include "Resources/Icons/CipherShed-16x16.xpm"
 		return wxIcon (CipherShedIcon16x16);
