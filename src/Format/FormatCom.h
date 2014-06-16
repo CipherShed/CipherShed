@@ -14,7 +14,7 @@
 #ifdef __cplusplus
 
 #include "FormatCom_h.h"
-ITrueCryptFormatCom *GetElevatedInstance (HWND parent);
+ICipherShedFormatCom *GetElevatedInstance (HWND parent);
 
 extern "C" {
 #endif

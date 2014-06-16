@@ -13,7 +13,7 @@
 #include "UserInterface.h"
 #include "UserInterfaceType.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	class Application
 	{
@@ -24,7 +24,7 @@ namespace TrueCrypt
 		static DirectoryPath GetExecutableDirectory ();
 		static FilePath GetExecutablePath ();
 		static int GetExitCode () { return ExitCode; }
-		static wstring GetName () { return L"TrueCrypt"; }
+		static wstring GetName () { return L"CipherShed"; }
 		static UserInterface *GetUserInterface () { return mUserInterface; }
 		static UserInterfaceType::Enum GetUserInterfaceType () { return mUserInterfaceType; }
 		static void Initialize (UserInterfaceType::Enum type);

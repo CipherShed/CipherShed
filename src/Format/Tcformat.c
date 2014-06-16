@@ -48,7 +48,7 @@
 #include "Wipe.h"
 #include "Xml.h"
 
-using namespace TrueCrypt;
+using namespace CipherShed;
 
 enum wizard_pages
 {
@@ -379,7 +379,7 @@ static BOOL CALLBACK BroadcastSysEncCfgUpdateCallb (HWND hwnd, LPARAM lParam)
 	{
 		char name[1024] = { 0 };
 		GetWindowText (hwnd, name, sizeof (name) - 1);
-		if (hwnd != MainDlg && strstr (name, "TrueCrypt"))
+		if (hwnd != MainDlg && strstr (name, "CipherShed"))
 		{
 			PostMessage (hwnd, TC_APPMSG_SYSENC_CONFIG_UPDATE, 0, 0);
 		}
@@ -1091,8 +1091,8 @@ static BOOL ResolveUnknownSysEncDirection (void)
 }
 
 // This function should be used to resolve inconsistencies that might lead to a deadlock (inability to encrypt or
-// decrypt the system partition/drive and to uninstall TrueCrypt). The function removes the system encryption key 
-// data ("volume header"), the TrueCrypt boot loader, restores the original system loader (if available),
+// decrypt the system partition/drive and to uninstall CipherShed). The function removes the system encryption key 
+// data ("volume header"), the CipherShed boot loader, restores the original system loader (if available),
 // unregisters the boot driver, etc. Note that if the system partition/drive is encrypted, it will start decrypting
 // it in the background (therefore, it should be used when the system partition/drive is not encrypted, ideally).
 // Exceptions are handled and errors are reported within the function. Returns TRUE if successful.
@@ -5379,7 +5379,7 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 			InitDialog (hwndDlg);
 			LocalizeDialog (hwndDlg, "IDD_VOL_CREATION_WIZARD_DLG");
 
-			if (IsTrueCryptInstallerRunning())
+			if (IsCipherShedInstallerRunning())
 				AbortProcess ("TC_INSTALLER_IS_RUNNING");
 
 			// Resize the bitmap if the user has a non-default DPI 
@@ -5431,7 +5431,7 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 			}
 
 			SHGetFolderPath (NULL, CSIDL_MYDOCUMENTS, NULL, 0, szRescueDiskISO);
-			strcat (szRescueDiskISO, "\\TrueCrypt Rescue Disk.iso");
+			strcat (szRescueDiskISO, "\\CipherShed Rescue Disk.iso");
 
 			if (IsOSAtLeast (WIN_VISTA))
 			{
@@ -7116,9 +7116,9 @@ retryCDDriveCheck:
 				}
 
 
-				/* Add the main TrueCrypt app to the system startup sequence (the TrueCrypt Background Task), which
+				/* Add the main CipherShed app to the system startup sequence (the CipherShed Background Task), which
 				we need e.g. for notifications about prevented hibernation, about hidden OS leak protection, about 
-				inconsistent hidden OS installs (TrueCrypt upgraded in the decoy system but not in the hidden one), etc.
+				inconsistent hidden OS installs (CipherShed upgraded in the decoy system but not in the hidden one), etc.
 				Note that this must be done before calling ChangeSystemEncryptionStatus(), which broadcasts the change,
 				so that the main app (if it's running with different cached settings) will not overwrite our new
 				settings when it exits. */
@@ -8062,7 +8062,7 @@ int DetermineMaxHiddenVolSize (HWND hwndDlg)
 
 // Tests whether the file system of the given volume is suitable to host a hidden volume,
 // retrieves the cluster size, and scans the volume cluster bitmap. In addition, checks
-// the TrueCrypt volume format version and the type of volume.
+// the CipherShed volume format version and the type of volume.
 int AnalyzeHiddenVolumeHost (HWND hwndDlg, int *driveNo, __int64 hiddenVolHostSize, int *realClusterSize, __int64 *pnbrFreeClusters)
 {
 	HANDLE hDevice;
