@@ -9,7 +9,7 @@
 #include "Exception.h"
 #include "SerializerFactory.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	void Exception::Deserialize (shared_ptr <Stream> stream)
 	{

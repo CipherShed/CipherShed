@@ -9,7 +9,7 @@
 #include "Exception.h"
 #include "MemoryStream.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	MemoryStream::MemoryStream (const ConstBufferPtr &data) :
 		ReadPosition (0)
