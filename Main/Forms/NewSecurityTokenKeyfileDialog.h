@@ -12,7 +12,7 @@
 #include "Forms.h"
 #include "Common/SecurityToken.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	class NewSecurityTokenKeyfileDialog : public NewSecurityTokenKeyfileDialogBase
 	{

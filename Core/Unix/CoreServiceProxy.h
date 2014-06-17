@@ -12,7 +12,7 @@
 #include "CoreService.h"
 #include "Volume/VolumePasswordCache.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	template <class T>
 	class CoreServiceProxy : public T

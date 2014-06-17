@@ -10,7 +10,7 @@
 #include "CoreServiceRequest.h"
 #include "Platform/SerializerFactory.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	void CoreServiceRequest::Deserialize (shared_ptr <Stream> stream)
 	{

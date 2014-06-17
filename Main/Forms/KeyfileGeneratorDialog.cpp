@@ -11,7 +11,7 @@
 #include "Volume/Hash.h"
 #include "KeyfileGeneratorDialog.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	KeyfileGeneratorDialog::KeyfileGeneratorDialog (wxWindow* parent) : KeyfileGeneratorDialogBase (parent) 
 	{
