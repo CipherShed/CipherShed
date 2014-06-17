@@ -21,7 +21,7 @@
 #include <ApplicationServices/ApplicationServices.h>
 #endif
 
-using namespace TrueCrypt;
+using namespace CipherShed;
 
 int main (int argc, char **argv)
 {
