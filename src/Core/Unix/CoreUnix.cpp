@@ -18,7 +18,7 @@
 #include "Driver/Fuse/FuseService.h"
 #include "Volume/VolumePasswordCache.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	CoreUnix::CoreUnix ()
 	{
@@ -205,17 +205,17 @@ namespace TrueCrypt
 
 	string CoreUnix::GetDefaultMountPointPrefix () const
 	{
-		const char *envPrefix = getenv ("TRUECRYPT_MOUNT_PREFIX");
+		const char *envPrefix = getenv ("CIPHERSHED_MOUNT_PREFIX");
 		if (envPrefix && !string (envPrefix).empty())
 			return envPrefix;
 		
 		if (FilesystemPath ("/media").IsDirectory())
-			return "/media/truecrypt";
+			return "/media/ciphershed";
 		
 		if (FilesystemPath ("/mnt").IsDirectory())
-			return "/mnt/truecrypt";
+			return "/mnt/ciphershed";
 		
-		return GetTempDirectory() + "/truecrypt_mnt";
+		return GetTempDirectory() + "/ciphershed_mnt";
 	}
 
 	uint32 CoreUnix::GetDeviceSectorSize (const DevicePath &devicePath) const

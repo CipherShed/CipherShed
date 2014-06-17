@@ -32,9 +32,9 @@ static void InitScreen ()
 
 	const char *title =
 #ifndef TC_WINDOWS_BOOT_RESCUE_DISK_MODE
-		" TrueCrypt Boot Loader "
+		" CipherShed Boot Loader "
 #else
-		" TrueCrypt Rescue Disk "
+		" CipherShed Rescue Disk "
 #endif
 		VERSION_STRING "\r\n";
 
@@ -342,7 +342,7 @@ static bool MountVolume (byte drive, byte &exitKey, bool skipNormal, bool skipHi
 				   "If so, use 'Repair Options' > 'Restore key data'.\r\n\r\n");
 #else
 			Print ("If you are sure the password is correct, the key data may be damaged. Boot your\r\n"
-				   "TrueCrypt Rescue Disk and select 'Repair Options' > 'Restore key data'.\r\n\r\n");
+				   "CipherShed Rescue Disk and select 'Repair Options' > 'Restore key data'.\r\n\r\n");
 #endif
 		}
 	}
@@ -714,7 +714,7 @@ static void DecryptDrive (byte drive)
 	bool skipBadSectors = false;
 
 	Print ("\r\nUse only if Windows cannot start. Decryption under Windows is much faster\r\n"
-			"(in TrueCrypt, select 'System' > 'Permanently Decrypt').\r\n\r\n");
+			"(in CipherShed, select 'System' > 'Permanently Decrypt').\r\n\r\n");
 
 	if (!AskYesNo ("Decrypt now"))
 	{
@@ -862,12 +862,12 @@ static void RepairMenu ()
 		{
 			RestoreNone = 0,
 			DecryptVolume,
-			RestoreTrueCryptLoader,
+			RestoreCipherShedLoader,
 			RestoreVolumeHeader,
 			RestoreOriginalSystemLoader
 		};
 
-		static const char *options[] = { "Permanently decrypt system partition/drive", "Restore TrueCrypt Boot Loader", "Restore key data (volume header)", "Restore original system loader" };
+		static const char *options[] = { "Permanently decrypt system partition/drive", "Restore CipherShed Boot Loader", "Restore key data (volume header)", "Restore original system loader" };
 
 		int selection = AskSelection (options,
 			(BootSectorFlags & TC_BOOT_CFG_FLAG_RESCUE_DISK_ORIG_SYS_LOADER) ? array_capacity (options) : array_capacity (options) - 1);
@@ -910,7 +910,7 @@ static void RepairMenu ()
 
 			if (selection == RestoreOriginalSystemLoader)
 				sector.LowPart += TC_ORIG_BOOT_LOADER_BACKUP_SECTOR;
-			else if (selection == RestoreTrueCryptLoader)
+			else if (selection == RestoreCipherShedLoader)
 				sector.LowPart += TC_BOOT_LOADER_BACKUP_RESCUE_DISK_SECTOR;
 
 			// The backup medium may be a floppy-emulated bootable CD. The emulation may fail if LBA addressing is used.
@@ -941,7 +941,7 @@ static void RepairMenu ()
 			// Volume header
 			if (i == TC_BOOT_VOLUME_HEADER_SECTOR)
 			{
-				if (selection == RestoreTrueCryptLoader)
+				if (selection == RestoreCipherShedLoader)
 					continue;
 
 				if (selection == RestoreVolumeHeader)
@@ -1005,8 +1005,8 @@ static void RepairMenu ()
 done:
 		switch (selection)
 		{
-		case RestoreTrueCryptLoader:
-			Print ("TrueCrypt Boot Loader");
+		case RestoreCipherShedLoader:
+			Print ("CipherShed Boot Loader");
 			break;
 
 		case RestoreVolumeHeader:

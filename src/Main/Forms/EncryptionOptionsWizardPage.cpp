@@ -14,7 +14,7 @@
 #include "EncryptionOptionsWizardPage.h"
 #include "EncryptionTestDialog.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	EncryptionOptionsWizardPage::EncryptionOptionsWizardPage (wxPanel* parent)
 		: EncryptionOptionsWizardPageBase (parent)

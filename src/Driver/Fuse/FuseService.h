@@ -15,7 +15,7 @@
 #include "Volume/VolumeInfo.h"
 #include "Volume/Volume.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 
 	class FuseService
@@ -43,7 +43,7 @@ namespace TrueCrypt
 		static int ExceptionToErrorCode ();
 		static const char *GetControlPath () { return "/control"; }
 		static const char *GetVolumeImagePath ();
-		static string GetDeviceType () { return "truecrypt"; }
+		static string GetDeviceType () { return "ciphershed"; }
 		static uid_t GetGroupId () { return GroupId; }
 		static uid_t GetUserId () { return UserId; }
 		static shared_ptr <Buffer> GetVolumeInfo ();

@@ -10,7 +10,7 @@
 #include "Main/GraphicUserInterface.h"
 #include "ProgressWizardPage.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	ProgressWizardPage::ProgressWizardPage (wxPanel* parent, bool enableAbort)
 		: ProgressWizardPageBase (parent),

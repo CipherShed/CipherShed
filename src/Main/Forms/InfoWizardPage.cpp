@@ -9,7 +9,7 @@
 #include "System.h"
 #include "InfoWizardPage.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	InfoWizardPage::InfoWizardPage (wxPanel *parent, const wxString &actionButtonText, shared_ptr <Functor> actionFunctor)
 		: InfoWizardPageBase (parent)
