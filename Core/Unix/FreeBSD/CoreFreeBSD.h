@@ -12,7 +12,7 @@
 #include "System.h"
 #include "Core/Unix/CoreUnix.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	class CoreFreeBSD : public CoreUnix
 	{
