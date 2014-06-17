@@ -1396,7 +1396,7 @@ namespace CipherShed
 
 		// Primary volume descriptor
 		strcpy ((char *)image + 0x8000, "\001CD001\001");
-		strcpy ((char *)image + 0x7fff + 41, "CipherShed Rescue Disk           ");
+		strcpy ((char *)image + 0x7fff + 41, "CipherShed Rescue Disk          ");
 		*(uint32 *) (image + 0x7fff + 81) = RescueIsoImageSize / 2048;
 		*(uint32 *) (image + 0x7fff + 85) = BE32 (RescueIsoImageSize / 2048);
 		image[0x7fff + 121] = 1;

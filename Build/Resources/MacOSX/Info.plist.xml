@@ -6,7 +6,7 @@
 	<string>6.0</string>
 
 	<key>CFBundleIdentifier</key>
-	<string>org.CipherShedFoundation.CipherShed</string>
+	<string>org.CipherShedProject.CipherShed</string>
 
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
