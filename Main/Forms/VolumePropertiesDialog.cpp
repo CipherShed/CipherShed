@@ -11,7 +11,7 @@
 #include "Main/GraphicUserInterface.h"
 #include "VolumePropertiesDialog.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	VolumePropertiesDialog::VolumePropertiesDialog (wxWindow* parent, const VolumeInfo &volumeInfo)
 		: VolumePropertiesDialogBase (parent)
@@ -69,7 +69,7 @@ namespace TrueCrypt
 		AppendToList ("BACKUP_HEADER", LangString[volumeInfo.MinRequiredProgramVersion >= 0x600 ? "UISTR_YES" : "UISTR_NO"]);
 
 #ifdef TC_LINUX
-		if (string (volumeInfo.VirtualDevice).find ("/dev/mapper/truecrypt") != 0)
+		if (string (volumeInfo.VirtualDevice).find ("/dev/mapper/ciphershed") != 0)
 		{
 #endif
 		AppendToList ("TOTAL_DATA_READ", Gui->SizeToString (volumeInfo.TotalDataRead));
