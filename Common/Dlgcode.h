@@ -44,7 +44,7 @@ enum
 	TC_TBXID_EXTRA_BOOT_PARTITION_REMOVAL_INSTRUCTIONS
 };
 
-#define TC_APPLICATION_ID	L"CipherShedFoundation.CipherShed"
+#define TC_APPLICATION_ID	L"CipherShedProject.CipherShed"
 
 #define TC_MUTEX_NAME_SYSENC				"Global\\CipherShed System Encryption Wizard"
 #define TC_MUTEX_NAME_NONSYS_INPLACE_ENC	"Global\\CipherShed In-Place Encryption Wizard"
