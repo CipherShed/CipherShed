@@ -1,0 +1,7 @@
+# to delete
+
+git rm -q -rf src/Service
+git rm -q -rf src/Common/DISMOUNT.C
+git rm -q -rf src/Common/DISMOUNT.H
+git rm -q -rf src/Docs/License.txt
+

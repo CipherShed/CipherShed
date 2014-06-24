@@ -1,0 +1,6 @@
+# to delete
+
+git rm -q -rf src/Crypto/IDEA.C
+git rm -q -rf src/Crypto/IDEA.H
+git rm -q -rf src/Crypto/IDEA_386.C
+

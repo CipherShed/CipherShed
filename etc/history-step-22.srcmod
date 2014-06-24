@@ -1,0 +1,3 @@
+# to delete
+
+git rm -q -rf src/Platform/File.cpp

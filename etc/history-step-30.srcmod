@@ -1,0 +1,22 @@
+# to delete
+
+git rm -q -rf src/Crypto/Bf_ecb.c
+git rm -q -rf src/Crypto/Bf_enc.c
+git rm -q -rf src/Crypto/Bf_locl.h
+git rm -q -rf src/Crypto/Bf_pi.h
+git rm -q -rf src/Crypto/Bf_skey.c
+git rm -q -rf src/Crypto/C_ecb.c
+git rm -q -rf src/Crypto/C_enc.c
+git rm -q -rf src/Crypto/C_skey.c
+git rm -q -rf src/Crypto/Cast_lcl.h
+git rm -q -rf src/Crypto/Cast_s.h
+git rm -q -rf src/Crypto/Des_enc.c
+git rm -q -rf src/Crypto/Des_locl.h
+git rm -q -rf src/Crypto/Ecb3_enc.c
+git rm -q -rf src/Crypto/Podd.h
+git rm -q -rf src/Crypto/Set_key.c
+git rm -q -rf src/Crypto/Set_key.h
+git rm -q -rf src/Crypto/Sk.h
+git rm -q -rf src/Crypto/Spr.h
+
+

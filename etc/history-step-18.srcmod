@@ -1,0 +1,10 @@
+# to delete
+
+git rm -q -rf src/Clean.bat
+git rm -q -rf src/Driver/MAKEFILE
+git rm -q -rf src/Driver/Ntfiledv.c
+git rm -q -rf src/Driver/Ntfiledv.h
+git rm -q -rf src/Driver/Ntrawdv.c
+git rm -q -rf src/Driver/Ntrawdv.h
+git rm -q -rf src/Format/Uncroot.c
+git rm -q -rf src/Format/Uncroot.h
