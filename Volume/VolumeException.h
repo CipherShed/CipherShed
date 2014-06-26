@@ -11,7 +11,7 @@
 
 #include "Platform/Platform.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	struct VolumeException : public Exception
 	{

@@ -418,8 +418,8 @@ BOOL EAInitMode (PCRYPTO_INFO ci)
 
 		/* Note: XTS mode could potentially be initialized with a weak key causing all blocks in one data unit
 		on the volume to be tweaked with zero tweaks (i.e. 512 bytes of the volume would be encrypted in ECB
-		mode). However, to create a TrueCrypt volume with such a weak key, each human being on Earth would have
-		to create approximately 11,378,125,361,078,862 (about eleven quadrillion) TrueCrypt volumes (provided 
+		mode). However, to create a CipherShed volume with such a weak key, each human being on Earth would have
+		to create approximately 11,378,125,361,078,862 (about eleven quadrillion) CipherShed volumes (provided 
 		that the size of each of the volumes is 1024 terabytes). */
 		break;
 

@@ -10,7 +10,7 @@
 #include "Memory.h"
 #include "Exception.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	void *Memory::Allocate (std::size_t size)
 	{

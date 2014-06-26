@@ -17,7 +17,7 @@
  * 
  * @author  Paulo S.L.M. Barreto
  * @author  Vincent Rijmen.
- * Adapted for TrueCrypt.
+ * Adapted for CipherShed.
  *
  * @version 3.0 (2003.03.12)
  *

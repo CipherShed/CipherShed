@@ -11,7 +11,7 @@
 #include "Platform/FileStream.h"
 #include "Xml.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	XmlParser::XmlParser (const FilePath &fileName)
 	{
@@ -93,7 +93,7 @@ namespace TrueCrypt
 		TextOutStream.reset (new wxTextOutputStream (*MemOutStream));
 		OutFile.Open (fileName, File::CreateWrite);
 
-		*TextOutStream << L"<?xml version=\"1.0\" encoding=\"utf-8\"?>" << endl << L"<TrueCrypt>" << endl;
+		*TextOutStream << L"<?xml version=\"1.0\" encoding=\"utf-8\"?>" << endl << L"<CipherShed>" << endl;
 		CurrentIndentLevel = 0;
 	}
 
@@ -101,7 +101,7 @@ namespace TrueCrypt
 	{
 		if (MemOutStream.get())
 		{
-			*TextOutStream << L"</TrueCrypt>" << endl;
+			*TextOutStream << L"</CipherShed>" << endl;
 
 			wxStreamBuffer *buf = MemOutStream->GetOutputStreamBuffer();
 			OutFile.Write (ConstBufferPtr (reinterpret_cast <byte *> (buf->GetBufferStart()), buf->GetBufferSize()));

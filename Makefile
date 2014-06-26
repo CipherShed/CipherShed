@@ -25,7 +25,7 @@
 
 #------ Build configuration ------
 
-export APPNAME := truecrypt
+export APPNAME := ciphershed
 export BASE_DIR := $(CURDIR)
 export BUILD_INC := $(BASE_DIR)/Build/Include
 
@@ -171,7 +171,7 @@ endif
 ifeq "$(shell uname -s)" "Darwin"
 
 	PLATFORM := MacOSX
-	APPNAME := TrueCrypt
+	APPNAME := CipherShed
 
 	TC_OSX_SDK ?= /Developer/SDKs/MacOSX10.4u.sdk
 	CC := gcc-4.0

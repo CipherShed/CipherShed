@@ -20,7 +20,7 @@
 #include "CoreServiceRequest.h"
 #include "CoreServiceResponse.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	template <class T>
 	auto_ptr <T> CoreService::GetResponse ()
@@ -357,7 +357,7 @@ namespace TrueCrypt
 
 					string appPath = request.ApplicationExecutablePath;
 					if (appPath.empty())
-						appPath = "truecrypt";
+						appPath = "ciphershed";
 
 					const char *args[] = { "sudo", "-S", "-p", "", appPath.c_str(), TC_CORE_SERVICE_CMDLINE_OPTION, nullptr };
 					execvp (args[0], ((char* const*) args));

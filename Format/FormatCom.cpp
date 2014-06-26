@@ -20,22 +20,22 @@
 #include "FormatCom_h.h"
 #include "FormatCom_i.c"
 
-using namespace TrueCrypt;
+using namespace CipherShed;
 
 static volatile LONG ObjectCount = 0;
 
-class TrueCryptFormatCom : public ITrueCryptFormatCom
+class CipherShedFormatCom : public ICipherShedFormatCom
 {
 
 public:
-	TrueCryptFormatCom (DWORD messageThreadId) : RefCount (0),
+	CipherShedFormatCom (DWORD messageThreadId) : RefCount (0),
 		MessageThreadId (messageThreadId),
 		CallBack (NULL)
 	{
 		InterlockedIncrement (&ObjectCount);
 	}
 
-	~TrueCryptFormatCom ()
+	~CipherShedFormatCom ()
 	{
 		if (InterlockedDecrement (&ObjectCount) == 0)
 			PostThreadMessage (MessageThreadId, WM_APP, 0, 0);
@@ -59,7 +59,7 @@ public:
 
 	virtual HRESULT STDMETHODCALLTYPE QueryInterface (REFIID riid, void **ppvObject)
 	{
-		if (riid == IID_IUnknown || riid == IID_ITrueCryptFormatCom)
+		if (riid == IID_IUnknown || riid == IID_ICipherShedFormatCom)
 			*ppvObject = this;
 		else
 		{
@@ -131,7 +131,7 @@ public:
 protected:
 	DWORD MessageThreadId;
 	LONG RefCount;
-	ITrueCryptFormatCom *CallBack;
+	ICipherShedFormatCom *CallBack;
 };
 
 
@@ -139,13 +139,13 @@ extern "C" BOOL ComServerFormat ()
 {
 	SetProcessShutdownParameters (0x100, 0);
 
-	TrueCryptFactory<TrueCryptFormatCom> factory (GetCurrentThreadId ());
+	CipherShedFactory<CipherShedFormatCom> factory (GetCurrentThreadId ());
 	DWORD cookie;
 
 	if (IsUacSupported ())
 		UacElevated = TRUE;
 
-	if (CoRegisterClassObject (CLSID_TrueCryptFormatCom, (LPUNKNOWN) &factory,
+	if (CoRegisterClassObject (CLSID_CipherShedFormatCom, (LPUNKNOWN) &factory,
 		CLSCTX_LOCAL_SERVER, REGCLS_SINGLEUSE, &cookie) != S_OK)
 		return FALSE;
 
@@ -169,15 +169,15 @@ extern "C" BOOL ComServerFormat ()
 }
 
 
-static BOOL ComGetInstance (HWND hWnd, ITrueCryptFormatCom **tcServer)
+static BOOL ComGetInstance (HWND hWnd, ICipherShedFormatCom **tcServer)
 {
-	return ComGetInstanceBase (hWnd, CLSID_TrueCryptFormatCom, IID_ITrueCryptFormatCom, (void **) tcServer);
+	return ComGetInstanceBase (hWnd, CLSID_CipherShedFormatCom, IID_ICipherShedFormatCom, (void **) tcServer);
 }
 
 
-ITrueCryptFormatCom *GetElevatedInstance (HWND parent)
+ICipherShedFormatCom *GetElevatedInstance (HWND parent)
 {
-	ITrueCryptFormatCom *instance;
+	ICipherShedFormatCom *instance;
 
 	if (!ComGetInstance (parent, &instance))
 		throw UserAbort (SRC_POS);
@@ -188,7 +188,7 @@ ITrueCryptFormatCom *GetElevatedInstance (HWND parent)
 
 extern "C" int UacFormatNtfs (HWND hWnd, int driveNo, int clusterSize)
 {
-	CComPtr<ITrueCryptFormatCom> tc;
+	CComPtr<ICipherShedFormatCom> tc;
 	int r;
 
 	CoInitialize (NULL);
@@ -206,7 +206,7 @@ extern "C" int UacFormatNtfs (HWND hWnd, int driveNo, int clusterSize)
 
 extern "C" int UacAnalyzeHiddenVolumeHost (HWND hwndDlg, int *driveNo, __int64 hiddenVolHostSize, int *realClusterSize, __int64 *nbrFreeClusters)
 {
-	CComPtr<ITrueCryptFormatCom> tc;
+	CComPtr<ICipherShedFormatCom> tc;
 	int r;
 
 	CoInitialize (NULL);

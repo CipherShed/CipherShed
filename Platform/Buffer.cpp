@@ -9,7 +9,7 @@
 #include "Buffer.h"
 #include "Exception.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	Buffer::Buffer () : DataPtr (nullptr), DataSize (0)
 	{

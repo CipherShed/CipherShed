@@ -22,7 +22,7 @@
 #include "Driver/Fuse/FuseService.h"
 #include "Core/Unix/CoreServiceProxy.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	CoreLinux::CoreLinux ()
 	{
@@ -114,7 +114,7 @@ namespace TrueCrypt
 	{
 		string devPath = mountedVolume->VirtualDevice;
 
-		if (devPath.find ("/dev/mapper/truecrypt") != 0)
+		if (devPath.find ("/dev/mapper/ciphershed") != 0)
 			throw NotApplicable (SRC_POS);
 
 		size_t devCount = 0;
@@ -380,7 +380,7 @@ namespace TrueCrypt
 				}
 
 				stringstream nativeDevName;
-				nativeDevName << "truecrypt" << options.SlotNumber;
+				nativeDevName << "ciphershed" << options.SlotNumber;
 				
 				if (nativeDevCount != cipherCount - 1)
 					nativeDevName << "_" << cipherCount - nativeDevCount - 2;

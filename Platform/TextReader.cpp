@@ -8,7 +8,7 @@
 
 #include "TextReader.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	TextReader::TextReader (const FilePath &path)
 	{

@@ -19,7 +19,7 @@
 #include "VolumeCreator.h"
 #include "FatFormatter.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	VolumeCreator::VolumeCreator ()
 		: SizeDone (0)

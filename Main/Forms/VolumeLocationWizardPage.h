@@ -11,7 +11,7 @@
 
 #include "Forms.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	class VolumeLocationWizardPage : public VolumeLocationWizardPageBase
 	{

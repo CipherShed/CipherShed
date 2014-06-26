@@ -12,7 +12,7 @@
 #include "WizardFrame.h"
 #include "Core/VolumeCreator.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	class VolumeCreationWizard : public WizardFrame
 	{

@@ -10,7 +10,7 @@
 #include "Platform/SerializerFactory.h"
 #include "Platform/StringConverter.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	VolumePassword::VolumePassword () : PasswordSize (0), Unportable (false)
 	{

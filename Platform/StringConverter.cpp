@@ -17,7 +17,7 @@
 #include "StringConverter.h"
 #include "SystemException.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	void StringConverter::Erase (string &str)
 	{

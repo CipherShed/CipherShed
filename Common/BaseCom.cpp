@@ -15,7 +15,7 @@
 #include "Dlgcode.h"
 #include "Registry.h"
 
-using namespace TrueCrypt;
+using namespace CipherShed;
 
 HRESULT CreateElevatedComObject (HWND hwnd, REFGUID guid, REFIID iid, void **ppv)
 {

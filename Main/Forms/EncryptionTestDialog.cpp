@@ -12,7 +12,7 @@
 #include "Main/GraphicUserInterface.h"
 #include "EncryptionTestDialog.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	EncryptionTestDialog::EncryptionTestDialog (wxWindow* parent)
 		: EncryptionTestDialogBase (parent)

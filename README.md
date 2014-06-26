@@ -10,7 +10,7 @@ Please verify, triple-check, and scrutinize everything we do! Feel free to [cont
 We're only human, after all. Well, most of us ;-)
 
 ## How to Contribute ##
-Please see the [Development Process](https://ciphershed.org/DevelopmentProcess) page on our website.
+Please see the [Development Process](https://ciphershed.org/wiki/DevelopmentProcess) page on our website.
 
 ## Documentation ##
-For documentation, including how to compile, please see the [Docs](https://ciphershed.org/Docs) page on our website.
+For documentation, including how to compile, please see the [Docs](https://ciphershed.org/wiki/Development) page on our website.
