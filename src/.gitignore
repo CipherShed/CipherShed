@@ -1,0 +1,18 @@
+# Unshipped pkcs11
+pkcs11.h
+pkcs11f.h
+pkcs11t.h
+
+# Generated resources
+*.o
+*.d
+*.a
+Common/Language.xml.h
+Common/Textual_logo_96dpi.bmp.h
+Format/TrueCrypt_Wizard.bmp.h
+License.txt.h
+Main/SystemPrecompiled.h.gch
+Main/truecrypt
+Mount/Drive_icon_96dpi.bmp.h
+Mount/Drive_icon_mask_96dpi.bmp.h
+Mount/Logo_96dpi.bmp.h
