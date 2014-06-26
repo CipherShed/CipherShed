@@ -37,7 +37,7 @@ export RANLIB ?= ranlib
 
 export CFLAGS := -Wall
 export CXXFLAGS := -Wall -Wno-unused-parameter
-C_CXX_FLAGS := -MMD -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_LARGE_FILES -I$(BASE_DIR) -I$(BASE_DIR)/Crypto
+C_CXX_FLAGS := -MMD -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_LARGE_FILES -I$(BASE_DIR) -I$(BASE_DIR)/Crypto -I$(BASE_DIR)/Pkcs11
 export ASFLAGS := -Ox -D __GNUC__
 export LFLAGS :=
 
