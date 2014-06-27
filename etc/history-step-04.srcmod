@@ -1,6 +1,0 @@
-# to delete
-
-git rm -q -rf src/Crypto/MD5.C
-git rm -q -rf src/Crypto/MD5.H
-git rm -q -rf src/Crypto/SHA.C
-git rm -q -rf src/Crypto/SHA.H

@@ -1,9 +1,0 @@
-mkdir -p doc/trust/id/t/r/TrueCrypt-Team/
-#https://raw.githubusercontent.com/DrWhax/truecrypt-archive/master/TrueCrypt_Team_PGP_public_key.asc
-cp tmp/0x55266F63-TrueCrypt_Team_PGP_public_key.asc doc/trust/id/t/r/TrueCrypt-Team/
-git add doc/trust/id/t/r/TrueCrypt-Team/0x55266F63-TrueCrypt_Team_PGP_public_key.asc
-
-cp etc/history-conversion-dos2unix-exempt tmp/files.exempt
-cp etc/history-conversion-dos2unix-utf tmp/files.conversion-dos2unix-utf
-cp etc/history-conversion-unix2dos-utf tmp/files.conversion-unix2dos-utf
-cp etc/history-conversion-unix2dos tmp/files.conversion-unix2dos

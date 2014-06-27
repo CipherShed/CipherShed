@@ -1,7 +1,0 @@
-
-KEY=0xF0D6B1E0-TrueCrypt_Foundation_PGP_public_key.asc
-
-mkdir -p doc/trust/id/t/r/TrueCrypt-Foundation
-cp tmp/$KEY doc/trust/id/t/r/TrueCrypt-Foundation/
-git add doc/trust/id/t/r/TrueCrypt-Foundation/
-

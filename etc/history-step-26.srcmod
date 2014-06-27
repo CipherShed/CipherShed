@@ -1,5 +1,0 @@
-# to delete
-
-git rm -q -rf src/Main/Forms/SingleChoiceWizardPage.cpp
-git rm -q -rf src/Main/Forms/VolumeCreationIntroWizardPage.cpp
-git rm -q -rf src/Main/Forms/VolumeCreationIntroWizardPage.h
