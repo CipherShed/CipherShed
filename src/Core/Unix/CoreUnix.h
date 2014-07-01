@@ -14,7 +14,7 @@
 #include "Core/CoreBase.h"
 #include "Core/Unix/MountedFilesystem.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	class CoreUnix : public CoreBase
 	{
@@ -51,7 +51,7 @@ namespace TrueCrypt
 		virtual void DismountNativeVolume (shared_ptr <VolumeInfo> mountedVolume) const { throw NotApplicable (SRC_POS); }
 		virtual bool FilesystemSupportsUnixPermissions (const DevicePath &devicePath) const;
 		virtual string GetDefaultMountPointPrefix () const;
-		virtual string GetFuseMountDirPrefix () const { return ".truecrypt_aux_mnt"; }
+		virtual string GetFuseMountDirPrefix () const { return ".ciphershed_aux_mnt"; }
 		virtual MountedFilesystemList GetMountedFilesystems (const DevicePath &devicePath = DevicePath(), const DirectoryPath &mountPoint = DirectoryPath()) const = 0;
 		virtual uid_t GetRealUserId () const;
 		virtual gid_t GetRealGroupId () const;

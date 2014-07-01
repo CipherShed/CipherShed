@@ -14,7 +14,7 @@
 #include "Main.h"
 #include "UserInterface.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	class GraphicUserInterface : public UserInterface
 	{

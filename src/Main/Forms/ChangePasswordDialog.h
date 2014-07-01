@@ -13,7 +13,7 @@
 #include "Main/Main.h"
 #include "VolumePasswordPanel.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	class ChangePasswordDialog : public ChangePasswordDialogBase
 	{

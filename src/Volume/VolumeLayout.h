@@ -15,7 +15,7 @@
 #include "Volume/Pkcs5Kdf.h"
 #include "VolumeHeader.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	class VolumeLayout;
 	typedef list < shared_ptr <VolumeLayout> > VolumeLayoutList;

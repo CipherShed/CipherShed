@@ -12,7 +12,7 @@
 #include "System.h"
 #include "Main.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	struct XmlNode;
 	typedef list <XmlNode> XmlNodeList;

@@ -10,7 +10,7 @@
 #include "Main/GraphicUserInterface.h"
 #include "VolumeCreationProgressWizardPage.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	VolumeCreationProgressWizardPage::VolumeCreationProgressWizardPage (wxPanel* parent, bool displayKeyInfo)
 		: VolumeCreationProgressWizardPageBase (parent),

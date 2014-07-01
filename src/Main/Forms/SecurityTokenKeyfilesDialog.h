@@ -13,7 +13,7 @@
 #include "Common/SecurityToken.h"
 #include "Main/Main.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	class SecurityTokenKeyfilesDialog : public SecurityTokenKeyfilesDialogBase
 	{

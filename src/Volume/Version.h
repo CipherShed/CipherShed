@@ -12,7 +12,7 @@
 #include "Platform/PlatformBase.h"
 #include "Common/Tcdefs.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	class Version
 	{

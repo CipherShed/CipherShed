@@ -30,7 +30,7 @@
 #include "Volume/EncryptionThreadPool.h"
 #include "Core/Core.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	static int fuse_service_access (const char *path, int mask)
 	{

@@ -14,7 +14,7 @@
 #include "Platform/Unix/Pipe.h"
 #include "Core/Core.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	// This service facilitates process forking and elevation of user privileges
 	class CoreService

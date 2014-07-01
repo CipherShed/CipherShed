@@ -11,7 +11,7 @@
 
 #include "Platform/PlatformBase.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	class Pipe
 	{

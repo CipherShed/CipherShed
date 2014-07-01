@@ -30,7 +30,7 @@
 ; suggestions made by him for which I am most grateful.
 
 ;
-; Adapted for TrueCrypt:
+; Adapted for CipherShed:
 ; - Compatibility with NASM
 ;
 

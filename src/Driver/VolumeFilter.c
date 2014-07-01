@@ -15,7 +15,7 @@
 typedef DriveFilterExtension VolumeFilterExtension;
 
 // Number of times the filter driver answered that an unencrypted volume
-// is read-only (or mounted an outer/normal TrueCrypt volume as read only)
+// is read-only (or mounted an outer/normal CipherShed volume as read only)
 uint32 HiddenSysLeakProtectionCount = 0;
 
 
@@ -163,7 +163,7 @@ static NTSTATUS DispatchControl (PDEVICE_OBJECT DeviceObject, PIRP Irp, VolumeFi
 			if (!ProbingHostDeviceForWrite)
 				break;
 
-			// Probe the real state of the device as the user is mounting a TrueCrypt volume.
+			// Probe the real state of the device as the user is mounting a CipherShed volume.
 
 			// Volume filter may be attached to a merged drive+volume PDO. First test if TC_IOCTL_DISK_IS_WRITABLE works for the underlying device.
 			status = SendDeviceIoControlRequest (Extension->LowerDeviceObject, TC_IOCTL_DISK_IS_WRITABLE, NULL, 0, NULL, 0);

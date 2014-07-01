@@ -11,7 +11,7 @@
 
 #include "System.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	class FatalErrorHandler
 	{

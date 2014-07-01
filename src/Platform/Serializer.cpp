@@ -11,7 +11,7 @@
 #include "Memory.h"
 #include "Serializer.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	template <typename T>
 	T Serializer::Deserialize ()

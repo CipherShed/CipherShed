@@ -12,7 +12,7 @@
 #include "System.h"
 #include "Platform/Platform.h"
 
-namespace TrueCrypt
+namespace CipherShed
 {
 	class Resources
 	{
@@ -24,7 +24,7 @@ namespace TrueCrypt
 		static wxBitmap GetDriveIconMaskBitmap ();
 		static wxBitmap GetLogoBitmap ();
 		static wxBitmap GetTextualLogoBitmap ();
-		static wxIcon GetTrueCryptIcon ();
+		static wxIcon GetCipherShedIcon ();
 		static wxBitmap GetVolumeCreationWizardBitmap (int height = -1);
 #endif
 	};
