@@ -1,0 +1,92 @@
+HKCR
+{
+	ForceRemove CipherShed.1 = s 'CipherShed class'
+	{
+		CLSID = s '{CECBC0EE-78D9-41E6-BCF1-BC222BB224BA}'
+	}
+
+	ForceRemove CipherShed = s 'CipherShed class'
+	{
+		CLSID = s '{CECBC0EE-78D9-41E6-BCF1-BC222BB224BA}'
+		CurVer = s 'CipherShed.1'
+	}
+
+	NoRemove CLSID
+	{
+		ForceRemove {CECBC0EE-78D9-41E6-BCF1-BC222BB224BA} = s 'CipherShed class'
+		{
+			ProgID = s 'CipherShed.1'
+			VersionIndependentProgID = s 'CipherShed'
+			LocalServer32 = s '"%MAIN_MODULE%"'
+
+			TypeLib = s '{1770F56C-7881-4591-A179-79B8001C7D42}'
+			
+			Elevation
+            {
+				val Enabled = d 1
+				val IconReference = s '@%MAIN_MODULE%,-501'
+            }
+
+			val AppId = s '{CECBC0EE-78D9-41E6-BCF1-BC222BB224BA}'
+            val LocalizedString = s '@%MAIN_MODULE%,-110'
+		}
+	}
+
+	NoRemove AppId
+	{
+		ForceRemove {CECBC0EE-78D9-41E6-BCF1-BC222BB224BA} = s 'CipherShed class'
+		{
+			val AccessPermission = b 010004803000000040000000000000001400000002001c000100000000001400070000000101000000000005040000000102000000000005200000002002000001020000000000052000000020020000
+		}
+		
+		ForceRemove CipherShed.exe
+		{
+			val AppId = s '{CECBC0EE-78D9-41E6-BCF1-BC222BB224BA}'
+		}
+	}
+	
+	ForceRemove CipherShedFormat.1 = s 'CipherShedFormat class'
+	{
+		CLSID = s '{777DCDFD-C330-480B-B582-B02B57580CC9}'
+	}
+
+	ForceRemove CipherShedFormat = s 'CipherShedFormat class'
+	{
+		CLSID = s '{777DCDFD-C330-480B-B582-B02B57580CC9}'
+		CurVer = s 'CipherShedFormat.1'
+	}
+	
+	NoRemove CLSID
+	{
+		ForceRemove {777DCDFD-C330-480B-B582-B02B57580CC9} = s 'CipherShedFormat class'
+		{
+			ProgID = s 'CipherShedFormat.1'
+			VersionIndependentProgID = s 'CipherShedFormat'
+			LocalServer32 = s '"%FORMAT_MODULE%"'
+
+			TypeLib = s '{A7DF958C-0716-49E9-8C3E-53A775797576}'
+			
+			Elevation
+            {
+				val Enabled = d 1
+				val IconReference = s '@%FORMAT_MODULE%,-501'
+            }
+
+			val AppId = s '{777DCDFD-C330-480B-B582-B02B57580CC9}'
+            val LocalizedString = s '@%FORMAT_MODULE%,-112'
+		}
+	}
+	
+	NoRemove AppId
+	{
+		ForceRemove {777DCDFD-C330-480B-B582-B02B57580CC9} = s 'CipherShedFormat class'
+		{
+			val AccessPermission = b 010004803000000040000000000000001400000002001c000100000000001400070000000101000000000005040000000102000000000005200000002002000001020000000000052000000020020000
+		}
+		
+		ForceRemove 'CipherShed Format.exe'
+		{
+			val AppId = s '{777DCDFD-C330-480B-B582-B02B57580CC9}'
+		}
+	}
+}
