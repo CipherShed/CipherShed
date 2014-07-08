@@ -505,6 +505,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\Common\snprintf.h"
+				>
+			</File>
+			<File
 				RelativePath="..\Common\Tcdefs.h"
 				>
 			</File>

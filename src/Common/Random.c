@@ -12,6 +12,7 @@
 #include "Tcdefs.h"
 #include "Crc.h"
 #include "Random.h"
+#include "snprintf.h"
 
 static unsigned __int8 buffer[RNG_POOL_SIZE];
 static unsigned char *pRandPool = NULL;
@@ -622,7 +623,7 @@ BOOL SlowPoll (void)
 		char szDevice[24];
 
 		/* Check whether we can access this device */
-		sprintf (szDevice, "\\\\.\\PhysicalDrive%d", nDrive);
+		snprintf (szDevice, ARRAY_LENGTH(szDevice), "\\\\.\\PhysicalDrive%d", nDrive);
 		hDevice = CreateFile (szDevice, 0, FILE_SHARE_READ | FILE_SHARE_WRITE,
 				      NULL, OPEN_EXISTING, 0, NULL);
 		if (hDevice == INVALID_HANDLE_VALUE)
