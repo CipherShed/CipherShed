@@ -1,0 +1,3 @@
+[submodule "var/opt/microsoft-visual-c-152c"]
+	path = var/opt/microsoft-visual-c-152c
+	url = https://intranet.pdinc.us/git/microsoft-visual-c-152c
