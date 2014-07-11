@@ -29,6 +29,7 @@
 
 #include <tchar.h>
 #include <initguid.h>
+#include <limits.h>
 #include <mountmgr.h>
 #include <mountdev.h>
 #include <ntddvol.h>
@@ -705,7 +706,7 @@ NTSTATUS ProcessVolumeDeviceControlIrp (PDEVICE_OBJECT DeviceObject, PEXTENSION 
 			PVERIFY_INFORMATION pVerifyInformation;
 			pVerifyInformation = (PVERIFY_INFORMATION) Irp->AssociatedIrp.SystemBuffer;
 
-			if (pVerifyInformation->StartingOffset.QuadPart + pVerifyInformation->Length > Extension->DiskLength && sizeof(DWORD) - pVerifyInformation->StartingOffset.QuadPart >= pVerifyInformation->Length) //Added overflow check, as suggested by the audit
+			if (pVerifyInformation->StartingOffset.QuadPart + pVerifyInformation->Length > Extension->DiskLength && ULONG_MAX - pVerifyInformation->StartingOffset.QuadPart >= pVerifyInformation->Length) //Added overflow check, as suggested by the audit
 				Irp->IoStatus.Status = STATUS_INVALID_PARAMETER;
 			else
 			{
