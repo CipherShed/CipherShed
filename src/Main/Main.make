@@ -96,7 +96,11 @@ endif
 
 #------ FUSE configuration ------
 
-FUSE_LIBS = $(shell pkg-config fuse --libs)
+ifdef NOPKGCONFIG
+	FUSE_LIBS = -L/usr/local/lib -lfuse -pthread -liconv
+else
+	FUSE_LIBS = $(shell pkg-config fuse --libs)
+endif
 
 
 #------ Executable ------

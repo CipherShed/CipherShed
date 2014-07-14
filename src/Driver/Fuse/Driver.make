@@ -11,6 +11,10 @@ NAME := Driver
 OBJS :=
 OBJS += FuseService.o
 
-CXXFLAGS += $(shell pkg-config fuse --cflags)
+ifdef NOPKGCONFIG
+	CXXFLAGS += -I/usr/local/include/fuse -D__FreeBSD__=10 -D_FILE_OFFSET_BITS=64
+else
+	CXXFLAGS += $(shell pkg-config fuse --cflags)
+endif
 
 include $(BUILD_INC)/Makefile.inc
