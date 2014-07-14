@@ -11,6 +11,7 @@
 # DEBUGGER:		Enable debugging information for use by debuggers
 # NOASM:		Exclude modules requiring assembler
 # NOGUI:		Disable graphical user interface (build console-only application)
+# NOPKGCONFIG	Do not use pkg-config for FUSE: force MacFUSE usage (OS X-only)
 # NOSTRIP:		Do not strip release binary
 # NOTEST:		Do not test release binary
 # RESOURCEDIR:	Run-time resource directory
@@ -235,6 +236,10 @@ endif
 
 
 #------ Common configuration ------
+
+ifneq "$(PLATFORM)" "MacOSX"
+	undef NOPKGCONFIG
+endif
 
 CFLAGS := $(C_CXX_FLAGS) $(CFLAGS) $(TC_EXTRA_CFLAGS)
 CXXFLAGS := $(C_CXX_FLAGS) $(CXXFLAGS) $(TC_EXTRA_CXXFLAGS)
