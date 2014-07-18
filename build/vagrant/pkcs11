@@ -1,0 +1,22 @@
+#!/bin/sh
+
+out () {
+    echo -----------------------------------------------------
+    echo
+    echo $1
+    echo
+    echo -----------------------------------------------------
+    echo
+}
+
+set -e
+
+# see https://wiki.ciphershed.org/BuildOnLinux for why
+out 'getting PKCS-11 header files'
+cd /vagrant
+
+rm pkcs11*
+wget ftp://ftp.rsasecurity.com/pub/pkcs/pkcs-11/v2-20/pkcs11.h 
+wget ftp://ftp.rsasecurity.com/pub/pkcs/pkcs-11/v2-20/pkcs11f.h
+wget ftp://ftp.rsasecurity.com/pub/pkcs/pkcs-11/v2-20/pkcs11t.h
+chown vagrant:vagrant pkcs11*
