@@ -96,6 +96,7 @@ endif
 
 #------ FUSE configuration ------
 
+include $(BUILD_INC)/RequirePkgConfig.inc
 FUSE_LIBS = $(shell pkg-config fuse --libs)
 
 
