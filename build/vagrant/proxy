@@ -1,0 +1,19 @@
+#!/bin/sh
+
+# If you need to set a proxy before apt-get will work, do it here.
+
+set -e
+
+#cat > /etc/apt/apt.conf.d/90proxy << %%
+#Acquire
+#{
+#	http
+#	{
+#        	Cache-control "No-Cache";
+#        	Proxy "http://proxy.domain.com:3128";
+#        	Pipeline-Depth "0";
+#		Dl-Limit "200";
+#	}
+#};
+#%%
+

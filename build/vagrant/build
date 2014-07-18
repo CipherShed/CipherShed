@@ -1,0 +1,4 @@
+#!/bin/sh
+
+make -C /vagrant/src clean
+LIBS="-ldl" make -C /vagrant/src -j8 

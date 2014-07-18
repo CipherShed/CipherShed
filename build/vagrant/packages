@@ -1,0 +1,21 @@
+#!/bin/sh
+
+out () {
+    echo -----------------------------------------------------
+    echo
+    echo $1
+    echo
+    echo -----------------------------------------------------
+    echo
+}
+
+
+VHOME=/home/vagrant
+cd $VHOME
+
+out 'apt-get updating'
+apt-get -y update
+
+out 'apt-get installing'
+apt-get -y install git build-essential libwxgtk2.8-dev nasm libfuse-dev \
+	pkg-config
