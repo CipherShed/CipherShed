@@ -11,6 +11,7 @@ NAME := Driver
 OBJS :=
 OBJS += FuseService.o
 
+include $(BUILD_INC)/RequirePkgConfig.inc
 CXXFLAGS += $(shell pkg-config fuse --cflags)
 
 include $(BUILD_INC)/Makefile.inc
