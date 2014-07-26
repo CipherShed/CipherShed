@@ -296,12 +296,19 @@ typedef struct
 #define DRIVER_STR
 #endif
 
+/*
+ * Unique-id prefix for CipherShed volume devices,
+ * queried by Windows mount manager (IOCTL_MOUNTDEV_QUERY_UNIQUE_ID).
+ */
 #define TC_UNIQUE_ID_PREFIX "CipherShedVolume"
-#define TC_MOUNT_PREFIX L"\\Device\\CipherShedVolume"
 
+/* CipherSheds mounted volume name prefix. */
+#define TC_MOUNT_PREFIX L"\\Device\\CipherShedVolume"
 #define NT_MOUNT_PREFIX DRIVER_STR("\\Device\\CipherShedVolume")
-#define NT_ROOT_PREFIX DRIVER_STR("\\Device\\CipherShed")
 #define DOS_MOUNT_PREFIX DRIVER_STR("\\DosDevices\\")
+
+/* CipherSheds name for the kernel driver device object. */
+#define NT_ROOT_PREFIX DRIVER_STR("\\Device\\CipherShed")
 #define DOS_ROOT_PREFIX DRIVER_STR("\\DosDevices\\CipherShed")
 #define WIN32_ROOT_PREFIX DRIVER_STR("\\\\.\\CipherShed")
 
