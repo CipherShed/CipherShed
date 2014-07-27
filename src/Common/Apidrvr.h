@@ -312,6 +312,9 @@ typedef struct
 #define DOS_ROOT_PREFIX DRIVER_STR("\\DosDevices\\CipherShed")
 #define WIN32_ROOT_PREFIX DRIVER_STR("\\\\.\\CipherShed")
 
+/* TrueCrypts name for the kernel driver device object (TrueCrypt -> CipherShed migration). */
+#define WIN32_ROOT_PREFIX_LEGACY DRIVER_STR("\\\\.\\TrueCrypt")
+
 #define TC_DRIVER_CONFIG_REG_VALUE_NAME DRIVER_STR("CipherShedConfig")
 #define TC_ENCRYPTION_FREE_CPU_COUNT_REG_VALUE_NAME DRIVER_STR("CipherShedEncryptionFreeCpuCount")
 
