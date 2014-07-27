@@ -3429,7 +3429,16 @@ start:
 
 #endif
 
+	/* Open CipherSheds driver. */
 	hDriver = CreateFile (WIN32_ROOT_PREFIX, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
+
+#ifdef SETUP
+
+	/* Open TrueCrypts driver for migration. */
+	if (hDriver == INVALID_HANDLE_VALUE && GetLastError() == ERROR_FILE_NOT_FOUND)
+		hDriver = CreateFile (WIN32_ROOT_PREFIX_LEGACY, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
+
+#endif
 
 	if (hDriver == INVALID_HANDLE_VALUE)
 	{
