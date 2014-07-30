@@ -228,16 +228,27 @@ void IconMessage (HWND hwndDlg, char *txt)
 	StatusMessageParam (hwndDlg, "ADDING_ICON", txt);
 }
 
+/**
+ * Determines the installed kernel driver version and sets InstalledVersion / bUpgrade / bDowngrade globals accordingly.
+ * @param	[in] BOOL bCloseDriverHandle	When set to true the driver handle will be closed afterwards.
+ * @param	[out] LONG *driverVersionPtr	Pointer to a 32bit integer describing the installed kernel driver version.
+ * @return	void.
+ */
 void DetermineUpgradeDowngradeStatus (BOOL bCloseDriverHandle, LONG *driverVersionPtr)
 {
+	/* Defaults to the callers version number if no installed driver is found. */
 	LONG driverVersion = VERSION_NUM;
 
+	/* Singleton pattern. */
 	if (hDriver == INVALID_HANDLE_VALUE)
 		DriverAttach();
 
+	/* Check if the driver was opened successfully. */
 	if (hDriver != INVALID_HANDLE_VALUE)
 	{
 		DWORD dwResult;
+
+		/* Send a ioctl to determine the driver version. */
 		BOOL bResult = DeviceIoControl (hDriver, TC_IOCTL_GET_DRIVER_VERSION, NULL, 0, &driverVersion, sizeof (driverVersion), &dwResult, NULL);
 
 		if (!bResult)
@@ -249,6 +260,7 @@ void DetermineUpgradeDowngradeStatus (BOOL bCloseDriverHandle, LONG *driverVersi
 		bUpgrade = (bResult && driverVersion < VERSION_NUM);
 		bDowngrade = (bResult && driverVersion > VERSION_NUM);
 
+		/* Determine if the driver was loaded in portable mode. */
 		PortableMode = DeviceIoControl (hDriver, TC_IOCTL_GET_PORTABLE_MODE_STATUS, NULL, 0, NULL, 0, &dwResult, NULL);
 
 		if (bCloseDriverHandle)
