@@ -1887,7 +1887,7 @@ void SetInstallationPath (HWND hwndDlg)
 	}
 	else
 	{
-		/* TrueCypt is not installed or it wasn't possible to determine where it is installed. */
+		/* CipherShed is not installed or it wasn't possible to determine where it is installed. */
 
 		// Default "Program Files" path. 
 		SHGetSpecialFolderLocation (hwndDlg, CSIDL_PROGRAM_FILES, &itemList);
@@ -2013,7 +2013,9 @@ BOOL CALLBACK UninstallDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lP
 	return 0;
 }
 
-
+/**
+ * Setup main.
+ */
 int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpszCommandLine, int nCmdShow)
 {
 	atexit (localcleanup);
@@ -2027,11 +2029,12 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpszComm
 	/* Call InitApp to initialize the common code */
 	InitApp (hInstance, NULL);
 
-	if (IsAdmin () != TRUE)
-		if (MessageBoxW (NULL, GetString ("SETUP_ADMIN"), lpszTitle, MB_YESNO | MB_ICONQUESTION) != IDYES)
-		{
-			exit (1);
-		}
+	/* The setup requires admin privileges, but give the user an option to continue. */
+	if (IsAdmin () != TRUE &&
+		MessageBoxW (NULL, GetString ("SETUP_ADMIN"), lpszTitle, MB_YESNO | MB_ICONQUESTION) != IDYES)
+	{
+		exit (1);
+	}
 
 	/* Setup directory */
 	{
@@ -2043,25 +2046,21 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpszComm
 	}
 
 	/* Parse command line arguments */
-
 	if (lpszCommandLine[0] == '/')
 	{
 		if (lpszCommandLine[1] == 'u')
 		{
 			// Uninstall:	/u
-
 			bUninstall = TRUE;
 		}
 		else if (lpszCommandLine[1] == 'c')
 		{
 			// Change:	/c
-
 			bChangeMode = TRUE;
 		}
 		else if (lpszCommandLine[1] == 'p')
 		{
 			// Create self-extracting package:	/p
-
 			bMakePackage = TRUE;
 		}
 		else if (lpszCommandLine[1] == 'd')
@@ -2074,7 +2073,6 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpszComm
 	if (bMakePackage)
 	{
 		/* Create self-extracting package */
-
 		MakeSelfExtractingPackage (NULL, SetupFilesDir);
 	}
 	else
@@ -2101,7 +2099,6 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpszComm
 			if (bChangeMode)
 			{
 				/* CipherShed is already installed on this system and we were launched from the Program Files folder */
-
 				char *tmpStr[] = {0, "SELECT_AN_ACTION", "REPAIR_REINSTALL", "UNINSTALL", "EXIT", 0};
 
 				// Ask the user to select either Repair or Unistallation
@@ -2119,22 +2116,21 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpszComm
 			}
 		}
 
-		// System Restore
+		/* Try to load the System Restore dll. */
 		SystemRestoreDll = LoadLibrary ("srclient.dll");
 
 		if (!bUninstall)
 		{
 			/* Create the main dialog for install */
-
 			DialogBoxParamW (hInstance, MAKEINTRESOURCEW (IDD_INSTL_DLG), NULL, (DLGPROC) MainDialogProc, 
 				(LPARAM)lpszCommandLine);
 		}
 		else
 		{
-			/* Create the main dialog for uninstall  */
-
+			/* Create the main dialog for uninstall */
 			DialogBoxW (hInstance, MAKEINTRESOURCEW (IDD_UNINSTALL), NULL, (DLGPROC) UninstallDlgProc);
 
+			/* Check if the UninstallBatch path is not empty. */
 			if (UninstallBatch[0])
 			{
 				STARTUPINFO si;
@@ -2145,8 +2141,11 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpszComm
 				si.dwFlags = STARTF_USESHOWWINDOW;
 				si.wShowWindow = SW_HIDE;
 
+				/* Run the uninstall batch script. */
 				if (!CreateProcess (UninstallBatch, NULL, NULL, NULL, FALSE, IDLE_PRIORITY_CLASS, NULL, NULL, &si, &pi))
+				{
 					DeleteFile (UninstallBatch);
+				}
 				else
 				{
 					CloseHandle (pi.hProcess);
