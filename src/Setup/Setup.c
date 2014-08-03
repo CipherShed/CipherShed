@@ -1524,12 +1524,18 @@ void DoUninstall (void *arg)
 	OutcomePrompt (hwndDlg, bOK);
 }
 
+/**
+ * Install / Upgrade worker.
+ * @param	[in] void *arg	Dialog window handle.
+ * @return	void
+ */
 void DoInstall (void *arg)
 {
 	HWND hwndDlg = (HWND) arg;
 	BOOL bOK = TRUE;
 	char path[MAX_PATH];
 
+	/* BootEncryption instance. */
 	BootEncryption bootEnc (hwndDlg);
 
 	// Refresh the main GUI (wizard thread)
@@ -1537,6 +1543,7 @@ void DoInstall (void *arg)
 
 	ClearLogWindow (hwndDlg);
 
+	/* Create the installation folder if it doesn't already exist. */
 	if (mkfulldir (InstallationPath, TRUE) != 0)
 	{
 		if (mkfulldir (InstallationPath, FALSE) != 0)
@@ -1554,6 +1561,7 @@ void DoInstall (void *arg)
 
 	UpdateProgressBarProc(2);
 
+	/* Unload the kernel driver, in case of full system encryption the driver is NOT unloaded. */
 	if (DoDriverUnload (hwndDlg) == FALSE)
 	{
 		NormalCursor ();
@@ -1561,6 +1569,7 @@ void DoInstall (void *arg)
 		return;
 	}
 
+	/* Check if the previous installed version is running. */
 	if (bUpgrade
 		&& (IsFileInUse (string (InstallationPath) + '\\' + TC_APP_NAME ".exe")
 			|| IsFileInUse (string (InstallationPath) + '\\' + TC_APP_NAME " Format.exe")
@@ -1575,12 +1584,13 @@ void DoInstall (void *arg)
 	}
 
 	UpdateProgressBarProc(12);
-	
+
+	/* Begin system restore point. */
 	if (bSystemRestore)
 		SetSystemRestorePoint (hwndDlg, FALSE);
 
 	UpdateProgressBarProc(48);
-	
+
 	if (bDisableSwapFiles
 		&& IsPagingFileActive (FALSE))
 	{
@@ -1595,14 +1605,15 @@ void DoInstall (void *arg)
 
 	UpdateProgressBarProc(50);
 
-	// Remove deprecated
+	/* Remove driver with deprecated name. */
 	DoServiceUninstall (hwndDlg, "CipherShedService");
-	
+
 	UpdateProgressBarProc(55);
 
 	if (!SystemEncryptionUpdate)
 		DoRegUninstall ((HWND) hwndDlg, TRUE);
 
+	/* Install new dump filter driver. */
 	if (SystemEncryptionUpdate && InstalledVersion < 0x700)
 	{
 		try
@@ -1638,6 +1649,7 @@ void DoInstall (void *arg)
 
 	UpdateProgressBarProc(61);
 
+	/* Migrate config file. */
 	if (bUpgrade && InstalledVersion < 0x700)
 	{
 		bool bMountFavoritesOnLogon = ConfigReadInt ("MountFavoritesOnLogon", FALSE) != 0;
@@ -1694,31 +1706,38 @@ void DoInstall (void *arg)
 	strcat_s (path, sizeof (path), "\\CipherShed Setup.exe");
 	DeleteFile (path);
 
+	/* Uninstall the old kernel driver, if it was unloaded before (NOT in case of full system encryption). */
 	if (UpdateProgressBarProc(63) && UnloadDriver && DoServiceUninstall (hwndDlg, "ciphershed") == FALSE)
 	{
 		bOK = FALSE;
 	}
+	/* Install new files. */
 	else if (UpdateProgressBarProc(72) && DoFilesInstall ((HWND) hwndDlg, InstallationPath) == FALSE)
 	{
 		bOK = FALSE;
 	}
+	/* Install registry keys. */
 	else if (UpdateProgressBarProc(80) && DoRegInstall ((HWND) hwndDlg, InstallationPath, bRegisterFileExt) == FALSE)
 	{
 		bOK = FALSE;
 	}
+	/* Install the new kernel driver, if it was unloaded before (NOT in case of full system encryption). */
 	else if (UpdateProgressBarProc(85) && UnloadDriver && DoDriverInstall (hwndDlg) == FALSE)
 	{
 		bOK = FALSE;
 	}
+	/* Upgrade the bootloader in case of full system encryption. */
 	else if (UpdateProgressBarProc(90) && SystemEncryptionUpdate && UpgradeBootLoader (hwndDlg) == FALSE)
 	{
 		bOK = FALSE;
 	}
+	/* Install desktop / startmenu shortcuts. */
 	else if (UpdateProgressBarProc(93) && DoShortcutsInstall (hwndDlg, InstallationPath, bAddToStartMenu, bDesktopIcon) == FALSE)
 	{
 		bOK = FALSE;
 	}
 
+	/* Driver couldn't be unloaded, we need a system restart (full system encryption). */
 	if (!UnloadDriver)
 		bRestartRequired = TRUE;
 
@@ -1728,6 +1747,7 @@ void DoInstall (void *arg)
 	}
 	catch (...)	{ }
 
+	/* Move system favorite volumes config. */
 	if (SystemEncryptionUpdate && InstalledVersion == 0x630)
 	{
 		string sysFavorites = GetServiceConfigPath (TC_APPD_FILENAME_SYSTEM_FAVORITE_VOLUMES);
@@ -1740,6 +1760,7 @@ void DoInstall (void *arg)
 	if (bOK)
 		UpdateProgressBarProc(97);
 
+	/* End system restore point. */
 	if (bSystemRestore)
 		SetSystemRestorePoint (hwndDlg, TRUE);
 
