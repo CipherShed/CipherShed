@@ -1088,24 +1088,36 @@ BOOL DoDriverUnload (HWND hwndDlg)
 	return bOK;
 }
 
-
+/**
+ * Upgrade the installed bootloader.
+ * @param	[in] HWND hwndDlg Dialog window handle.
+ * @return	BOOL Returns true if the upgrade was successful.
+ */
 BOOL UpgradeBootLoader (HWND hwndDlg)
 {
+	/*
+	 * The bootloader is only installed in case of full system encryption,
+	 * otherwise no upgrade is needed and we return here.
+	 */
 	if (!SystemEncryptionUpdate)
 		return TRUE;
 
 	try
 	{
 		BootEncryption bootEnc (hwndDlg);
+
 		if (bootEnc.GetInstalledBootLoaderVersion() < VERSION_NUM)
 		{
 			StatusMessage (hwndDlg, "INSTALLER_UPDATING_BOOT_LOADER");
 
+			/* Upgrade the installed bootloader to new version. */
 			bootEnc.InstallBootLoader (true);
 
+			/* Give the user an advice to create a new rescue disk with updated bootloader (<= TrueCrypt 6.0a). */
 			if (bootEnc.GetInstalledBootLoaderVersion() <= TC_RESCUE_DISK_UPGRADE_NOTICE_MAX_VERSION)
 				Info (IsHiddenOSRunning() ? "BOOT_LOADER_UPGRADE_OK_HIDDEN_OS" : "BOOT_LOADER_UPGRADE_OK");
 		}
+
 		return TRUE;
 	}
 	catch (Exception &e)
@@ -2153,7 +2165,7 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpszComm
 				si.dwFlags = STARTF_USESHOWWINDOW;
 				si.wShowWindow = SW_HIDE;
 
-				/* Run the uninstall batch script. */
+				/* Execute the uninstall batch script. */
 				if (!CreateProcess (UninstallBatch, NULL, NULL, NULL, FALSE, IDLE_PRIORITY_CLASS, NULL, NULL, &si, &pi))
 				{
 					DeleteFile (UninstallBatch);
