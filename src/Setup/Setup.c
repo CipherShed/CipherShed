@@ -1090,8 +1090,8 @@ BOOL DoDriverUnload (HWND hwndDlg)
 
 /**
  * Upgrade the installed bootloader.
- * @param	[in] HWND hwndDlg Dialog window handle.
- * @return	BOOL Returns true if the upgrade was successful.
+ * @param	[in] HWND hwndDlg	Dialog window handle.
+ * @return	BOOL				Returns true if the upgrade was successful.
  */
 BOOL UpgradeBootLoader (HWND hwndDlg)
 {
@@ -1369,15 +1369,24 @@ void OutcomePrompt (HWND hwndDlg, BOOL bOK)
 	}
 }
 
+/**
+ * Set windows system restore point.
+ * @param	[in] HWND hwndDlg	Dialog window handle.
+ * @param	[in] BOOL finalize	If true the restore point is finalized.
+ * @return	void
+ */
 static void SetSystemRestorePoint (HWND hwndDlg, BOOL finalize)
 {
 	static RESTOREPOINTINFO RestPtInfo;
 	static STATEMGRSTATUS SMgrStatus;
 	static BOOL failed = FALSE;
 	static BOOL (__stdcall *_SRSetRestorePoint)(PRESTOREPOINTINFO, PSTATEMGRSTATUS);
-	
-	if (!SystemRestoreDll) return;
 
+	/* Abort if the system restore dll wasn't loaded successfully. */
+	if (!SystemRestoreDll)
+		return;
+
+	/* Retrieve the address of SRSetRestorePointA. */
 	_SRSetRestorePoint = (BOOL (__stdcall *)(PRESTOREPOINTINFO, PSTATEMGRSTATUS))GetProcAddress (SystemRestoreDll,"SRSetRestorePointA");
 	if (_SRSetRestorePoint == 0)
 	{
@@ -1386,6 +1395,7 @@ static void SetSystemRestorePoint (HWND hwndDlg, BOOL finalize)
 		return;
 	}
 
+	/* Begin system change. */
 	if (!finalize)
 	{
 		StatusMessage (hwndDlg, "CREATING_SYS_RESTORE");
@@ -1401,6 +1411,8 @@ static void SetSystemRestorePoint (HWND hwndDlg, BOOL finalize)
 			failed = TRUE;
 		}
 	}
+
+	/* End system change. */
 	else if (!failed)
 	{
 		RestPtInfo.dwEventType = END_SYSTEM_CHANGE;
