@@ -3043,11 +3043,11 @@ BOOL IsVolumeClassFilterRegistered ()
 	PKEY_VALUE_PARTIAL_INFORMATION data;
 
 	/*
-	 * Note: Do not change this "System-Defined Device Setup Class" guid.
+	 * Note: Do not change the "Storage Volumes" guid (System-Defined Device Setup Classes).
 	 * This class includes storage volumes as defined by the system-supplied
 	 * logical volume manager and class drivers that create device objects to
 	 * represent storage volumes, such as the system disk class driver.
-	 * @see http://msdn.microsoft.com/en-us/library/windows/hardware/ff553426%28v=vs.85%29.aspx
+	 * @see	http://msdn.microsoft.com/en-us/library/windows/hardware/ff553426%28v=vs.85%29.aspx
 	 */
 	RtlInitUnicodeString (&name, L"\\REGISTRY\\MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Class\\{71A27CDD-812A-11D0-BEC7-08002BE2092F}");
 	status = TCReadRegistryKey (&name, L"UpperFilters", &data);
