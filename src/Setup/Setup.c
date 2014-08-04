@@ -931,12 +931,17 @@ error:
 	return bOK;
 }
 
-
+/**
+ * Unload the kernel driver from CipherShed.
+ * @param	[in] HWND hwndDlg	Dialog window handle.
+ * @return	BOOL				True if successful.
+ */
 BOOL DoDriverUnload (HWND hwndDlg)
 {
 	BOOL bOK = TRUE;
 	int status;
 
+	/* Open a handle to the driver device. */
 	status = DriverAttach ();
 	if (status != 0)
 	{
@@ -968,22 +973,23 @@ BOOL DoDriverUnload (HWND hwndDlg)
 		try
 		{
 			BootEncryption bootEnc (hwndDlg);
+
+			/* The driver starts at boot time in case of full system encryption. */
 			if (bootEnc.GetDriverServiceStartType() == SERVICE_BOOT_START)
 			{
 				try
 				{
 					// Check hidden OS update consistency
-					if (IsHiddenOSRunning())
+					if (IsHiddenOSRunning() &&
+						bootEnc.GetInstalledBootLoaderVersion() != VERSION_NUM &&
+						AskWarnNoYes ("UPDATE_TC_IN_DECOY_OS_FIRST") == IDNO)
 					{
-						if (bootEnc.GetInstalledBootLoaderVersion() != VERSION_NUM)
-						{
-							if (AskWarnNoYes ("UPDATE_TC_IN_DECOY_OS_FIRST") == IDNO)
-								AbortProcessSilent ();
-						}
+						AbortProcessSilent ();
 					}
 				}
 				catch (...) { }
 
+				/* Uninstall filter drivers and set driver start to "system start". */
 				if (bUninstallInProgress && driverVersion >= 0x500 && !bootEnc.GetStatus().DriveMounted)
 				{
 					try { bootEnc.RegisterFilterDriver (false, BootEncryption::DriveFilter); } catch (...) { }
@@ -991,6 +997,7 @@ BOOL DoDriverUnload (HWND hwndDlg)
 					try { bootEnc.RegisterFilterDriver (false, BootEncryption::DumpFilter); } catch (...) { }
 					bootEnc.SetDriverServiceStartType (SERVICE_SYSTEM_START);
 				}
+				/* Abort if the boot drive is encrypted. */
 				else if (bUninstallInProgress || bDowngrade)
 				{
 					Error (bDowngrade ? "SETUP_FAILED_BOOT_DRIVE_ENCRYPTED_DOWNGRADE" : "SETUP_FAILED_BOOT_DRIVE_ENCRYPTED");
@@ -1008,6 +1015,7 @@ BOOL DoDriverUnload (HWND hwndDlg)
 		}
 		catch (...)	{ }
 
+		/* Do not unload the driver in case of full system encryption. */
 		if (!bUninstall
 			&& (bUpgrade || SystemEncryptionUpdate)
 			&& (!bDevm || SystemEncryptionUpdate))
@@ -1018,11 +1026,11 @@ BOOL DoDriverUnload (HWND hwndDlg)
 		if (PortableMode && !SystemEncryptionUpdate)
 			UnloadDriver = TRUE;
 
+		/* Check mounted volumes. */
 		if (UnloadDriver)
 		{
 			int volumesMounted = 0;
 
-			// Check mounted volumes
 			bResult = DeviceIoControl (hDriver, TC_IOCTL_IS_ANY_VOLUME_MOUNTED, NULL, 0, &volumesMounted, sizeof (volumesMounted), &dwResult, NULL);
 
 			if (!bResult)
@@ -1036,12 +1044,14 @@ BOOL DoDriverUnload (HWND hwndDlg)
 			{
 				if (volumesMounted != 0)
 				{
+					/* Abort. */
 					bOK = FALSE;
 					MessageBoxW (hwndDlg, GetString ("DISMOUNT_ALL_FIRST"), lpszTitle, MB_ICONHAND);
 				}
 			}
 			else
 			{
+				/* Abort. */
 				bOK = FALSE;
 				handleWin32Error (hwndDlg);
 			}
@@ -1066,11 +1076,13 @@ BOOL DoDriverUnload (HWND hwndDlg)
 
 			if (bOK && bResult && refCount > 1)
 			{
+				/* Abort. */
 				MessageBoxW (hwndDlg, GetString ("CLOSE_TC_FIRST"), lpszTitle, MB_ICONSTOP);
 				bOK = FALSE;
 			}
 		}
 
+		/* Close the driver device handle. */
 		if (!bOK || UnloadDriver)
 		{
 			CloseHandle (hDriver);
