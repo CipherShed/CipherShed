@@ -792,7 +792,13 @@ BOOL DoRegUninstall (HWND hwndDlg, BOOL bRemoveDeprecated)
 	return bOK;
 }
 
-
+/**
+ * Uninstall the kernel driver Windows service.
+ * Note: The driver will be unloaded, this is fatal in case of full system encryption.
+ * @param	[in] HWND hwndDlg		Dialog window handle.
+ * @param	[in] char *lpszService	Service name.
+ * @return	BOOL					True if successful.
+ */
 BOOL DoServiceUninstall (HWND hwndDlg, char *lpszService)
 {
 	SC_HANDLE hManager, hService = NULL;
@@ -805,6 +811,7 @@ BOOL DoServiceUninstall (HWND hwndDlg, char *lpszService)
 
 retry:
 
+	/* Service control manager. */
 	hManager = OpenSCManager (NULL, NULL, SC_MANAGER_ALL_ACCESS);
 	if (hManager == NULL)
 		goto error;
@@ -818,8 +825,10 @@ retry:
 		try
 		{
 			BootEncryption bootEnc (hwndDlg);
+
 			if (bootEnc.GetDriverServiceStartType() == SERVICE_BOOT_START)
 			{
+				/* Uninstall filter drivers. */
 				try { bootEnc.RegisterFilterDriver (false, BootEncryption::DriveFilter); } catch (...) { }
 				try { bootEnc.RegisterFilterDriver (false, BootEncryption::VolumeFilter); } catch (...) { }
 				try { bootEnc.RegisterFilterDriver (false, BootEncryption::DumpFilter); } catch (...) { }
@@ -834,6 +843,7 @@ retry:
 
 #define WAIT_PERIOD 3
 
+	/* Status pending. */
 	for (x = 0; x < WAIT_PERIOD; x++)
 	{
 		bRet = QueryServiceStatus (hService, &status);
@@ -848,12 +858,15 @@ retry:
 		Sleep (1000);
 	}
 
+	/* Check if the service is running (driver is loaded). */
 	if (status.dwCurrentState != SERVICE_STOPPED)
 	{
+		/* Stop the service (unload the driver). */
 		bRet = ControlService (hService, SERVICE_CONTROL_STOP, &status);
 		if (bRet == FALSE)
 			goto try_delete;
 
+		/* Status pending. */
 		for (x = 0; x < WAIT_PERIOD; x++)
 		{
 			bRet = QueryServiceStatus (hService, &status);
@@ -893,6 +906,7 @@ try_delete:
 	if (hService == NULL)
 		goto error;
 
+	/* Delete service registry keys. */
 	bRet = DeleteService (hService);
 	if (bRet == FALSE)
 	{
