@@ -1975,7 +1975,15 @@ void SetInstallationPath (HWND hwndDlg)
 }
 
 
-// Handler for uninstall only (install is handled by the wizard)
+/**
+ * Handler for uninstall only (install is handled by the wizard).
+ * @param	[in] HWND hwndDlg	Dialog window handle.
+ * @param	[in] UINT msg		The message.
+ * @param	[in] WPARAM wParam	Additional message-specific information.
+ * @param	[in] LPARAM lParam	Additional message-specific information.
+ * @return	BOOL				TRUE if it processed the message, and FALSE if it did not.
+ * @see		http://msdn.microsoft.com/en-us/library/windows/desktop/ms645469%28v=vs.85%29.aspx
+ */
 BOOL CALLBACK UninstallDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	WORD lw = LOWORD (wParam);
@@ -1998,6 +2006,7 @@ BOOL CALLBACK UninstallDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lP
 		SetCheckBox (hwndDlg, IDC_SYSTEM_RESTORE, bSystemRestore);
 		if (SystemRestoreDll == 0)
 		{
+			/* No System Restore dll available, unset the checkbox and disable it. */
 			SetCheckBox (hwndDlg, IDC_SYSTEM_RESTORE, FALSE);
 			EnableWindow (GetDlgItem (hwndDlg, IDC_SYSTEM_RESTORE), FALSE);
 		}
@@ -2028,6 +2037,7 @@ BOOL CALLBACK UninstallDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lP
 
 			WaitCursor ();
 
+			/* Do uninstall. */
 			if (bUninstall)
 				_beginthread (DoUninstall, 0, (void *) hwndDlg);
 
