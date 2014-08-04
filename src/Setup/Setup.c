@@ -1833,7 +1833,12 @@ outcome:
 	PostMessage (MainDlg, bOK ? TC_APPMSG_INSTALL_SUCCESS : TC_APPMSG_INSTALL_FAILURE, 0, 0);
 }
 
-
+/**
+ * Determines the current installation path and sets the "InstallationPath" global,
+ * if no installation path was found it defaults to "Program Files".
+ * @param	[in] HWND hwndDlg	Dialog window handle.
+ * @return	void
+ */
 void SetInstallationPath (HWND hwndDlg)
 {
 	HKEY hkey;
