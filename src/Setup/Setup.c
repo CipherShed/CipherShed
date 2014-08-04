@@ -1425,6 +1425,11 @@ static void SetSystemRestorePoint (HWND hwndDlg, BOOL finalize)
 	}
 }
 
+/**
+ * Uninstall worker.
+ * @param	[in] void *arg	Dialog window handle.
+ * @return	void
+ */
 void DoUninstall (void *arg)
 {
 	HWND hwndDlg = (HWND) arg;
@@ -1441,6 +1446,7 @@ void DoUninstall (void *arg)
 		ClearLogWindow (hwndDlg);
 	}
 
+	/* Unload the kernel driver. */
 	if (DoDriverUnload (hwndDlg) == FALSE)
 	{
 		bOK = FALSE;
@@ -1448,25 +1454,31 @@ void DoUninstall (void *arg)
 	}
 	else
 	{
+		/* Begin system change. */
 		if (!Rollback && bSystemRestore && !bTempSkipSysRestore)
 			SetSystemRestorePoint (hwndDlg, FALSE);
 
+		/* Uninstall the kernel driver. */
 		if (DoServiceUninstall (hwndDlg, "ciphershed") == FALSE)
 		{
 			bOK = FALSE;
 		}
+		/* Uninstall registry keys. */
 		else if (DoRegUninstall ((HWND) hwndDlg, FALSE) == FALSE)
 		{
 			bOK = FALSE;
 		}
+		/* Remove files. */
 		else if (DoFilesInstall ((HWND) hwndDlg, InstallationPath) == FALSE)
 		{
 			bOK = FALSE;
 		}
+		/* Remove desktop and startmenu shortcuts. */
 		else if (DoShortcutsUninstall (hwndDlg, InstallationPath) == FALSE)
 		{
 			bOK = FALSE;
 		}
+		/* Remove configs. */
 		else if (!DoApplicationDataUninstall (hwndDlg))
 		{
 			bOK = FALSE;
@@ -1476,7 +1488,7 @@ void DoUninstall (void *arg)
 			char temp[MAX_PATH];
 			FILE *f;
 
-			// Deprecated service
+			/* Remove driver with deprecated name. */
 			DoServiceUninstall (hwndDlg, "CipherShedService");
 
 			GetTempPath (sizeof (temp), temp);
@@ -1512,6 +1524,7 @@ void DoUninstall (void *arg)
 	if (Rollback)
 		return;
 
+	/* End system change. */
 	if (bSystemRestore && !bTempSkipSysRestore)
 		SetSystemRestorePoint (hwndDlg, TRUE);
 
