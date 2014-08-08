@@ -228,16 +228,27 @@ void IconMessage (HWND hwndDlg, char *txt)
 	StatusMessageParam (hwndDlg, "ADDING_ICON", txt);
 }
 
+/**
+ * Determines the installed kernel driver version and sets InstalledVersion / bUpgrade / bDowngrade globals accordingly.
+ * @param	[in] BOOL bCloseDriverHandle	When set to true the driver handle will be closed afterwards.
+ * @param	[out] LONG *driverVersionPtr	Pointer to a 32bit integer describing the installed kernel driver version.
+ * @return	void.
+ */
 void DetermineUpgradeDowngradeStatus (BOOL bCloseDriverHandle, LONG *driverVersionPtr)
 {
+	/* Defaults to the callers version number if no installed driver is found. */
 	LONG driverVersion = VERSION_NUM;
 
+	/* Singleton pattern. */
 	if (hDriver == INVALID_HANDLE_VALUE)
 		DriverAttach();
 
+	/* Check if the driver was opened successfully. */
 	if (hDriver != INVALID_HANDLE_VALUE)
 	{
 		DWORD dwResult;
+
+		/* Send a ioctl to determine the driver version. */
 		BOOL bResult = DeviceIoControl (hDriver, TC_IOCTL_GET_DRIVER_VERSION, NULL, 0, &driverVersion, sizeof (driverVersion), &dwResult, NULL);
 
 		if (!bResult)
@@ -249,6 +260,7 @@ void DetermineUpgradeDowngradeStatus (BOOL bCloseDriverHandle, LONG *driverVersi
 		bUpgrade = (bResult && driverVersion < VERSION_NUM);
 		bDowngrade = (bResult && driverVersion > VERSION_NUM);
 
+		/* Determine if the driver was loaded in portable mode. */
 		PortableMode = DeviceIoControl (hDriver, TC_IOCTL_GET_PORTABLE_MODE_STATUS, NULL, 0, NULL, 0, &dwResult, NULL);
 
 		if (bCloseDriverHandle)
@@ -780,7 +792,13 @@ BOOL DoRegUninstall (HWND hwndDlg, BOOL bRemoveDeprecated)
 	return bOK;
 }
 
-
+/**
+ * Uninstall the kernel driver Windows service.
+ * Note: The driver will be unloaded, this is fatal in case of full system encryption.
+ * @param	[in] HWND hwndDlg		Dialog window handle.
+ * @param	[in] char *lpszService	Service name.
+ * @return	BOOL					True if successful.
+ */
 BOOL DoServiceUninstall (HWND hwndDlg, char *lpszService)
 {
 	SC_HANDLE hManager, hService = NULL;
@@ -793,6 +811,7 @@ BOOL DoServiceUninstall (HWND hwndDlg, char *lpszService)
 
 retry:
 
+	/* Service control manager. */
 	hManager = OpenSCManager (NULL, NULL, SC_MANAGER_ALL_ACCESS);
 	if (hManager == NULL)
 		goto error;
@@ -806,8 +825,10 @@ retry:
 		try
 		{
 			BootEncryption bootEnc (hwndDlg);
+
 			if (bootEnc.GetDriverServiceStartType() == SERVICE_BOOT_START)
 			{
+				/* Uninstall filter drivers. */
 				try { bootEnc.RegisterFilterDriver (false, BootEncryption::DriveFilter); } catch (...) { }
 				try { bootEnc.RegisterFilterDriver (false, BootEncryption::VolumeFilter); } catch (...) { }
 				try { bootEnc.RegisterFilterDriver (false, BootEncryption::DumpFilter); } catch (...) { }
@@ -822,6 +843,7 @@ retry:
 
 #define WAIT_PERIOD 3
 
+	/* Status pending. */
 	for (x = 0; x < WAIT_PERIOD; x++)
 	{
 		bRet = QueryServiceStatus (hService, &status);
@@ -836,12 +858,15 @@ retry:
 		Sleep (1000);
 	}
 
+	/* Check if the service is running (driver is loaded). */
 	if (status.dwCurrentState != SERVICE_STOPPED)
 	{
+		/* Stop the service (unload the driver). */
 		bRet = ControlService (hService, SERVICE_CONTROL_STOP, &status);
 		if (bRet == FALSE)
 			goto try_delete;
 
+		/* Status pending. */
 		for (x = 0; x < WAIT_PERIOD; x++)
 		{
 			bRet = QueryServiceStatus (hService, &status);
@@ -881,6 +906,7 @@ try_delete:
 	if (hService == NULL)
 		goto error;
 
+	/* Delete service registry keys. */
 	bRet = DeleteService (hService);
 	if (bRet == FALSE)
 	{
@@ -919,12 +945,17 @@ error:
 	return bOK;
 }
 
-
+/**
+ * Unload the kernel driver from CipherShed.
+ * @param	[in] HWND hwndDlg	Dialog window handle.
+ * @return	BOOL				True if successful.
+ */
 BOOL DoDriverUnload (HWND hwndDlg)
 {
 	BOOL bOK = TRUE;
 	int status;
 
+	/* Open a handle to the driver device. */
 	status = DriverAttach ();
 	if (status != 0)
 	{
@@ -956,22 +987,23 @@ BOOL DoDriverUnload (HWND hwndDlg)
 		try
 		{
 			BootEncryption bootEnc (hwndDlg);
+
+			/* The driver starts at boot time in case of full system encryption. */
 			if (bootEnc.GetDriverServiceStartType() == SERVICE_BOOT_START)
 			{
 				try
 				{
 					// Check hidden OS update consistency
-					if (IsHiddenOSRunning())
+					if (IsHiddenOSRunning() &&
+						bootEnc.GetInstalledBootLoaderVersion() != VERSION_NUM &&
+						AskWarnNoYes ("UPDATE_TC_IN_DECOY_OS_FIRST") == IDNO)
 					{
-						if (bootEnc.GetInstalledBootLoaderVersion() != VERSION_NUM)
-						{
-							if (AskWarnNoYes ("UPDATE_TC_IN_DECOY_OS_FIRST") == IDNO)
-								AbortProcessSilent ();
-						}
+						AbortProcessSilent ();
 					}
 				}
 				catch (...) { }
 
+				/* Uninstall filter drivers and set driver start to "system start". */
 				if (bUninstallInProgress && driverVersion >= 0x500 && !bootEnc.GetStatus().DriveMounted)
 				{
 					try { bootEnc.RegisterFilterDriver (false, BootEncryption::DriveFilter); } catch (...) { }
@@ -979,6 +1011,7 @@ BOOL DoDriverUnload (HWND hwndDlg)
 					try { bootEnc.RegisterFilterDriver (false, BootEncryption::DumpFilter); } catch (...) { }
 					bootEnc.SetDriverServiceStartType (SERVICE_SYSTEM_START);
 				}
+				/* Abort if the boot drive is encrypted. */
 				else if (bUninstallInProgress || bDowngrade)
 				{
 					Error (bDowngrade ? "SETUP_FAILED_BOOT_DRIVE_ENCRYPTED_DOWNGRADE" : "SETUP_FAILED_BOOT_DRIVE_ENCRYPTED");
@@ -996,6 +1029,7 @@ BOOL DoDriverUnload (HWND hwndDlg)
 		}
 		catch (...)	{ }
 
+		/* Do not unload the driver in case of full system encryption. */
 		if (!bUninstall
 			&& (bUpgrade || SystemEncryptionUpdate)
 			&& (!bDevm || SystemEncryptionUpdate))
@@ -1006,11 +1040,11 @@ BOOL DoDriverUnload (HWND hwndDlg)
 		if (PortableMode && !SystemEncryptionUpdate)
 			UnloadDriver = TRUE;
 
+		/* Check mounted volumes. */
 		if (UnloadDriver)
 		{
 			int volumesMounted = 0;
 
-			// Check mounted volumes
 			bResult = DeviceIoControl (hDriver, TC_IOCTL_IS_ANY_VOLUME_MOUNTED, NULL, 0, &volumesMounted, sizeof (volumesMounted), &dwResult, NULL);
 
 			if (!bResult)
@@ -1024,12 +1058,14 @@ BOOL DoDriverUnload (HWND hwndDlg)
 			{
 				if (volumesMounted != 0)
 				{
+					/* Abort. */
 					bOK = FALSE;
 					MessageBoxW (hwndDlg, GetString ("DISMOUNT_ALL_FIRST"), lpszTitle, MB_ICONHAND);
 				}
 			}
 			else
 			{
+				/* Abort. */
 				bOK = FALSE;
 				handleWin32Error (hwndDlg);
 			}
@@ -1054,11 +1090,13 @@ BOOL DoDriverUnload (HWND hwndDlg)
 
 			if (bOK && bResult && refCount > 1)
 			{
+				/* Abort. */
 				MessageBoxW (hwndDlg, GetString ("CLOSE_TC_FIRST"), lpszTitle, MB_ICONSTOP);
 				bOK = FALSE;
 			}
 		}
 
+		/* Close the driver device handle. */
 		if (!bOK || UnloadDriver)
 		{
 			CloseHandle (hDriver);
@@ -1076,24 +1114,36 @@ BOOL DoDriverUnload (HWND hwndDlg)
 	return bOK;
 }
 
-
+/**
+ * Upgrade the installed bootloader.
+ * @param	[in] HWND hwndDlg	Dialog window handle.
+ * @return	BOOL				Returns true if the upgrade was successful.
+ */
 BOOL UpgradeBootLoader (HWND hwndDlg)
 {
+	/*
+	 * The bootloader is only installed in case of full system encryption,
+	 * otherwise no upgrade is needed and we return here.
+	 */
 	if (!SystemEncryptionUpdate)
 		return TRUE;
 
 	try
 	{
 		BootEncryption bootEnc (hwndDlg);
+
 		if (bootEnc.GetInstalledBootLoaderVersion() < VERSION_NUM)
 		{
 			StatusMessage (hwndDlg, "INSTALLER_UPDATING_BOOT_LOADER");
 
+			/* Upgrade the installed bootloader to new version. */
 			bootEnc.InstallBootLoader (true);
 
+			/* Give the user an advice to create a new rescue disk with updated bootloader (<= TrueCrypt 6.0a). */
 			if (bootEnc.GetInstalledBootLoaderVersion() <= TC_RESCUE_DISK_UPGRADE_NOTICE_MAX_VERSION)
 				Info (IsHiddenOSRunning() ? "BOOT_LOADER_UPGRADE_OK_HIDDEN_OS" : "BOOT_LOADER_UPGRADE_OK");
 		}
+
 		return TRUE;
 	}
 	catch (Exception &e)
@@ -1345,15 +1395,24 @@ void OutcomePrompt (HWND hwndDlg, BOOL bOK)
 	}
 }
 
+/**
+ * Set windows system restore point.
+ * @param	[in] HWND hwndDlg	Dialog window handle.
+ * @param	[in] BOOL finalize	If true the restore point is finalized.
+ * @return	void
+ */
 static void SetSystemRestorePoint (HWND hwndDlg, BOOL finalize)
 {
 	static RESTOREPOINTINFO RestPtInfo;
 	static STATEMGRSTATUS SMgrStatus;
 	static BOOL failed = FALSE;
 	static BOOL (__stdcall *_SRSetRestorePoint)(PRESTOREPOINTINFO, PSTATEMGRSTATUS);
-	
-	if (!SystemRestoreDll) return;
 
+	/* Abort if the system restore dll wasn't loaded successfully. */
+	if (!SystemRestoreDll)
+		return;
+
+	/* Retrieve the address of SRSetRestorePointA. */
 	_SRSetRestorePoint = (BOOL (__stdcall *)(PRESTOREPOINTINFO, PSTATEMGRSTATUS))GetProcAddress (SystemRestoreDll,"SRSetRestorePointA");
 	if (_SRSetRestorePoint == 0)
 	{
@@ -1362,6 +1421,7 @@ static void SetSystemRestorePoint (HWND hwndDlg, BOOL finalize)
 		return;
 	}
 
+	/* Begin system change. */
 	if (!finalize)
 	{
 		StatusMessage (hwndDlg, "CREATING_SYS_RESTORE");
@@ -1377,6 +1437,8 @@ static void SetSystemRestorePoint (HWND hwndDlg, BOOL finalize)
 			failed = TRUE;
 		}
 	}
+
+	/* End system change. */
 	else if (!failed)
 	{
 		RestPtInfo.dwEventType = END_SYSTEM_CHANGE;
@@ -1389,6 +1451,11 @@ static void SetSystemRestorePoint (HWND hwndDlg, BOOL finalize)
 	}
 }
 
+/**
+ * Uninstall worker.
+ * @param	[in] void *arg	Dialog window handle.
+ * @return	void
+ */
 void DoUninstall (void *arg)
 {
 	HWND hwndDlg = (HWND) arg;
@@ -1405,6 +1472,7 @@ void DoUninstall (void *arg)
 		ClearLogWindow (hwndDlg);
 	}
 
+	/* Unload the kernel driver. */
 	if (DoDriverUnload (hwndDlg) == FALSE)
 	{
 		bOK = FALSE;
@@ -1412,25 +1480,31 @@ void DoUninstall (void *arg)
 	}
 	else
 	{
+		/* Begin system change. */
 		if (!Rollback && bSystemRestore && !bTempSkipSysRestore)
 			SetSystemRestorePoint (hwndDlg, FALSE);
 
+		/* Uninstall the kernel driver. */
 		if (DoServiceUninstall (hwndDlg, "ciphershed") == FALSE)
 		{
 			bOK = FALSE;
 		}
+		/* Uninstall registry keys. */
 		else if (DoRegUninstall ((HWND) hwndDlg, FALSE) == FALSE)
 		{
 			bOK = FALSE;
 		}
+		/* Remove files. */
 		else if (DoFilesInstall ((HWND) hwndDlg, InstallationPath) == FALSE)
 		{
 			bOK = FALSE;
 		}
+		/* Remove desktop and startmenu shortcuts. */
 		else if (DoShortcutsUninstall (hwndDlg, InstallationPath) == FALSE)
 		{
 			bOK = FALSE;
 		}
+		/* Remove configs. */
 		else if (!DoApplicationDataUninstall (hwndDlg))
 		{
 			bOK = FALSE;
@@ -1440,7 +1514,7 @@ void DoUninstall (void *arg)
 			char temp[MAX_PATH];
 			FILE *f;
 
-			// Deprecated service
+			/* Remove driver with deprecated name. */
 			DoServiceUninstall (hwndDlg, "CipherShedService");
 
 			GetTempPath (sizeof (temp), temp);
@@ -1476,6 +1550,7 @@ void DoUninstall (void *arg)
 	if (Rollback)
 		return;
 
+	/* End system change. */
 	if (bSystemRestore && !bTempSkipSysRestore)
 		SetSystemRestorePoint (hwndDlg, TRUE);
 
@@ -1488,12 +1563,18 @@ void DoUninstall (void *arg)
 	OutcomePrompt (hwndDlg, bOK);
 }
 
+/**
+ * Install / Upgrade worker.
+ * @param	[in] void *arg	Dialog window handle.
+ * @return	void
+ */
 void DoInstall (void *arg)
 {
 	HWND hwndDlg = (HWND) arg;
 	BOOL bOK = TRUE;
 	char path[MAX_PATH];
 
+	/* BootEncryption instance. */
 	BootEncryption bootEnc (hwndDlg);
 
 	// Refresh the main GUI (wizard thread)
@@ -1501,6 +1582,7 @@ void DoInstall (void *arg)
 
 	ClearLogWindow (hwndDlg);
 
+	/* Create the installation folder if it doesn't already exist. */
 	if (mkfulldir (InstallationPath, TRUE) != 0)
 	{
 		if (mkfulldir (InstallationPath, FALSE) != 0)
@@ -1518,6 +1600,7 @@ void DoInstall (void *arg)
 
 	UpdateProgressBarProc(2);
 
+	/* Unload the kernel driver, in case of full system encryption the driver is NOT unloaded. */
 	if (DoDriverUnload (hwndDlg) == FALSE)
 	{
 		NormalCursor ();
@@ -1525,6 +1608,7 @@ void DoInstall (void *arg)
 		return;
 	}
 
+	/* Check if the previous installed version is running. */
 	if (bUpgrade
 		&& (IsFileInUse (string (InstallationPath) + '\\' + TC_APP_NAME ".exe")
 			|| IsFileInUse (string (InstallationPath) + '\\' + TC_APP_NAME " Format.exe")
@@ -1539,12 +1623,13 @@ void DoInstall (void *arg)
 	}
 
 	UpdateProgressBarProc(12);
-	
+
+	/* Begin system restore point. */
 	if (bSystemRestore)
 		SetSystemRestorePoint (hwndDlg, FALSE);
 
 	UpdateProgressBarProc(48);
-	
+
 	if (bDisableSwapFiles
 		&& IsPagingFileActive (FALSE))
 	{
@@ -1559,14 +1644,15 @@ void DoInstall (void *arg)
 
 	UpdateProgressBarProc(50);
 
-	// Remove deprecated
+	/* Remove driver with deprecated name. */
 	DoServiceUninstall (hwndDlg, "CipherShedService");
-	
+
 	UpdateProgressBarProc(55);
 
 	if (!SystemEncryptionUpdate)
 		DoRegUninstall ((HWND) hwndDlg, TRUE);
 
+	/* Install new dump filter driver. */
 	if (SystemEncryptionUpdate && InstalledVersion < 0x700)
 	{
 		try
@@ -1602,6 +1688,7 @@ void DoInstall (void *arg)
 
 	UpdateProgressBarProc(61);
 
+	/* Migrate config file. */
 	if (bUpgrade && InstalledVersion < 0x700)
 	{
 		bool bMountFavoritesOnLogon = ConfigReadInt ("MountFavoritesOnLogon", FALSE) != 0;
@@ -1658,31 +1745,38 @@ void DoInstall (void *arg)
 	strcat_s (path, sizeof (path), "\\CipherShed Setup.exe");
 	DeleteFile (path);
 
+	/* Uninstall the old kernel driver, if it was unloaded before (NOT in case of full system encryption). */
 	if (UpdateProgressBarProc(63) && UnloadDriver && DoServiceUninstall (hwndDlg, "ciphershed") == FALSE)
 	{
 		bOK = FALSE;
 	}
+	/* Install new files. */
 	else if (UpdateProgressBarProc(72) && DoFilesInstall ((HWND) hwndDlg, InstallationPath) == FALSE)
 	{
 		bOK = FALSE;
 	}
+	/* Install registry keys. */
 	else if (UpdateProgressBarProc(80) && DoRegInstall ((HWND) hwndDlg, InstallationPath, bRegisterFileExt) == FALSE)
 	{
 		bOK = FALSE;
 	}
+	/* Install the new kernel driver, if it was unloaded before (NOT in case of full system encryption). */
 	else if (UpdateProgressBarProc(85) && UnloadDriver && DoDriverInstall (hwndDlg) == FALSE)
 	{
 		bOK = FALSE;
 	}
+	/* Upgrade the bootloader in case of full system encryption. */
 	else if (UpdateProgressBarProc(90) && SystemEncryptionUpdate && UpgradeBootLoader (hwndDlg) == FALSE)
 	{
 		bOK = FALSE;
 	}
+	/* Install desktop / startmenu shortcuts. */
 	else if (UpdateProgressBarProc(93) && DoShortcutsInstall (hwndDlg, InstallationPath, bAddToStartMenu, bDesktopIcon) == FALSE)
 	{
 		bOK = FALSE;
 	}
 
+	/* Driver couldn't be unloaded, we need a system restart (full system encryption). */
 	if (!UnloadDriver)
 		bRestartRequired = TRUE;
 
@@ -1692,6 +1786,7 @@ void DoInstall (void *arg)
 	}
 	catch (...)	{ }
 
+	/* Move system favorite volumes config. */
 	if (SystemEncryptionUpdate && InstalledVersion == 0x630)
 	{
 		string sysFavorites = GetServiceConfigPath (TC_APPD_FILENAME_SYSTEM_FAVORITE_VOLUMES);
@@ -1704,6 +1799,7 @@ void DoInstall (void *arg)
 	if (bOK)
 		UpdateProgressBarProc(97);
 
+	/* End system restore point. */
 	if (bSystemRestore)
 		SetSystemRestorePoint (hwndDlg, TRUE);
 
@@ -1776,7 +1872,12 @@ outcome:
 	PostMessage (MainDlg, bOK ? TC_APPMSG_INSTALL_SUCCESS : TC_APPMSG_INSTALL_FAILURE, 0, 0);
 }
 
-
+/**
+ * Determines the current installation path and sets the "InstallationPath" global,
+ * if no installation path was found it defaults to "Program Files".
+ * @param	[in] HWND hwndDlg	Dialog window handle.
+ * @return	void
+ */
 void SetInstallationPath (HWND hwndDlg)
 {
 	HKEY hkey;
@@ -1887,7 +1988,7 @@ void SetInstallationPath (HWND hwndDlg)
 	}
 	else
 	{
-		/* TrueCypt is not installed or it wasn't possible to determine where it is installed. */
+		/* CipherShed is not installed or it wasn't possible to determine where it is installed. */
 
 		// Default "Program Files" path. 
 		SHGetSpecialFolderLocation (hwndDlg, CSIDL_PROGRAM_FILES, &itemList);
@@ -1918,7 +2019,15 @@ void SetInstallationPath (HWND hwndDlg)
 }
 
 
-// Handler for uninstall only (install is handled by the wizard)
+/**
+ * Handler for uninstall only (install is handled by the wizard).
+ * @param	[in] HWND hwndDlg	Dialog window handle.
+ * @param	[in] UINT msg		The message.
+ * @param	[in] WPARAM wParam	Additional message-specific information.
+ * @param	[in] LPARAM lParam	Additional message-specific information.
+ * @return	BOOL				TRUE if it processed the message, and FALSE if it did not.
+ * @see		http://msdn.microsoft.com/en-us/library/windows/desktop/ms645469%28v=vs.85%29.aspx
+ */
 BOOL CALLBACK UninstallDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	WORD lw = LOWORD (wParam);
@@ -1941,6 +2050,7 @@ BOOL CALLBACK UninstallDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lP
 		SetCheckBox (hwndDlg, IDC_SYSTEM_RESTORE, bSystemRestore);
 		if (SystemRestoreDll == 0)
 		{
+			/* No System Restore dll available, unset the checkbox and disable it. */
 			SetCheckBox (hwndDlg, IDC_SYSTEM_RESTORE, FALSE);
 			EnableWindow (GetDlgItem (hwndDlg, IDC_SYSTEM_RESTORE), FALSE);
 		}
@@ -1971,6 +2081,7 @@ BOOL CALLBACK UninstallDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lP
 
 			WaitCursor ();
 
+			/* Do uninstall. */
 			if (bUninstall)
 				_beginthread (DoUninstall, 0, (void *) hwndDlg);
 
@@ -2013,7 +2124,9 @@ BOOL CALLBACK UninstallDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lP
 	return 0;
 }
 
-
+/**
+ * Setup main.
+ */
 int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpszCommandLine, int nCmdShow)
 {
 	atexit (localcleanup);
@@ -2027,11 +2140,12 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpszComm
 	/* Call InitApp to initialize the common code */
 	InitApp (hInstance, NULL);
 
-	if (IsAdmin () != TRUE)
-		if (MessageBoxW (NULL, GetString ("SETUP_ADMIN"), lpszTitle, MB_YESNO | MB_ICONQUESTION) != IDYES)
-		{
-			exit (1);
-		}
+	/* The setup requires admin privileges, but give the user an option to continue. */
+	if (IsAdmin () != TRUE &&
+		MessageBoxW (NULL, GetString ("SETUP_ADMIN"), lpszTitle, MB_YESNO | MB_ICONQUESTION) != IDYES)
+	{
+		exit (1);
+	}
 
 	/* Setup directory */
 	{
@@ -2043,25 +2157,21 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpszComm
 	}
 
 	/* Parse command line arguments */
-
 	if (lpszCommandLine[0] == '/')
 	{
 		if (lpszCommandLine[1] == 'u')
 		{
 			// Uninstall:	/u
-
 			bUninstall = TRUE;
 		}
 		else if (lpszCommandLine[1] == 'c')
 		{
 			// Change:	/c
-
 			bChangeMode = TRUE;
 		}
 		else if (lpszCommandLine[1] == 'p')
 		{
 			// Create self-extracting package:	/p
-
 			bMakePackage = TRUE;
 		}
 		else if (lpszCommandLine[1] == 'd')
@@ -2074,7 +2184,6 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpszComm
 	if (bMakePackage)
 	{
 		/* Create self-extracting package */
-
 		MakeSelfExtractingPackage (NULL, SetupFilesDir);
 	}
 	else
@@ -2101,7 +2210,6 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpszComm
 			if (bChangeMode)
 			{
 				/* CipherShed is already installed on this system and we were launched from the Program Files folder */
-
 				char *tmpStr[] = {0, "SELECT_AN_ACTION", "REPAIR_REINSTALL", "UNINSTALL", "EXIT", 0};
 
 				// Ask the user to select either Repair or Unistallation
@@ -2119,22 +2227,21 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpszComm
 			}
 		}
 
-		// System Restore
+		/* Try to load the System Restore dll. */
 		SystemRestoreDll = LoadLibrary ("srclient.dll");
 
 		if (!bUninstall)
 		{
 			/* Create the main dialog for install */
-
 			DialogBoxParamW (hInstance, MAKEINTRESOURCEW (IDD_INSTL_DLG), NULL, (DLGPROC) MainDialogProc, 
 				(LPARAM)lpszCommandLine);
 		}
 		else
 		{
-			/* Create the main dialog for uninstall  */
-
+			/* Create the main dialog for uninstall */
 			DialogBoxW (hInstance, MAKEINTRESOURCEW (IDD_UNINSTALL), NULL, (DLGPROC) UninstallDlgProc);
 
+			/* Check if the UninstallBatch path is not empty. */
 			if (UninstallBatch[0])
 			{
 				STARTUPINFO si;
@@ -2145,8 +2252,11 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpszComm
 				si.dwFlags = STARTF_USESHOWWINDOW;
 				si.wShowWindow = SW_HIDE;
 
+				/* Execute the uninstall batch script. */
 				if (!CreateProcess (UninstallBatch, NULL, NULL, NULL, FALSE, IDLE_PRIORITY_CLASS, NULL, NULL, &si, &pi))
+				{
 					DeleteFile (UninstallBatch);
+				}
 				else
 				{
 					CloseHandle (pi.hProcess);
