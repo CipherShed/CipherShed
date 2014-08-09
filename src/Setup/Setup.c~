@@ -519,6 +519,11 @@ err:
 	return bOK;
 }
 
+BOOL DoTCFilesInstall (HWND hwndDlg, char *szDestDir)
+{
+	//Fill in soon
+}
+
 BOOL DoRegInstall (HWND hwndDlg, char *szDestDir, BOOL bInstallType)
 {
 	char szDir[TC_MAX_PATH], *key;
@@ -738,6 +743,11 @@ BOOL DoApplicationDataUninstall (HWND hwndDlg)
 	return bOK;
 }
 
+BOOL DoTCApplicationDataUninstall (HWND hwndDlg)
+{
+	//Fill in soon
+}
+
 BOOL DoRegUninstall (HWND hwndDlg, BOOL bRemoveDeprecated)
 {
 	BOOL bOK = FALSE;
@@ -782,6 +792,7 @@ BOOL DoRegUninstall (HWND hwndDlg, BOOL bRemoveDeprecated)
 
 	return bOK;
 }
+
 
 BOOL DoServiceUninstall (HWND hwndDlg, char *lpszService)
 {
