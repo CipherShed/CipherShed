@@ -706,7 +706,7 @@ NTSTATUS ProcessVolumeDeviceControlIrp (PDEVICE_OBJECT DeviceObject, PEXTENSION 
 			PVERIFY_INFORMATION pVerifyInformation;
 			pVerifyInformation = (PVERIFY_INFORMATION) Irp->AssociatedIrp.SystemBuffer;
 
-			if (pVerifyInformation->StartingOffset.QuadPart + pVerifyInformation->Length > Extension->DiskLength && LLONG_MAX - pVerifyInformation->StartingOffset.QuadPart >= pVerifyInformation->Length) //Added overflow check, as suggested by the audit
+			if (pVerifyInformation->StartingOffset.QuadPart + pVerifyInformation->Length > Extension->DiskLength || LLONG_MAX - pVerifyInformation->StartingOffset.QuadPart < pVerifyInformation->Length) //Added overflow check, as suggested by the audit
 				Irp->IoStatus.Status = STATUS_INVALID_PARAMETER;
 			else
 			{
