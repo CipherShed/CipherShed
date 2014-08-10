@@ -47,7 +47,7 @@ BEGIN
             VALUE "FileDescription", "CipherShed Driver"
             VALUE "FileVersion", "7.1a"
             VALUE "LegalTrademarks", "CipherShed"
-            VALUE "OriginalFilename", "ciphershed.sys"
+            VALUE "OriginalFilename", "truecrypt.sys"
             VALUE "ProductName", "CipherShed"
             VALUE "ProductVersion", "7.1a"
         END
