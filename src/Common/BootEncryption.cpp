@@ -521,7 +521,7 @@ namespace CipherShed
 	DWORD BootEncryption::GetDriverServiceStartType ()
 	{
 		DWORD startType;
-		throw_sys_if (!ReadLocalMachineRegistryDword ("SYSTEM\\CurrentControlSet\\Services\\ciphershed", "Start", &startType));
+		throw_sys_if (!ReadLocalMachineRegistryDword ("SYSTEM\\CurrentControlSet\\Services\\truecrypt", "Start", &startType));
 		return startType;
 	}
 
@@ -550,7 +550,7 @@ namespace CipherShed
 
 		finally_do_arg (SC_HANDLE, serviceManager, { CloseServiceHandle (finally_arg); });
 
-		SC_HANDLE service = OpenService (serviceManager, "ciphershed", SERVICE_CHANGE_CONFIG);
+		SC_HANDLE service = OpenService (serviceManager, "truecrypt", SERVICE_CHANGE_CONFIG);
 		throw_sys_if (!service);
 
 		finally_do_arg (SC_HANDLE, service, { CloseServiceHandle (finally_arg); });
@@ -564,7 +564,7 @@ namespace CipherShed
 			char filesystem[128];
 
 			string path (GetWindowsDirectory());
-			path += "\\drivers\\ciphershed.sys";
+			path += "\\drivers\\truecrypt.sys";
 
 			if (GetVolumePathName (path.c_str(), pathBuf, sizeof (pathBuf))
 				&& GetVolumeInformation (pathBuf, NULL, 0, NULL, NULL, NULL, filesystem, sizeof(filesystem))
@@ -585,7 +585,7 @@ namespace CipherShed
 			NULL, NULL, NULL, NULL, NULL));
 
 		// ChangeServiceConfig() rejects SERVICE_BOOT_START with ERROR_INVALID_PARAMETER
-		throw_sys_if (!WriteLocalMachineRegistryDword ("SYSTEM\\CurrentControlSet\\Services\\ciphershed", "Start", startType));
+		throw_sys_if (!WriteLocalMachineRegistryDword ("SYSTEM\\CurrentControlSet\\Services\\truecrypt", "Start", startType));
 	}
 
 
@@ -1682,7 +1682,7 @@ namespace CipherShed
 		{
 		case DriveFilter:
 		case VolumeFilter:
-			filter = "ciphershed";
+			filter = "truecrypt";
 			filterReg = "UpperFilters";
 			regKey = SetupDiOpenClassRegKey (deviceClassGuid, KEY_READ | KEY_WRITE);
 			throw_sys_if (regKey == INVALID_HANDLE_VALUE);
@@ -1693,7 +1693,7 @@ namespace CipherShed
 			if (!IsOSAtLeast (WIN_VISTA))
 				return;
 
-			filter = "ciphershed.sys";
+			filter = "truecrypt.sys";
 			filterReg = "DumpFilters";
 			SetLastError (RegOpenKeyEx (HKEY_LOCAL_MACHINE, "SYSTEM\\CurrentControlSet\\Control\\CrashControl", 0, KEY_READ | KEY_WRITE, &regKey));
 			throw_sys_if (GetLastError() != ERROR_SUCCESS);
@@ -1725,14 +1725,14 @@ namespace CipherShed
 		}
 		else
 		{
-			string infFileName = GetTempPath() + "\\ciphershed_driver_setup.inf";
+			string infFileName = GetTempPath() + "\\truecrypt_driver_setup.inf";
 
 			File infFile (infFileName, false, true);
 			finally_do_arg (string, infFileName, { DeleteFile (finally_arg.c_str()); });
 
-			string infTxt = "[ciphershed]\r\n"
-							+ string (registerFilter ? "Add" : "Del") + "Reg=ciphershed_reg\r\n\r\n"
-							"[ciphershed_reg]\r\n"
+			string infTxt = "[truecrypt]\r\n"
+							+ string (registerFilter ? "Add" : "Del") + "Reg=truecrypt_reg\r\n\r\n"
+							"[truecrypt_reg]\r\n"
 							"HKR,,\"" + filterReg + "\",0x0001" + string (registerFilter ? "0008" : "8002") + ",\"" + filter + "\"\r\n";
 
 			infFile.Write ((byte *) infTxt.c_str(), infTxt.size());
@@ -1742,7 +1742,7 @@ namespace CipherShed
 			throw_sys_if (hInf == INVALID_HANDLE_VALUE);
 			finally_do_arg (HINF, hInf, { SetupCloseInfFile (finally_arg); });
 
-			throw_sys_if (!SetupInstallFromInfSection (ParentWindow, hInf, "ciphershed", SPINST_REGISTRY, regKey, NULL, 0, NULL, NULL, NULL, NULL));
+			throw_sys_if (!SetupInstallFromInfSection (ParentWindow, hInf, "truecrypt", SPINST_REGISTRY, regKey, NULL, 0, NULL, NULL, NULL, NULL));
 		}
 	}
 
@@ -2337,7 +2337,7 @@ namespace CipherShed
 		else
 			configMap &= ~flag;
 
-		WriteLocalMachineRegistryDwordValue ("SYSTEM\\CurrentControlSet\\Services\\ciphershed", TC_DRIVER_CONFIG_REG_VALUE_NAME, configMap);
+		WriteLocalMachineRegistryDwordValue ("SYSTEM\\CurrentControlSet\\Services\\truecrypt", TC_DRIVER_CONFIG_REG_VALUE_NAME, configMap);
 	}
 
 	void BootEncryption::StartDecryption (BOOL discardUnreadableEncryptedSectors)
@@ -2403,7 +2403,7 @@ namespace CipherShed
 	{
 		DWORD configMap;
 
-		if (!ReadLocalMachineRegistryDword ("SYSTEM\\CurrentControlSet\\Services\\ciphershed", TC_DRIVER_CONFIG_REG_VALUE_NAME, &configMap))
+		if (!ReadLocalMachineRegistryDword ("SYSTEM\\CurrentControlSet\\Services\\truecrypt", TC_DRIVER_CONFIG_REG_VALUE_NAME, &configMap))
 			configMap = 0;
 
 		return configMap;
