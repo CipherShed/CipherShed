@@ -36,11 +36,11 @@ static char *szCompressedFiles[]=
 	"License.txt",
 	"CipherShed.exe",
 	"CipherShed Format.exe",
-	"ciphershed.sys",
-	"ciphershed-x64.sys"
+	"truecrypt.sys",
+	"truecrypt-x64.sys"
 };
 
-#define FILENAME_64BIT_DRIVER	"ciphershed-x64.sys"
+#define FILENAME_64BIT_DRIVER	"truecrypt-x64.sys"
 #define NBR_COMPRESSED_FILES (sizeof(szCompressedFiles) / sizeof(szCompressedFiles[0]))
 
 void localcleanup (void);
