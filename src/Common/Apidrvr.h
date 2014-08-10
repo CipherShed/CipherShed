@@ -300,23 +300,20 @@ typedef struct
  * Unique-id prefix for CipherShed volume devices,
  * queried by Windows mount manager (IOCTL_MOUNTDEV_QUERY_UNIQUE_ID).
  */
-#define TC_UNIQUE_ID_PREFIX "CipherShedVolume"
+#define TC_UNIQUE_ID_PREFIX "TrueCryptVolume"
 
 /* CipherSheds mounted volume name prefix. */
-#define TC_MOUNT_PREFIX L"\\Device\\CipherShedVolume"
-#define NT_MOUNT_PREFIX DRIVER_STR("\\Device\\CipherShedVolume")
+#define TC_MOUNT_PREFIX L"\\Device\\TrueCryptVolume"
+#define NT_MOUNT_PREFIX DRIVER_STR("\\Device\\TrueCryptVolume")
 #define DOS_MOUNT_PREFIX DRIVER_STR("\\DosDevices\\")
 
 /* CipherSheds name for the kernel driver device object. */
-#define NT_ROOT_PREFIX DRIVER_STR("\\Device\\CipherShed")
-#define DOS_ROOT_PREFIX DRIVER_STR("\\DosDevices\\CipherShed")
-#define WIN32_ROOT_PREFIX DRIVER_STR("\\\\.\\CipherShed")
+#define NT_ROOT_PREFIX DRIVER_STR("\\Device\\TrueCrypt")
+#define DOS_ROOT_PREFIX DRIVER_STR("\\DosDevices\\TrueCrypt")
+#define WIN32_ROOT_PREFIX DRIVER_STR("\\\\.\\TrueCrypt")
 
-/* TrueCrypts name for the kernel driver device object (TrueCrypt -> CipherShed migration). */
-#define WIN32_ROOT_PREFIX_LEGACY DRIVER_STR("\\\\.\\TrueCrypt")
-
-#define TC_DRIVER_CONFIG_REG_VALUE_NAME DRIVER_STR("CipherShedConfig")
-#define TC_ENCRYPTION_FREE_CPU_COUNT_REG_VALUE_NAME DRIVER_STR("CipherShedEncryptionFreeCpuCount")
+#define TC_DRIVER_CONFIG_REG_VALUE_NAME DRIVER_STR("TrueCryptConfig")
+#define TC_ENCRYPTION_FREE_CPU_COUNT_REG_VALUE_NAME DRIVER_STR("TrueCryptEncryptionFreeCpuCount")
 
 // WARNING: Modifying the following values can introduce incompatibility with previous versions.
 #define TC_DRIVER_CONFIG_CACHE_BOOT_PASSWORD						0x1
