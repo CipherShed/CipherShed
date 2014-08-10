@@ -1,0 +1,33 @@
+File info.plist.xml has changes that we are not able to confirm work.  This is because we don't know if Mac uses these names for installing/uninstalling drivers and/or services.  We need the Mac expert to verify.
+
+Note that we changed ciphershed_driver_setup.inf to truecrypt_driver_setup.inf
+
+Note that we use the TrueCrypt global mutex to avoid running at the same time as a TrueCrypt or another CipherShed instance.
+
+I am not a fan of hyperlinks on our app, including the CipherShed.org home page link!
+
+We also are using the AppData/Roaming/TrueCrypt directory for config data, rather than CipherShed
+
+In Dlgcode.h, we define TC_APPLICATION_ID using the CipherShed name.  We don't think this causes problems, but need to verify
+
+Note that the NSA is said to track who downloads TrueCrypt.  You probably get on their list just by clicking the link in our app!
+
+Rocki tried to build the source withouth having to set PKCS11_INC,
+but it checks if PKCS11_INC is set.  We need to remove that check
+
+In CoreLinux.cpp, we use /dev/ciphershed as the device name.  It is unclear if this will cause problems, or if it is even a good idea.  We need to check this.
+
+We may havea  problem in CoreMacOSX.h, and mount points in Linux.  We've changed default mount points to ciphershed from truecrypt.  Don't know if this will cause any trouble, and need to verify.
+
+Maybe not note-worthy: Driver.rc has an OriginalFileName field that we reverted to truecrypt.sys.  Probably makes no difference.
+
+We need to check all places that TC_APP_NAME is used.  In Ntdriver.c, TC_APP_NAME was expected to exist in the MBR.  We're trying not to change the MBR, so we changed it back to "TrueCrypt".  Also occurs in Volume.cpp.Th
+
+Verify all UUIDs in *.idl files.  These are interface IDs, which we did not change, but we need to look into the documentation.
+
+XML.cpp for Unix/Mac was reverted to use TrueCrypt tags, which are backwards compatible, and match what we did in Windows.
+
+In Tcformat.c, we do only look for "CipherShed" main dialog, and not "TrueCrypt".  It is probably OK.
+
+We reverted line 641 in Setup.c, which is the uninstall registry key.  It says TrueCrypt, but used to say CipherShed.  Need to double-check
+
