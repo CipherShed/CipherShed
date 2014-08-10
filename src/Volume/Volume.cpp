@@ -275,7 +275,7 @@ namespace CipherShed
 
 			if (!partitionInSystemEncryptionScope && GetPath().IsDevice())
 			{
-				// Check if the device contains CipherShed Boot Loader
+				// Check if the device contains TrueCrypt Boot Loader
 				try
 				{
 					File driveDevice;
@@ -284,7 +284,7 @@ namespace CipherShed
 					Buffer mbr (VolumeFile->GetDeviceSectorSize());
 					driveDevice.ReadAt (mbr, 0);
 
-					// Search for the string "CipherShed"
+					// Search for the string "TrueCrypt"
 					size_t nameLen = strlen (TC_APP_NAME);
 					for (size_t i = 0; i < mbr.Size() - nameLen; ++i)
 					{
