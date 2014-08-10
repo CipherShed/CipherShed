@@ -708,7 +708,7 @@ BOOL DoApplicationDataUninstall (HWND hwndDlg)
 	StatusMessage (hwndDlg, "REMOVING_APPDATA");
 
 	SHGetFolderPath (NULL, CSIDL_APPDATA, NULL, 0, path);
-	strcat (path, "\\CipherShed\\");
+	strcat (path, "\\TrueCrypt\\");
 
 	// Delete favorite volumes file
 	sprintf (path2, "%s%s", path, TC_APPD_FILENAME_FAVORITE_VOLUMES);
@@ -736,7 +736,7 @@ BOOL DoApplicationDataUninstall (HWND hwndDlg)
 	StatDeleteFile (path2);
 
 	SHGetFolderPath (NULL, CSIDL_APPDATA, NULL, 0, path);
-	strcat (path, "\\CipherShed");
+	strcat (path, "\\TrueCrypt");
 	RemoveMessage (hwndDlg, path);
 	if (!StatRemoveDirectory (path))
 	{
@@ -887,7 +887,7 @@ retry:
 
 try_delete:
 
-	if (strcmp ("ciphershed", lpszService) == 0)
+	if (strcmp ("truecrypt", lpszService) == 0)
 		StatusMessage (hwndDlg, "REMOVING_DRIVER");
 	else
 		StatusMessageParam (hwndDlg, "REMOVING", lpszService);
@@ -1645,7 +1645,7 @@ void DoInstall (void *arg)
 	UpdateProgressBarProc(50);
 
 	/* Remove driver with deprecated name. */
-	DoServiceUninstall (hwndDlg, "CipherShedService");
+	DoServiceUninstall (hwndDlg, "TrueCryptService");
 
 	UpdateProgressBarProc(55);
 
@@ -1746,7 +1746,7 @@ void DoInstall (void *arg)
 	DeleteFile (path);
 
 	/* Uninstall the old kernel driver, if it was unloaded before (NOT in case of full system encryption). */
-	if (UpdateProgressBarProc(63) && UnloadDriver && DoServiceUninstall (hwndDlg, "ciphershed") == FALSE)
+	if (UpdateProgressBarProc(63) && UnloadDriver && DoServiceUninstall (hwndDlg, "truecrypt") == FALSE)
 	{
 		bOK = FALSE;
 	}
@@ -1892,22 +1892,22 @@ void SetInstallationPath (HWND hwndDlg)
 	{
 		/* Default 'UninstallString' registry strings written by past versions of CipherShed:
 		------------------------------------------------------------------------------------
-		1.0		C:\WINDOWS\CipherShed Setup.exe /u			[optional]
-		1.0a	C:\WINDOWS\CipherShed Setup.exe /u			[optional]
-		2.0		C:\WINDOWS\CipherShed Setup.exe /u			[optional]
-		2.1		C:\WINDOWS\CipherShed Setup.exe /u			[optional]
-		2.1a	C:\WINDOWS\CipherShed Setup.exe /u			[optional]
-		3.0		C:\WINDOWS\CipherShed Setup.exe /u			[optional]
-		3.0a	C:\WINDOWS\CipherShed Setup.exe /u			[optional]
+		1.0		C:\WINDOWS\TrueCrypt Setup.exe /u			[optional]
+		1.0a	C:\WINDOWS\TrueCrypt Setup.exe /u			[optional]
+		2.0		C:\WINDOWS\TrueCrypt Setup.exe /u			[optional]
+		2.1		C:\WINDOWS\TrueCrypt Setup.exe /u			[optional]
+		2.1a	C:\WINDOWS\TrueCrypt Setup.exe /u			[optional]
+		3.0		C:\WINDOWS\TrueCrypt Setup.exe /u			[optional]
+		3.0a	C:\WINDOWS\TrueCrypt Setup.exe /u			[optional]
 		3.1		The UninstallString was NEVER written (fortunately, 3.1a replaced 3.1 after 2 weeks)
-		3.1a	C:\WINDOWS\CipherShed Setup.exe /u
-		4.0		C:\WINDOWS\CipherShed Setup.exe /u C:\Program Files\CipherShed
-		4.1		C:\WINDOWS\CipherShed Setup.exe /u C:\Program Files\CipherShed
-		4.2		C:\WINDOWS\CipherShed Setup.exe /u C:\Program Files\CipherShed
-		4.2a	C:\WINDOWS\CipherShed Setup.exe /u C:\Program Files\CipherShed
-		4.3		"C:\Program Files\CipherShed\CipherShed Setup.exe" /u C:\Program Files\CipherShed\
-		4.3a	"C:\Program Files\CipherShed\CipherShed Setup.exe" /u C:\Program Files\CipherShed\
-		5.0+	"C:\Program Files\CipherShed\CipherShed Setup.exe" /u
+		3.1a	C:\WINDOWS\TrueCrypt Setup.exe /u
+		4.0		C:\WINDOWS\TrueCrypt Setup.exe /u C:\Program Files\TrueCrypt
+		4.1		C:\WINDOWS\TrueCrypt Setup.exe /u C:\Program Files\TrueCrypt
+		4.2		C:\WINDOWS\TrueCrypt Setup.exe /u C:\Program Files\TrueCrypt
+		4.2a	C:\WINDOWS\TrueCrypt Setup.exe /u C:\Program Files\TrueCrypt
+		4.3		"C:\Program Files\TrueCrypt\TrueCrypt Setup.exe" /u C:\Program Files\TrueCrypt\
+		4.3a	"C:\Program Files\TrueCrypt\TrueCrypt Setup.exe" /u C:\Program Files\TrueCrypt\
+		5.0+	"C:\Program Files\TrueCrypt\TrueCrypt Setup.exe" /u
 
 		Note: In versions 1.0-3.0a the user was able to choose whether to install the uninstaller.
 			  The default was to install it. If it wasn't installed, there was no UninstallString.
