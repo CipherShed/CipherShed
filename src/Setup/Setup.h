@@ -23,9 +23,9 @@ static char *szFiles[]=
 	"ALicense.txt",
 	"ACipherShed.exe",
 	"ACipherShed Format.exe",
-	"Aciphershed.sys",
-	"Aciphershed-x64.sys",
-	"Dciphershed.sys",
+	"Atruecrypt.sys",
+	"Atruecrypt-x64.sys",
+	"Dtruecrypt.sys",
 	"ACipherShed Setup.exe"
 };
 
