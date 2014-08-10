@@ -373,7 +373,7 @@ BOOL DoFilesInstall (HWND hwndDlg, char *szDestDir)
 				curFileName [strlen (szFiles[i]) - 1] = 0;
 
 				if (Is64BitOs ()
-					&& strcmp (szFiles[i], "Dciphershed.sys") == 0)
+					&& strcmp (szFiles[i], "Dtruecrypt.sys") == 0)
 				{
 					driver64 = TRUE;
 					strncpy (curFileName, FILENAME_64BIT_DRIVER, sizeof (FILENAME_64BIT_DRIVER));
@@ -421,7 +421,7 @@ BOOL DoFilesInstall (HWND hwndDlg, char *szDestDir)
 
 								if (bUpgrade && InstalledVersion < 0x700)
 								{
-									bResult = WriteLocalMachineRegistryString ("SYSTEM\\CurrentControlSet\\Services\\ciphershed", "ImagePath", "System32\\drivers\\ciphershed.sys", TRUE);
+									bResult = WriteLocalMachineRegistryString ("SYSTEM\\CurrentControlSet\\Services\\truecrypt", "ImagePath", "System32\\drivers\\truecrypt.sys", TRUE);
 									if (!bResult)
 									{
 										handleWin32Error (hwndDlg);
@@ -539,7 +539,7 @@ BOOL DoRegInstall (HWND hwndDlg, char *szDestDir, BOOL bInstallType)
 
 	if (SystemEncryptionUpdate)
 	{
-		if (RegCreateKeyEx (HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\CipherShed",
+		if (RegCreateKeyEx (HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\TrueCrypt",
 			0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hkey, &dw) == ERROR_SUCCESS)
 		{
 			strcpy (szTmp, VERSION_STRING);
@@ -567,14 +567,14 @@ BOOL DoRegInstall (HWND hwndDlg, char *szDestDir, BOOL bInstallType)
 	if (bInstallType)
 	{
 
-		key = "Software\\Classes\\CipherShedVolume";
+		key = "Software\\Classes\\TrueCryptVolume";
 		RegMessage (hwndDlg, key);
 		if (RegCreateKeyEx (HKEY_LOCAL_MACHINE,
 				    key,
 				    0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hkey, &dw) != ERROR_SUCCESS)
 			goto error;
 
-		strcpy (szTmp, "CipherShed Volume");
+		strcpy (szTmp, "TrueCrypt Volume");
 		if (RegSetValueEx (hkey, "", 0, REG_SZ, (BYTE *) szTmp, strlen (szTmp) + 1) != ERROR_SUCCESS)
 			goto error;
 
@@ -585,7 +585,7 @@ BOOL DoRegInstall (HWND hwndDlg, char *szDestDir, BOOL bInstallType)
 		RegCloseKey (hkey);
 		hkey = 0;
 
-		key = "Software\\Classes\\CipherShedVolume\\DefaultIcon";
+		key = "Software\\Classes\\TrueCryptVolume\\DefaultIcon";
 		RegMessage (hwndDlg, key);
 		if (RegCreateKeyEx (HKEY_LOCAL_MACHINE,
 				    key,
@@ -599,7 +599,7 @@ BOOL DoRegInstall (HWND hwndDlg, char *szDestDir, BOOL bInstallType)
 		RegCloseKey (hkey);
 		hkey = 0;
 
-		key = "Software\\Classes\\CipherShedVolume\\Shell\\open\\command";
+		key = "Software\\Classes\\TrueCryptVolume\\Shell\\open\\command";
 		RegMessage (hwndDlg, key);
 		if (RegCreateKeyEx (HKEY_LOCAL_MACHINE,
 				    key,
@@ -618,7 +618,7 @@ BOOL DoRegInstall (HWND hwndDlg, char *szDestDir, BOOL bInstallType)
 		char typeClass[256];
 		DWORD typeClassSize = sizeof (typeClass);
 
-		if (ReadLocalMachineRegistryString (key, "", typeClass, &typeClassSize) && typeClassSize > 0 && strcmp (typeClass, "CipherShedVolume") == 0)
+		if (ReadLocalMachineRegistryString (key, "", typeClass, &typeClassSize) && typeClassSize > 0 && strcmp (typeClass, "TrueCryptVolume") == 0)
 			typeClassChanged = FALSE;
 
 		RegMessage (hwndDlg, key);
@@ -627,7 +627,7 @@ BOOL DoRegInstall (HWND hwndDlg, char *szDestDir, BOOL bInstallType)
 				    0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hkey, &dw) != ERROR_SUCCESS)
 			goto error;
 
-		strcpy (szTmp, "CipherShedVolume");
+		strcpy (szTmp, "TrueCryptVolume");
 		if (RegSetValueEx (hkey, "", 0, REG_SZ, (BYTE *) szTmp, strlen (szTmp) + 1) != ERROR_SUCCESS)
 			goto error;
 		
@@ -638,7 +638,7 @@ BOOL DoRegInstall (HWND hwndDlg, char *szDestDir, BOOL bInstallType)
 			SHChangeNotify (SHCNE_ASSOCCHANGED, SHCNF_IDLIST, NULL, NULL);
 	}
 
-	key = "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\CipherShed";
+	key = "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\TrueCrypt";
 	RegMessage (hwndDlg, key);
 	if (RegCreateKeyEx (HKEY_LOCAL_MACHINE,
 		key,
@@ -762,18 +762,18 @@ BOOL DoRegUninstall (HWND hwndDlg, BOOL bRemoveDeprecated)
 	if (!bRemoveDeprecated)
 		StatusMessage (hwndDlg, "REMOVING_REG");
 
-	RegDeleteKey (HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\CipherShed");
-	RegDeleteKey (HKEY_LOCAL_MACHINE, "Software\\Classes\\CipherShedVolume\\Shell\\open\\command");
-	RegDeleteKey (HKEY_LOCAL_MACHINE, "Software\\Classes\\CipherShedVolume\\Shell\\open");
-	RegDeleteKey (HKEY_LOCAL_MACHINE, "Software\\Classes\\CipherShedVolume\\Shell");
-	RegDeleteKey (HKEY_LOCAL_MACHINE, "Software\\Classes\\CipherShedVolume\\DefaultIcon");
-	RegDeleteKey (HKEY_LOCAL_MACHINE, "Software\\Classes\\CipherShedVolume");
-	RegDeleteKey (HKEY_CURRENT_USER, "Software\\CipherShed");
+	RegDeleteKey (HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\TrueCrypt");
+	RegDeleteKey (HKEY_LOCAL_MACHINE, "Software\\Classes\\TrueCryptVolume\\Shell\\open\\command");
+	RegDeleteKey (HKEY_LOCAL_MACHINE, "Software\\Classes\\TrueCryptVolume\\Shell\\open");
+	RegDeleteKey (HKEY_LOCAL_MACHINE, "Software\\Classes\\TrueCryptVolume\\Shell");
+	RegDeleteKey (HKEY_LOCAL_MACHINE, "Software\\Classes\\TrueCryptVolume\\DefaultIcon");
+	RegDeleteKey (HKEY_LOCAL_MACHINE, "Software\\Classes\\TrueCryptVolume");
+	RegDeleteKey (HKEY_CURRENT_USER, "Software\\TrueCrypt");
 
 	if (!bRemoveDeprecated)
 	{
 		GetStartupRegKeyName (regk);
-		DeleteRegistryValue (regk, "CipherShed");
+		DeleteRegistryValue (regk, "TrueCrypt");
 
 		RegDeleteKey (HKEY_LOCAL_MACHINE, "Software\\Classes\\.tc");
 		SHChangeNotify (SHCNE_ASSOCCHANGED, SHCNF_IDLIST, NULL, NULL);
@@ -820,7 +820,7 @@ retry:
 	if (hService == NULL)
 		goto error;
 
-	if (strcmp ("ciphershed", lpszService) == 0)
+	if (strcmp ("truecrypt", lpszService) == 0)
 	{
 		try
 		{
@@ -1485,7 +1485,7 @@ void DoUninstall (void *arg)
 			SetSystemRestorePoint (hwndDlg, FALSE);
 
 		/* Uninstall the kernel driver. */
-		if (DoServiceUninstall (hwndDlg, "ciphershed") == FALSE)
+		if (DoServiceUninstall (hwndDlg, "truecrypt") == FALSE)
 		{
 			bOK = FALSE;
 		}
@@ -1515,7 +1515,7 @@ void DoUninstall (void *arg)
 			FILE *f;
 
 			/* Remove driver with deprecated name. */
-			DoServiceUninstall (hwndDlg, "CipherShedService");
+			DoServiceUninstall (hwndDlg, "TrueCryptService");
 
 			GetTempPath (sizeof (temp), temp);
 			_snprintf (UninstallBatch, sizeof (UninstallBatch), "%s\\CipherShed-Uninstall.bat", temp);
@@ -1726,12 +1726,12 @@ void DoInstall (void *arg)
 
 					GetStartupRegKeyName (regk);
 
-					ReadRegistryString (regk, "CipherShed", "", regVal, sizeof (regVal));
+					ReadRegistryString (regk, "TrueCrypt", "", regVal, sizeof (regVal));
 
 					if (strstr (regVal, "favorites"))
 					{
 						strcat_s (regVal, sizeof (regVal), " /a logon");
-						WriteRegistryString (regk, "CipherShed", regVal);
+						WriteRegistryString (regk, "TrueCrypt", regVal);
 					}
 				}
 			}
@@ -1888,7 +1888,7 @@ void SetInstallationPath (HWND hwndDlg)
 	memset (InstallationPath, 0, sizeof (InstallationPath));
 
 	// Determine if CipherShed is already installed and try to determine its "Program Files" location
-	if (RegOpenKeyEx (HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\CipherShed", 0, KEY_READ, &hkey) == ERROR_SUCCESS)
+	if (RegOpenKeyEx (HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\TrueCrypt", 0, KEY_READ, &hkey) == ERROR_SUCCESS)
 	{
 		/* Default 'UninstallString' registry strings written by past versions of CipherShed:
 		------------------------------------------------------------------------------------
