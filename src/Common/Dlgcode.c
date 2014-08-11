@@ -2294,6 +2294,11 @@ void InitApp (HINSTANCE hInstance, char *lpszCommandLine)
 	typedef HRESULT (WINAPI *SetAppId_t) (PCWSTR appID);
 	SetAppId_t setAppId = (SetAppId_t) GetProcAddress (GetModuleHandle ("shell32.dll"), "SetCurrentProcessExplicitAppUserModelID");
 
+	/*
+	 * Specifies a unique application-defined Application User Model ID (AppUserModelID)
+	 * that identifies the current process to the taskbar. This identifier allows an application to
+	 * group its associated processes and windows under a single taskbar button (NT 6.1 or later).
+	 */
 	if (setAppId)
 		setAppId (TC_APPLICATION_ID);
 #endif

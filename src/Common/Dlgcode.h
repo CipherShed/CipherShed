@@ -44,6 +44,12 @@ enum
 	TC_TBXID_EXTRA_BOOT_PARTITION_REMOVAL_INSTRUCTIONS
 };
 
+/*
+ * This identifier allows an application to group its associated processes and
+ * windows under a single taskbar button (NT 6.1 or later).
+ * It is also associated with the "TrueCryptVolume" type class.
+ * @see	http://msdn.microsoft.com/en-us/library/windows/desktop/dd378459%28v=vs.85%29.aspx
+ */
 #define TC_APPLICATION_ID	L"CipherShedProject.CipherShed"
 
 /*
