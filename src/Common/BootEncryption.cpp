@@ -1572,6 +1572,7 @@ namespace CipherShed
 
 		DecryptBuffer (RescueVolumeHeader + HEADER_ENCRYPTED_DATA_OFFSET, HEADER_ENCRYPTED_DATA_SIZE, cryptoInfo);
 
+		/* Modifying 'TRUE' can introduce incompatibility with previous versions. */
 		if (GetHeaderField32 (RescueVolumeHeader, TC_HEADER_OFFSET_MAGIC) != 0x54525545)
 			throw ParameterIncorrect (SRC_POS);
 

@@ -3989,6 +3989,8 @@ static BOOL CALLBACK LocalizeDialogEnum( HWND hwnd, LPARAM font)
 void LocalizeDialog (HWND hwnd, char *stringId)
 {
 	LastDialogId = stringId;
+
+	/* Modifying 'TRUE' can introduce incompatibility with previous versions. */
 	SetWindowLongPtr (hwnd, GWLP_USERDATA, (LONG_PTR) 'TRUE');
 	SendMessage (hwnd, WM_SETFONT, (WPARAM) hUserFont, 0);
 
@@ -8379,6 +8381,7 @@ void HandleDriveNotReadyError ()
 
 BOOL CALLBACK CloseTCWindowsEnum (HWND hwnd, LPARAM lParam)
 {
+	/* Modifying 'TRUE' can introduce incompatibility with previous versions. */
 	if (GetWindowLongPtr (hwnd, GWLP_USERDATA) == (LONG_PTR) 'TRUE')
 	{
 		char name[1024] = { 0 };
@@ -8404,6 +8407,7 @@ BOOL CALLBACK FindTCWindowEnum (HWND hwnd, LPARAM lParam)
 	if (*(HWND *)lParam == hwnd)
 		return TRUE;
 
+	/* Modifying 'TRUE' can introduce incompatibility with previous versions. */
 	if (GetWindowLongPtr (hwnd, GWLP_USERDATA) == (LONG_PTR) 'TRUE')
 	{
 		char name[32] = { 0 };
