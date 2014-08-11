@@ -31,3 +31,8 @@ In Tcformat.c, we do only look for "CipherShed" main dialog, and not "TrueCrypt"
 
 We reverted line 641 in Setup.c, which is the uninstall registry key.  It says TrueCrypt, but used to say CipherShed.  Need to double-check
 
+Rocki got the upgrade from system encryption working!  There are remaining issues we need to address:
+  - Testers: don't forget to enable test signing mode on your VM!  Reboot fails without it.
+  - Need to deal with path and auto-start.  It runs the old TrueCryt.exe currently, which fails, after reboot.
+  - Need to delete old TrueCrypt binaries, and move TrueCrypt directory to CipherShed (I think)
+
