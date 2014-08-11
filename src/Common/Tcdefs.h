@@ -13,6 +13,7 @@
 #define TCDEFS_H
 
 #define TC_APP_NAME						"CipherShed"
+#define TC_APP_NAME_LEGACY				"TrueCrypt"
 
 // Version displayed to user 
 #define VERSION_STRING					"7.1a"

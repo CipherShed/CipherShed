@@ -82,7 +82,7 @@ enum
 #define TC_APPD_FILENAME_DEFAULT_KEYFILES					"Default Keyfiles.xml"
 #define TC_APPD_FILENAME_HISTORY							"History.xml"
 #define TC_APPD_FILENAME_FAVORITE_VOLUMES					"Favorite Volumes.xml"
-#define TC_APPD_FILENAME_SYSTEM_FAVORITE_VOLUMES			TC_APP_NAME " System Favorite Volumes.xml"
+#define TC_APPD_FILENAME_SYSTEM_FAVORITE_VOLUMES			TC_APP_NAME_LEGACY " System Favorite Volumes.xml"
 #define TC_APPD_FILENAME_NONSYS_INPLACE_ENC					"In-Place Encryption"
 #define TC_APPD_FILENAME_NONSYS_INPLACE_ENC_WIPE			"In-Place Encryption Wipe Algo"
 #define TC_APPD_FILENAME_POST_INSTALL_TASK_TUTORIAL			"Post-Install Task - Tutorial"

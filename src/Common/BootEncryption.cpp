@@ -1155,7 +1155,7 @@ namespace CipherShed
 		device.SeekAt (0);
 		device.Read (mbr, sizeof (mbr));
 
-		if (!BufferContainsString (mbr, sizeof (mbr), TC_APP_NAME)
+		if (!BufferContainsString (mbr, sizeof (mbr), TC_APP_NAME_LEGACY)
 			|| BE16 (*(uint16 *) (mbr + TC_BOOT_SECTOR_VERSION_OFFSET)) != VERSION_NUM)
 		{
 			return;
@@ -1327,7 +1327,7 @@ namespace CipherShed
 		device.SeekAt (0);
 		device.Read (mbr, sizeof (mbr));
 
-		if (preserveUserConfig && BufferContainsString (mbr, sizeof (mbr), TC_APP_NAME))
+		if (preserveUserConfig && BufferContainsString (mbr, sizeof (mbr), TC_APP_NAME_LEGACY))
 		{
 			uint16 version = BE16 (*(uint16 *) (mbr + TC_BOOT_SECTOR_VERSION_OFFSET));
 			if (version != 0)
@@ -1361,7 +1361,7 @@ namespace CipherShed
 
 		throw_sys_if (!SUCCEEDED (SHGetFolderPath (NULL, CSIDL_COMMON_APPDATA | CSIDL_FLAG_CREATE, NULL, 0, pathBuf)));
 		
-		string path = string (pathBuf) + "\\" TC_APP_NAME;
+		string path = string (pathBuf) + "\\" TC_APP_NAME_LEGACY;
 		CreateDirectory (path.c_str(), NULL);
 
 		return path + '\\' + TC_SYS_BOOT_LOADER_BACKUP_NAME;
@@ -1374,7 +1374,7 @@ namespace CipherShed
 
 		if (SUCCEEDED (SHGetFolderPath (NULL, CSIDL_COMMON_APPDATA, NULL, 0, pathBuf)))
 		{
-			string path = string (pathBuf) + "\\" TC_APP_NAME + '\\' + TC_SYS_BOOT_LOADER_BACKUP_NAME_LEGACY;
+			string path = string (pathBuf) + "\\" TC_APP_NAME_LEGACY + '\\' + TC_SYS_BOOT_LOADER_BACKUP_NAME_LEGACY;
 
 			if (FileExists (path.c_str()) && !FileExists (GetSystemLoaderBackupPath().c_str()))
 				throw_sys_if (rename (path.c_str(), GetSystemLoaderBackupPath().c_str()) != 0);
@@ -1635,9 +1635,9 @@ namespace CipherShed
 		device.Read (bootLoaderBuf, sizeof (bootLoaderBuf));
 
 		// Prevent CipherShed loader from being backed up
-		for (size_t i = 0; i < sizeof (bootLoaderBuf) - strlen (TC_APP_NAME); ++i)
+		for (size_t i = 0; i < sizeof (bootLoaderBuf) - strlen (TC_APP_NAME_LEGACY); ++i)
 		{
-			if (memcmp (bootLoaderBuf + i, TC_APP_NAME, strlen (TC_APP_NAME)) == 0)
+			if (memcmp (bootLoaderBuf + i, TC_APP_NAME_LEGACY, strlen (TC_APP_NAME_LEGACY)) == 0)
 			{
 				if (AskWarnNoYes ("TC_BOOT_LOADER_ALREADY_INSTALLED") == IDNO)
 					throw UserAbort (SRC_POS);
@@ -1805,7 +1805,7 @@ namespace CipherShed
 
 			SC_HANDLE service = CreateService (scm,
 				TC_SYSTEM_FAVORITES_SERVICE_NAME,
-				TC_APP_NAME " System Favorites",
+				TC_APP_NAME_LEGACY " System Favorites",
 				SERVICE_ALL_ACCESS,
 				SERVICE_WIN32_OWN_PROCESS,
 				SERVICE_AUTO_START,

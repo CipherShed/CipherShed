@@ -8783,7 +8783,7 @@ void AnalyzeKernelMiniDump (HWND hwndDlg)
 
 	NormalCursor();
 
-	bool otherDriver = (StringToUpperCase (output).find (StringToUpperCase (TC_APP_NAME)) == string::npos);
+	bool otherDriver = (StringToUpperCase (output).find (StringToUpperCase (TC_APP_NAME_LEGACY)) == string::npos);
 
 	size_t p, p2;
 	while ((p = output.find ('`')) != string::npos)
@@ -8888,7 +8888,7 @@ void AnalyzeKernelMiniDump (HWND hwndDlg)
 
 	wstring msg;
 
-	if (!imageName.empty() && StringToUpperCase (imageName) != StringToUpperCase (TC_APP_NAME) + ".SYS")
+	if (!imageName.empty() && StringToUpperCase (imageName) != StringToUpperCase (TC_APP_NAME_LEGACY) + ".SYS")
 	{
 		msg += wstring (GetString ("SYSTEM_CRASH_UPDATE_DRIVER")) + L"\n\n" + SingleStringToWide (imageName);
 

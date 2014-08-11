@@ -285,10 +285,10 @@ namespace CipherShed
 					driveDevice.ReadAt (mbr, 0);
 
 					// Search for the string "TrueCrypt"
-					size_t nameLen = strlen (TC_APP_NAME);
+					size_t nameLen = strlen (TC_APP_NAME_LEGACY);
 					for (size_t i = 0; i < mbr.Size() - nameLen; ++i)
 					{
-						if (memcmp (mbr.Ptr() + i, TC_APP_NAME, nameLen) == 0)
+						if (memcmp (mbr.Ptr() + i, TC_APP_NAME_LEGACY, nameLen) == 0)
 							throw PasswordOrMountOptionsIncorrect (SRC_POS);
 					}
 				}
