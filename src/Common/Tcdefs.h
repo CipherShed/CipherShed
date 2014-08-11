@@ -16,7 +16,7 @@
 #define TC_APP_NAME_LEGACY				"TrueCrypt"
 
 // Version displayed to user 
-#define VERSION_STRING					"0.73"
+#define VERSION_STRING					"0.7.3"
 
 // Version number to compare against driver
 #define VERSION_NUM						0x0730

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <CipherShed>
-  <localization prog-version="0.73">
+  <localization prog-version="0.7.3">
     <!-- Languages -->
     <language langid="en" name="English" en-name="English" version="0.0.0" translators="" />
     <!-- Fonts -->

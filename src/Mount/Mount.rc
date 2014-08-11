@@ -439,11 +439,11 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "CipherShed Project"
             VALUE "FileDescription", "CipherShed"
-            VALUE "FileVersion", "0.73"
+            VALUE "FileVersion", "0.7.3"
             VALUE "LegalTrademarks", "CipherShed"
             VALUE "OriginalFilename", "CipherShed.exe"
             VALUE "ProductName", "CipherShed"
-            VALUE "ProductVersion", "0.73"
+            VALUE "ProductVersion", "0.7.3"
         END
     END
     BLOCK "VarFileInfo"
