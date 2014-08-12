@@ -154,7 +154,7 @@ namespace CipherShed
 		boot[cnt++] = 0xeb;	/* boot jump */
 		boot[cnt++] = 0x3c;
 		boot[cnt++] = 0x90;
-		memcpy (boot + cnt, "CPHSHED", 8); /* system id */
+		memcpy (boot + cnt, "CPHSHED ", 8); /* system id */
 		cnt += 8;
 		*(int16 *)(boot + cnt) = Endian::Little (ft->sector_size);	/* bytes per sector */
 		cnt += 2;
