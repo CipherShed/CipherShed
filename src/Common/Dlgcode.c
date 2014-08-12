@@ -7100,10 +7100,10 @@ void ManageStartupSeq (void)
 			if (bMountDevicesOnLogon) strcat (exe, " /a devices");
 			if (bMountFavoritesOnLogon) strcat (exe, " /a favorites");
 
-			WriteRegistryString (regk, "TrueCrypt", exe);
+			WriteRegistryString (regk, "CipherShed", exe);
 		}
 		else
-			DeleteRegistryValue (regk, "TrueCrypt");
+			DeleteRegistryValue (regk, "CipherShed");
 	}
 }
 
@@ -7135,10 +7135,10 @@ void ManageStartupSeqWiz (BOOL bRemove, const char *arg)
 			strcat (exe, arg);
 		}
 
-		WriteRegistryString (regk, "TrueCrypt Format", exe);
+		WriteRegistryString (regk, "CipherShed Format", exe);
 	}
 	else
-		DeleteRegistryValue (regk, "TrueCrypt Format");
+		DeleteRegistryValue (regk, "CipherShed Format");
 }
 
 

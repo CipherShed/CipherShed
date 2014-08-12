@@ -1799,6 +1799,29 @@ void DoInstall (void *arg)
 			MoveFile (legacySysFavorites.c_str(), sysFavorites.c_str());
 	}
 
+	/* Migrate gui autorun entry to CipherShed. */
+	if (SystemEncryptionUpdate && InstalledVersion < 0x730)
+	{
+		char regk[64];
+		char regVal[MAX_PATH * 2];
+		char exe[MAX_PATH * 2] = { 0 }; // terminating null character
+
+		GetStartupRegKeyName (regk);
+		ReadRegistryString (regk, "TrueCrypt", "", regVal, sizeof (regVal));
+
+		if (_snprintf (exe, sizeof (exe) - 32, "\"%sCipherShed.exe\" /q preferences /a logon", InstallationPath) >= 0)
+		{
+			if (strstr (regVal, " /a devices"))
+				strcat (exe, " /a devices");
+			if (strstr (regVal, " /a favorites"))
+				strcat (exe, " /a favorites");
+
+			WriteRegistryString (regk, "CipherShed", exe);
+		}
+
+		DeleteRegistryValue (regk, "TrueCrypt");
+	}
+
 	if (bOK)
 		UpdateProgressBarProc(97);
 
