@@ -35,6 +35,7 @@ export CXX ?= g++
 export AS := nasm
 export RANLIB ?= ranlib
 
+export LIBS := -ldl
 export CFLAGS := -Wall
 export CXXFLAGS := -Wall -Wno-unused-parameter
 C_CXX_FLAGS := -MMD -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_LARGE_FILES -I$(BASE_DIR) -I$(BASE_DIR)/Crypto -I$(BASE_DIR)/Pkcs11
@@ -236,6 +237,7 @@ endif
 
 #------ Common configuration ------
 
+LIBS := $(LIBS)
 CFLAGS := $(C_CXX_FLAGS) $(CFLAGS) $(TC_EXTRA_CFLAGS)
 CXXFLAGS := $(C_CXX_FLAGS) $(CXXFLAGS) $(TC_EXTRA_CXXFLAGS)
 ASFLAGS += -f $(ASM_OBJ_FORMAT)
@@ -277,6 +279,7 @@ all clean:
 #------ wxWidgets build ------
 
 ifeq "$(MAKECMDGOALS)" "wxbuild"
+LIBS :=
 CFLAGS :=
 CXXFLAGS :=
 LFLAGS :=
