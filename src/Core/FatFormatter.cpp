@@ -154,7 +154,7 @@ namespace CipherShed
 		boot[cnt++] = 0xeb;	/* boot jump */
 		boot[cnt++] = 0x3c;
 		boot[cnt++] = 0x90;
-		memcpy (boot + cnt, "MSDOS5.0", 8); /* system id */
+		memcpy (boot + cnt, "CPHSHED ", 8); /* system id */
 		cnt += 8;
 		*(int16 *)(boot + cnt) = Endian::Little (ft->sector_size);	/* bytes per sector */
 		cnt += 2;
@@ -280,7 +280,7 @@ namespace CipherShed
 
 		fatParams.num_sectors = (uint32) (deviceSize / fatParams.sector_size);
 		fatParams.cluster_size = clusterSize / fatParams.sector_size;
-		memcpy (fatParams.volume_name, "NO NAME    ", 11);
+		memcpy (fatParams.volume_name, "           ", 11);
 		GetFatParams (&fatParams); 
 		fatparams *ft = &fatParams;
 

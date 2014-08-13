@@ -544,7 +544,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				memset (&lf, 0, sizeof(lf));
 
 				// Main font
-				wcsncpy (lf.lfFaceName, L"Times New Roman", sizeof (lf.lfFaceName)/2);
+				wcsncpy (lf.lfFaceName, L"Tahoma", sizeof (lf.lfFaceName)/2);
 				lf.lfHeight = CompensateDPIFont (-21);
 				lf.lfWeight = FW_NORMAL;
 				lf.lfWidth = 0;
