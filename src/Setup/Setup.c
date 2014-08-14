@@ -537,6 +537,40 @@ BOOL DoRegInstall (HWND hwndDlg, char *szDestDir, BOOL bInstallType)
 	DWORD dw;
 	int x;
 
+	strcpy (szDir, szDestDir);
+	x = strlen (szDestDir);
+	if (szDestDir[x - 1] == '\\')
+		bSlash = TRUE;
+	else
+		bSlash = FALSE;
+
+	if (bSlash == FALSE)
+		strcat (szDir, "\\");
+
+	/* CipherShed registry migration. */
+	if (bUpgrade && InstalledVersion < 0x730)
+	{
+		/* Gui autorun entry. */
+		char regk[64];
+		char exe[MAX_PATH * 2] = { 0 }; // terminating null character
+
+		GetStartupRegKeyName (regk);
+		ReadRegistryString (regk, "TrueCrypt", "", szTmp, sizeof (szTmp));
+
+		if (strstr (szTmp, "\\TrueCrypt.exe") &&
+			_snprintf (exe, sizeof (exe) - 32, "\"%sCipherShed.exe\" /q preferences /a logon", szDir) >= 0)
+		{
+			if (strstr (szTmp, " /a devices"))
+				strcat (exe, " /a devices");
+			if (strstr (szTmp, " /a favorites"))
+				strcat (exe, " /a favorites");
+
+			WriteRegistryString (regk, "CipherShed", exe);
+		}
+
+		DeleteRegistryValue (regk, "TrueCrypt");
+	}
+
 	if (SystemEncryptionUpdate)
 	{
 		if (RegCreateKeyEx (HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\TrueCrypt",
@@ -553,16 +587,6 @@ BOOL DoRegInstall (HWND hwndDlg, char *szDestDir, BOOL bInstallType)
 
 		return TRUE;
 	}
-
-	strcpy (szDir, szDestDir);
-	x = strlen (szDestDir);
-	if (szDestDir[x - 1] == '\\')
-		bSlash = TRUE;
-	else
-		bSlash = FALSE;
-
-	if (bSlash == FALSE)
-		strcat (szDir, "\\");
 
 	if (bInstallType)
 	{
@@ -1794,29 +1818,6 @@ void DoInstall (void *arg)
 
 		if (FileExists (legacySysFavorites.c_str()) && !FileExists (sysFavorites.c_str()))
 			MoveFile (legacySysFavorites.c_str(), sysFavorites.c_str());
-	}
-
-	/* Migrate gui autorun entry to CipherShed. */
-	if (SystemEncryptionUpdate && InstalledVersion < 0x730)
-	{
-		char regk[64];
-		char regVal[MAX_PATH * 2];
-		char exe[MAX_PATH * 2] = { 0 }; // terminating null character
-
-		GetStartupRegKeyName (regk);
-		ReadRegistryString (regk, "TrueCrypt", "", regVal, sizeof (regVal));
-
-		if (_snprintf (exe, sizeof (exe) - 32, "\"%sCipherShed.exe\" /q preferences /a logon", InstallationPath) >= 0)
-		{
-			if (strstr (regVal, " /a devices"))
-				strcat (exe, " /a devices");
-			if (strstr (regVal, " /a favorites"))
-				strcat (exe, " /a favorites");
-
-			WriteRegistryString (regk, "CipherShed", exe);
-		}
-
-		DeleteRegistryValue (regk, "TrueCrypt");
 	}
 
 	if (bOK)
