@@ -44,6 +44,7 @@ using namespace CipherShed;
 #pragma warning( default : 4201 )
 #pragma warning( default : 4115 )
 
+char UninstallationPath[TC_MAX_PATH];
 char InstallationPath[TC_MAX_PATH];
 char SetupFilesDir[TC_MAX_PATH];
 char UninstallBatch[MAX_PATH];
@@ -54,6 +55,7 @@ BOOL bRestartRequired = FALSE;
 BOOL bMakePackage = FALSE;
 BOOL bDone = FALSE;
 BOOL Rollback = FALSE;
+BOOL bCipherShedMigration = FALSE;
 BOOL bUpgrade = FALSE;
 BOOL bDowngrade = FALSE;
 BOOL SystemEncryptionUpdate = FALSE;
@@ -259,6 +261,9 @@ void DetermineUpgradeDowngradeStatus (BOOL bCloseDriverHandle, LONG *driverVersi
 
 		bUpgrade = (bResult && driverVersion < VERSION_NUM);
 		bDowngrade = (bResult && driverVersion > VERSION_NUM);
+
+		/* TrueCrypt to CipherShed migration flag. */
+		bCipherShedMigration = (bUpgrade && driverVersion < 0x730);
 
 		/* Determine if the driver was loaded in portable mode. */
 		PortableMode = DeviceIoControl (hDriver, TC_IOCTL_GET_PORTABLE_MODE_STATUS, NULL, 0, NULL, 0, &dwResult, NULL);
@@ -548,7 +553,7 @@ BOOL DoRegInstall (HWND hwndDlg, char *szDestDir, BOOL bInstallType)
 		strcat (szDir, "\\");
 
 	/* CipherShed registry migration. */
-	if (bUpgrade && InstalledVersion < 0x730)
+	if (bCipherShedMigration)
 	{
 		/* Gui autorun entry. */
 		char regk[64];
@@ -571,7 +576,7 @@ BOOL DoRegInstall (HWND hwndDlg, char *szDestDir, BOOL bInstallType)
 		DeleteRegistryValue (regk, "TrueCrypt");
 	}
 
-	if (SystemEncryptionUpdate)
+	else if (SystemEncryptionUpdate)
 	{
 		if (RegCreateKeyEx (HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\TrueCrypt",
 			0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hkey, &dw) == ERROR_SUCCESS)
@@ -779,7 +784,7 @@ BOOL DoRegUninstall (HWND hwndDlg, BOOL bRemoveDeprecated)
 	// Unregister COM servers
 	if (!bRemoveDeprecated && IsOSAtLeast (WIN_VISTA))
 	{
-		if (!UnregisterComServers (InstallationPath))
+		if (!UnregisterComServers (UninstallationPath))
 			StatusMessage (hwndDlg, "COM_DEREG_FAILED");
 	}
 
@@ -1406,7 +1411,7 @@ void OutcomePrompt (HWND hwndDlg, BOOL bOK)
 		{
 			wchar_t str[4096];
 
-			swprintf (str, GetString ("UNINSTALL_OK"), InstallationPath);
+			swprintf (str, GetString ("UNINSTALL_OK"), UninstallationPath);
 			MessageBoxW (hwndDlg, str, lpszTitle, MB_ICONASTERISK);
 		}
 	}
@@ -1519,12 +1524,12 @@ void DoUninstall (void *arg)
 			bOK = FALSE;
 		}
 		/* Remove files. */
-		else if (DoFilesInstall ((HWND) hwndDlg, InstallationPath) == FALSE)
+		else if (DoFilesInstall ((HWND) hwndDlg, UninstallationPath) == FALSE)
 		{
 			bOK = FALSE;
 		}
 		/* Remove desktop and startmenu shortcuts. */
-		else if (DoShortcutsUninstall (hwndDlg, InstallationPath) == FALSE)
+		else if (DoShortcutsUninstall (hwndDlg, UninstallationPath) == FALSE)
 		{
 			bOK = FALSE;
 		}
@@ -1557,9 +1562,9 @@ void DoUninstall (void *arg)
 					"if exist \"%s%s\" goto loop\n"
 					"rmdir \"%s\"\n"
 					"del \"%s\"",
-					InstallationPath, "CipherShed Setup.exe",
-					InstallationPath, "CipherShed Setup.exe",
-					InstallationPath,
+					UninstallationPath, "CipherShed Setup.exe",
+					UninstallationPath, "CipherShed Setup.exe",
+					UninstallationPath,
 					UninstallBatch
 					);
 
@@ -1673,8 +1678,13 @@ void DoInstall (void *arg)
 
 	UpdateProgressBarProc(55);
 
+	/* Remove registry keys before re-install. */
 	if (!SystemEncryptionUpdate)
 		DoRegUninstall ((HWND) hwndDlg, TRUE);
+
+	/* Uninstall TrueCrypt Com servers. */
+	if (bCipherShedMigration && IsOSAtLeast (WIN_VISTA))
+		UnregisterComServers (UninstallationPath);
 
 	/* Install new dump filter driver. */
 	if (SystemEncryptionUpdate && InstalledVersion < 0x700)
@@ -2040,6 +2050,12 @@ void SetInstallationPath (HWND hwndDlg)
 	{
 		strcat (InstallationPath, "\\");
 	}
+
+	/*
+	 * CipherShed changes the InstallationPath in case of TrueCrypt upgrade,
+	 * we need to store the original path for TrueCrypt uninstall.
+	 */
+	strcpy(UninstallationPath, InstallationPath);
 }
 
 
