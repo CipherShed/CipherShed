@@ -378,7 +378,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 			{
 				LONG driverVersion;
 
-				DetermineUpgradeDowngradeStatus (TRUE, &driverVersion);
+				DetermineUpgradeDowngradeStatus (TRUE, &driverVersion); //Check this out too
 
 				if (!bDesktopIconStatusDetermined)
 				{
