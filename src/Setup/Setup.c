@@ -703,6 +703,26 @@ BOOL DoRegInstall (HWND hwndDlg, char *szDestDir, BOOL bInstallType)
 	if (RegSetValueEx (hkey, "URLInfoAbout", 0, REG_SZ, (BYTE *) szTmp, strlen (szTmp) + 1) != ERROR_SUCCESS)
 		goto error;
 
+	RegCloseKey (hkey);
+	hkey = 0;
+
+	/* CipherShed. */
+	key = "Software\\CipherShed";
+	RegMessage (hwndDlg, key);
+	if (RegCreateKeyEx (HKEY_LOCAL_MACHINE,
+		key,
+		0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hkey, &dw) != ERROR_SUCCESS)
+		goto error;
+
+	if (RegSetValueEx (hkey, "InstallationPath", 0, REG_SZ, (BYTE *) szDir, strlen (szDir) + 1) != ERROR_SUCCESS)
+		goto error;
+
+	if (bCipherShedMigration && RegSetValueEx (hkey, "MigrationPath", 0, REG_SZ, (BYTE *) UninstallationPath, strlen (UninstallationPath) + 1) != ERROR_SUCCESS)
+		goto error;
+
+	if (bCipherShedMigration && RegSetValueEx (hkey, "MigrationVersion", 0, REG_DWORD, (BYTE *) &InstalledVersion, sizeof (InstalledVersion)) != ERROR_SUCCESS)
+		goto error;
+
 	bOK = TRUE;
 
 error:
@@ -801,8 +821,11 @@ BOOL DoRegUninstall (HWND hwndDlg, BOOL bRemoveDeprecated)
 
 	if (!bRemoveDeprecated)
 	{
+		/* CipherShed. */
+		RegDeleteKey (HKEY_LOCAL_MACHINE, "Software\\CipherShed");
+
 		GetStartupRegKeyName (regk);
-		DeleteRegistryValue (regk, "TrueCrypt");
+		DeleteRegistryValue (regk, "CipherShed");
 
 		RegDeleteKey (HKEY_LOCAL_MACHINE, "Software\\Classes\\.tc");
 		SHChangeNotify (SHCNE_ASSOCCHANGED, SHCNF_IDLIST, NULL, NULL);
