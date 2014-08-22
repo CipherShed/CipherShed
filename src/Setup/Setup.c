@@ -1794,8 +1794,9 @@ void DoInstall (void *arg)
 		}
 	}
 
+	/* Remove deprecated setup file (TrueCrypt 1.0 - 4.2a) */
 	GetWindowsDirectory (path, sizeof (path));
-	strcat_s (path, sizeof (path), "\\CipherShed Setup.exe");
+	strcat_s (path, sizeof (path), "\\TrueCrypt Setup.exe");
 	DeleteFile (path);
 
 	/* Uninstall the old kernel driver, if it was unloaded before (NOT in case of full system encryption). */
