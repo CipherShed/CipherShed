@@ -1662,9 +1662,15 @@ void DoInstall (void *arg)
 
 	/* Check if the previous installed version is running. */
 	if (bUpgrade
-		&& (IsFileInUse (string (InstallationPath) + '\\' + TC_APP_NAME ".exe")
+		&&	(
+			/* CipherShed. */
+			IsFileInUse (string (InstallationPath) + '\\' + TC_APP_NAME ".exe")
 			|| IsFileInUse (string (InstallationPath) + '\\' + TC_APP_NAME " Format.exe")
 			|| IsFileInUse (string (InstallationPath) + '\\' + TC_APP_NAME " Setup.exe")
+			/* TrueCrypt. */
+			|| IsFileInUse (string (UninstallationPath) + '\\' + TC_APP_NAME_LEGACY ".exe")
+			|| IsFileInUse (string (UninstallationPath) + '\\' + TC_APP_NAME_LEGACY " Format.exe")
+			|| IsFileInUse (string (UninstallationPath) + '\\' + TC_APP_NAME_LEGACY " Setup.exe")
 			)
 		)
 	{
