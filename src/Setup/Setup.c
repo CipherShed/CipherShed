@@ -1705,10 +1705,6 @@ void DoInstall (void *arg)
 	if (!SystemEncryptionUpdate)
 		DoRegUninstall ((HWND) hwndDlg, TRUE);
 
-	/* Uninstall TrueCrypt Com servers. */
-	if (bCipherShedMigration && IsOSAtLeast (WIN_VISTA))
-		UnregisterComServers (UninstallationPath);
-
 	/* Install new dump filter driver. */
 	if (SystemEncryptionUpdate && InstalledVersion < 0x700)
 	{
