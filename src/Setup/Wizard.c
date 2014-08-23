@@ -395,7 +395,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 				if (!bDesktopIconStatusDetermined)
 				{
-					bDesktopIcon = !bUpgrade;
+					bDesktopIcon = !bUpgrade || bCipherShedMigration;
 					bDesktopIconStatusDetermined = TRUE;
 				}
 
