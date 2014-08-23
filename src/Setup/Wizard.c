@@ -416,9 +416,19 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 					EnableWindow (GetDlgItem (hwndDlg, IDC_BROWSE), FALSE);
 					EnableWindow (GetDlgItem (hwndDlg, IDC_ALL_USERS), FALSE);
 
+					/* Determine bForAllUsers state. */
 					char path[MAX_PATH];
 					SHGetSpecialFolderPath (hwndDlg, path, CSIDL_COMMON_PROGRAMS, 0);
 					bForAllUsers = (_access ((string (path) + "\\" TC_APP_NAME).c_str(), 0) == 0 || _access ((string (path) + "\\" TC_APP_NAME_LEGACY).c_str(), 0) == 0);
+
+					/* Determine bRegisterFileExt state. */
+					HKEY hKey = 0;
+					if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, "Software\\Classes\\TrueCryptVolume", 0, KEY_READ, &hKey) == ERROR_SUCCESS)
+					{
+						RegCloseKey(hKey);
+						EnableWindow (GetDlgItem (hwndDlg, IDC_FILE_TYPE), FALSE);
+						bRegisterFileExt = TRUE;
+					}
 				}
 
 				// System Restore
