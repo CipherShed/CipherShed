@@ -533,6 +533,79 @@ err:
 	return bOK;
 }
 
+/**
+ * Uninstall TrueCrypt program files.
+ * @param	[in] HWND hwndDlg	Dialog window handle.
+ * @return	BOOL	False if the directory could not be deleted.
+ */
+BOOL DoTrueCryptFilesUninstall (HWND hwndDlg)
+{
+	char path[MAX_PATH] = { 0 };
+	BOOL bOK = TRUE;
+
+	/* TrueCrypt.exe */
+	if (_snprintf (path, sizeof (path) - 1, "%s%s", UninstallationPath, TC_APP_NAME_LEGACY ".exe") >= 0)
+	{
+		RemoveMessage (hwndDlg, path);
+		StatDeleteFile (path);
+	}
+
+	/* TrueCrypt Format.exe */
+	if (_snprintf (path, sizeof (path) - 1, "%s%s", UninstallationPath, TC_APP_NAME_LEGACY " Format.exe") >= 0)
+	{
+		RemoveMessage (hwndDlg, path);
+		StatDeleteFile (path);
+	}
+
+	/* TrueCrypt Setup.exe */
+	if (_snprintf (path, sizeof (path) - 1, "%s%s", UninstallationPath, TC_APP_NAME_LEGACY " Setup.exe") >= 0)
+	{
+		RemoveMessage (hwndDlg, path);
+		StatDeleteFile (path);
+	}
+
+	/* TrueCrypt User Guide.pdf */
+	if (_snprintf (path, sizeof (path) - 1, "%s%s", UninstallationPath, TC_APP_NAME_LEGACY " User Guide.pdf") >= 0)
+	{
+		RemoveMessage (hwndDlg, path);
+		StatDeleteFile (path);
+	}
+
+	if (strcmp(InstallationPath, UninstallationPath) != 0)
+	{
+		/* truecrypt.sys */
+		if (_snprintf (path, sizeof (path) - 1, "%s%s", UninstallationPath, "truecrypt.sys") >= 0)
+		{
+			RemoveMessage (hwndDlg, path);
+			StatDeleteFile (path);
+		}
+
+		/* truecrypt-x64.sys */
+		if (_snprintf (path, sizeof (path) - 1, "%s%s", UninstallationPath, "truecrypt-x64.sys") >= 0)
+		{
+			RemoveMessage (hwndDlg, path);
+			StatDeleteFile (path);
+		}
+
+		/* License.txt */
+		if (_snprintf (path, sizeof (path) - 1, "%s%s", UninstallationPath, "License.txt") >= 0)
+		{
+			RemoveMessage (hwndDlg, path);
+			StatDeleteFile (path);
+		}
+
+		/* Directory */
+		RemoveMessage (hwndDlg, UninstallationPath);
+		if (!StatRemoveDirectory (UninstallationPath))
+		{
+			handleWin32Error (hwndDlg);
+			bOK = FALSE;
+		}
+	}
+
+	return bOK;
+}
+
 BOOL DoRegInstall (HWND hwndDlg, char *szDestDir, BOOL bInstallType)
 {
 	char szDir[TC_MAX_PATH], *key;
@@ -1834,6 +1907,12 @@ void DoInstall (void *arg)
 	else if (UpdateProgressBarProc(93) && DoShortcutsInstall (hwndDlg, InstallationPath, bAddToStartMenu, bDesktopIcon) == FALSE)
 	{
 		bOK = FALSE;
+	}
+
+	/* Remove TrueCrypt program files and shortcuts. */
+	if (bCipherShedMigration)
+	{
+		DoTrueCryptFilesUninstall (hwndDlg);
 	}
 
 	/* Driver couldn't be unloaded, we need a system restart (full system encryption). */

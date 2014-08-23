@@ -62,6 +62,7 @@ static int CALLBACK BrowseCallbackProc ( HWND hwnd , UINT uMsg , LPARAM lp , LPA
 void LoadLicense ( HWND hwndDlg );
 void DetermineUpgradeDowngradeStatus (BOOL bCloseDriverHandle, LONG *driverVersionPtr);
 BOOL DoFilesInstall ( HWND hwndDlg , char *szDestDir );
+BOOL DoTrueCryptFilesUninstall (HWND hwndDlg);
 BOOL DoRegInstall ( HWND hwndDlg , char *szDestDir , BOOL bInstallType );
 BOOL DoRegUninstall (HWND hwndDlg, BOOL bRemoveDeprecated);
 BOOL DoServiceUninstall ( HWND hwndDlg , char *lpszService );
