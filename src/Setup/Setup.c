@@ -594,9 +594,16 @@ BOOL DoTrueCryptFilesUninstall (HWND hwndDlg)
 			StatDeleteFile (path);
 		}
 
-		/* Directory */
-		RemoveMessage (hwndDlg, UninstallationPath);
-		if (!StatRemoveDirectory (UninstallationPath))
+		strcpy(path, UninstallationPath);
+
+		/* Remove trailing backslash. */
+		size_t len = strlen (path);
+		if (path[len - 1] == '\\')
+			path[len - 1] = 0;
+
+		/* Remove directory */
+		RemoveMessage (hwndDlg, path);
+		if (!StatRemoveDirectory (path))
 		{
 			handleWin32Error (hwndDlg);
 			bOK = FALSE;
