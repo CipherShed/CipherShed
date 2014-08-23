@@ -956,6 +956,13 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 					bExtractOnly = TRUE;
 					nCurPageNo = EXTRACTION_OPTIONS_PAGE - 1;
 				}
+
+				/* CipherShed migration note. */
+				else if (bCipherShedMigration
+					&& AskWarnYesNo("CIPHERSHED_MIGRATION_NOTE") == IDNO)
+				{
+					return 1;
+				}
 			}
 
 			else if (nCurPageNo == EXTRACTION_OPTIONS_PAGE)
