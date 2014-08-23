@@ -1281,7 +1281,9 @@ BOOL UpgradeBootLoader (HWND hwndDlg)
 	return FALSE;
 }
 
-
+/**
+ * Remove CipherShed desktop and startmenu shortcuts.
+ */
 BOOL DoShortcutsUninstall (HWND hwndDlg, char *szDestDir)
 {
 	char szLinkDir[TC_MAX_PATH];
@@ -1294,7 +1296,7 @@ BOOL DoShortcutsUninstall (HWND hwndDlg, char *szDestDir)
 	hOle = OleInitialize (NULL);
 
 	// User start menu
-    SHGetSpecialFolderPath (hwndDlg, szLinkDir, CSIDL_PROGRAMS, 0);
+	SHGetSpecialFolderPath (hwndDlg, szLinkDir, CSIDL_PROGRAMS, 0);
 	x = strlen (szLinkDir);
 	if (szLinkDir[x - 1] == '\\')
 		bSlash = TRUE;
@@ -1353,6 +1355,92 @@ BOOL DoShortcutsUninstall (HWND hwndDlg, char *szDestDir)
 		SHGetSpecialFolderPath (hwndDlg, szLinkDir, CSIDL_DESKTOPDIRECTORY, 0);
 
 	sprintf (szTmp2, "%s%s", szLinkDir, "\\CipherShed.lnk");
+
+	RemoveMessage (hwndDlg, szTmp2);
+	if (StatDeleteFile (szTmp2) == FALSE)
+		goto error;
+
+	bOK = TRUE;
+
+error:
+	OleUninitialize ();
+
+	return bOK;
+}
+
+/**
+ * Remove TrueCrypt desktop and startmenu shortcuts.
+ */
+BOOL DoTrueCryptShortcutsUninstall (HWND hwndDlg, char *szDestDir)
+{
+	char szLinkDir[TC_MAX_PATH];
+	char szTmp2[TC_MAX_PATH];
+	BOOL bSlash, bOK = FALSE;
+	HRESULT hOle;
+	int x;
+	BOOL allUsers = FALSE;
+
+	hOle = OleInitialize (NULL);
+
+	// User start menu
+	SHGetSpecialFolderPath (hwndDlg, szLinkDir, CSIDL_PROGRAMS, 0);
+	x = strlen (szLinkDir);
+	if (szLinkDir[x - 1] == '\\')
+		bSlash = TRUE;
+	else
+		bSlash = FALSE;
+
+	if (bSlash == FALSE)
+		strcat (szLinkDir, "\\");
+
+	strcat (szLinkDir, "TrueCrypt");
+
+	// Global start menu
+	{
+		struct _stat st;
+		char path[TC_MAX_PATH];
+
+		SHGetSpecialFolderPath (hwndDlg, path, CSIDL_COMMON_PROGRAMS, 0);
+		strcat (path, "\\TrueCrypt");
+
+		if (_stat (path, &st) == 0)
+		{
+			strcpy (szLinkDir, path);
+			allUsers = TRUE;
+		}
+	}
+
+	// Start menu entries
+	sprintf (szTmp2, "%s%s", szLinkDir, "\\TrueCrypt.lnk");
+	RemoveMessage (hwndDlg, szTmp2);
+	if (StatDeleteFile (szTmp2) == FALSE)
+		goto error;
+
+	sprintf (szTmp2, "%s%s", szLinkDir, "\\TrueCrypt Website.url");
+	RemoveMessage (hwndDlg, szTmp2);
+	if (StatDeleteFile (szTmp2) == FALSE)
+		goto error;
+
+	sprintf (szTmp2, "%s%s", szLinkDir, "\\Uninstall TrueCrypt.lnk");
+	RemoveMessage (hwndDlg, szTmp2);
+	if (StatDeleteFile (szTmp2) == FALSE)
+		goto error;
+	
+	sprintf (szTmp2, "%s%s", szLinkDir, "\\TrueCrypt User's Guide.lnk");
+	DeleteFile (szTmp2);
+
+	// Start menu group
+	RemoveMessage ((HWND) hwndDlg, szLinkDir);
+	if (StatRemoveDirectory (szLinkDir) == FALSE)
+		handleWin32Error ((HWND) hwndDlg);
+
+	// Desktop icon
+	if (allUsers)
+		SHGetSpecialFolderPath (hwndDlg, szLinkDir, CSIDL_COMMON_DESKTOPDIRECTORY, 0);
+	else
+		SHGetSpecialFolderPath (hwndDlg, szLinkDir, CSIDL_DESKTOPDIRECTORY, 0);
+
+	sprintf (szTmp2, "%s%s", szLinkDir, "\\TrueCrypt.lnk");
 
 	RemoveMessage (hwndDlg, szTmp2);
 	if (StatDeleteFile (szTmp2) == FALSE)
@@ -1912,6 +2000,7 @@ void DoInstall (void *arg)
 	/* Remove TrueCrypt program files and shortcuts. */
 	if (bCipherShedMigration)
 	{
+		DoTrueCryptShortcutsUninstall (hwndDlg, UninstallationPath);
 		DoTrueCryptFilesUninstall (hwndDlg);
 	}
 

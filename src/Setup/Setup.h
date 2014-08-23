@@ -69,6 +69,7 @@ BOOL DoServiceUninstall ( HWND hwndDlg , char *lpszService );
 BOOL DoDriverUnload ( HWND hwndDlg );
 BOOL DoShortcutsInstall ( HWND hwndDlg , char *szDestDir , BOOL bProgGroup, BOOL bDesktopIcon );
 BOOL DoShortcutsUninstall (HWND hwndDlg, char *szDestDir);
+BOOL DoTrueCryptShortcutsUninstall (HWND hwndDlg, char *szDestDir);
 void OutcomePrompt ( HWND hwndDlg , BOOL bOK );
 void DoUninstall ( void *hwndDlg );
 void DoInstall ( void *hwndDlg );
