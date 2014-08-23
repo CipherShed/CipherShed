@@ -97,8 +97,8 @@ static void InitWizardDestInstallPath (void)
 			strcat (WizardDestInstallPath, "\\");
 		}
 
-		/* Change CipherShed upgrade path. */
-		if (bUpgrade)
+		/* Change CipherShed migration path. */
+		if (bCipherShedMigration)
 		{
 			size_t str_len = strlen (WizardDestInstallPath);
 			size_t suffix_len = sizeof ("\\TrueCrypt\\") - 1;
