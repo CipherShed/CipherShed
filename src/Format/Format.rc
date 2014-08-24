@@ -669,7 +669,7 @@ END
 // Bitmap
 //
 
-IDB_WIZARD              BITMAP                  "CipherShed_wizard.bmp"
+IDB_WIZARD              BITMAP                  "CipherShed_Wizard.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //
