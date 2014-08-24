@@ -1832,13 +1832,13 @@ void DoInstall (void *arg)
 	if (bUpgrade
 		&&	(
 			/* CipherShed. */
-			IsFileInUse (string (InstallationPath) + '\\' + TC_APP_NAME ".exe")
-			|| IsFileInUse (string (InstallationPath) + '\\' + TC_APP_NAME " Format.exe")
-			|| IsFileInUse (string (InstallationPath) + '\\' + TC_APP_NAME " Setup.exe")
+			IsFileInUse (string (InstallationPath) + TC_APP_NAME ".exe")
+			|| IsFileInUse (string (InstallationPath) + TC_APP_NAME " Format.exe")
+			|| IsFileInUse (string (InstallationPath) + TC_APP_NAME " Setup.exe")
 			/* TrueCrypt. */
-			|| IsFileInUse (string (UninstallationPath) + '\\' + TC_APP_NAME_LEGACY ".exe")
-			|| IsFileInUse (string (UninstallationPath) + '\\' + TC_APP_NAME_LEGACY " Format.exe")
-			|| IsFileInUse (string (UninstallationPath) + '\\' + TC_APP_NAME_LEGACY " Setup.exe")
+			|| IsFileInUse (string (UninstallationPath) + TC_APP_NAME_LEGACY ".exe")
+			|| IsFileInUse (string (UninstallationPath) + TC_APP_NAME_LEGACY " Format.exe")
+			|| IsFileInUse (string (UninstallationPath) + TC_APP_NAME_LEGACY " Setup.exe")
 			)
 		)
 	{
