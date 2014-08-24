@@ -2005,7 +2005,7 @@ void DoInstall (void *arg)
 	}
 
 	/* Remove TrueCrypt program files and shortcuts. */
-	if (bCipherShedMigration)
+	else if (bCipherShedMigration)
 	{
 		DoTrueCryptShortcutsUninstall (hwndDlg, UninstallationPath);
 		DoTrueCryptFilesUninstall (hwndDlg);
