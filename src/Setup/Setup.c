@@ -1161,7 +1161,7 @@ BOOL DoDriverUnload (HWND hwndDlg)
 		}
 		catch (...)	{ }
 
-		/* Do not unload the driver in case of full system encryption. */
+		/* Do not unload the driver in case of upgrade or system encryption update. */
 		if (!bUninstall
 			&& (bUpgrade || SystemEncryptionUpdate)
 			&& (!bDevm || SystemEncryptionUpdate))
