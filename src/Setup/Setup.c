@@ -1351,11 +1351,12 @@ BOOL DoShortcutsUninstall (HWND hwndDlg, char *szDestDir)
 
 	// Start menu group
 	RemoveMessage ((HWND) hwndDlg, szLinkDir);
-	if (StatRemoveDirectory (szLinkDir) == FALSE)
+	if (StatRemoveDirectory (szLinkDir))
+		SHChangeNotify (SHCNE_RMDIR, SHCNF_PATH, szLinkDir, NULL);
+	else
 		handleWin32Error ((HWND) hwndDlg);
 
 	// Desktop icon
-
 	if (allUsers)
 		SHGetSpecialFolderPath (hwndDlg, szLinkDir, CSIDL_COMMON_DESKTOPDIRECTORY, 0);
 	else
@@ -1366,6 +1367,8 @@ BOOL DoShortcutsUninstall (HWND hwndDlg, char *szDestDir)
 	RemoveMessage (hwndDlg, szTmp2);
 	if (StatDeleteFile (szTmp2) == FALSE)
 		goto error;
+
+	SHChangeNotify (SHCNE_DELETE, SHCNF_PATH, szTmp2, NULL);
 
 	bOK = TRUE;
 
@@ -1438,7 +1441,9 @@ BOOL DoTrueCryptShortcutsUninstall (HWND hwndDlg, char *szDestDir)
 
 	// Start menu group
 	RemoveMessage ((HWND) hwndDlg, szLinkDir);
-	if (StatRemoveDirectory (szLinkDir) == FALSE)
+	if (StatRemoveDirectory (szLinkDir))
+		SHChangeNotify (SHCNE_RMDIR, SHCNF_PATH, szLinkDir, NULL);
+	else
 		handleWin32Error ((HWND) hwndDlg);
 
 	// Desktop icon
@@ -1452,6 +1457,8 @@ BOOL DoTrueCryptShortcutsUninstall (HWND hwndDlg, char *szDestDir)
 	RemoveMessage (hwndDlg, szTmp2);
 	if (StatDeleteFile (szTmp2) == FALSE)
 		goto error;
+
+	SHChangeNotify (SHCNE_DELETE, SHCNF_PATH, szTmp2, NULL);
 
 	bOK = TRUE;
 
