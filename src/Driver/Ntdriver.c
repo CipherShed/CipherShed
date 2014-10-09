@@ -3289,6 +3289,8 @@ BOOL IsOSAtLeast (OSVersionEnum reqMinOS)
 	case WIN_SERVER_2003:	major = 5; minor = 2; break;
 	case WIN_VISTA:			major = 6; minor = 0; break;
 	case WIN_7:				major = 6; minor = 1; break;
+	case WIN_8:				major = 6; minor = 2; break;
+	case WIN_10:			major = 6; minor = 4; break;
 
 	default:
 		TC_THROW_FATAL_EXCEPTION;
