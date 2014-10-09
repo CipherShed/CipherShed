@@ -2421,6 +2421,36 @@ void InitApp (HINSTANCE hInstance, char *lpszCommandLine)
 				break;
 			}
 		}
+
+#ifndef SETUP
+		/* Hiberboot warning. */
+		if (IsOSAtLeast (WIN_8))
+		{
+			HKEY hkey;
+			DWORD size;
+
+			DWORD HibernateEnabled = 0, HiberbootEnabled = 0;
+
+			size = sizeof (HibernateEnabled);
+			if (RegOpenKeyEx (HKEY_LOCAL_MACHINE, "SYSTEM\\CurrentControlSet\\Control\\Power", 0, KEY_READ, &hkey) == ERROR_SUCCESS)
+			{
+				RegQueryValueEx (hkey, "HibernateEnabled", 0, 0, (LPBYTE) &HibernateEnabled, &size);
+				RegCloseKey (hkey);
+			}
+
+			size = sizeof (HiberbootEnabled);
+			if (RegOpenKeyEx (HKEY_LOCAL_MACHINE, "SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Power", 0, KEY_READ, &hkey) == ERROR_SUCCESS)
+			{
+				RegQueryValueEx (hkey, "HiberbootEnabled", 0, 0, (LPBYTE) &HiberbootEnabled, &size);
+				RegCloseKey (hkey);
+			}
+
+			if (HibernateEnabled && HiberbootEnabled)
+			{
+				Warning ("HIBERBOOT_WARNING");
+			}
+		}
+#endif
 	}
 
 	/* Get the attributes for the standard dialog class */
