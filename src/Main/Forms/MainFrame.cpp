@@ -37,6 +37,7 @@
 namespace TrueCrypt
 {
 	MainFrame::MainFrame (wxWindow* parent) : MainFrameBase (parent),
+		indicator (NULL),
 		ListItemRightClickEventPending (false),
 		SelectedItemIndex (-1),
 		SelectedSlotNumber (0),
@@ -1411,6 +1412,22 @@ namespace TrueCrypt
 		}
 	}
 
+	static void IndicatorOnShowHideMenuItemSelected (GtkWidget *widget, MainFrame *self) { Gui->SetBackgroundMode (!Gui->IsInBackgroundMode()); }
+	static void IndicatorOnMountAllFavoritesMenuItemSelected (GtkWidget *widget, MainFrame *self) { /*Busy = true;*/ self->MountAllFavorites (); /*Busy = false;*/ }
+	static void IndicatorOnDismountAllMenuItemSelected (GtkWidget *widget, MainFrame *self) { /*Busy = true;*/ Gui->DismountAllVolumes(); /*Busy = false;*/ }
+	static void IndicatorOnPreferencesMenuItemSelected (GtkWidget *widget, MainFrame *self) {
+		/*Busy = true;*/
+		PreferencesDialog dialog (self);
+		dialog.ShowModal();
+		/*Busy = false;*/
+	}
+	static void IndicatorOnExitMenuItemSelected (GtkWidget *widget, MainFrame *self) {
+		/*Busy = true;*/
+		if (Core->GetMountedVolumes().empty() || Gui->AskYesNo (LangString ["CONFIRM_EXIT"], false, true))
+			self->Close (true);
+		/*Busy = false;*/
+	}
+
 	void MainFrame::ShowTaskBarIcon (bool show)
 	{
 		if (!show && mTaskBarIcon->IsIconInstalled())
@@ -1420,8 +1437,44 @@ namespace TrueCrypt
 		else if (show && !mTaskBarIcon->IsIconInstalled())
 		{
 #ifndef TC_MACOSX
-			mTaskBarIcon->SetIcon (Resources::GetTrueCryptIcon(), L"TrueCrypt");
+			//mTaskBarIcon->SetIcon (Resources::GetTrueCryptIcon(), L"TrueCrypt");
 #endif
+			if (indicator == NULL) {
+				indicator = app_indicator_new ("truecrypt", "truecrypt-indicator", APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
+				app_indicator_set_status (indicator, APP_INDICATOR_STATUS_ACTIVE);
+
+				GtkWidget *menu = gtk_menu_new();
+				GtkWidget *item;
+
+				indicator_item_showhide = gtk_menu_item_new_with_label (LangString[Gui->IsInBackgroundMode() ? "SHOW_TC" : "HIDE_TC"].mb_str());
+				gtk_menu_shell_append (GTK_MENU_SHELL (menu), indicator_item_showhide);
+				g_signal_connect (indicator_item_showhide, "activate", G_CALLBACK (IndicatorOnShowHideMenuItemSelected), this);
+
+				gtk_menu_shell_append (GTK_MENU_SHELL (menu), gtk_separator_menu_item_new());
+
+				item = gtk_menu_item_new_with_label ("Mount All Favorite Volumes");
+				gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
+				g_signal_connect (item, "activate", G_CALLBACK (IndicatorOnMountAllFavoritesMenuItemSelected), this);
+
+				item = gtk_menu_item_new_with_label ("Dismount All Mounted Volumes");
+				gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
+				g_signal_connect (item, "activate", G_CALLBACK (IndicatorOnDismountAllMenuItemSelected), this);
+
+				gtk_menu_shell_append (GTK_MENU_SHELL (menu), gtk_separator_menu_item_new());
+
+				item = gtk_menu_item_new_with_label ("Preferences...");
+				gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
+				g_signal_connect (item, "activate", G_CALLBACK (IndicatorOnPreferencesMenuItemSelected), this);
+
+				gtk_menu_shell_append (GTK_MENU_SHELL (menu), gtk_separator_menu_item_new());
+
+				item = gtk_menu_item_new_with_label ("Exit");
+				gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
+				g_signal_connect (item, "activate", G_CALLBACK (IndicatorOnExitMenuItemSelected), this);
+
+				gtk_widget_show_all (menu);
+				app_indicator_set_menu (indicator, GTK_MENU (menu));
+			}
 		}
 	}
 

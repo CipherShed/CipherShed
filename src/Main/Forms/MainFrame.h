@@ -9,6 +9,10 @@
 #ifndef TC_HEADER_Main_Forms_MainFrame
 #define TC_HEADER_Main_Forms_MainFrame
 
+#define GSocket GlibGSocket
+#include <libappindicator/app-indicator.h>
+#undef GSocket
+ 
 #include "Forms.h"
 #include "ChangePasswordDialog.h"
 
@@ -26,6 +30,11 @@ namespace TrueCrypt
 #ifdef TC_UNIX
 		static FilePath GetShowRequestFifoPath () { return Application::GetConfigFilePath (L".show-request-queue", true); }
 #endif
+
+		void MountAllFavorites ();
+
+		AppIndicator *indicator;
+		GtkWidget *indicator_item_showhide;
 
 	protected:
 		enum
@@ -60,7 +69,6 @@ namespace TrueCrypt
 		void LoadFavoriteVolumes ();
 		void LoadPreferences ();
 		void MountAllDevices ();
-		void MountAllFavorites ();
 		void MountVolume ();
 		void OnAboutMenuItemSelected (wxCommandEvent& event);
 		void OnActivate (wxActivateEvent& event);
