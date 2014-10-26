@@ -35,6 +35,11 @@ namespace TrueCrypt
 
 		AppIndicator *indicator;
 		GtkWidget *indicator_item_showhide;
+		GtkWidget *indicator_item_mountfavorites;
+		GtkWidget *indicator_item_dismountall;
+		GtkWidget *indicator_item_prefs;
+		GtkWidget *indicator_item_exit;
+		void SetBusy (bool busy);
 
 	protected:
 		enum

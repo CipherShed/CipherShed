@@ -50,7 +50,7 @@ export WXCONFIG_CFLAGS :=
 export WXCONFIG_CXXFLAGS :=
 WX_ROOT ?= ..
 
-#export PKCS11_INC := $(BASE_DIR)/PKCS11
+#export PKCS11_INC := $(BASE_DIR)/pkcs11
 
 C_CXX_FLAGS += $(shell pkg-config --cflags appindicator-0.1)
 

@@ -1412,20 +1412,28 @@ namespace TrueCrypt
 		}
 	}
 
+	void MainFrame::SetBusy (bool busy)
+	{
+		gtk_widget_set_sensitive(indicator_item_mountfavorites, !busy);
+		gtk_widget_set_sensitive(indicator_item_dismountall, !busy);
+		gtk_widget_set_sensitive(indicator_item_prefs, !busy);
+		gtk_widget_set_sensitive(indicator_item_exit, !busy /*&& CanExit()*/);
+	}
+
 	static void IndicatorOnShowHideMenuItemSelected (GtkWidget *widget, MainFrame *self) { Gui->SetBackgroundMode (!Gui->IsInBackgroundMode()); }
-	static void IndicatorOnMountAllFavoritesMenuItemSelected (GtkWidget *widget, MainFrame *self) { /*Busy = true;*/ self->MountAllFavorites (); /*Busy = false;*/ }
-	static void IndicatorOnDismountAllMenuItemSelected (GtkWidget *widget, MainFrame *self) { /*Busy = true;*/ Gui->DismountAllVolumes(); /*Busy = false;*/ }
+	static void IndicatorOnMountAllFavoritesMenuItemSelected (GtkWidget *widget, MainFrame *self) { self->SetBusy(true); self->MountAllFavorites (); self->SetBusy(false); }
+	static void IndicatorOnDismountAllMenuItemSelected (GtkWidget *widget, MainFrame *self) { self->SetBusy(true); Gui->DismountAllVolumes(); self->SetBusy(false); }
 	static void IndicatorOnPreferencesMenuItemSelected (GtkWidget *widget, MainFrame *self) {
-		/*Busy = true;*/
+		self->SetBusy(true);
 		PreferencesDialog dialog (self);
 		dialog.ShowModal();
-		/*Busy = false;*/
+		self->SetBusy(false);
 	}
 	static void IndicatorOnExitMenuItemSelected (GtkWidget *widget, MainFrame *self) {
-		/*Busy = true;*/
+		self->SetBusy(true);
 		if (Core->GetMountedVolumes().empty() || Gui->AskYesNo (LangString ["CONFIRM_EXIT"], false, true))
 			self->Close (true);
-		/*Busy = false;*/
+		self->SetBusy(false);
 	}
 
 	void MainFrame::ShowTaskBarIcon (bool show)
@@ -1444,7 +1452,6 @@ namespace TrueCrypt
 				app_indicator_set_status (indicator, APP_INDICATOR_STATUS_ACTIVE);
 
 				GtkWidget *menu = gtk_menu_new();
-				GtkWidget *item;
 
 				indicator_item_showhide = gtk_menu_item_new_with_label (LangString[Gui->IsInBackgroundMode() ? "SHOW_TC" : "HIDE_TC"].mb_str());
 				gtk_menu_shell_append (GTK_MENU_SHELL (menu), indicator_item_showhide);
@@ -1452,25 +1459,25 @@ namespace TrueCrypt
 
 				gtk_menu_shell_append (GTK_MENU_SHELL (menu), gtk_separator_menu_item_new());
 
-				item = gtk_menu_item_new_with_label ("Mount All Favorite Volumes");
-				gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
-				g_signal_connect (item, "activate", G_CALLBACK (IndicatorOnMountAllFavoritesMenuItemSelected), this);
+				indicator_item_mountfavorites = gtk_menu_item_new_with_label ("Mount All Favorite Volumes");
+				gtk_menu_shell_append (GTK_MENU_SHELL (menu), indicator_item_mountfavorites);
+				g_signal_connect (indicator_item_mountfavorites, "activate", G_CALLBACK (IndicatorOnMountAllFavoritesMenuItemSelected), this);
 
-				item = gtk_menu_item_new_with_label ("Dismount All Mounted Volumes");
-				gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
-				g_signal_connect (item, "activate", G_CALLBACK (IndicatorOnDismountAllMenuItemSelected), this);
-
-				gtk_menu_shell_append (GTK_MENU_SHELL (menu), gtk_separator_menu_item_new());
-
-				item = gtk_menu_item_new_with_label ("Preferences...");
-				gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
-				g_signal_connect (item, "activate", G_CALLBACK (IndicatorOnPreferencesMenuItemSelected), this);
+				indicator_item_dismountall = gtk_menu_item_new_with_label ("Dismount All Mounted Volumes");
+				gtk_menu_shell_append (GTK_MENU_SHELL (menu), indicator_item_dismountall);
+				g_signal_connect (indicator_item_dismountall, "activate", G_CALLBACK (IndicatorOnDismountAllMenuItemSelected), this);
 
 				gtk_menu_shell_append (GTK_MENU_SHELL (menu), gtk_separator_menu_item_new());
 
-				item = gtk_menu_item_new_with_label ("Exit");
-				gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
-				g_signal_connect (item, "activate", G_CALLBACK (IndicatorOnExitMenuItemSelected), this);
+				indicator_item_prefs = gtk_menu_item_new_with_label ("Preferences...");
+				gtk_menu_shell_append (GTK_MENU_SHELL (menu), indicator_item_prefs);
+				g_signal_connect (indicator_item_prefs, "activate", G_CALLBACK (IndicatorOnPreferencesMenuItemSelected), this);
+
+				gtk_menu_shell_append (GTK_MENU_SHELL (menu), gtk_separator_menu_item_new());
+
+				indicator_item_exit = gtk_menu_item_new_with_label ("Exit");
+				gtk_menu_shell_append (GTK_MENU_SHELL (menu), indicator_item_exit);
+				g_signal_connect (indicator_item_exit, "activate", G_CALLBACK (IndicatorOnExitMenuItemSelected), this);
 
 				gtk_widget_show_all (menu);
 				app_indicator_set_menu (indicator, GTK_MENU (menu));
