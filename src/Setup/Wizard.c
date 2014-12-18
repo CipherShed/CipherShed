@@ -91,7 +91,7 @@ static void InitWizardDestInstallPath (void)
 {
 	if (strlen (WizardDestInstallPath) < 2)
 	{
-		strcpy (WizardDestInstallPath, InstallationPath);
+		strcpy_s (WizardDestInstallPath, sizeof(WizardDestInstallPath), InstallationPath);
 		if (WizardDestInstallPath [strlen (WizardDestInstallPath) - 1] != '\\')
 		{
 			strcat (WizardDestInstallPath, "\\");
@@ -106,7 +106,7 @@ static void InitWizardDestInstallPath (void)
 				str_len + 1 < sizeof(WizardDestInstallPath) &&
 				strncmp (WizardDestInstallPath + str_len - suffix_len, "\\TrueCrypt\\", suffix_len) == 0)
 			{
-				strcpy (WizardDestInstallPath + str_len - suffix_len, "\\CipherShed\\");
+				strcpy_s (WizardDestInstallPath + str_len - suffix_len, sizeof(WizardDestInstallPath)-(str_len - suffix_len), "\\CipherShed\\");
 			}
 		}
 	}
@@ -320,7 +320,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 			if (strlen(WizardDestExtractPath) < 2)
 			{ 
-				strcpy (WizardDestExtractPath, SetupFilesDir);
+				strcpy_s (WizardDestExtractPath, sizeof(WizardDestExtractPath), SetupFilesDir);
 				strncat (WizardDestExtractPath, "CipherShed\\", sizeof (WizardDestExtractPath) - strlen (WizardDestExtractPath) - 1);
 			}
 
@@ -366,7 +366,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				if (WizardDestExtractPath [strlen(WizardDestExtractPath)-1] != '\\')
 					strcat (WizardDestExtractPath, "\\");
 
-				strcpy (DestExtractPath, WizardDestExtractPath);
+				strcpy_s (DestExtractPath, sizeof(DestExtractPath), WizardDestExtractPath);
 
 				InitProgressBar ();
 
@@ -479,7 +479,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				if (WizardDestInstallPath [strlen(WizardDestInstallPath)-1] != '\\')
 					strcat (WizardDestInstallPath, "\\");
 
-				strcpy (InstallationPath, WizardDestInstallPath);
+				strcpy_s (InstallationPath, sizeof(InstallationPath), WizardDestInstallPath);
 
 				WaitCursor ();
 
