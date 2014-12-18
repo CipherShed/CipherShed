@@ -3047,13 +3047,13 @@ BOOL IsVolumeClassFilterRegistered ()
 
 	if (NT_SUCCESS (status))
 	{
-		if (data->Type == REG_MULTI_SZ && data->DataLength >= 9 * sizeof (wchar_t))
+		if (data->Type == REG_MULTI_SZ && data->DataLength >= 10 * sizeof (wchar_t))
 		{
 			// Search for the string "ciphershed"
 			ULONG i;
-			for (i = 0; i <= data->DataLength - 9 * sizeof (wchar_t); ++i)
+			for (i = 0; i <= data->DataLength - 10 * sizeof (wchar_t); ++i)
 			{
-				if (memcmp (data->Data + i, L"ciphershed", 9 * sizeof (wchar_t)) == 0)
+				if (memcmp (data->Data + i, L"ciphershed", 10 * sizeof (wchar_t)) == 0)
 				{
 					Dump ("Volume class filter active\n");
 					registered = TRUE;
