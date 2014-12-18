@@ -31,7 +31,7 @@
 #	define CK_DECLARE_FUNCTION_POINTER(RET_TYPE, NAME) RET_TYPE __declspec(dllimport) (* NAME)
 
 #	pragma pack(push, cryptoki, 1)
-#	include <pkcs11.h>
+#	include "Pkcs11/pkcs11.h"
 #	pragma pack(pop, cryptoki)
 
 #else // !TC_WINDOWS
@@ -40,7 +40,7 @@
 #	define CK_DECLARE_FUNCTION(RET_TYPE, NAME) RET_TYPE NAME
 #	define CK_DECLARE_FUNCTION_POINTER(RET_TYPE, NAME) RET_TYPE (* NAME)
 
-#	include <pkcs11.h>
+#	include "Pkcs11/pkcs11.h"
 
 #endif // !TC_WINDOWS
 

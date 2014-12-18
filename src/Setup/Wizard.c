@@ -96,6 +96,19 @@ static void InitWizardDestInstallPath (void)
 		{
 			strcat (WizardDestInstallPath, "\\");
 		}
+
+		/* Change CipherShed migration path. */
+		if (bCipherShedMigration)
+		{
+			size_t str_len = strlen (WizardDestInstallPath);
+			size_t suffix_len = sizeof ("\\TrueCrypt\\") - 1;
+			if (str_len > suffix_len &&
+				str_len + 1 < sizeof(WizardDestInstallPath) &&
+				strncmp (WizardDestInstallPath + str_len - suffix_len, "\\TrueCrypt\\", suffix_len) == 0)
+			{
+				strcpy (WizardDestInstallPath + str_len - suffix_len, "\\CipherShed\\");
+			}
+		}
 	}
 }
 
@@ -382,7 +395,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 				if (!bDesktopIconStatusDetermined)
 				{
-					bDesktopIcon = !bUpgrade;
+					bDesktopIcon = !bUpgrade || bCipherShedMigration;
 					bDesktopIconStatusDetermined = TRUE;
 				}
 
@@ -403,9 +416,19 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 					EnableWindow (GetDlgItem (hwndDlg, IDC_BROWSE), FALSE);
 					EnableWindow (GetDlgItem (hwndDlg, IDC_ALL_USERS), FALSE);
 
+					/* Determine bForAllUsers state. */
 					char path[MAX_PATH];
 					SHGetSpecialFolderPath (hwndDlg, path, CSIDL_COMMON_PROGRAMS, 0);
-					bForAllUsers = (_access ((string (path) + "\\" TC_APP_NAME).c_str(), 0) == 0);
+					bForAllUsers = (_access ((string (path) + "\\" TC_APP_NAME).c_str(), 0) == 0 || _access ((string (path) + "\\" TC_APP_NAME_LEGACY).c_str(), 0) == 0);
+
+					/* Determine bRegisterFileExt state. */
+					HKEY hKey = 0;
+					if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, "Software\\Classes\\TrueCryptVolume", 0, KEY_READ, &hKey) == ERROR_SUCCESS)
+					{
+						RegCloseKey(hKey);
+						EnableWindow (GetDlgItem (hwndDlg, IDC_FILE_TYPE), FALSE);
+						bRegisterFileExt = TRUE;
+					}
 				}
 
 				// System Restore
@@ -932,6 +955,13 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 					bExtractOnly = TRUE;
 					nCurPageNo = EXTRACTION_OPTIONS_PAGE - 1;
+				}
+
+				/* CipherShed migration note. */
+				else if (bCipherShedMigration
+					&& AskWarnYesNo("CIPHERSHED_MIGRATION_NOTE") == IDNO)
+				{
+					return 1;
 				}
 			}
 

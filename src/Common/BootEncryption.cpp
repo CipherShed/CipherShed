@@ -521,7 +521,7 @@ namespace CipherShed
 	DWORD BootEncryption::GetDriverServiceStartType ()
 	{
 		DWORD startType;
-		throw_sys_if (!ReadLocalMachineRegistryDword ("SYSTEM\\CurrentControlSet\\Services\\ciphershed", "Start", &startType));
+		throw_sys_if (!ReadLocalMachineRegistryDword ("SYSTEM\\CurrentControlSet\\Services\\truecrypt", "Start", &startType));
 		return startType;
 	}
 
@@ -550,7 +550,7 @@ namespace CipherShed
 
 		finally_do_arg (SC_HANDLE, serviceManager, { CloseServiceHandle (finally_arg); });
 
-		SC_HANDLE service = OpenService (serviceManager, "ciphershed", SERVICE_CHANGE_CONFIG);
+		SC_HANDLE service = OpenService (serviceManager, "truecrypt", SERVICE_CHANGE_CONFIG);
 		throw_sys_if (!service);
 
 		finally_do_arg (SC_HANDLE, service, { CloseServiceHandle (finally_arg); });
@@ -564,7 +564,7 @@ namespace CipherShed
 			char filesystem[128];
 
 			string path (GetWindowsDirectory());
-			path += "\\drivers\\ciphershed.sys";
+			path += "\\drivers\\truecrypt.sys";
 
 			if (GetVolumePathName (path.c_str(), pathBuf, sizeof (pathBuf))
 				&& GetVolumeInformation (pathBuf, NULL, 0, NULL, NULL, NULL, filesystem, sizeof(filesystem))
@@ -585,7 +585,7 @@ namespace CipherShed
 			NULL, NULL, NULL, NULL, NULL));
 
 		// ChangeServiceConfig() rejects SERVICE_BOOT_START with ERROR_INVALID_PARAMETER
-		throw_sys_if (!WriteLocalMachineRegistryDword ("SYSTEM\\CurrentControlSet\\Services\\ciphershed", "Start", startType));
+		throw_sys_if (!WriteLocalMachineRegistryDword ("SYSTEM\\CurrentControlSet\\Services\\truecrypt", "Start", startType));
 	}
 
 
@@ -1155,7 +1155,7 @@ namespace CipherShed
 		device.SeekAt (0);
 		device.Read (mbr, sizeof (mbr));
 
-		if (!BufferContainsString (mbr, sizeof (mbr), TC_APP_NAME)
+		if (!BufferContainsString (mbr, sizeof (mbr), TC_APP_NAME_LEGACY)
 			|| BE16 (*(uint16 *) (mbr + TC_BOOT_SECTOR_VERSION_OFFSET)) != VERSION_NUM)
 		{
 			return;
@@ -1327,7 +1327,7 @@ namespace CipherShed
 		device.SeekAt (0);
 		device.Read (mbr, sizeof (mbr));
 
-		if (preserveUserConfig && BufferContainsString (mbr, sizeof (mbr), TC_APP_NAME))
+		if (preserveUserConfig && BufferContainsString (mbr, sizeof (mbr), TC_APP_NAME_LEGACY))
 		{
 			uint16 version = BE16 (*(uint16 *) (mbr + TC_BOOT_SECTOR_VERSION_OFFSET));
 			if (version != 0)
@@ -1361,7 +1361,7 @@ namespace CipherShed
 
 		throw_sys_if (!SUCCEEDED (SHGetFolderPath (NULL, CSIDL_COMMON_APPDATA | CSIDL_FLAG_CREATE, NULL, 0, pathBuf)));
 		
-		string path = string (pathBuf) + "\\" TC_APP_NAME;
+		string path = string (pathBuf) + "\\" TC_APP_NAME_LEGACY;
 		CreateDirectory (path.c_str(), NULL);
 
 		return path + '\\' + TC_SYS_BOOT_LOADER_BACKUP_NAME;
@@ -1374,7 +1374,7 @@ namespace CipherShed
 
 		if (SUCCEEDED (SHGetFolderPath (NULL, CSIDL_COMMON_APPDATA, NULL, 0, pathBuf)))
 		{
-			string path = string (pathBuf) + "\\" TC_APP_NAME + '\\' + TC_SYS_BOOT_LOADER_BACKUP_NAME_LEGACY;
+			string path = string (pathBuf) + "\\" TC_APP_NAME_LEGACY + '\\' + TC_SYS_BOOT_LOADER_BACKUP_NAME_LEGACY;
 
 			if (FileExists (path.c_str()) && !FileExists (GetSystemLoaderBackupPath().c_str()))
 				throw_sys_if (rename (path.c_str(), GetSystemLoaderBackupPath().c_str()) != 0);
@@ -1572,6 +1572,7 @@ namespace CipherShed
 
 		DecryptBuffer (RescueVolumeHeader + HEADER_ENCRYPTED_DATA_OFFSET, HEADER_ENCRYPTED_DATA_SIZE, cryptoInfo);
 
+		/* Modifying 'TRUE' can introduce incompatibility with previous versions. */
 		if (GetHeaderField32 (RescueVolumeHeader, TC_HEADER_OFFSET_MAGIC) != 0x54525545)
 			throw ParameterIncorrect (SRC_POS);
 
@@ -1634,9 +1635,9 @@ namespace CipherShed
 		device.Read (bootLoaderBuf, sizeof (bootLoaderBuf));
 
 		// Prevent CipherShed loader from being backed up
-		for (size_t i = 0; i < sizeof (bootLoaderBuf) - strlen (TC_APP_NAME); ++i)
+		for (size_t i = 0; i < sizeof (bootLoaderBuf) - strlen (TC_APP_NAME_LEGACY); ++i)
 		{
-			if (memcmp (bootLoaderBuf + i, TC_APP_NAME, strlen (TC_APP_NAME)) == 0)
+			if (memcmp (bootLoaderBuf + i, TC_APP_NAME_LEGACY, strlen (TC_APP_NAME_LEGACY)) == 0)
 			{
 				if (AskWarnNoYes ("TC_BOOT_LOADER_ALREADY_INSTALLED") == IDNO)
 					throw UserAbort (SRC_POS);
@@ -1682,7 +1683,7 @@ namespace CipherShed
 		{
 		case DriveFilter:
 		case VolumeFilter:
-			filter = "ciphershed";
+			filter = "truecrypt";
 			filterReg = "UpperFilters";
 			regKey = SetupDiOpenClassRegKey (deviceClassGuid, KEY_READ | KEY_WRITE);
 			throw_sys_if (regKey == INVALID_HANDLE_VALUE);
@@ -1693,7 +1694,7 @@ namespace CipherShed
 			if (!IsOSAtLeast (WIN_VISTA))
 				return;
 
-			filter = "ciphershed.sys";
+			filter = "truecrypt.sys";
 			filterReg = "DumpFilters";
 			SetLastError (RegOpenKeyEx (HKEY_LOCAL_MACHINE, "SYSTEM\\CurrentControlSet\\Control\\CrashControl", 0, KEY_READ | KEY_WRITE, &regKey));
 			throw_sys_if (GetLastError() != ERROR_SUCCESS);
@@ -1725,14 +1726,14 @@ namespace CipherShed
 		}
 		else
 		{
-			string infFileName = GetTempPath() + "\\ciphershed_driver_setup.inf";
+			string infFileName = GetTempPath() + "\\truecrypt_driver_setup.inf";
 
 			File infFile (infFileName, false, true);
 			finally_do_arg (string, infFileName, { DeleteFile (finally_arg.c_str()); });
 
-			string infTxt = "[ciphershed]\r\n"
-							+ string (registerFilter ? "Add" : "Del") + "Reg=ciphershed_reg\r\n\r\n"
-							"[ciphershed_reg]\r\n"
+			string infTxt = "[truecrypt]\r\n"
+							+ string (registerFilter ? "Add" : "Del") + "Reg=truecrypt_reg\r\n\r\n"
+							"[truecrypt_reg]\r\n"
 							"HKR,,\"" + filterReg + "\",0x0001" + string (registerFilter ? "0008" : "8002") + ",\"" + filter + "\"\r\n";
 
 			infFile.Write ((byte *) infTxt.c_str(), infTxt.size());
@@ -1742,7 +1743,7 @@ namespace CipherShed
 			throw_sys_if (hInf == INVALID_HANDLE_VALUE);
 			finally_do_arg (HINF, hInf, { SetupCloseInfFile (finally_arg); });
 
-			throw_sys_if (!SetupInstallFromInfSection (ParentWindow, hInf, "ciphershed", SPINST_REGISTRY, regKey, NULL, 0, NULL, NULL, NULL, NULL));
+			throw_sys_if (!SetupInstallFromInfSection (ParentWindow, hInf, "truecrypt", SPINST_REGISTRY, regKey, NULL, 0, NULL, NULL, NULL, NULL));
 		}
 	}
 
@@ -1804,7 +1805,7 @@ namespace CipherShed
 
 			SC_HANDLE service = CreateService (scm,
 				TC_SYSTEM_FAVORITES_SERVICE_NAME,
-				TC_APP_NAME " System Favorites",
+				TC_APP_NAME_LEGACY " System Favorites",
 				SERVICE_ALL_ACCESS,
 				SERVICE_WIN32_OWN_PROCESS,
 				SERVICE_AUTO_START,
@@ -2337,7 +2338,7 @@ namespace CipherShed
 		else
 			configMap &= ~flag;
 
-		WriteLocalMachineRegistryDwordValue ("SYSTEM\\CurrentControlSet\\Services\\ciphershed", TC_DRIVER_CONFIG_REG_VALUE_NAME, configMap);
+		WriteLocalMachineRegistryDwordValue ("SYSTEM\\CurrentControlSet\\Services\\truecrypt", TC_DRIVER_CONFIG_REG_VALUE_NAME, configMap);
 	}
 
 	void BootEncryption::StartDecryption (BOOL discardUnreadableEncryptedSectors)
@@ -2403,7 +2404,7 @@ namespace CipherShed
 	{
 		DWORD configMap;
 
-		if (!ReadLocalMachineRegistryDword ("SYSTEM\\CurrentControlSet\\Services\\ciphershed", TC_DRIVER_CONFIG_REG_VALUE_NAME, &configMap))
+		if (!ReadLocalMachineRegistryDword ("SYSTEM\\CurrentControlSet\\Services\\truecrypt", TC_DRIVER_CONFIG_REG_VALUE_NAME, &configMap))
 			configMap = 0;
 
 		return configMap;

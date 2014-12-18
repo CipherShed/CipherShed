@@ -3145,8 +3145,8 @@ BOOL CALLBACK TravelerDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lPa
 			}
 
 			// Driver
-			sprintf (srcPath, "%s\\ciphershed.sys", appDir);
-			sprintf (dstPath, "%s\\CipherShed\\ciphershed.sys", dstDir);
+			sprintf (srcPath, "%s\\truecrypt.sys", appDir);
+			sprintf (dstPath, "%s\\CipherShed\\truecrypt.sys", dstDir);
 			if (!TCCopyFile (srcPath, dstPath))
 			{
 				handleWin32Error (hwndDlg);
@@ -3154,8 +3154,8 @@ BOOL CALLBACK TravelerDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lPa
 			}
 
 			// Driver x64
-			sprintf (srcPath, "%s\\ciphershed-x64.sys", appDir);
-			sprintf (dstPath, "%s\\CipherShed\\ciphershed-x64.sys", dstDir);
+			sprintf (srcPath, "%s\\truecrypt-x64.sys", appDir);
+			sprintf (dstPath, "%s\\CipherShed\\truecrypt-x64.sys", dstDir);
 			if (!TCCopyFile (srcPath, dstPath))
 			{
 				handleWin32Error (hwndDlg);
@@ -8197,7 +8197,7 @@ static BOOL CALLBACK PerformanceSettingsDlgProc (HWND hwndDlg, UINT msg, WPARAM 
 
 					if (ReadEncryptionThreadPoolFreeCpuCountLimit() != cpuFreeCount)
 					{
-						BootEncObj->WriteLocalMachineRegistryDwordValue ("SYSTEM\\CurrentControlSet\\Services\\ciphershed", TC_ENCRYPTION_FREE_CPU_COUNT_REG_VALUE_NAME, cpuFreeCount);
+						BootEncObj->WriteLocalMachineRegistryDwordValue ("SYSTEM\\CurrentControlSet\\Services\\truecrypt", TC_ENCRYPTION_FREE_CPU_COUNT_REG_VALUE_NAME, cpuFreeCount);
 						Warning ("SETTING_REQUIRES_REBOOT");
 					}
 
@@ -8783,7 +8783,7 @@ void AnalyzeKernelMiniDump (HWND hwndDlg)
 
 	NormalCursor();
 
-	bool otherDriver = (StringToUpperCase (output).find (StringToUpperCase (TC_APP_NAME)) == string::npos);
+	bool otherDriver = (StringToUpperCase (output).find (StringToUpperCase (TC_APP_NAME_LEGACY)) == string::npos);
 
 	size_t p, p2;
 	while ((p = output.find ('`')) != string::npos)
@@ -8888,7 +8888,7 @@ void AnalyzeKernelMiniDump (HWND hwndDlg)
 
 	wstring msg;
 
-	if (!imageName.empty() && StringToUpperCase (imageName) != StringToUpperCase (TC_APP_NAME) + ".SYS")
+	if (!imageName.empty() && StringToUpperCase (imageName) != StringToUpperCase (TC_APP_NAME_LEGACY) + ".SYS")
 	{
 		msg += wstring (GetString ("SYSTEM_CRASH_UPDATE_DRIVER")) + L"\n\n" + SingleStringToWide (imageName);
 

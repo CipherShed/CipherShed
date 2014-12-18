@@ -375,6 +375,7 @@ static void localcleanup (void)
 
 static BOOL CALLBACK BroadcastSysEncCfgUpdateCallb (HWND hwnd, LPARAM lParam)
 {
+	/* Modifying 'TRUE' can introduce incompatibility with previous versions. */
 	if (GetWindowLongPtr (hwnd, GWLP_USERDATA) == (LONG_PTR) 'TRUE')
 	{
 		char name[1024] = { 0 };

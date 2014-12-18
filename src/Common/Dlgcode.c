@@ -139,8 +139,8 @@ volatile HANDLE hNonSysInplaceEncMutex = NULL;
 register the driver or from trying to launch it in portable mode at the same time. */
 volatile HANDLE hDriverSetupMutex = NULL;
 
-/* This mutex is used to prevent users from running the main CipherShed app or the wizard while an instance
-of the CipherShed installer is running (which is also useful for enforcing restart before the apps can be used). */
+/* This mutex is used to prevent users from running the main CipherShed and TrueCrypt app or the wizard while an instance
+of the CipherShed or TrueCrypt installer is running (which is also useful for enforcing restart before the apps can be used). */
 volatile HANDLE hAppSetupMutex = NULL;
 
 HINSTANCE hInst = NULL;
@@ -375,7 +375,7 @@ void CreateFullVolumePath (char *lpszDiskFile, const char *lpszFileName, BOOL * 
 int FakeDosNameForDevice (const char *lpszDiskFile, char *lpszDosDevice, char *lpszCFDevice, BOOL bNameOnly)
 {
 	BOOL bDosLinkCreated = TRUE;
-	sprintf (lpszDosDevice, "ciphershed%lu", GetCurrentProcessId ());
+	sprintf (lpszDosDevice, "truecrypt%lu", GetCurrentProcessId ());
 
 	if (bNameOnly == FALSE)
 		bDosLinkCreated = DefineDosDevice (DDD_RAW_TARGET_PATH, lpszDosDevice, lpszDiskFile);
@@ -915,13 +915,14 @@ BOOL CALLBACK AboutDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam
 			"Paulo Barreto, Brian Gladman, Wei Dai, Peter Gutmann, and many others.\r\n\r\n"
 
 			"Portions of this software:\r\n"
+			"Copyright \xA9 2014 The CipherShed Project. All Rights Reserved.\r\n"
 			"Copyright \xA9 2003-2012 TrueCrypt Developers Association. All Rights Reserved.\r\n"
 			"Copyright \xA9 1998-2000 Paul Le Roux. All Rights Reserved.\r\n"
 			"Copyright \xA9 1998-2008 Brian Gladman. All Rights Reserved.\r\n"
 			"Copyright \xA9 2002-2004 Mark Adler. All Rights Reserved.\r\n\r\n"
 
 			"This software as a whole:\r\n"
-			"Copyright \xA9 2012 TrueCrypt Developers Association. All rights reserved.");
+			"Copyright \xA9 2014 The CipherShed Project. All Rights Reserved.\r\n");
 
 		return 1;
 
@@ -2037,7 +2038,7 @@ uint32 ReadDriverConfigurationFlags ()
 {
 	DWORD configMap;
 
-	if (!ReadLocalMachineRegistryDword ("SYSTEM\\CurrentControlSet\\Services\\ciphershed", TC_DRIVER_CONFIG_REG_VALUE_NAME, &configMap))
+	if (!ReadLocalMachineRegistryDword ("SYSTEM\\CurrentControlSet\\Services\\truecrypt", TC_DRIVER_CONFIG_REG_VALUE_NAME, &configMap))
 		configMap = 0;
 
 	return configMap;
@@ -2048,7 +2049,7 @@ uint32 ReadEncryptionThreadPoolFreeCpuCountLimit ()
 {
 	DWORD count;
 
-	if (!ReadLocalMachineRegistryDword ("SYSTEM\\CurrentControlSet\\Services\\ciphershed", TC_ENCRYPTION_FREE_CPU_COUNT_REG_VALUE_NAME, &count))
+	if (!ReadLocalMachineRegistryDword ("SYSTEM\\CurrentControlSet\\Services\\truecrypt", TC_ENCRYPTION_FREE_CPU_COUNT_REG_VALUE_NAME, &count))
 		count = 0;
 
 	return count;
@@ -2245,6 +2246,7 @@ void InitOSVersionInfo ()
 		else
 			nCurrentOS = WIN_XP64;
 	}
+
 	else if (os.dwPlatformId == VER_PLATFORM_WIN32_NT && CurrentOSMajor == 6 && CurrentOSMinor == 0)
 	{
 		OSVERSIONINFOEX osEx;
@@ -2259,6 +2261,13 @@ void InitOSVersionInfo ()
 	}
 	else if (os.dwPlatformId == VER_PLATFORM_WIN32_NT && CurrentOSMajor == 6 && CurrentOSMinor == 1)
 		nCurrentOS = (IsServerOS() ? WIN_SERVER_2008_R2 : WIN_7);
+	else if (os.dwPlatformId == VER_PLATFORM_WIN32_NT && CurrentOSMajor == 6 && CurrentOSMinor == 2)
+		nCurrentOS = (IsServerOS() ? WIN_SERVER_2012 : WIN_8);
+	else if (os.dwPlatformId == VER_PLATFORM_WIN32_NT && CurrentOSMajor == 6 && CurrentOSMinor == 3)
+		nCurrentOS = (IsServerOS() ? WIN_SERVER_2012_R2 : WIN_8_1);
+	else if (os.dwPlatformId == VER_PLATFORM_WIN32_NT && CurrentOSMajor == 6 && CurrentOSMinor == 4)
+		nCurrentOS = (IsServerOS() ? WIN_SERVER_2016 : WIN_10);
+
 	else if (os.dwPlatformId == VER_PLATFORM_WIN32_NT && CurrentOSMajor == 4)
 		nCurrentOS = WIN_NT4;
 	else if (os.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS && os.dwMajorVersion == 4 && os.dwMinorVersion == 0)
@@ -2294,6 +2303,11 @@ void InitApp (HINSTANCE hInstance, char *lpszCommandLine)
 	typedef HRESULT (WINAPI *SetAppId_t) (PCWSTR appID);
 	SetAppId_t setAppId = (SetAppId_t) GetProcAddress (GetModuleHandle ("shell32.dll"), "SetCurrentProcessExplicitAppUserModelID");
 
+	/*
+	 * Specifies a unique application-defined Application User Model ID (AppUserModelID)
+	 * that identifies the current process to the taskbar. This identifier allows an application to
+	 * group its associated processes and windows under a single taskbar button (NT 6.1 or later).
+	 */
 	if (setAppId)
 		setAppId (TC_APPLICATION_ID);
 #endif
@@ -2407,6 +2421,36 @@ void InitApp (HINSTANCE hInstance, char *lpszCommandLine)
 				break;
 			}
 		}
+
+#ifndef SETUP
+		/* Hiberboot warning. */
+		if (IsOSAtLeast (WIN_8))
+		{
+			HKEY hkey;
+			DWORD size;
+
+			DWORD HibernateEnabled = 0, HiberbootEnabled = 0;
+
+			size = sizeof (HibernateEnabled);
+			if (RegOpenKeyEx (HKEY_LOCAL_MACHINE, "SYSTEM\\CurrentControlSet\\Control\\Power", 0, KEY_READ, &hkey) == ERROR_SUCCESS)
+			{
+				RegQueryValueEx (hkey, "HibernateEnabled", 0, 0, (LPBYTE) &HibernateEnabled, &size);
+				RegCloseKey (hkey);
+			}
+
+			size = sizeof (HiberbootEnabled);
+			if (RegOpenKeyEx (HKEY_LOCAL_MACHINE, "SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Power", 0, KEY_READ, &hkey) == ERROR_SUCCESS)
+			{
+				RegQueryValueEx (hkey, "HiberbootEnabled", 0, 0, (LPBYTE) &HiberbootEnabled, &size);
+				RegCloseKey (hkey);
+			}
+
+			if (HibernateEnabled && HiberbootEnabled)
+			{
+				Warning ("HIBERBOOT_WARNING");
+			}
+		}
+#endif
 	}
 
 	/* Get the attributes for the standard dialog class */
@@ -3196,9 +3240,9 @@ BOOL DoDriverInstall (HWND hwndDlg)
 	StatusMessage (hwndDlg, "INSTALLING_DRIVER");
 #endif
 
-	hService = CreateService (hManager, "ciphershed", "ciphershed",
+	hService = CreateService (hManager, "truecrypt", "truecrypt",
 		SERVICE_ALL_ACCESS, SERVICE_KERNEL_DRIVER, SERVICE_SYSTEM_START, SERVICE_ERROR_NORMAL,
-		"System32\\drivers\\ciphershed.sys",
+		"System32\\drivers\\truecrypt.sys",
 		NULL, NULL, NULL, NULL, NULL);
 
 	if (hService == NULL)
@@ -3206,7 +3250,7 @@ BOOL DoDriverInstall (HWND hwndDlg)
 	else
 		CloseServiceHandle (hService);
 
-	hService = OpenService (hManager, "ciphershed", SERVICE_ALL_ACCESS);
+	hService = OpenService (hManager, "truecrypt", SERVICE_ALL_ACCESS);
 	if (hService == NULL)
 		goto error;
 
@@ -3250,7 +3294,7 @@ static int DriverLoad ()
 	char *tmp;
 	DWORD startType;
 
-	if (ReadLocalMachineRegistryDword ("SYSTEM\\CurrentControlSet\\Services\\ciphershed", "Start", &startType) && startType == SERVICE_BOOT_START)
+	if (ReadLocalMachineRegistryDword ("SYSTEM\\CurrentControlSet\\Services\\truecrypt", "Start", &startType) && startType == SERVICE_BOOT_START)
 		return ERR_PARAMETER_INCORRECT;
 
 	GetModuleFileName (NULL, driverPath, sizeof (driverPath));
@@ -3261,7 +3305,7 @@ static int DriverLoad ()
 		tmp = driverPath + 1;
 	}
 
-	strcpy (tmp, !Is64BitOs () ? "\\ciphershed.sys" : "\\ciphershed-x64.sys");
+	strcpy (tmp, !Is64BitOs () ? "\\truecrypt.sys" : "\\truecrypt-x64.sys");
 
 	file = FindFirstFile (driverPath, &find);
 
@@ -3285,7 +3329,7 @@ static int DriverLoad ()
 		return ERR_OS_ERROR;
 	}
 
-	hService = OpenService (hManager, "ciphershed", SERVICE_ALL_ACCESS);
+	hService = OpenService (hManager, "truecrypt", SERVICE_ALL_ACCESS);
 	if (hService != NULL)
 	{
 		// Remove stale service (driver is not loaded but service exists)
@@ -3294,7 +3338,7 @@ static int DriverLoad ()
 		Sleep (500);
 	}
 
-	hService = CreateService (hManager, "ciphershed", "ciphershed",
+	hService = CreateService (hManager, "truecrypt", "truecrypt",
 		SERVICE_ALL_ACCESS, SERVICE_KERNEL_DRIVER, SERVICE_DEMAND_START, SERVICE_ERROR_NORMAL,
 		driverPath, NULL, NULL, NULL, NULL, NULL);
 
@@ -3371,7 +3415,7 @@ BOOL DriverUnload ()
 	if (hManager == NULL)
 		goto error;
 
-	hService = OpenService (hManager, "ciphershed", SERVICE_ALL_ACCESS);
+	hService = OpenService (hManager, "truecrypt", SERVICE_ALL_ACCESS);
 	if (hService == NULL)
 		goto error;
 
@@ -3429,6 +3473,7 @@ start:
 
 #endif
 
+	/* Open CipherSheds driver. */
 	hDriver = CreateFile (WIN32_ROOT_PREFIX, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
 
 	if (hDriver == INVALID_HANDLE_VALUE)
@@ -3988,6 +4033,8 @@ static BOOL CALLBACK LocalizeDialogEnum( HWND hwnd, LPARAM font)
 void LocalizeDialog (HWND hwnd, char *stringId)
 {
 	LastDialogId = stringId;
+
+	/* Modifying 'TRUE' can introduce incompatibility with previous versions. */
 	SetWindowLongPtr (hwnd, GWLP_USERDATA, (LONG_PTR) 'TRUE');
 	SendMessage (hwnd, WM_SETFONT, (WPARAM) hUserFont, 0);
 
@@ -7003,7 +7050,7 @@ BOOL IsNonInstallMode ()
 			// We can't use GetConfigPath() here because it would call us back (indirect recursion)
 			if (SUCCEEDED(SHGetFolderPath (NULL, CSIDL_APPDATA, NULL, 0, path)))
 			{
-				strcat (path, "\\CipherShed\\");
+				strcat (path, "\\TrueCrypt\\");
 				strcat (path, TC_APPD_FILENAME_SYSTEM_ENCRYPTION);
 
 				if (FileExists (path))
@@ -7029,7 +7076,7 @@ BOOL IsNonInstallMode ()
 
 	// The following test may be unreliable in some cases (e.g. after the user selects restore "Last Known Good
 	// Configuration" from the Windows boot menu).
-	if (RegOpenKeyEx (HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\CipherShed", 0, KEY_READ, &hkey) == ERROR_SUCCESS)
+	if (RegOpenKeyEx (HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\TrueCrypt", 0, KEY_READ, &hkey) == ERROR_SUCCESS)
 	{
 		RegCloseKey (hkey);
 		return FALSE;
@@ -7513,7 +7560,7 @@ char *GetConfigPath (char *fileName)
 
 	if (SUCCEEDED(SHGetFolderPath (NULL, CSIDL_APPDATA | CSIDL_FLAG_CREATE, NULL, 0, path)))
 	{
-		strcat (path, "\\CipherShed\\");
+		strcat (path, "\\TrueCrypt\\");
 		CreateDirectory (path, NULL);
 		strcat (path, fileName);
 	}
@@ -7530,7 +7577,7 @@ char *GetProgramConfigPath (char *fileName)
 
 	if (SUCCEEDED (SHGetFolderPath (NULL, CSIDL_COMMON_APPDATA | CSIDL_FLAG_CREATE, NULL, 0, path)))
 	{
-		strcat (path, "\\CipherShed\\");
+		strcat (path, "\\TrueCrypt\\");
 		CreateDirectory (path, NULL);
 		strcat (path, fileName);
 	}
@@ -8113,6 +8160,8 @@ BOOL IsOSVersionAtLeast (OSVersionEnum reqMinOS, int reqMinServicePack)
 	case WIN_SERVER_2003:	major = 5; minor = 2; break;
 	case WIN_VISTA:			major = 6; minor = 0; break;
 	case WIN_7:				major = 6; minor = 1; break;
+	case WIN_8:				major = 6; minor = 2; break;
+	case WIN_10:			major = 6; minor = 4; break;
 
 	default:
 		TC_THROW_FATAL_EXCEPTION;
@@ -8378,11 +8427,12 @@ void HandleDriveNotReadyError ()
 
 BOOL CALLBACK CloseTCWindowsEnum (HWND hwnd, LPARAM lParam)
 {
+	/* Modifying 'TRUE' can introduce incompatibility with previous versions. */
 	if (GetWindowLongPtr (hwnd, GWLP_USERDATA) == (LONG_PTR) 'TRUE')
 	{
 		char name[1024] = { 0 };
 		GetWindowText (hwnd, name, sizeof (name) - 1);
-		if (hwnd != MainDlg && strstr (name, "CipherShed"))
+		if (hwnd != MainDlg && (strstr (name, "CipherShed") || strstr (name, "TrueCrypt")))
 		{
 			PostMessage (hwnd, TC_APPMSG_CLOSE_BKG_TASK, 0, 0);
 
@@ -8403,11 +8453,12 @@ BOOL CALLBACK FindTCWindowEnum (HWND hwnd, LPARAM lParam)
 	if (*(HWND *)lParam == hwnd)
 		return TRUE;
 
+	/* Modifying 'TRUE' can introduce incompatibility with previous versions. */
 	if (GetWindowLongPtr (hwnd, GWLP_USERDATA) == (LONG_PTR) 'TRUE')
 	{
 		char name[32] = { 0 };
 		GetWindowText (hwnd, name, sizeof (name) - 1);
-		if (hwnd != MainDlg && strcmp (name, "CipherShed") == 0)
+		if (hwnd != MainDlg && (strcmp (name, "CipherShed") == 0 || strcmp (name, "TrueCrypt") == 0))
 		{
 			if (lParam != 0)
 				*((HWND *)lParam) = hwnd;
