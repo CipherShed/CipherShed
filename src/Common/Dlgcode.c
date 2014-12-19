@@ -48,6 +48,7 @@
 #include "Xml.h"
 #include "Xts.h"
 #include "Boot/Windows/BootCommon.h"
+#include "snprintf.h"
 
 #ifdef TCMOUNT
 #include "Mount/Mount.h"
@@ -139,8 +140,8 @@ volatile HANDLE hNonSysInplaceEncMutex = NULL;
 register the driver or from trying to launch it in portable mode at the same time. */
 volatile HANDLE hDriverSetupMutex = NULL;
 
-/* This mutex is used to prevent users from running the main CipherShed app or the wizard while an instance
-of the CipherShed installer is running (which is also useful for enforcing restart before the apps can be used). */
+/* This mutex is used to prevent users from running the main CipherShed and TrueCrypt app or the wizard while an instance
+of the CipherShed or TrueCrypt installer is running (which is also useful for enforcing restart before the apps can be used). */
 volatile HANDLE hAppSetupMutex = NULL;
 
 HINSTANCE hInst = NULL;
@@ -375,7 +376,8 @@ void CreateFullVolumePath (char *lpszDiskFile, const char *lpszFileName, BOOL * 
 int FakeDosNameForDevice (const char *lpszDiskFile, char *lpszDosDevice, char *lpszCFDevice, BOOL bNameOnly)
 {
 	BOOL bDosLinkCreated = TRUE;
-	sprintf (lpszDosDevice, "ciphershed%lu", GetCurrentProcessId ());
+    //todo: get buffer size as function parameter
+	sprintf (lpszDosDevice, "truecrypt%lu", GetCurrentProcessId ());
 
 	if (bNameOnly == FALSE)
 		bDosLinkCreated = DefineDosDevice (DDD_RAW_TARGET_PATH, lpszDosDevice, lpszDiskFile);
@@ -383,7 +385,7 @@ int FakeDosNameForDevice (const char *lpszDiskFile, char *lpszDosDevice, char *l
 	if (bDosLinkCreated == FALSE)
 		return ERR_OS_ERROR;
 	else
-		sprintf (lpszCFDevice, "\\\\.\\%s", lpszDosDevice);
+		sprintf (lpszCFDevice, "\\\\.\\%s", lpszDosDevice); //todo: get buffer size as function parameter
 
 	return 0;
 }
@@ -890,7 +892,7 @@ BOOL CALLBACK AboutDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam
 
 			// Version
 			SendMessage (GetDlgItem (hwndDlg, IDT_ABOUT_VERSION), WM_SETFONT, (WPARAM) hUserBoldFont, 0);
-			sprintf (szTmp, "CipherShed %s", VERSION_STRING);
+			snprintf (szTmp, ARRAY_LENGTH(szTmp), "CipherShed %s", VERSION_STRING);
 #if (defined(_DEBUG) || defined(DEBUG))
 			strcat (szTmp, "  (debug)");
 #endif
@@ -915,13 +917,14 @@ BOOL CALLBACK AboutDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam
 			"Paulo Barreto, Brian Gladman, Wei Dai, Peter Gutmann, and many others.\r\n\r\n"
 
 			"Portions of this software:\r\n"
+			"Copyright \xA9 2014 The CipherShed Project. All Rights Reserved.\r\n"
 			"Copyright \xA9 2003-2012 TrueCrypt Developers Association. All Rights Reserved.\r\n"
 			"Copyright \xA9 1998-2000 Paul Le Roux. All Rights Reserved.\r\n"
 			"Copyright \xA9 1998-2008 Brian Gladman. All Rights Reserved.\r\n"
 			"Copyright \xA9 2002-2004 Mark Adler. All Rights Reserved.\r\n\r\n"
 
 			"This software as a whole:\r\n"
-			"Copyright \xA9 2012 TrueCrypt Developers Association. All rights reserved.");
+			"Copyright \xA9 2014 The CipherShed Project. All Rights Reserved.\r\n");
 
 		return 1;
 
@@ -1816,11 +1819,11 @@ void ExceptionHandlerThread (void *threadArg)
 	GetSystemInfo (&si);
 
 	if (LocalizationActive)
-		sprintf_s (lpack, sizeof (lpack), "&langpack=%s_%s", GetPreferredLangId (), GetActiveLangPackVersion ());
+		sprintf_s (lpack, ARRAY_LENGTH (lpack), "&langpack=%s_%s", GetPreferredLangId (), GetActiveLangPackVersion ());
 	else
 		lpack[0] = 0;
 
-	sprintf (url, TC_APPLINK_SECURE "&dest=err-report%s&os=%s&osver=%d.%d.%d&arch=%s&cpus=%d&app=%s&cksum=%x&dlg=%s&err=%x&addr=%x"
+	snprintf (url, ARRAY_LENGTH(url), TC_APPLINK_SECURE "&dest=err-report%s&os=%s&osver=%d.%d.%d&arch=%s&cpus=%d&app=%s&cksum=%x&dlg=%s&err=%x&addr=%x"
 		, lpack
 		, GetWindowsEdition().c_str()
 		, CurrentOSMajor
@@ -2037,7 +2040,7 @@ uint32 ReadDriverConfigurationFlags ()
 {
 	DWORD configMap;
 
-	if (!ReadLocalMachineRegistryDword ("SYSTEM\\CurrentControlSet\\Services\\ciphershed", TC_DRIVER_CONFIG_REG_VALUE_NAME, &configMap))
+	if (!ReadLocalMachineRegistryDword ("SYSTEM\\CurrentControlSet\\Services\\truecrypt", TC_DRIVER_CONFIG_REG_VALUE_NAME, &configMap))
 		configMap = 0;
 
 	return configMap;
@@ -2048,7 +2051,7 @@ uint32 ReadEncryptionThreadPoolFreeCpuCountLimit ()
 {
 	DWORD count;
 
-	if (!ReadLocalMachineRegistryDword ("SYSTEM\\CurrentControlSet\\Services\\ciphershed", TC_ENCRYPTION_FREE_CPU_COUNT_REG_VALUE_NAME, &count))
+	if (!ReadLocalMachineRegistryDword ("SYSTEM\\CurrentControlSet\\Services\\truecrypt", TC_ENCRYPTION_FREE_CPU_COUNT_REG_VALUE_NAME, &count))
 		count = 0;
 
 	return count;
@@ -2245,6 +2248,7 @@ void InitOSVersionInfo ()
 		else
 			nCurrentOS = WIN_XP64;
 	}
+
 	else if (os.dwPlatformId == VER_PLATFORM_WIN32_NT && CurrentOSMajor == 6 && CurrentOSMinor == 0)
 	{
 		OSVERSIONINFOEX osEx;
@@ -2259,6 +2263,13 @@ void InitOSVersionInfo ()
 	}
 	else if (os.dwPlatformId == VER_PLATFORM_WIN32_NT && CurrentOSMajor == 6 && CurrentOSMinor == 1)
 		nCurrentOS = (IsServerOS() ? WIN_SERVER_2008_R2 : WIN_7);
+	else if (os.dwPlatformId == VER_PLATFORM_WIN32_NT && CurrentOSMajor == 6 && CurrentOSMinor == 2)
+		nCurrentOS = (IsServerOS() ? WIN_SERVER_2012 : WIN_8);
+	else if (os.dwPlatformId == VER_PLATFORM_WIN32_NT && CurrentOSMajor == 6 && CurrentOSMinor == 3)
+		nCurrentOS = (IsServerOS() ? WIN_SERVER_2012_R2 : WIN_8_1);
+	else if (os.dwPlatformId == VER_PLATFORM_WIN32_NT && CurrentOSMajor == 6 && CurrentOSMinor == 4)
+		nCurrentOS = (IsServerOS() ? WIN_SERVER_2016 : WIN_10);
+
 	else if (os.dwPlatformId == VER_PLATFORM_WIN32_NT && CurrentOSMajor == 4)
 		nCurrentOS = WIN_NT4;
 	else if (os.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS && os.dwMajorVersion == 4 && os.dwMinorVersion == 0)
@@ -2294,6 +2305,11 @@ void InitApp (HINSTANCE hInstance, char *lpszCommandLine)
 	typedef HRESULT (WINAPI *SetAppId_t) (PCWSTR appID);
 	SetAppId_t setAppId = (SetAppId_t) GetProcAddress (GetModuleHandle ("shell32.dll"), "SetCurrentProcessExplicitAppUserModelID");
 
+	/*
+	 * Specifies a unique application-defined Application User Model ID (AppUserModelID)
+	 * that identifies the current process to the taskbar. This identifier allows an application to
+	 * group its associated processes and windows under a single taskbar button (NT 6.1 or later).
+	 */
 	if (setAppId)
 		setAppId (TC_APPLICATION_ID);
 #endif
@@ -2407,6 +2423,36 @@ void InitApp (HINSTANCE hInstance, char *lpszCommandLine)
 				break;
 			}
 		}
+
+#ifndef SETUP
+		/* Hiberboot warning. */
+		if (IsOSAtLeast (WIN_8))
+		{
+			HKEY hkey;
+			DWORD size;
+
+			DWORD HibernateEnabled = 0, HiberbootEnabled = 0;
+
+			size = sizeof (HibernateEnabled);
+			if (RegOpenKeyEx (HKEY_LOCAL_MACHINE, "SYSTEM\\CurrentControlSet\\Control\\Power", 0, KEY_READ, &hkey) == ERROR_SUCCESS)
+			{
+				RegQueryValueEx (hkey, "HibernateEnabled", 0, 0, (LPBYTE) &HibernateEnabled, &size);
+				RegCloseKey (hkey);
+			}
+
+			size = sizeof (HiberbootEnabled);
+			if (RegOpenKeyEx (HKEY_LOCAL_MACHINE, "SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Power", 0, KEY_READ, &hkey) == ERROR_SUCCESS)
+			{
+				RegQueryValueEx (hkey, "HiberbootEnabled", 0, 0, (LPBYTE) &HiberbootEnabled, &size);
+				RegCloseKey (hkey);
+			}
+
+			if (HibernateEnabled && HiberbootEnabled)
+			{
+				Warning ("HIBERBOOT_WARNING");
+			}
+		}
+#endif
 	}
 
 	/* Get the attributes for the standard dialog class */
@@ -2487,7 +2533,7 @@ void InitHelpFileName (void)
 		}
 		else
 		{
-			sprintf (szTemp, "CipherShed User Guide.%s.pdf", GetPreferredLangId());
+			snprintf (szTemp, ARRAY_LENGTH(szTemp), "CipherShed User Guide.%s.pdf", GetPreferredLangId());
 			strcpy (++lpszTmp, szTemp);
 		}
 
@@ -2958,9 +3004,9 @@ BOOL CALLBACK RawDevicesDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM l
 					{
 						wchar_t s[1024];
 						if (device.Removable)
-							wsprintfW (s, L"%s %d", GetString ("REMOVABLE_DISK"), device.SystemNumber);
+							_snwprintf (s, ARRAY_LENGTH(s), L"%s %d", GetString ("REMOVABLE_DISK"), device.SystemNumber);
 						else
-							wsprintfW (s, L"%s %d", GetString ("HARDDISK"), device.SystemNumber);
+							_snwprintf (s, ARRAY_LENGTH(s), L"%s %d", GetString ("HARDDISK"), device.SystemNumber);
 
 						if (!device.Partitions.empty())
 							wcscat (s, L":");
@@ -3196,9 +3242,9 @@ BOOL DoDriverInstall (HWND hwndDlg)
 	StatusMessage (hwndDlg, "INSTALLING_DRIVER");
 #endif
 
-	hService = CreateService (hManager, "ciphershed", "ciphershed",
+	hService = CreateService (hManager, "truecrypt", "truecrypt",
 		SERVICE_ALL_ACCESS, SERVICE_KERNEL_DRIVER, SERVICE_SYSTEM_START, SERVICE_ERROR_NORMAL,
-		"System32\\drivers\\ciphershed.sys",
+		"System32\\drivers\\truecrypt.sys",
 		NULL, NULL, NULL, NULL, NULL);
 
 	if (hService == NULL)
@@ -3206,7 +3252,7 @@ BOOL DoDriverInstall (HWND hwndDlg)
 	else
 		CloseServiceHandle (hService);
 
-	hService = OpenService (hManager, "ciphershed", SERVICE_ALL_ACCESS);
+	hService = OpenService (hManager, "truecrypt", SERVICE_ALL_ACCESS);
 	if (hService == NULL)
 		goto error;
 
@@ -3250,7 +3296,7 @@ static int DriverLoad ()
 	char *tmp;
 	DWORD startType;
 
-	if (ReadLocalMachineRegistryDword ("SYSTEM\\CurrentControlSet\\Services\\ciphershed", "Start", &startType) && startType == SERVICE_BOOT_START)
+	if (ReadLocalMachineRegistryDword ("SYSTEM\\CurrentControlSet\\Services\\truecrypt", "Start", &startType) && startType == SERVICE_BOOT_START)
 		return ERR_PARAMETER_INCORRECT;
 
 	GetModuleFileName (NULL, driverPath, sizeof (driverPath));
@@ -3261,7 +3307,7 @@ static int DriverLoad ()
 		tmp = driverPath + 1;
 	}
 
-	strcpy (tmp, !Is64BitOs () ? "\\ciphershed.sys" : "\\ciphershed-x64.sys");
+	strcpy (tmp, !Is64BitOs () ? "\\truecrypt.sys" : "\\truecrypt-x64.sys");
 
 	file = FindFirstFile (driverPath, &find);
 
@@ -3285,7 +3331,7 @@ static int DriverLoad ()
 		return ERR_OS_ERROR;
 	}
 
-	hService = OpenService (hManager, "ciphershed", SERVICE_ALL_ACCESS);
+	hService = OpenService (hManager, "truecrypt", SERVICE_ALL_ACCESS);
 	if (hService != NULL)
 	{
 		// Remove stale service (driver is not loaded but service exists)
@@ -3294,7 +3340,7 @@ static int DriverLoad ()
 		Sleep (500);
 	}
 
-	hService = CreateService (hManager, "ciphershed", "ciphershed",
+	hService = CreateService (hManager, "truecrypt", "truecrypt",
 		SERVICE_ALL_ACCESS, SERVICE_KERNEL_DRIVER, SERVICE_DEMAND_START, SERVICE_ERROR_NORMAL,
 		driverPath, NULL, NULL, NULL, NULL, NULL);
 
@@ -3371,7 +3417,7 @@ BOOL DriverUnload ()
 	if (hManager == NULL)
 		goto error;
 
-	hService = OpenService (hManager, "ciphershed", SERVICE_ALL_ACCESS);
+	hService = OpenService (hManager, "truecrypt", SERVICE_ALL_ACCESS);
 	if (hService == NULL)
 		goto error;
 
@@ -3429,6 +3475,7 @@ start:
 
 #endif
 
+	/* Open CipherSheds driver. */
 	hDriver = CreateFile (WIN32_ROOT_PREFIX, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
 
 	if (hDriver == INVALID_HANDLE_VALUE)
@@ -3577,7 +3624,7 @@ BOOL BrowseFilesInDir (HWND hwndDlg, char *stringId, char *initialDir, char *lps
 
 	if (initialDir)
 	{
-		swprintf_s (wInitialDir, sizeof (wInitialDir) / 2, L"%hs", initialDir);
+		swprintf_s (wInitialDir, ARRAY_LENGTH(wInitialDir), L"%hs", initialDir);
 		ofn.lpstrInitialDir			= wInitialDir;
 	}
 
@@ -3587,7 +3634,7 @@ BOOL BrowseFilesInDir (HWND hwndDlg, char *stringId, char *initialDir, char *lps
 	ofn.lStructSize				= sizeof (ofn);
 	ofn.hwndOwner				= hwndDlg;
 
-	wsprintfW (filter, L"%ls (*.*)%c*.*%c%ls (*.tc)%c*.tc%c%c",
+	_snwprintf (filter, ARRAY_LENGTH(filter), L"%ls (*.*)%c*.*%c%ls (*.tc)%c*.tc%c%c",
 		GetString ("ALL_FILES"), 0, 0, GetString ("TC_VOLUMES"), 0, 0, 0);
 	ofn.lpstrFilter				= browseFilter ? browseFilter : filter;
 	ofn.nFilterIndex			= 1;
@@ -3652,7 +3699,7 @@ BOOL SelectMultipleFiles (HWND hwndDlg, char *stringId, char *lpszFileName, BOOL
 	*lpszFileName = 0;
 	ofn.lStructSize				= sizeof (ofn);
 	ofn.hwndOwner				= hwndDlg;
-	wsprintfW (filter, L"%ls (*.*)%c*.*%c%ls (*.tc)%c*.tc%c%c",
+	_snwprintf (filter, ARRAY_LENGTH(filter), L"%ls (*.*)%c*.*%c%ls (*.tc)%c*.tc%c%c",
 		GetString ("ALL_FILES"), 0, 0, GetString ("TC_VOLUMES"), 0, 0, 0);
 	ofn.lpstrFilter				= filter;
 	ofn.nFilterIndex			= 1;
@@ -3937,7 +3984,7 @@ void handleError (HWND hwndDlg, int code)
 		break;
 
 	default:
-		wsprintfW (szTmp, GetString ("ERR_UNKNOWN"), code);
+		_snwprintf (szTmp, ARRAY_LENGTH(szTmp), GetString ("ERR_UNKNOWN"), code);
 		MessageBoxW (hwndDlg, szTmp, lpszTitle, ICON_HAND);
 	}
 }
@@ -3988,6 +4035,8 @@ static BOOL CALLBACK LocalizeDialogEnum( HWND hwnd, LPARAM font)
 void LocalizeDialog (HWND hwnd, char *stringId)
 {
 	LastDialogId = stringId;
+
+	/* Modifying 'TRUE' can introduce incompatibility with previous versions. */
 	SetWindowLongPtr (hwnd, GWLP_USERDATA, (LONG_PTR) 'TRUE');
 	SendMessage (hwnd, WM_SETFONT, (WPARAM) hUserFont, 0);
 
@@ -4005,7 +4054,7 @@ void OpenVolumeExplorerWindow (int driveNo)
 	char dosName[5];
 	SHFILEINFO fInfo;
 
-	sprintf (dosName, "%c:\\", (char) driveNo + 'A');
+	snprintf (dosName, ARRAY_LENGTH(dosName), "%c:\\", (char) driveNo + 'A');
 
 	// Force explorer to discover the drive
 	SHGetFileInfo (dosName, 0, &fInfo, sizeof (fInfo), 0);
@@ -4036,7 +4085,7 @@ static BOOL CALLBACK CloseVolumeExplorerWindowsEnum (HWND hwnd, LPARAM driveNo)
 	char driveStr[10];
 	char s[MAX_PATH];
 
-	sprintf (driveStr, "%c:\\", driveNo + 'A');
+	snprintf (driveStr, sizeof(driveStr), "%c:\\", driveNo + 'A');
 
 	GetClassName (hwnd, s, sizeof s);
 	if (strcmp (s, "CabinetWClass") == 0)
@@ -4070,7 +4119,7 @@ BOOL CloseVolumeExplorerWindows (HWND hwnd, int driveNo)
 string GetUserFriendlyVersionString (int version)
 {
 	char szTmp [64];
-	sprintf (szTmp, "%x", version);
+	snprintf (szTmp, sizeof(szTmp), "%x", version);
 
 	string versionString (szTmp);
 
@@ -4364,7 +4413,7 @@ static BOOL PerformBenchmark(HWND hwndDlg)
 			benchmarkTable[benchmarkTotalItems].decSpeed = benchmarkTable[benchmarkTotalItems].encSpeed;
 			benchmarkTable[benchmarkTotalItems].id = hid;
 			benchmarkTable[benchmarkTotalItems].meanBytesPerSec = ((unsigned __int64) (benchmarkBufferSize / ((float) benchmarkTable[benchmarkTotalItems].encSpeed / benchmarkPerformanceFrequency.QuadPart)) + (unsigned __int64) (benchmarkBufferSize / ((float) benchmarkTable[benchmarkTotalItems].decSpeed / benchmarkPerformanceFrequency.QuadPart))) / 2;
-			sprintf (benchmarkTable[benchmarkTotalItems].name, "%s", HashGetName(hid));
+			sprintf (benchmarkTable[benchmarkTotalItems].name, "%s", HashGetName(hid)); //todo: convert to snprintf
 
 			benchmarkTotalItems++;
 		}
@@ -4418,7 +4467,7 @@ static BOOL PerformBenchmark(HWND hwndDlg)
 
 			benchmarkTable[benchmarkTotalItems].encSpeed = performanceCountEnd.QuadPart - performanceCountStart.QuadPart;
 			benchmarkTable[benchmarkTotalItems].id = thid;
-			sprintf (benchmarkTable[benchmarkTotalItems].name, "%s", get_pkcs5_prf_name (thid));
+			sprintf (benchmarkTable[benchmarkTotalItems].name, "%s", get_pkcs5_prf_name (thid)); //todo: convert to snprintf
 
 			benchmarkTotalItems++;
 		}
@@ -4636,7 +4685,7 @@ BOOL CALLBACK BenchmarkDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lP
 			}
 			else
 			{
-				wsprintfW (nbrThreadsStr, GetString ("NUMBER_OF_THREADS"), nbrThreads);
+				_snwprintf (nbrThreadsStr, sizeof(nbrThreadsStr), GetString ("NUMBER_OF_THREADS"), nbrThreads);
 			}
 
 			SetDlgItemTextW (hwndDlg, IDC_PARALLELIZATION, (wstring (L" ") + nbrThreadsStr).c_str());
@@ -4769,7 +4818,7 @@ static BOOL CALLBACK RandomPoolEnrichementDlgProc (HWND hwndDlg, UINT msg, WPARA
 						{
 							tmpByte = randPool[row * RANDPOOL_DISPLAY_COLUMNS + col];
 
-							sprintf (tmp, bRandPoolDispAscii ? ((tmpByte >= 32 && tmpByte < 255 && tmpByte != '&') ? " %c " : " . ") : "%02X ", tmpByte);
+							snprintf (tmp, ARRAY_LENGTH(tmp), bRandPoolDispAscii ? ((tmpByte >= 32 && tmpByte < 255 && tmpByte != '&') ? " %c " : " . ") : "%02X ", tmpByte);
 							strcat (outputDispBuffer, tmp);
 						}
 						strcat (outputDispBuffer, "\n");
@@ -4923,7 +4972,7 @@ BOOL CALLBACK KeyfileGeneratorDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LP
 						{
 							tmpByte = randPool[row * RANDPOOL_DISPLAY_COLUMNS + col];
 
-							sprintf (tmp, bRandPoolDispAscii ? ((tmpByte >= 32 && tmpByte < 255 && tmpByte != '&') ? " %c " : " . ") : "%02X ", tmpByte);
+							snprintf (tmp, ARRAY_LENGTH(tmp), bRandPoolDispAscii ? ((tmpByte >= 32 && tmpByte < 255 && tmpByte != '&') ? " %c " : " . ") : "%02X ", tmpByte);
 							strcat (outputDispBuffer, tmp);
 						}
 						strcat (outputDispBuffer, "\n");
@@ -5367,7 +5416,7 @@ CipherTestDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				for (n = 0; n < pt; n ++)
 				{
 					char szTmp2[3];
-					sprintf(szTmp2, "%02x", (int)((unsigned char)tmp[n]));
+					snprintf(szTmp2, ARRAY_LENGTH(szTmp2), "%02x", (int)((unsigned char)tmp[n]));
 					strcat(szTmp, szTmp2);
 				}
 
@@ -5421,7 +5470,7 @@ ResetCipherTest(HWND hwndDlg, int idTestCipher)
 	{
 		char tmpStr [16];
 
-		sprintf (tmpStr, "%d", ndx);
+		snprintf (tmpStr, ARRAY_LENGTH(tmpStr), "%d", ndx);
 
 		ndx = SendMessage (GetDlgItem(hwndDlg, IDC_TEST_BLOCK_NUMBER), CB_ADDSTRING, 0,(LPARAM) tmpStr);
 		SendMessage(GetDlgItem(hwndDlg, IDC_TEST_BLOCK_NUMBER), CB_SETITEMDATA, ndx,(LPARAM) ndx);
@@ -5911,7 +5960,7 @@ void BroadcastDeviceChange (WPARAM message, int nDosDriveNo, DWORD driveMap)
 				if (nCurrentOS == WIN_2000 && RemoteSession)
 				{
 					char target[32];
-					wsprintf (target, "%ls%c", TC_MOUNT_PREFIX, i + 'A');
+					snprintf (target, ARRAY_LENGTH(target), "%ls%c", TC_MOUNT_PREFIX, i + 'A');
 					root[2] = 0;
 
 					if (message == DBT_DEVICEARRIVAL)
@@ -6202,7 +6251,7 @@ retry:
 	{
 		wchar_t msg[1024];
 		wchar_t mountPoint[] = { L'A' + (wchar_t) driveNo, L':', 0 };
-		wsprintfW (msg, GetString ("MOUNTED_VOLUME_DIRTY"), mountPoint);
+		_snwprintf (msg, ARRAY_LENGTH(msg), GetString ("MOUNTED_VOLUME_DIRTY"), mountPoint);
 
 		if (AskWarnYesNoStringTopmost (msg) == IDYES)
 			CheckFilesystem (driveNo, TRUE);
@@ -6216,7 +6265,7 @@ retry:
 	{
 		wchar_t msg[1024];
 		wchar_t mountPoint[] = { L'A' + (wchar_t) driveNo, L':', 0 };
-		wsprintfW (msg, GetString ("MOUNTED_CONTAINER_FORCED_READ_ONLY"), mountPoint);
+		_snwprintf (msg, ARRAY_LENGTH(msg), GetString ("MOUNTED_CONTAINER_FORCED_READ_ONLY"), mountPoint);
 
 		WarningDirect (msg);
 	}
@@ -6227,7 +6276,7 @@ retry:
 	{
 		wchar_t msg[1024];
 		wchar_t mountPoint[] = { L'A' + (wchar_t) driveNo, L':', 0 };
-		wsprintfW (msg, GetString ("MOUNTED_DEVICE_FORCED_READ_ONLY"), mountPoint);
+		_snwprintf (msg, ARRAY_LENGTH(msg), GetString ("MOUNTED_DEVICE_FORCED_READ_ONLY"), mountPoint);
 
 		WarningDirect (msg);
 	}
@@ -6238,7 +6287,7 @@ retry:
 	{
 		wchar_t msg[1024];
 		wchar_t mountPoint[] = { L'A' + (wchar_t) driveNo, L':', 0 };
-		wsprintfW (msg, GetString ("MOUNTED_DEVICE_FORCED_READ_ONLY_WRITE_PROTECTION"), mountPoint);
+		_snwprintf (msg, ARRAY_LENGTH(msg), GetString ("MOUNTED_DEVICE_FORCED_READ_ONLY_WRITE_PROTECTION"), mountPoint);
 
 		WarningDirect (msg);
 
@@ -6329,7 +6378,7 @@ BOOL IsMountedVolume (const char *volname)
 	strcpy (volume, volname);
 
 	if (strstr (volname, "\\Device\\") != volname)
-		sprintf(volume, "\\??\\%s", volname);
+		snprintf(volume, ARRAY_LENGTH(volume), "\\??\\%s", volname);
 
 	string resolvedPath = VolumeGuidPathToDevicePath (volname);
 	if (!resolvedPath.empty())
@@ -6363,7 +6412,7 @@ int GetMountedVolumeDriveNo (char *volname)
 	strcpy (volume, volname);
 
 	if (strstr (volname, "\\Device\\") != volname)
-		sprintf(volume, "\\??\\%s", volname);
+		snprintf(volume, ARRAY_LENGTH(volume), "\\??\\%s", volname);
 
 	string resolvedPath = VolumeGuidPathToDevicePath (volname);
 	if (!resolvedPath.empty())
@@ -6462,7 +6511,7 @@ BOOL GetPartitionInfo (const char *deviceName, PPARTITION_INFORMATION rpartInfo)
 	DISK_PARTITION_INFO_STRUCT dpi;
 
 	memset (&dpi, 0, sizeof(dpi));
-	wsprintfW ((PWSTR) &dpi.deviceName, L"%hs", deviceName);
+	_snwprintf ((PWSTR) &dpi.deviceName, ARRAY_LENGTH(dpi.deviceName), L"%hs", deviceName);
 
 	bResult = DeviceIoControl (hDriver, TC_IOCTL_GET_DRIVE_PARTITION_INFO, &dpi,
 		sizeof (dpi), &dpi, sizeof (dpi), &dwResult, NULL);
@@ -6477,7 +6526,7 @@ BOOL GetDeviceInfo (const char *deviceName, DISK_PARTITION_INFO_STRUCT *info)
 	DWORD dwResult;
 
 	memset (info, 0, sizeof(*info));
-	wsprintfW ((PWSTR) &info->deviceName, L"%hs", deviceName);
+	_snwprintf ((PWSTR) &info->deviceName, ARRAY_LENGTH(info->deviceName), L"%hs", deviceName);
 
 	return DeviceIoControl (hDriver, TC_IOCTL_GET_DRIVE_PARTITION_INFO, info, sizeof (*info), info, sizeof (*info), &dwResult, NULL);
 }
@@ -6490,7 +6539,7 @@ BOOL GetDriveGeometry (const char *deviceName, PDISK_GEOMETRY diskGeometry)
 	DISK_GEOMETRY_STRUCT dg;
 
 	memset (&dg, 0, sizeof(dg));
-	wsprintfW ((PWSTR) &dg.deviceName, L"%hs", deviceName);
+	_snwprintf ((PWSTR) &dg.deviceName, ARRAY_LENGTH(dg.deviceName), L"%hs", deviceName);
 
 	bResult = DeviceIoControl (hDriver, TC_IOCTL_GET_DRIVE_GEOMETRY, &dg,
 		sizeof (dg), &dg, sizeof (dg), &dwResult, NULL);
@@ -7003,7 +7052,7 @@ BOOL IsNonInstallMode ()
 			// We can't use GetConfigPath() here because it would call us back (indirect recursion)
 			if (SUCCEEDED(SHGetFolderPath (NULL, CSIDL_APPDATA, NULL, 0, path)))
 			{
-				strcat (path, "\\CipherShed\\");
+				strcat (path, "\\TrueCrypt\\");
 				strcat (path, TC_APPD_FILENAME_SYSTEM_ENCRYPTION);
 
 				if (FileExists (path))
@@ -7029,7 +7078,7 @@ BOOL IsNonInstallMode ()
 
 	// The following test may be unreliable in some cases (e.g. after the user selects restore "Last Known Good
 	// Configuration" from the Windows boot menu).
-	if (RegOpenKeyEx (HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\CipherShed", 0, KEY_READ, &hkey) == ERROR_SUCCESS)
+	if (RegOpenKeyEx (HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\TrueCrypt", 0, KEY_READ, &hkey) == ERROR_SUCCESS)
 	{
 		RegCloseKey (hkey);
 		return FALSE;
@@ -7148,12 +7197,12 @@ void CleanLastVisitedMRU (void)
 	GetModuleFileNameW (NULL, exeFilename, sizeof (exeFilename) / sizeof(exeFilename[0]));
 	strToMatch = wcsrchr (exeFilename, '\\') + 1;
 
-	sprintf (regPath, "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\ComDlg32\\LastVisited%sMRU", IsOSAtLeast (WIN_VISTA) ? "Pidl" : "");
+	snprintf (regPath, ARRAY_LENGTH(regPath), "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\ComDlg32\\LastVisited%sMRU", IsOSAtLeast (WIN_VISTA) ? "Pidl" : "");
 
 	for (id = (IsOSAtLeast (WIN_VISTA) ? 0 : 'a'); id <= (IsOSAtLeast (WIN_VISTA) ? 1000 : 'z'); id++)
 	{
 		*strTmp = 0;
-		sprintf (key, (IsOSAtLeast (WIN_VISTA) ? "%d" : "%c"), id);
+		snprintf (key, ARRAY_LENGTH(key), (IsOSAtLeast (WIN_VISTA) ? "%d" : "%c"), id);
 
 		if ((len = ReadRegistryBytes (regPath, key, (char *) strTmp, sizeof (strTmp))) > 0)
 		{
@@ -7513,7 +7562,7 @@ char *GetConfigPath (char *fileName)
 
 	if (SUCCEEDED(SHGetFolderPath (NULL, CSIDL_APPDATA | CSIDL_FLAG_CREATE, NULL, 0, path)))
 	{
-		strcat (path, "\\CipherShed\\");
+		strcat (path, "\\TrueCrypt\\");
 		CreateDirectory (path, NULL);
 		strcat (path, fileName);
 	}
@@ -7530,7 +7579,7 @@ char *GetProgramConfigPath (char *fileName)
 
 	if (SUCCEEDED (SHGetFolderPath (NULL, CSIDL_COMMON_APPDATA | CSIDL_FLAG_CREATE, NULL, 0, path)))
 	{
-		strcat (path, "\\CipherShed\\");
+		strcat (path, "\\TrueCrypt\\");
 		CreateDirectory (path, NULL);
 		strcat (path, fileName);
 	}
@@ -7934,7 +7983,7 @@ BOOL ConfigWriteString (char *configKey, char *configValue)
 BOOL ConfigWriteInt (char *configKey, int configValue)
 {
 	char val[32];
-	sprintf (val, "%d", configValue);
+	snprintf (val, ARRAY_LENGTH(val), "%d", configValue);
 	return ConfigWriteString (configKey, val);
 }
 
@@ -8113,6 +8162,8 @@ BOOL IsOSVersionAtLeast (OSVersionEnum reqMinOS, int reqMinServicePack)
 	case WIN_SERVER_2003:	major = 5; minor = 2; break;
 	case WIN_VISTA:			major = 6; minor = 0; break;
 	case WIN_7:				major = 6; minor = 1; break;
+	case WIN_8:				major = 6; minor = 2; break;
+	case WIN_10:			major = 6; minor = 4; break;
 
 	default:
 		TC_THROW_FATAL_EXCEPTION;
@@ -8378,11 +8429,12 @@ void HandleDriveNotReadyError ()
 
 BOOL CALLBACK CloseTCWindowsEnum (HWND hwnd, LPARAM lParam)
 {
+	/* Modifying 'TRUE' can introduce incompatibility with previous versions. */
 	if (GetWindowLongPtr (hwnd, GWLP_USERDATA) == (LONG_PTR) 'TRUE')
 	{
 		char name[1024] = { 0 };
 		GetWindowText (hwnd, name, sizeof (name) - 1);
-		if (hwnd != MainDlg && strstr (name, "CipherShed"))
+		if (hwnd != MainDlg && (strstr (name, "CipherShed") || strstr (name, "TrueCrypt")))
 		{
 			PostMessage (hwnd, TC_APPMSG_CLOSE_BKG_TASK, 0, 0);
 
@@ -8403,11 +8455,12 @@ BOOL CALLBACK FindTCWindowEnum (HWND hwnd, LPARAM lParam)
 	if (*(HWND *)lParam == hwnd)
 		return TRUE;
 
+	/* Modifying 'TRUE' can introduce incompatibility with previous versions. */
 	if (GetWindowLongPtr (hwnd, GWLP_USERDATA) == (LONG_PTR) 'TRUE')
 	{
 		char name[32] = { 0 };
 		GetWindowText (hwnd, name, sizeof (name) - 1);
-		if (hwnd != MainDlg && strcmp (name, "CipherShed") == 0)
+		if (hwnd != MainDlg && (strcmp (name, "CipherShed") == 0 || strcmp (name, "TrueCrypt") == 0))
 		{
 			if (lParam != 0)
 				*((HWND *)lParam) = hwnd;
@@ -8436,7 +8489,7 @@ void InconsistencyResolved (char *techInfo)
 {
 	wchar_t finalMsg[8024];
 
-	wsprintfW (finalMsg, GetString ("INCONSISTENCY_RESOLVED"), techInfo);
+	_snwprintf (finalMsg, ARRAY_LENGTH(finalMsg), GetString ("INCONSISTENCY_RESOLVED"), techInfo);
 	MessageBoxW (MainDlg, finalMsg, lpszTitle, MB_ICONWARNING | MB_SETFOREGROUND | MB_TOPMOST);
 }
 
@@ -8445,7 +8498,7 @@ void ReportUnexpectedState (char *techInfo)
 {
 	wchar_t finalMsg[8024];
 
-	wsprintfW (finalMsg, GetString ("UNEXPECTED_STATE"), techInfo);
+	_snwprintf (finalMsg, ARRAY_LENGTH(finalMsg), GetString ("UNEXPECTED_STATE"), techInfo);
 	MessageBoxW (MainDlg, finalMsg, lpszTitle, MB_ICONERROR | MB_SETFOREGROUND | MB_TOPMOST);
 }
 
@@ -8861,7 +8914,7 @@ BOOL CALLBACK SecurityTokenPasswordDlgProc (HWND hwndDlg, UINT msg, WPARAM wPara
 			LocalizeDialog (hwndDlg, "IDD_TOKEN_PASSWORD");
 
 			wchar_t s[1024];
-			wsprintfW (s, GetString ("ENTER_TOKEN_PASSWORD"), Utf8StringToWide (password->c_str()).c_str());
+			_snwprintf (s, ARRAY_LENGTH(s), GetString ("ENTER_TOKEN_PASSWORD"), Utf8StringToWide (password->c_str()).c_str());
 			SetWindowTextW (GetDlgItem (hwndDlg, IDT_TOKEN_PASSWORD_INFO), s);
 
 			SendMessage (GetDlgItem (hwndDlg, IDC_TOKEN_PASSWORD), EM_LIMITTEXT, SecurityToken::MaxPasswordLength, 0);
@@ -9510,8 +9563,8 @@ void CheckFilesystem (int driveNo, BOOL fixErrors)
 	if (fixErrors && AskWarnYesNo ("FILESYS_REPAIR_CONFIRM_BACKUP") == IDNO)
 		return;
 
-	wsprintfW (msg, GetString (fixErrors ? "REPAIRING_FS" : "CHECKING_FS"), driveRoot);
-	wsprintfW (param, fixErrors ? L"/C echo %s & chkdsk %hs /F /X & pause" : L"/C echo %s & chkdsk %hs & pause", msg, driveRoot);
+	_snwprintf (msg, ARRAY_LENGTH(msg), GetString (fixErrors ? "REPAIRING_FS" : "CHECKING_FS"), driveRoot);
+	_snwprintf (param, ARRAY_LENGTH(param), fixErrors ? L"/C echo %s & chkdsk %hs /F /X & pause" : L"/C echo %s & chkdsk %hs & pause", msg, driveRoot);
 
 	ShellExecuteW (NULL, (!IsAdmin() && IsUacSupported()) ? L"runas" : L"open", L"cmd.exe", param, NULL, SW_SHOW);
 }

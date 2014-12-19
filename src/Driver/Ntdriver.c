@@ -906,7 +906,7 @@ NTSTATUS ProcessMainDeviceControlIrp (PDEVICE_OBJECT DeviceObject, PEXTENSION Ex
 					}
 					else
 					{
-						// Determine if the first sector contains a portion of the CipherShed Boot Loader
+						// Determine if the first sector contains a portion of the TrueCrypt Boot Loader
 
 						offset.QuadPart = 0;
 
@@ -926,10 +926,10 @@ NTSTATUS ProcessMainDeviceControlIrp (PDEVICE_OBJECT DeviceObject, PEXTENSION Ex
 
 							if (opentest->bDetectTCBootLoader && IoStatus.Information >= TC_SECTOR_SIZE_BIOS)
 							{
-								// Search for the string "CipherShed"
-								for (i = 0; i < TC_SECTOR_SIZE_BIOS - strlen (TC_APP_NAME); ++i)
+								// Search for the string "TrueCrypt"
+								for (i = 0; i < TC_SECTOR_SIZE_BIOS - strlen (TC_APP_NAME_LEGACY); ++i)
 								{
-									if (memcmp (readBuffer + i, TC_APP_NAME, strlen (TC_APP_NAME)) == 0)
+									if (memcmp (readBuffer + i, TC_APP_NAME_LEGACY, strlen (TC_APP_NAME_LEGACY)) == 0)
 									{
 										opentest->TCBootLoaderDetected = TRUE;
 										break;
@@ -995,7 +995,7 @@ NTSTATUS ProcessMainDeviceControlIrp (PDEVICE_OBJECT DeviceObject, PEXTENSION Ex
 
 			if (NT_SUCCESS (ntStatus))
 			{
-				// Determine if the first sector contains a portion of the CipherShed Boot Loader
+				// Determine if the first sector contains a portion of the TrueCrypt Boot Loader
 				offset.QuadPart = 0;	// MBR
 
 				ntStatus = ZwReadFile (NtFileHandle,
@@ -1033,10 +1033,10 @@ NTSTATUS ProcessMainDeviceControlIrp (PDEVICE_OBJECT DeviceObject, PEXTENSION Ex
 					request->UserConfiguration = 0;
 					request->CustomUserMessage[0] = 0;
 
-					// Search for the string "CipherShed"
-					for (i = 0; i < sizeof (readBuffer) - strlen (TC_APP_NAME); ++i)
+					// Search for the string "TrueCrypt"
+					for (i = 0; i < sizeof (readBuffer) - strlen (TC_APP_NAME_LEGACY); ++i)
 					{
-						if (memcmp (readBuffer + i, TC_APP_NAME, strlen (TC_APP_NAME)) == 0)
+						if (memcmp (readBuffer + i, TC_APP_NAME_LEGACY, strlen (TC_APP_NAME_LEGACY)) == 0)
 						{
 							request->BootLoaderVersion = BE16 (*(uint16 *) (readBuffer + TC_BOOT_SECTOR_VERSION_OFFSET));
 							request->Configuration = readBuffer[TC_BOOT_SECTOR_CONFIG_OFFSET];
@@ -3042,18 +3042,25 @@ BOOL IsVolumeClassFilterRegistered ()
 
 	PKEY_VALUE_PARTIAL_INFORMATION data;
 
+	/*
+	 * Note: Do not change the "Storage Volumes" guid (System-Defined Device Setup Classes).
+	 * This class includes storage volumes as defined by the system-supplied
+	 * logical volume manager and class drivers that create device objects to
+	 * represent storage volumes, such as the system disk class driver.
+	 * @see	http://msdn.microsoft.com/en-us/library/windows/hardware/ff553426%28v=vs.85%29.aspx
+	 */
 	RtlInitUnicodeString (&name, L"\\REGISTRY\\MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Class\\{71A27CDD-812A-11D0-BEC7-08002BE2092F}");
 	status = TCReadRegistryKey (&name, L"UpperFilters", &data);
 
 	if (NT_SUCCESS (status))
 	{
-		if (data->Type == REG_MULTI_SZ && data->DataLength >= 10 * sizeof (wchar_t))
+		if (data->Type == REG_MULTI_SZ && data->DataLength >= 9 * sizeof (wchar_t))
 		{
-			// Search for the string "ciphershed"
+			// Search for the string "truecrypt"
 			ULONG i;
-			for (i = 0; i <= data->DataLength - 10 * sizeof (wchar_t); ++i)
+			for (i = 0; i <= data->DataLength - 9 * sizeof (wchar_t); ++i)
 			{
-				if (memcmp (data->Data + i, L"ciphershed", 10 * sizeof (wchar_t)) == 0)
+				if (memcmp (data->Data + i, L"truecrypt", 9 * sizeof (wchar_t)) == 0)
 				{
 					Dump ("Volume class filter active\n");
 					registered = TRUE;
@@ -3076,7 +3083,7 @@ NTSTATUS ReadRegistryConfigFlags (BOOL driverEntry)
 	NTSTATUS status;
 	uint32 flags = 0;
 
-	RtlInitUnicodeString (&name, L"\\REGISTRY\\MACHINE\\SYSTEM\\CurrentControlSet\\Services\\ciphershed");
+	RtlInitUnicodeString (&name, L"\\REGISTRY\\MACHINE\\SYSTEM\\CurrentControlSet\\Services\\truecrypt");
 	status = TCReadRegistryKey (&name, TC_DRIVER_CONFIG_REG_VALUE_NAME, &data);
 
 	if (NT_SUCCESS (status))
@@ -3118,7 +3125,7 @@ NTSTATUS ReadRegistryConfigFlags (BOOL driverEntry)
 NTSTATUS WriteRegistryConfigFlags (uint32 flags)
 {
 	UNICODE_STRING name;
-	RtlInitUnicodeString (&name, L"\\REGISTRY\\MACHINE\\SYSTEM\\CurrentControlSet\\Services\\ciphershed");
+	RtlInitUnicodeString (&name, L"\\REGISTRY\\MACHINE\\SYSTEM\\CurrentControlSet\\Services\\truecrypt");
 
 	return TCWriteRegistryKey (&name, TC_DRIVER_CONFIG_REG_VALUE_NAME, REG_DWORD, &flags, sizeof (flags));
 }
@@ -3282,6 +3289,8 @@ BOOL IsOSAtLeast (OSVersionEnum reqMinOS)
 	case WIN_SERVER_2003:	major = 5; minor = 2; break;
 	case WIN_VISTA:			major = 6; minor = 0; break;
 	case WIN_7:				major = 6; minor = 1; break;
+	case WIN_8:				major = 6; minor = 2; break;
+	case WIN_10:			major = 6; minor = 4; break;
 
 	default:
 		TC_THROW_FATAL_EXCEPTION;

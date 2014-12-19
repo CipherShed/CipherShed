@@ -44,12 +44,23 @@ enum
 	TC_TBXID_EXTRA_BOOT_PARTITION_REMOVAL_INSTRUCTIONS
 };
 
+/*
+ * This identifier allows an application to group its associated processes and
+ * windows under a single taskbar button (NT 6.1 or later).
+ * It is also associated with the "TrueCryptVolume" type class.
+ * @see	http://msdn.microsoft.com/en-us/library/windows/desktop/dd378459%28v=vs.85%29.aspx
+ */
 #define TC_APPLICATION_ID	L"CipherShedProject.CipherShed"
 
-#define TC_MUTEX_NAME_SYSENC				"Global\\CipherShed System Encryption Wizard"
-#define TC_MUTEX_NAME_NONSYS_INPLACE_ENC	"Global\\CipherShed In-Place Encryption Wizard"
-#define TC_MUTEX_NAME_APP_SETUP				"Global\\CipherShed Setup"
-#define TC_MUTEX_NAME_DRIVER_SETUP			"Global\\CipherShed Driver Setup"
+/*
+ * Note: We do not allow to run CipherShed and TrueCrypt setups at the same time
+ * to prevent unspecified behaviour (e.g. race conditions),
+ * hence CipherShed needs to lock TrueCrypts global namespace mutexes.
+ */
+#define TC_MUTEX_NAME_SYSENC				"Global\\TrueCrypt System Encryption Wizard"
+#define TC_MUTEX_NAME_NONSYS_INPLACE_ENC	"Global\\TrueCrypt In-Place Encryption Wizard"
+#define TC_MUTEX_NAME_APP_SETUP				"Global\\TrueCrypt Setup"
+#define TC_MUTEX_NAME_DRIVER_SETUP			"Global\\TrueCrypt Driver Setup"
 
 #define IDC_ABOUT 0x7fff	/* ID for AboutBox on system menu in wm_user range */
 
@@ -71,7 +82,7 @@ enum
 #define TC_APPD_FILENAME_DEFAULT_KEYFILES					"Default Keyfiles.xml"
 #define TC_APPD_FILENAME_HISTORY							"History.xml"
 #define TC_APPD_FILENAME_FAVORITE_VOLUMES					"Favorite Volumes.xml"
-#define TC_APPD_FILENAME_SYSTEM_FAVORITE_VOLUMES			TC_APP_NAME " System Favorite Volumes.xml"
+#define TC_APPD_FILENAME_SYSTEM_FAVORITE_VOLUMES			TC_APP_NAME_LEGACY " System Favorite Volumes.xml"
 #define TC_APPD_FILENAME_NONSYS_INPLACE_ENC					"In-Place Encryption"
 #define TC_APPD_FILENAME_NONSYS_INPLACE_ENC_WIPE			"In-Place Encryption Wipe Algo"
 #define TC_APPD_FILENAME_POST_INSTALL_TASK_TUTORIAL			"Post-Install Task - Tutorial"

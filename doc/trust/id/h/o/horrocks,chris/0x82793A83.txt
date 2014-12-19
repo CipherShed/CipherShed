@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd" >
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Public Key Server -- Get ``0xb81b696682793a83 ''</title>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<style type="text/css">
+/*<![CDATA[*/
+ .uid { color: green; text-decoration: underline; }
+ .warn { color: red; font-weight: bold; }
+/*]]>*/
+</style></head><body><h1>Public Key Server -- Get ``0xb81b696682793a83 ''</h1>
+<pre>
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: SKS 1.1.4
+Comment: Hostname: pgp.mit.edu
+
+mQENBFOQyfgBCAChuWJR1/k8W5Ys431SQ5JpdPbGF1dU8xTdDDGMylmdX1w5ayGtH7LvdqOt
+jgbLFZ0Kpx6VEfcdP06/6QOnsmXKq5NzeULTwdIdMqlnlj0zBtyxUxzSK4g9XU6X4weO2QV2
+66thPQgazIuc+F2xKuBRVxPrv++e/KJ2IkKP+Pny+kDVPWSoC/RBH/L3Fxfxbfrsk/3PM4AL
+qBd2DT6OHeZ7bp8IYn1W8lje+2cvPQQqF1dqwDbLmTsAyLjTKBy338RKLYQ6+MQCF2eMwKML
+G2C6589lLbtCKIq7CXQQFQtBLpwh9sVvylCeryjG0QmjPPLIwpttrlAFdEf49SsZvJ4LABEB
+AAG0GFBJRDAgPHAxZHozcjBAZ21haWwuY29tPokBPwQTAQIAKQUCU5DJ+AIbIwUJCWYBgAcL
+CQgHAwIBBhUIAgkKCwQWAgMBAh4BAheAAAoJELgbaWaCeTqDUwoH/RRXFYMCaYhH6XIn6WOu
+m6lGLYC9exZ7/vIqW47ysCT5mix6D0XjuuAYnnO2tqeDWOMogF5jO7JDdvhvZXTDFJfY9qXv
+FdSID7q769alEOoMPjcQEdvI4hr7Rkdc1Zm1HYApnFfOPniDZFPwlfnY76FKFHAimmXM6aC2
+gUwSKlK3/X3iMxttxNe1A1vbWWSOmXBFLhWILVWFgihwRMTO5IcvLPq4FX/2mJkJ8c/tEqwn
+oEPQOOaS1qsIrvTQPlPZ5WswRSh80mjvEnILsknX0HYGATCbIt3ABVySStm8571AN87/aZMg
+o+ywzRbRuAPBIvzP0S79ON02Z8It8/9wOGm5AQ0EU5DJ+AEIAN1nZMNzlTOlYR1peduS9tNU
+KPQiFiXo8IMtMNcnUJ5wDfCD2a/6Qy1qR1BSsqmuOCkgNoJUfNKs/KmMNyO13oGvhlLMeu8Z
+lKJYZCKMtn+Yev4qHye3n9VYdQgT5ABMmWAwrOyqPJyj21VVtQ9LUxec0oIGrBHu6OQXCkRR
+CGM1oCSJbi9ye9fWmtkm/SVryYRxts72P/7z6MBvpPkuPlQ84xlAXRwjI38z597YtJUSwFtN
+L/E1vmhF+OMVm5v640MlgZUccQ/sC0TlbDj5hUKZpqHjrM/jC8KyM8qfRMdNaMVr2yGpxksO
+8gbx7sV7BDSIIbP+oCaWTMlM0VqnKMEAEQEAAYkBJQQYAQIADwUCU5DJ+AIbDAUJCWYBgAAK
+CRC4G2lmgnk6gwv2CACEBZ6Dzyi3MWlJsT5eV9QQJ4xLvhYIDwRMuUTgYC3bXaEnekZiZ0iu
+DkyWTaOOtS5ld9PY1DneUuzORfJvBtixYMz/y+jdfrdMLIbWistVmT9jfFL367sMethhVTQn
+RZ33+I/yRbk+dmKq5DyaWmIv8l7J2B3GiR/SEzsyvjxdyu1y3YIuL2NHe+5JjIF5k0LfpC60
+nWKPNYPsHJ3NjJAc1s1mEM1topwbmLhrR/hdkFFYQTvECudWl7S/2/Lvtn88QyJQRrfeoyBx
+p8+1k+rj6xDmDMlChGkNwtpbbOrmHxasJR0unFDYnrBYaJAVvUDxzgxTO0eUl4e7ebBibAxQ
+=tucj
+-----END PGP PUBLIC KEY BLOCK-----
+</pre>
+</body></html>

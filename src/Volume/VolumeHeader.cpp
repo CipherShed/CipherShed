@@ -136,6 +136,7 @@ namespace CipherShed
 		if (header.Size() != EncryptedHeaderDataSize)
 			throw ParameterIncorrect (SRC_POS);
 
+		/* Modifying 'TRUE' can introduce incompatibility with previous versions. */
 		if (header[0] != 'T' ||
 			header[1] != 'R' ||
 			header[2] != 'U' ||
@@ -285,6 +286,7 @@ namespace CipherShed
 
 		header.Zero();
 
+		/* Modifying 'TRUE' can introduce incompatibility with previous versions. */
 		header[0] = 'T';
 		header[1] = 'R';
 		header[2] = 'U';
