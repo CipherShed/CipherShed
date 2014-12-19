@@ -72,6 +72,7 @@ BOOL CheckPasswordCharEncoding (HWND hPassword, Password *ptrPw)
 
 		for (i = 0; i < len; i++)
 		{
+			//for i in `seq 32 126`; do printf "\x$(printf %x $i) "; done
 			if (pw[i] >= 0x7f || pw[i] < 0x20)	// A non-ASCII or non-printable character?
 				return FALSE;
 		}

@@ -69,6 +69,7 @@ namespace CipherShed
 	{
 		for (size_t i = 0; i < PasswordSize; i++)
 		{
+			// this is the same code in Format/Tcformat.c
 			if (PasswordBuffer[i] >= 0x7f || PasswordBuffer[i] < 0x20)
 				return false;
 		}
