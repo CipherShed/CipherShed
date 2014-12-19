@@ -317,7 +317,7 @@ BOOL DoFilesInstall (HWND hwndDlg, char *szDestDir)
 		return FALSE;
 
 	if (szDestDir[x - 1] != '\\')
-		strcat (szDestDir, "\\");
+		strcat_s (szDestDir, sizeof(szDestDir), "\\");
 
 	for (i = 0; i < sizeof (szFiles) / sizeof (szFiles[0]); i++)
 	{
@@ -341,9 +341,9 @@ BOOL DoFilesInstall (HWND hwndDlg, char *szDestDir)
 
 			x = strlen (szDir);
 			if (szDir[x - 1] != '\\')
-				strcat (szDir, "\\");
+				strcat_s (szDir, sizeof(szDir), "\\");
 
-			strcat (szDir, "Drivers\\");
+			strcat_s (szDir, sizeof(szDir), "Drivers\\");
 		}
 		else if (*szFiles[i] == 'W')
 			GetWindowsDirectory (szDir, sizeof (szDir));
@@ -631,7 +631,7 @@ BOOL DoRegInstall (HWND hwndDlg, char *szDestDir, BOOL bInstallType)
 		bSlash = FALSE;
 
 	if (bSlash == FALSE)
-		strcat (szDir, "\\");
+		strcat_s (szDir, sizeof(szDir), "\\");
 
 	/* CipherShed registry migration. */
 	if (bCipherShedMigration)
@@ -647,9 +647,9 @@ BOOL DoRegInstall (HWND hwndDlg, char *szDestDir, BOOL bInstallType)
 			_snprintf (exe, sizeof (exe) - 32, "\"%sCipherShed.exe\" /q preferences /a logon", szDir) >= 0)
 		{
 			if (strstr (szTmp, " /a devices"))
-				strcat (exe, " /a devices");
+				strcat_s (exe, sizeof(exe), " /a devices");
 			if (strstr (szTmp, " /a favorites"))
-				strcat (exe, " /a favorites");
+				strcat_s (exe, sizeof(exe), " /a favorites");
 
 			WriteRegistryString (regk, "CipherShed", exe);
 		}
@@ -838,7 +838,7 @@ BOOL DoApplicationDataUninstall (HWND hwndDlg)
 	StatusMessage (hwndDlg, "REMOVING_APPDATA");
 
 	SHGetFolderPath (NULL, CSIDL_APPDATA, NULL, 0, path);
-	strcat (path, "\\TrueCrypt\\");
+	strcat_s (path, sizeof(path), "\\TrueCrypt\\");
 
 	// Delete favorite volumes file
 	snprintf (path2, sizeof(path2), "%s%s", path, TC_APPD_FILENAME_FAVORITE_VOLUMES);
@@ -866,7 +866,7 @@ BOOL DoApplicationDataUninstall (HWND hwndDlg)
 	StatDeleteFile (path2);
 
 	SHGetFolderPath (NULL, CSIDL_APPDATA, NULL, 0, path);
-	strcat (path, "\\TrueCrypt");
+	strcat_s (path, sizeof(path), "\\TrueCrypt");
 	RemoveMessage (hwndDlg, path);
 	if (!StatRemoveDirectory (path))
 	{
@@ -1312,9 +1312,9 @@ BOOL DoShortcutsUninstall (HWND hwndDlg, char *szDestDir)
 		bSlash = FALSE;
 
 	if (bSlash == FALSE)
-		strcat (szLinkDir, "\\");
+		strcat_s (szLinkDir, sizeof(szLinkDir), "\\");
 
-	strcat (szLinkDir, "CipherShed");
+	strcat_s (szLinkDir, sizeof(szLinkDir), "CipherShed");
 
 	// Global start menu
 	{
@@ -1322,7 +1322,7 @@ BOOL DoShortcutsUninstall (HWND hwndDlg, char *szDestDir)
 		char path[TC_MAX_PATH];
 
 		SHGetSpecialFolderPath (hwndDlg, path, CSIDL_COMMON_PROGRAMS, 0);
-		strcat (path, "\\CipherShed");
+		strcat_s (path, sizeof(path), "\\CipherShed");
 
 		if (_stat (path, &st) == 0)
 		{
@@ -1402,9 +1402,9 @@ BOOL DoTrueCryptShortcutsUninstall (HWND hwndDlg, char *szDestDir)
 		bSlash = FALSE;
 
 	if (bSlash == FALSE)
-		strcat (szLinkDir, "\\");
+		strcat_s (szLinkDir, sizeof(szLinkDir), "\\");
 
-	strcat (szLinkDir, "TrueCrypt");
+	strcat_s (szLinkDir, sizeof(szLinkDir), "TrueCrypt");
 
 	// Global start menu
 	{
@@ -1412,7 +1412,7 @@ BOOL DoTrueCryptShortcutsUninstall (HWND hwndDlg, char *szDestDir)
 		char path[TC_MAX_PATH];
 
 		SHGetSpecialFolderPath (hwndDlg, path, CSIDL_COMMON_PROGRAMS, 0);
-		strcat (path, "\\TrueCrypt");
+		strcat_s (path, sizeof(path), "\\TrueCrypt");
 
 		if (_stat (path, &st) == 0)
 		{
@@ -1491,9 +1491,9 @@ BOOL DoShortcutsInstall (HWND hwndDlg, char *szDestDir, BOOL bProgGroup, BOOL bD
 		bSlash = FALSE;
 
 	if (bSlash == FALSE)
-		strcat (szLinkDir, "\\");
+		strcat_s (szLinkDir, sizeof(szLinkDir), "\\");
 
-	strcat (szLinkDir, "CipherShed");
+	strcat_s (szLinkDir, sizeof(szLinkDir), "CipherShed");
 
 	strcpy (szDir, szDestDir);
 	x = strlen (szDestDir);
@@ -1503,7 +1503,7 @@ BOOL DoShortcutsInstall (HWND hwndDlg, char *szDestDir, BOOL bProgGroup, BOOL bD
 		bSlash = FALSE;
 
 	if (bSlash == FALSE)
-		strcat (szDir, "\\");
+		strcat_s (szDir, sizeof(szDir), "\\");
 
 	if (bProgGroup)
 	{
@@ -1564,7 +1564,7 @@ BOOL DoShortcutsInstall (HWND hwndDlg, char *szDestDir, BOOL bProgGroup, BOOL bD
 			bSlash = FALSE;
 
 		if (bSlash == FALSE)
-			strcat (szDir, "\\");
+			strcat_s (szDir, sizeof(szDir), "\\");
 
 		if (bForAllUsers)
 			SHGetSpecialFolderPath (hwndDlg, szLinkDir, CSIDL_COMMON_DESKTOPDIRECTORY, 0);
