@@ -33,6 +33,7 @@
 #include "Wizard.h"
 
 #include "../Common/Resource.h"
+#include "../Common/snprintf.h"
 
 using namespace CipherShed;
 
@@ -350,7 +351,7 @@ BOOL DoFilesInstall (HWND hwndDlg, char *szDestDir)
 		if (*szFiles[i] == 'I')
 			continue;
 
-		sprintf (szTmp, "%s%s", szDir, szFiles[i] + 1);
+		snprintf (szTmp, sizeof(szTmp), "%s%s", szDir, szFiles[i] + 1);
 
 		if (bUninstall == FALSE)
 			CopyMessage (hwndDlg, szTmp);
@@ -510,7 +511,7 @@ err:
 		if (h != INVALID_HANDLE_VALUE)
 		{
 			char d[MAX_PATH*2];
-			sprintf (d, "%s%s", szDestDir, f.cFileName);
+			snprintf (d, sizeof(d), "%s%s", szDestDir, f.cFileName);
 			CopyMessage (hwndDlg, d);
 			TCCopyFile (f.cFileName, d);
 			FindClose (h);
@@ -522,7 +523,7 @@ err:
 		if (h != INVALID_HANDLE_VALUE)
 		{
 			char d[MAX_PATH*2];
-			sprintf (d, "%s%s", szDestDir, f.cFileName);
+			snprintf (d, sizeof(d), "%s%s", szDestDir, f.cFileName);
 			CopyMessage (hwndDlg, d);
 			TCCopyFile (f.cFileName, d);
 			FindClose (h);
@@ -687,7 +688,7 @@ BOOL DoRegInstall (HWND hwndDlg, char *szDestDir, BOOL bInstallType)
 		if (RegSetValueEx (hkey, "", 0, REG_SZ, (BYTE *) szTmp, strlen (szTmp) + 1) != ERROR_SUCCESS)
 			goto error;
 
-		sprintf (szTmp, "%ws", TC_APPLICATION_ID);
+		snprintf (szTmp, sizeof(szTmp), "%ws", TC_APPLICATION_ID);
 		if (RegSetValueEx (hkey, "AppUserModelID", 0, REG_SZ, (BYTE *) szTmp, strlen (szTmp) + 1) != ERROR_SUCCESS)
 			goto error;
 
@@ -701,7 +702,7 @@ BOOL DoRegInstall (HWND hwndDlg, char *szDestDir, BOOL bInstallType)
 				    0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hkey, &dw) != ERROR_SUCCESS)
 			goto error;
 
-		sprintf (szTmp, "%sCipherShed.exe,1", szDir);
+		snprintf (szTmp, sizeof(szTmp), "%sCipherShed.exe,1", szDir);
 		if (RegSetValueEx (hkey, "", 0, REG_SZ, (BYTE *) szTmp, strlen (szTmp) + 1) != ERROR_SUCCESS)
 			goto error;
 
@@ -715,7 +716,7 @@ BOOL DoRegInstall (HWND hwndDlg, char *szDestDir, BOOL bInstallType)
 				    0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hkey, &dw) != ERROR_SUCCESS)
 			goto error;
 
-		sprintf (szTmp, "\"%sCipherShed.exe\" /v \"%%1\"", szDir );
+		snprintf (szTmp, sizeof(szTmp), "\"%sCipherShed.exe\" /v \"%%1\"", szDir );
 		if (RegSetValueEx (hkey, "", 0, REG_SZ, (BYTE *) szTmp, strlen (szTmp) + 1) != ERROR_SUCCESS)
 			goto error;
 
@@ -755,15 +756,15 @@ BOOL DoRegInstall (HWND hwndDlg, char *szDestDir, BOOL bInstallType)
 		goto error;
 
 	/* IMPORTANT: IF YOU CHANGE THIS IN ANY WAY, REVISE AND UPDATE SetInstallationPath() ACCORDINGLY! */ 
-	sprintf (szTmp, "\"%sCipherShed Setup.exe\" /u", szDir);
+	snprintf (szTmp, sizeof(szTmp), "\"%sCipherShed Setup.exe\" /u", szDir);
 	if (RegSetValueEx (hkey, "UninstallString", 0, REG_SZ, (BYTE *) szTmp, strlen (szTmp) + 1) != ERROR_SUCCESS)
 		goto error;
 
-	sprintf (szTmp, "\"%sCipherShed Setup.exe\" /c", szDir);
+	snprintf (szTmp, sizeof(szTmp), "\"%sCipherShed Setup.exe\" /c", szDir);
 	if (RegSetValueEx (hkey, "ModifyPath", 0, REG_SZ, (BYTE *) szTmp, strlen (szTmp) + 1) != ERROR_SUCCESS)
 		goto error;
 
-	sprintf (szTmp, "\"%sCipherShed Setup.exe\"", szDir);
+	snprintf (szTmp, sizeof(szTmp), "\"%sCipherShed Setup.exe\"", szDir);
 	if (RegSetValueEx (hkey, "DisplayIcon", 0, REG_SZ, (BYTE *) szTmp, strlen (szTmp) + 1) != ERROR_SUCCESS)
 		goto error;
 
@@ -840,27 +841,27 @@ BOOL DoApplicationDataUninstall (HWND hwndDlg)
 	strcat (path, "\\TrueCrypt\\");
 
 	// Delete favorite volumes file
-	sprintf (path2, "%s%s", path, TC_APPD_FILENAME_FAVORITE_VOLUMES);
+	snprintf (path2, sizeof(path2), "%s%s", path, TC_APPD_FILENAME_FAVORITE_VOLUMES);
 	RemoveMessage (hwndDlg, path2);
 	StatDeleteFile (path2);
 
 	// Delete keyfile defaults
-	sprintf (path2, "%s%s", path, TC_APPD_FILENAME_DEFAULT_KEYFILES);
+	snprintf (path2, sizeof(path2), "%s%s", path, TC_APPD_FILENAME_DEFAULT_KEYFILES);
 	RemoveMessage (hwndDlg, path2);
 	StatDeleteFile (path2);
 
 	// Delete history file
-	sprintf (path2, "%s%s", path, TC_APPD_FILENAME_HISTORY);
+	snprintf (path2, sizeof(path2), "%s%s", path, TC_APPD_FILENAME_HISTORY);
 	RemoveMessage (hwndDlg, path2);
 	StatDeleteFile (path2);
 	
 	// Delete configuration file
-	sprintf (path2, "%s%s", path, TC_APPD_FILENAME_CONFIGURATION);
+	snprintf (path2, sizeof(path2), "%s%s", path, TC_APPD_FILENAME_CONFIGURATION);
 	RemoveMessage (hwndDlg, path2);
 	StatDeleteFile (path2);
 
 	// Delete system encryption configuration file
-	sprintf (path2, "%s%s", path, TC_APPD_FILENAME_SYSTEM_ENCRYPTION);
+	snprintf (path2, sizeof(path2), "%s%s", path, TC_APPD_FILENAME_SYSTEM_ENCRYPTION);
 	RemoveMessage (hwndDlg, path2);
 	StatDeleteFile (path2);
 
@@ -1331,22 +1332,22 @@ BOOL DoShortcutsUninstall (HWND hwndDlg, char *szDestDir)
 	}
 
 	// Start menu entries
-	sprintf (szTmp2, "%s%s", szLinkDir, "\\CipherShed.lnk");
+	snprintf (szTmp2, sizeof(szTmp2), "%s%s", szLinkDir, "\\CipherShed.lnk");
 	RemoveMessage (hwndDlg, szTmp2);
 	if (StatDeleteFile (szTmp2) == FALSE)
 		goto error;
 
-	sprintf (szTmp2, "%s%s", szLinkDir, "\\CipherShed Website.url");
+	snprintf (szTmp2, sizeof(szTmp2), "%s%s", szLinkDir, "\\CipherShed Website.url");
 	RemoveMessage (hwndDlg, szTmp2);
 	if (StatDeleteFile (szTmp2) == FALSE)
 		goto error;
 
-	sprintf (szTmp2, "%s%s", szLinkDir, "\\Uninstall CipherShed.lnk");
+	snprintf (szTmp2, sizeof(szTmp2), "%s%s", szLinkDir, "\\Uninstall CipherShed.lnk");
 	RemoveMessage (hwndDlg, szTmp2);
 	if (StatDeleteFile (szTmp2) == FALSE)
 		goto error;
 	
-	sprintf (szTmp2, "%s%s", szLinkDir, "\\CipherShed User's Guide.lnk");
+	snprintf (szTmp2, sizeof(szTmp2), "%s%s", szLinkDir, "\\CipherShed User's Guide.lnk");
 	DeleteFile (szTmp2);
 
 	// Start menu group
@@ -1362,7 +1363,7 @@ BOOL DoShortcutsUninstall (HWND hwndDlg, char *szDestDir)
 	else
 		SHGetSpecialFolderPath (hwndDlg, szLinkDir, CSIDL_DESKTOPDIRECTORY, 0);
 
-	sprintf (szTmp2, "%s%s", szLinkDir, "\\CipherShed.lnk");
+	snprintf (szTmp2, sizeof(szTmp2), "%s%s", szLinkDir, "\\CipherShed.lnk");
 
 	RemoveMessage (hwndDlg, szTmp2);
 	if (StatDeleteFile (szTmp2) == FALSE)
@@ -1421,22 +1422,22 @@ BOOL DoTrueCryptShortcutsUninstall (HWND hwndDlg, char *szDestDir)
 	}
 
 	// Start menu entries
-	sprintf (szTmp2, "%s%s", szLinkDir, "\\TrueCrypt.lnk");
+	snprintf (szTmp2, sizeof(szTmp2), "%s%s", szLinkDir, "\\TrueCrypt.lnk");
 	RemoveMessage (hwndDlg, szTmp2);
 	if (StatDeleteFile (szTmp2) == FALSE)
 		goto error;
 
-	sprintf (szTmp2, "%s%s", szLinkDir, "\\TrueCrypt Website.url");
+	snprintf (szTmp2, sizeof(szTmp2), "%s%s", szLinkDir, "\\TrueCrypt Website.url");
 	RemoveMessage (hwndDlg, szTmp2);
 	if (StatDeleteFile (szTmp2) == FALSE)
 		goto error;
 
-	sprintf (szTmp2, "%s%s", szLinkDir, "\\Uninstall TrueCrypt.lnk");
+	snprintf (szTmp2, sizeof(szTmp2), "%s%s", szLinkDir, "\\Uninstall TrueCrypt.lnk");
 	RemoveMessage (hwndDlg, szTmp2);
 	if (StatDeleteFile (szTmp2) == FALSE)
 		goto error;
 	
-	sprintf (szTmp2, "%s%s", szLinkDir, "\\TrueCrypt User's Guide.lnk");
+	snprintf (szTmp2, sizeof(szTmp2), "%s%s", szLinkDir, "\\TrueCrypt User's Guide.lnk");
 	DeleteFile (szTmp2);
 
 	// Start menu group
@@ -1452,7 +1453,7 @@ BOOL DoTrueCryptShortcutsUninstall (HWND hwndDlg, char *szDestDir)
 	else
 		SHGetSpecialFolderPath (hwndDlg, szLinkDir, CSIDL_DESKTOPDIRECTORY, 0);
 
-	sprintf (szTmp2, "%s%s", szLinkDir, "\\TrueCrypt.lnk");
+	snprintf (szTmp2, sizeof(szTmp2), "%s%s", szLinkDir, "\\TrueCrypt.lnk");
 
 	RemoveMessage (hwndDlg, szTmp2);
 	if (StatDeleteFile (szTmp2) == FALSE)
@@ -1521,14 +1522,14 @@ BOOL DoShortcutsInstall (HWND hwndDlg, char *szDestDir, BOOL bProgGroup, BOOL bD
 			}
 		}
 
-		sprintf (szTmp, "%s%s", szDir, "CipherShed.exe");
-		sprintf (szTmp2, "%s%s", szLinkDir, "\\CipherShed.lnk");
+		snprintf (szTmp, sizeof(szTmp), "%s%s", szDir, "CipherShed.exe");
+		snprintf (szTmp2, sizeof(szTmp2), "%s%s", szLinkDir, "\\CipherShed.lnk");
 
 		IconMessage (hwndDlg, szTmp2);
 		if (CreateLink (szTmp, "", szTmp2) != S_OK)
 			goto error;
 
-		sprintf (szTmp2, "%s%s", szLinkDir, "\\CipherShed Website.url");
+		snprintf (szTmp2, sizeof(szTmp2), "%s%s", szLinkDir, "\\CipherShed Website.url");
 		IconMessage (hwndDlg, szTmp2);
 		f = fopen (szTmp2, "w");
 		if (f)
@@ -1541,15 +1542,15 @@ BOOL DoShortcutsInstall (HWND hwndDlg, char *szDestDir, BOOL bProgGroup, BOOL bD
 		else
 			goto error;
 
-		sprintf (szTmp, "%s%s", szDir, "CipherShed Setup.exe");
-		sprintf (szTmp2, "%s%s", szLinkDir, "\\Uninstall CipherShed.lnk");
+		snprintf (szTmp, sizeof(szTmp), "%s%s", szDir, "CipherShed Setup.exe");
+		snprintf (szTmp2, sizeof(szTmp2), "%s%s", szLinkDir, "\\Uninstall CipherShed.lnk");
 		strcpy (szTmp3, "/u");
 
 		IconMessage (hwndDlg, szTmp2);
 		if (CreateLink (szTmp, szTmp3, szTmp2) != S_OK)
 			goto error;
 
-		sprintf (szTmp2, "%s%s", szLinkDir, "\\CipherShed User's Guide.lnk");
+		snprintf (szTmp2, sizeof(szTmp2), "%s%s", szLinkDir, "\\CipherShed User's Guide.lnk");
 		DeleteFile (szTmp2);
 	}
 
@@ -1570,8 +1571,8 @@ BOOL DoShortcutsInstall (HWND hwndDlg, char *szDestDir, BOOL bProgGroup, BOOL bD
 		else
 			SHGetSpecialFolderPath (hwndDlg, szLinkDir, CSIDL_DESKTOPDIRECTORY, 0);
 
-		sprintf (szTmp, "%s%s", szDir, "CipherShed.exe");
-		sprintf (szTmp2, "%s%s", szLinkDir, "\\CipherShed.lnk");
+		snprintf (szTmp, sizeof(szTmp), "%s%s", szDir, "CipherShed.exe");
+		snprintf (szTmp2, sizeof(szTmp2), "%s%s", szLinkDir, "\\CipherShed.lnk");
 
 		IconMessage (hwndDlg, szTmp2);
 

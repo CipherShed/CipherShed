@@ -19,6 +19,7 @@
 #include "Dlgcode.h"
 #include "Language.h"
 #include "Common/Resource.h"
+#include "Common/snprintf.h"
 #include "Resource.h"
 #include "Setup.h"
 
@@ -226,7 +227,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 	case WM_INITDIALOG:
 		LocalizeDialog (hwndDlg, "IDD_INSTL_DLG");
 
-		sprintf (PageDebugId, "SETUP_WIZARD_PAGE_%d", nCurPageNo);
+		snprintf (PageDebugId, sizeof(PageDebugId), "SETUP_WIZARD_PAGE_%d", nCurPageNo);
 		LastDialogId = PageDebugId;
 
 		switch (nCurPageNo)
@@ -707,7 +708,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				{
 					char tmpstr [200];
 
-					sprintf (tmpstr, "&ref=%d", DonColorSchemeId);
+					snprintf (tmpstr, sizeof(tmpstr), "&ref=%d", DonColorSchemeId);
 
 					Applink ("donate", FALSE, tmpstr);
 				}
