@@ -1,0 +1,129 @@
+0. git branch audit-pyeron-2014-06-15 ac812aa395583b37dfca3f921c36385e744eb121; git checkout audit-pyeron-2014-06-15
+
+1. I have reviewed the "TrueCrypt 7.1a Source.zip" and I can certify that it matches the same file in my possesion and is the same source that was recenty audited 
+(https://opencryptoaudit.org/reports/iSec_Final_Open_Crypto_Audit_Project_TrueCrypt_Security_Assessment.pdf).
+
+2. The extraction of the files seems to have different line endings than are contained in the zip file. I was unable to reproduce the extraction using unzip, unzip -a, 
+or unzip -b from the source .zip file.  
+
+3. Once extracted running a full diff on the files indicated it was a line ending issue, re-running the diff as such: $ diff -r /tmp/truecrypt/trusted/ . -w
+Only in .: .git
+Only in .: Build
+Only in .: Core
+Only in .: doc
+Only in ./Driver: Fuse
+Only in .: Main
+Only in .: Makefile
+Only in ./Platform: Unix
+Only in .: README.md
+Only in ./Resources: Icons
+Only in .: Source.Verification.txt
+Only in .: TrueCrypt 7.1a Source.tar.gz
+Only in .: TrueCrypt 7.1a Source.zip
+Only in .: truecrypt-hashes.asc
+Only in .: Volume
+
+This tells me that the changes are only in whitespace with some extra files, described in section 5.
+
+4. TrueCrypt 7.1a Source.tar.gz - sha1 = d43e0dbe05c04e316447d87413c4f74c68f5de24, this file is not reported in the open crypto audit report, but this hash shows up 
+in widely distributed google results [https://www.google.com/search?q=d43e0dbe05c04e316447d87413c4f74c68f5de24] I do not have enough personal knowledge to verify this 
+file.
+
+4.1. extraction of the tar.gz file confirms the files as a merge of the zip extraction then overwriten by the tar.gz extraction.
+
+	jpyeron@black /projects/cipherShed
+	$ rm -rf /tmp/truecrypt/test.tgz
+	
+	jpyeron@black /projects/cipherShed
+	$ mkdir -p /tmp/truecrypt/test.tgz
+	
+	jpyeron@black /projects/cipherShed
+	$ tar xf TrueCrypt\ 7.1a\ Source.tar.gz -C /tmp/truecrypt/test.tgz
+	
+	jpyeron@black /projects/cipherShed
+	$ diff -ur /tmp/truecrypt/test.tgz/truecrypt-7.1a-source/ .
+	Only in .: .git
+	Only in .: doc
+	Only in .: README.md
+	Only in .: Setup
+	Only in .: Source.Verification.txt
+	Only in .: TrueCrypt 7.1a Source.tar.gz
+	Only in .: TrueCrypt 7.1a Source.zip
+	Only in .: TrueCrypt.sln
+	Only in .: truecrypt-hashes.asc
+
+5. The extra files and directories can be explained as follows:
+
+5.1. .git - is the Git internal working directory.
+5.2. TrueCrypt 7.1a Source.zip - is the (windows) source zip.
+5.3. truecrypt-hashes.asc - is a text file with digital signatures.
+5.4. doc/ - this is the project's documentation directory.
+5.5. README.md - this is a CipherShed fork readme file.
+5.6. Source.Verification.txt - this is a log file of a source verification attempt by a CipherShed member.
+5.7. TrueCrypt 7.1a Source.tar.gz - see section 4.
+5.8. Build/Include/Makefile.inc:Build/Resources/MacOSX/Info.plist.xml:Core/Core.h:Core/Core.make:Core/CoreBase.cpp:Core/CoreBase.h:
+Core/CoreException.cpp:Core/CoreException.h:Core/FatFormatter.cpp:Core/FatFormatter.h:Core/HostDevice.cpp:Core/HostDevice.h:
+Core/MountOptions.cpp:Core/MountOptions.h:Core/RandomNumberGenerator.cpp:Core/RandomNumberGenerator.h:Core/Unix/CoreService.cpp:
+Core/Unix/CoreService.h:Core/Unix/CoreServiceProxy.h:Core/Unix/CoreServiceRequest.cpp:Core/Unix/CoreServiceRequest.h:
+Core/Unix/CoreServiceResponse.cpp:Core/Unix/CoreServiceResponse.h:Core/Unix/CoreUnix.cpp:Core/Unix/CoreUnix.h:
+Core/Unix/FreeBSD/CoreFreeBSD.cpp:Core/Unix/FreeBSD/CoreFreeBSD.h:Core/Unix/FreeBSD/System.h:Core/Unix/Linux/CoreLinux.cpp:
+Core/Unix/Linux/CoreLinux.h:Core/Unix/Linux/System.h:Core/Unix/MacOSX/CoreMacOSX.cpp:Core/Unix/MacOSX/CoreMacOSX.h:
+Core/Unix/MacOSX/System.h:Core/Unix/MountedFilesystem.h:Core/Unix/Solaris/CoreSolaris.cpp:Core/Unix/Solaris/CoreSolaris.h:
+Core/Unix/Solaris/System.h:Core/Unix/System.h:Core/VolumeCreator.cpp:Core/VolumeCreator.h:Driver/Fuse/Driver.make:
+Driver/Fuse/FuseService.cpp:Driver/Fuse/FuseService.h:Main/Application.cpp:Main/Application.h:Main/CommandLineInterface.cpp:
+Main/CommandLineInterface.h:Main/FatalErrorHandler.cpp:Main/FatalErrorHandler.h:Main/FavoriteVolume.cpp:Main/FavoriteVolume.h:
+Main/Forms/AboutDialog.cpp:Main/Forms/AboutDialog.h:Main/Forms/BenchmarkDialog.cpp:Main/Forms/BenchmarkDialog.h:
+Main/Forms/ChangePasswordDialog.cpp:Main/Forms/ChangePasswordDialog.h:Main/Forms/DeviceSelectionDialog.cpp:
+Main/Forms/DeviceSelectionDialog.h:Main/Forms/EncryptionOptionsWizardPage.cpp:Main/Forms/EncryptionOptionsWizardPage.h:
+Main/Forms/EncryptionTestDialog.cpp:Main/Forms/EncryptionTestDialog.h:Main/Forms/FavoriteVolumesDialog.cpp:
+Main/Forms/FavoriteVolumesDialog.h:Main/Forms/Forms.cpp:Main/Forms/Forms.h:Main/Forms/InfoWizardPage.cpp:Main/Forms/InfoWizardPage.h:
+Main/Forms/KeyfileGeneratorDialog.cpp:Main/Forms/KeyfileGeneratorDialog.h:Main/Forms/KeyfilesDialog.cpp:Main/Forms/KeyfilesDialog.h:
+Main/Forms/KeyfilesPanel.cpp:Main/Forms/KeyfilesPanel.h:Main/Forms/LegalNoticesDialog.cpp:Main/Forms/LegalNoticesDialog.h:
+Main/Forms/MainFrame.cpp:Main/Forms/MainFrame.h:Main/Forms/MountOptionsDialog.cpp:Main/Forms/MountOptionsDialog.h:
+Main/Forms/NewSecurityTokenKeyfileDialog.cpp:Main/Forms/NewSecurityTokenKeyfileDialog.h:Main/Forms/PreferencesDialog.cpp:
+Main/Forms/PreferencesDialog.h:Main/Forms/ProgressWizardPage.cpp:Main/Forms/ProgressWizardPage.h:
+Main/Forms/RandomPoolEnrichmentDialog.cpp:Main/Forms/RandomPoolEnrichmentDialog.h:Main/Forms/SecurityTokenKeyfilesDialog.cpp:
+Main/Forms/SecurityTokenKeyfilesDialog.h:Main/Forms/SelectDirectoryWizardPage.cpp:Main/Forms/SelectDirectoryWizardPage.h:
+Main/Forms/SingleChoiceWizardPage.h:Main/Forms/TrueCrypt.fbp:Main/Forms/VolumeCreationProgressWizardPage.cpp:
+Main/Forms/VolumeCreationProgressWizardPage.h:Main/Forms/VolumeCreationWizard.cpp:Main/Forms/VolumeCreationWizard.h:
+Main/Forms/VolumeFormatOptionsWizardPage.cpp:Main/Forms/VolumeFormatOptionsWizardPage.h:Main/Forms/VolumeLocationWizardPage.cpp:
+Main/Forms/VolumeLocationWizardPage.h:Main/Forms/VolumePasswordPanel.cpp:Main/Forms/VolumePasswordPanel.h:
+Main/Forms/VolumePasswordWizardPage.cpp:Main/Forms/VolumePasswordWizardPage.h:Main/Forms/VolumePropertiesDialog.cpp:
+Main/Forms/VolumePropertiesDialog.h:Main/Forms/VolumeSizeWizardPage.cpp:Main/Forms/VolumeSizeWizardPage.h:Main/Forms/WizardFrame.cpp:
+Main/Forms/WizardFrame.h:Main/Forms/WizardPage.h:Main/GraphicUserInterface.cpp:Main/GraphicUserInterface.h:Main/Hotkey.cpp:
+Main/Hotkey.h:Main/LanguageStrings.cpp:Main/LanguageStrings.h:Main/Main.h:Main/Main.make:Main/Resources.cpp:Main/Resources.h:
+Main/StringFormatter.cpp:Main/StringFormatter.h:Main/System.cpp:Main/System.h:Main/SystemPrecompiled.h:Main/TextUserInterface.cpp:
+Main/TextUserInterface.h:Main/Unix/Main.cpp:Main/UserInterface.cpp:Main/UserInterface.h:Main/UserInterfaceException.h:
+Main/UserInterfaceType.h:Main/UserPreferences.cpp:Main/UserPreferences.h:Main/VolumeHistory.cpp:Main/VolumeHistory.h:Main/Xml.cpp:
+Main/Xml.h:Makefile:Platform/Unix/Directory.cpp:Platform/Unix/File.cpp:Platform/Unix/FilesystemPath.cpp:Platform/Unix/Mutex.cpp:
+Platform/Unix/Pipe.cpp:Platform/Unix/Pipe.h:Platform/Unix/Poller.cpp:Platform/Unix/Poller.h:Platform/Unix/Process.cpp:
+Platform/Unix/Process.h:Platform/Unix/SyncEvent.cpp:Platform/Unix/System.h:Platform/Unix/SystemException.cpp:
+Platform/Unix/SystemInfo.cpp:Platform/Unix/SystemLog.cpp:Platform/Unix/Thread.cpp:Platform/Unix/Time.cpp:
+Resources/Icons/TrueCrypt-16x16.xpm:Resources/Icons/TrueCrypt-48x48.xpm:Resources/Icons/TrueCrypt.icns:Volume/Cipher.cpp:
+Volume/Cipher.h:Volume/Crc32.h:Volume/EncryptionAlgorithm.cpp:Volume/EncryptionAlgorithm.h:Volume/EncryptionMode.cpp:
+Volume/EncryptionMode.h:Volume/EncryptionModeCBC.cpp:Volume/EncryptionModeCBC.h:Volume/EncryptionModeLRW.cpp:
+Volume/EncryptionModeLRW.h:Volume/EncryptionModeXTS.cpp:Volume/EncryptionModeXTS.h:Volume/EncryptionTest.cpp:Volume/EncryptionTest.h:
+Volume/EncryptionThreadPool.cpp:Volume/EncryptionThreadPool.h:Volume/Hash.cpp:Volume/Hash.h:Volume/Keyfile.cpp:Volume/Keyfile.h:
+Volume/Pkcs5Kdf.cpp:Volume/Pkcs5Kdf.h:Volume/Version.h:Volume/Volume.cpp:Volume/Volume.h:Volume/Volume.make:
+Volume/VolumeException.cpp:Volume/VolumeException.h:Volume/VolumeHeader.cpp:Volume/VolumeHeader.h:Volume/VolumeInfo.cpp:
+Volume/VolumeInfo.h:Volume/VolumeLayout.cpp:Volume/VolumeLayout.h:Volume/VolumePassword.cpp:Volume/VolumePassword.h:
+Volume/VolumePasswordCache.cpp:Volume/VolumePasswordCache.h:Volume/VolumeSlot.h - These files are verified as comming from the 
+unverified, see section 4., tar.gz source file
+
+
+6. Tools and sha1 sums used in preperation of this audit report are as follows:
+
+e7d9c0313a688d2665897fe197e8985d8054c2ba */cygdrive/c/programs.i386/Adobe/Acrobat 8.0/Acrobat/Acrobat.exe
+4de6687726aa97699a76f4fd22b34370914633dc */cygdrive/c/programs.x86_64/Internet Explorer/iexplore.exe
+0e72264106aa2c2d0bcd30c1ff5a9eb3f1d79165 */usr/bin/unzip
+1197357ff30b0ba87fbfa52ec369289b7933efc7 */usr/bin/tar
+ca698d166a3dc22fe4d2a3de23c9493ef67715bc */usr/bin/gzip
+2a10455418016cfa3b44227d3d25fb6602ba5400 */usr/bin/diff
+c4c46cb3a59ab0f5750310e15e25279c78bdcaa8 */bin/cygwin1.dll
+
+Jason Pyeron
+Principal Consultant
+PD Inc
+10 W 24th St #100
+Baltimore, MD 21218
+USA

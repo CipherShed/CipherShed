@@ -234,7 +234,7 @@ namespace CipherShed
 #define TC_SYS_BOOT_LOADER_BACKUP_NAME			"Original System Loader"
 #define TC_SYS_BOOT_LOADER_BACKUP_NAME_LEGACY	"Original System Loader.bak"	// Deprecated to prevent removal by some "cleaners"
 
-#define TC_SYSTEM_FAVORITES_SERVICE_NAME				TC_APP_NAME "SystemFavorites"
+#define TC_SYSTEM_FAVORITES_SERVICE_NAME				TC_APP_NAME_LEGACY "SystemFavorites"
 #define	TC_SYSTEM_FAVORITES_SERVICE_LOAD_ORDER_GROUP	"Event Log"
 #define TC_SYSTEM_FAVORITES_SERVICE_CMDLINE_OPTION		"/systemFavoritesService"
 
