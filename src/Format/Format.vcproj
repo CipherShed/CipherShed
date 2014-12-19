@@ -43,7 +43,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\Common;..\Crypto;..\;$(PKCS11_INC)"
+				AdditionalIncludeDirectories="..\Common;..\Crypto;..\"
 				PreprocessorDefinitions="VOLFORMAT;WIN32;DEBUG;_DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NON_CONFORMING_SWPRINTFS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -129,7 +129,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/w34189"
 				Optimization="2"
-				AdditionalIncludeDirectories="..\Common;..\Crypto;..\;$(PKCS11_INC)"
+				AdditionalIncludeDirectories="..\Common;..\Crypto;..\"
 				PreprocessorDefinitions="VOLFORMAT;WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NON_CONFORMING_SWPRINTFS"
 				RuntimeLibrary="0"
 				BufferSecurityCheck="true"
@@ -560,7 +560,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\CipherShed_wizard.bmp"
+				RelativePath=".\CipherShed_Wizard.bmp"
 				>
 			</File>
 			<Filter

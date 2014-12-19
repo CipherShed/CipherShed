@@ -1134,6 +1134,7 @@ int FastVolumeHeaderUpdate (HANDLE dev, CRYPTO_INFO *headerCryptoInfo, CRYPTO_IN
 
 	DecryptBuffer (header + HEADER_ENCRYPTED_DATA_OFFSET, HEADER_ENCRYPTED_DATA_SIZE, headerCryptoInfo);
 
+	/* Modifying 'TRUE' can introduce incompatibility with previous versions. */
 	if (GetHeaderField32 (header, TC_HEADER_OFFSET_MAGIC) != 0x54525545)
 	{
 		nStatus = ERR_PARAMETER_INCORRECT;

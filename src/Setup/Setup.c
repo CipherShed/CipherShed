@@ -44,6 +44,7 @@ using namespace CipherShed;
 #pragma warning( default : 4201 )
 #pragma warning( default : 4115 )
 
+char UninstallationPath[TC_MAX_PATH];
 char InstallationPath[TC_MAX_PATH];
 char SetupFilesDir[TC_MAX_PATH];
 char UninstallBatch[MAX_PATH];
@@ -54,6 +55,7 @@ BOOL bRestartRequired = FALSE;
 BOOL bMakePackage = FALSE;
 BOOL bDone = FALSE;
 BOOL Rollback = FALSE;
+BOOL bCipherShedMigration = FALSE;
 BOOL bUpgrade = FALSE;
 BOOL bDowngrade = FALSE;
 BOOL SystemEncryptionUpdate = FALSE;
@@ -228,16 +230,27 @@ void IconMessage (HWND hwndDlg, char *txt)
 	StatusMessageParam (hwndDlg, "ADDING_ICON", txt);
 }
 
+/**
+ * Determines the installed kernel driver version and sets InstalledVersion / bUpgrade / bDowngrade globals accordingly.
+ * @param	[in] BOOL bCloseDriverHandle	When set to true the driver handle will be closed afterwards.
+ * @param	[out] LONG *driverVersionPtr	Pointer to a 32bit integer describing the installed kernel driver version.
+ * @return	void.
+ */
 void DetermineUpgradeDowngradeStatus (BOOL bCloseDriverHandle, LONG *driverVersionPtr)
 {
+	/* Defaults to the callers version number if no installed driver is found. */
 	LONG driverVersion = VERSION_NUM;
 
+	/* Singleton pattern. */
 	if (hDriver == INVALID_HANDLE_VALUE)
 		DriverAttach();
 
+	/* Check if the driver was opened successfully. */
 	if (hDriver != INVALID_HANDLE_VALUE)
 	{
 		DWORD dwResult;
+
+		/* Send a ioctl to determine the driver version. */
 		BOOL bResult = DeviceIoControl (hDriver, TC_IOCTL_GET_DRIVER_VERSION, NULL, 0, &driverVersion, sizeof (driverVersion), &dwResult, NULL);
 
 		if (!bResult)
@@ -249,6 +262,10 @@ void DetermineUpgradeDowngradeStatus (BOOL bCloseDriverHandle, LONG *driverVersi
 		bUpgrade = (bResult && driverVersion < VERSION_NUM);
 		bDowngrade = (bResult && driverVersion > VERSION_NUM);
 
+		/* TrueCrypt to CipherShed migration flag. */
+		bCipherShedMigration = (bUpgrade && driverVersion < 0x730);
+
+		/* Determine if the driver was loaded in portable mode. */
 		PortableMode = DeviceIoControl (hDriver, TC_IOCTL_GET_PORTABLE_MODE_STATUS, NULL, 0, NULL, 0, &dwResult, NULL);
 
 		if (bCloseDriverHandle)
@@ -361,7 +378,7 @@ BOOL DoFilesInstall (HWND hwndDlg, char *szDestDir)
 				curFileName [strlen (szFiles[i]) - 1] = 0;
 
 				if (Is64BitOs ()
-					&& strcmp (szFiles[i], "Dciphershed.sys") == 0)
+					&& strcmp (szFiles[i], "Dtruecrypt.sys") == 0)
 				{
 					driver64 = TRUE;
 					strncpy (curFileName, FILENAME_64BIT_DRIVER, sizeof (FILENAME_64BIT_DRIVER));
@@ -409,7 +426,7 @@ BOOL DoFilesInstall (HWND hwndDlg, char *szDestDir)
 
 								if (bUpgrade && InstalledVersion < 0x700)
 								{
-									bResult = WriteLocalMachineRegistryString ("SYSTEM\\CurrentControlSet\\Services\\ciphershed", "ImagePath", "System32\\drivers\\ciphershed.sys", TRUE);
+									bResult = WriteLocalMachineRegistryString ("SYSTEM\\CurrentControlSet\\Services\\truecrypt", "ImagePath", "System32\\drivers\\truecrypt.sys", TRUE);
 									if (!bResult)
 									{
 										handleWin32Error (hwndDlg);
@@ -516,6 +533,86 @@ err:
 	return bOK;
 }
 
+/**
+ * Uninstall TrueCrypt program files.
+ * @param	[in] HWND hwndDlg	Dialog window handle.
+ * @return	BOOL	False if the directory could not be deleted.
+ */
+BOOL DoTrueCryptFilesUninstall (HWND hwndDlg)
+{
+	char path[MAX_PATH] = { 0 };
+	BOOL bOK = TRUE;
+
+	/* TrueCrypt.exe */
+	if (_snprintf (path, sizeof (path) - 1, "%s%s", UninstallationPath, TC_APP_NAME_LEGACY ".exe") >= 0)
+	{
+		RemoveMessage (hwndDlg, path);
+		StatDeleteFile (path);
+	}
+
+	/* TrueCrypt Format.exe */
+	if (_snprintf (path, sizeof (path) - 1, "%s%s", UninstallationPath, TC_APP_NAME_LEGACY " Format.exe") >= 0)
+	{
+		RemoveMessage (hwndDlg, path);
+		StatDeleteFile (path);
+	}
+
+	/* TrueCrypt Setup.exe */
+	if (_snprintf (path, sizeof (path) - 1, "%s%s", UninstallationPath, TC_APP_NAME_LEGACY " Setup.exe") >= 0)
+	{
+		RemoveMessage (hwndDlg, path);
+		StatDeleteFile (path);
+	}
+
+	/* TrueCrypt User Guide.pdf */
+	if (_snprintf (path, sizeof (path) - 1, "%s%s", UninstallationPath, TC_APP_NAME_LEGACY " User Guide.pdf") >= 0)
+	{
+		RemoveMessage (hwndDlg, path);
+		StatDeleteFile (path);
+	}
+
+	if (strcmp(InstallationPath, UninstallationPath) != 0)
+	{
+		/* truecrypt.sys */
+		if (_snprintf (path, sizeof (path) - 1, "%s%s", UninstallationPath, "truecrypt.sys") >= 0)
+		{
+			RemoveMessage (hwndDlg, path);
+			StatDeleteFile (path);
+		}
+
+		/* truecrypt-x64.sys */
+		if (_snprintf (path, sizeof (path) - 1, "%s%s", UninstallationPath, "truecrypt-x64.sys") >= 0)
+		{
+			RemoveMessage (hwndDlg, path);
+			StatDeleteFile (path);
+		}
+
+		/* License.txt */
+		if (_snprintf (path, sizeof (path) - 1, "%s%s", UninstallationPath, "License.txt") >= 0)
+		{
+			RemoveMessage (hwndDlg, path);
+			StatDeleteFile (path);
+		}
+
+		strcpy(path, UninstallationPath);
+
+		/* Remove trailing backslash. */
+		size_t len = strlen (path);
+		if (path[len - 1] == '\\')
+			path[len - 1] = 0;
+
+		/* Remove directory */
+		RemoveMessage (hwndDlg, path);
+		if (!StatRemoveDirectory (path))
+		{
+			handleWin32Error (hwndDlg);
+			bOK = FALSE;
+		}
+	}
+
+	return bOK;
+}
+
 BOOL DoRegInstall (HWND hwndDlg, char *szDestDir, BOOL bInstallType)
 {
 	char szDir[TC_MAX_PATH], *key;
@@ -525,9 +622,43 @@ BOOL DoRegInstall (HWND hwndDlg, char *szDestDir, BOOL bInstallType)
 	DWORD dw;
 	int x;
 
-	if (SystemEncryptionUpdate)
+	strcpy (szDir, szDestDir);
+	x = strlen (szDestDir);
+	if (szDestDir[x - 1] == '\\')
+		bSlash = TRUE;
+	else
+		bSlash = FALSE;
+
+	if (bSlash == FALSE)
+		strcat (szDir, "\\");
+
+	/* CipherShed registry migration. */
+	if (bCipherShedMigration)
 	{
-		if (RegCreateKeyEx (HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\CipherShed",
+		/* Gui autorun entry. */
+		char regk[64];
+		char exe[MAX_PATH * 2] = { 0 }; // terminating null character
+
+		GetStartupRegKeyName (regk);
+		ReadRegistryString (regk, "TrueCrypt", "", szTmp, sizeof (szTmp));
+
+		if (strstr (szTmp, "\\TrueCrypt.exe") &&
+			_snprintf (exe, sizeof (exe) - 32, "\"%sCipherShed.exe\" /q preferences /a logon", szDir) >= 0)
+		{
+			if (strstr (szTmp, " /a devices"))
+				strcat (exe, " /a devices");
+			if (strstr (szTmp, " /a favorites"))
+				strcat (exe, " /a favorites");
+
+			WriteRegistryString (regk, "CipherShed", exe);
+		}
+
+		DeleteRegistryValue (regk, "TrueCrypt");
+	}
+
+	else if (SystemEncryptionUpdate)
+	{
+		if (RegCreateKeyEx (HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\TrueCrypt",
 			0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hkey, &dw) == ERROR_SUCCESS)
 		{
 			strcpy (szTmp, VERSION_STRING);
@@ -542,20 +673,10 @@ BOOL DoRegInstall (HWND hwndDlg, char *szDestDir, BOOL bInstallType)
 		return TRUE;
 	}
 
-	strcpy (szDir, szDestDir);
-	x = strlen (szDestDir);
-	if (szDestDir[x - 1] == '\\')
-		bSlash = TRUE;
-	else
-		bSlash = FALSE;
-
-	if (bSlash == FALSE)
-		strcat (szDir, "\\");
-
 	if (bInstallType)
 	{
 
-		key = "Software\\Classes\\CipherShedVolume";
+		key = "Software\\Classes\\TrueCryptVolume";
 		RegMessage (hwndDlg, key);
 		if (RegCreateKeyEx (HKEY_LOCAL_MACHINE,
 				    key,
@@ -573,7 +694,7 @@ BOOL DoRegInstall (HWND hwndDlg, char *szDestDir, BOOL bInstallType)
 		RegCloseKey (hkey);
 		hkey = 0;
 
-		key = "Software\\Classes\\CipherShedVolume\\DefaultIcon";
+		key = "Software\\Classes\\TrueCryptVolume\\DefaultIcon";
 		RegMessage (hwndDlg, key);
 		if (RegCreateKeyEx (HKEY_LOCAL_MACHINE,
 				    key,
@@ -587,7 +708,7 @@ BOOL DoRegInstall (HWND hwndDlg, char *szDestDir, BOOL bInstallType)
 		RegCloseKey (hkey);
 		hkey = 0;
 
-		key = "Software\\Classes\\CipherShedVolume\\Shell\\open\\command";
+		key = "Software\\Classes\\TrueCryptVolume\\Shell\\open\\command";
 		RegMessage (hwndDlg, key);
 		if (RegCreateKeyEx (HKEY_LOCAL_MACHINE,
 				    key,
@@ -606,7 +727,7 @@ BOOL DoRegInstall (HWND hwndDlg, char *szDestDir, BOOL bInstallType)
 		char typeClass[256];
 		DWORD typeClassSize = sizeof (typeClass);
 
-		if (ReadLocalMachineRegistryString (key, "", typeClass, &typeClassSize) && typeClassSize > 0 && strcmp (typeClass, "CipherShedVolume") == 0)
+		if (ReadLocalMachineRegistryString (key, "", typeClass, &typeClassSize) && typeClassSize > 0 && strcmp (typeClass, "TrueCryptVolume") == 0)
 			typeClassChanged = FALSE;
 
 		RegMessage (hwndDlg, key);
@@ -615,7 +736,7 @@ BOOL DoRegInstall (HWND hwndDlg, char *szDestDir, BOOL bInstallType)
 				    0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hkey, &dw) != ERROR_SUCCESS)
 			goto error;
 
-		strcpy (szTmp, "CipherShedVolume");
+		strcpy (szTmp, "TrueCryptVolume");
 		if (RegSetValueEx (hkey, "", 0, REG_SZ, (BYTE *) szTmp, strlen (szTmp) + 1) != ERROR_SUCCESS)
 			goto error;
 		
@@ -626,7 +747,7 @@ BOOL DoRegInstall (HWND hwndDlg, char *szDestDir, BOOL bInstallType)
 			SHChangeNotify (SHCNE_ASSOCCHANGED, SHCNF_IDLIST, NULL, NULL);
 	}
 
-	key = "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\CipherShed";
+	key = "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\TrueCrypt";
 	RegMessage (hwndDlg, key);
 	if (RegCreateKeyEx (HKEY_LOCAL_MACHINE,
 		key,
@@ -660,6 +781,26 @@ BOOL DoRegInstall (HWND hwndDlg, char *szDestDir, BOOL bInstallType)
 
 	strcpy (szTmp, TC_HOMEPAGE);
 	if (RegSetValueEx (hkey, "URLInfoAbout", 0, REG_SZ, (BYTE *) szTmp, strlen (szTmp) + 1) != ERROR_SUCCESS)
+		goto error;
+
+	RegCloseKey (hkey);
+	hkey = 0;
+
+	/* CipherShed. */
+	key = "Software\\CipherShed";
+	RegMessage (hwndDlg, key);
+	if (RegCreateKeyEx (HKEY_LOCAL_MACHINE,
+		key,
+		0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hkey, &dw) != ERROR_SUCCESS)
+		goto error;
+
+	if (RegSetValueEx (hkey, "InstallationPath", 0, REG_SZ, (BYTE *) szDir, strlen (szDir) + 1) != ERROR_SUCCESS)
+		goto error;
+
+	if (bCipherShedMigration && RegSetValueEx (hkey, "MigrationPath", 0, REG_SZ, (BYTE *) UninstallationPath, strlen (UninstallationPath) + 1) != ERROR_SUCCESS)
+		goto error;
+
+	if (bCipherShedMigration && RegSetValueEx (hkey, "MigrationVersion", 0, REG_DWORD, (BYTE *) &InstalledVersion, sizeof (InstalledVersion)) != ERROR_SUCCESS)
 		goto error;
 
 	bOK = TRUE;
@@ -696,7 +837,7 @@ BOOL DoApplicationDataUninstall (HWND hwndDlg)
 	StatusMessage (hwndDlg, "REMOVING_APPDATA");
 
 	SHGetFolderPath (NULL, CSIDL_APPDATA, NULL, 0, path);
-	strcat (path, "\\CipherShed\\");
+	strcat (path, "\\TrueCrypt\\");
 
 	// Delete favorite volumes file
 	sprintf (path2, "%s%s", path, TC_APPD_FILENAME_FAVORITE_VOLUMES);
@@ -724,7 +865,7 @@ BOOL DoApplicationDataUninstall (HWND hwndDlg)
 	StatDeleteFile (path2);
 
 	SHGetFolderPath (NULL, CSIDL_APPDATA, NULL, 0, path);
-	strcat (path, "\\CipherShed");
+	strcat (path, "\\TrueCrypt");
 	RemoveMessage (hwndDlg, path);
 	if (!StatRemoveDirectory (path))
 	{
@@ -743,23 +884,26 @@ BOOL DoRegUninstall (HWND hwndDlg, BOOL bRemoveDeprecated)
 	// Unregister COM servers
 	if (!bRemoveDeprecated && IsOSAtLeast (WIN_VISTA))
 	{
-		if (!UnregisterComServers (InstallationPath))
+		if (!UnregisterComServers (UninstallationPath))
 			StatusMessage (hwndDlg, "COM_DEREG_FAILED");
 	}
 
 	if (!bRemoveDeprecated)
 		StatusMessage (hwndDlg, "REMOVING_REG");
 
-	RegDeleteKey (HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\CipherShed");
-	RegDeleteKey (HKEY_LOCAL_MACHINE, "Software\\Classes\\CipherShedVolume\\Shell\\open\\command");
-	RegDeleteKey (HKEY_LOCAL_MACHINE, "Software\\Classes\\CipherShedVolume\\Shell\\open");
-	RegDeleteKey (HKEY_LOCAL_MACHINE, "Software\\Classes\\CipherShedVolume\\Shell");
-	RegDeleteKey (HKEY_LOCAL_MACHINE, "Software\\Classes\\CipherShedVolume\\DefaultIcon");
-	RegDeleteKey (HKEY_LOCAL_MACHINE, "Software\\Classes\\CipherShedVolume");
-	RegDeleteKey (HKEY_CURRENT_USER, "Software\\CipherShed");
+	RegDeleteKey (HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\TrueCrypt");
+	RegDeleteKey (HKEY_LOCAL_MACHINE, "Software\\Classes\\TrueCryptVolume\\Shell\\open\\command");
+	RegDeleteKey (HKEY_LOCAL_MACHINE, "Software\\Classes\\TrueCryptVolume\\Shell\\open");
+	RegDeleteKey (HKEY_LOCAL_MACHINE, "Software\\Classes\\TrueCryptVolume\\Shell");
+	RegDeleteKey (HKEY_LOCAL_MACHINE, "Software\\Classes\\TrueCryptVolume\\DefaultIcon");
+	RegDeleteKey (HKEY_LOCAL_MACHINE, "Software\\Classes\\TrueCryptVolume");
+	RegDeleteKey (HKEY_CURRENT_USER, "Software\\TrueCrypt");
 
 	if (!bRemoveDeprecated)
 	{
+		/* CipherShed. */
+		RegDeleteKey (HKEY_LOCAL_MACHINE, "Software\\CipherShed");
+
 		GetStartupRegKeyName (regk);
 		DeleteRegistryValue (regk, "CipherShed");
 
@@ -780,7 +924,13 @@ BOOL DoRegUninstall (HWND hwndDlg, BOOL bRemoveDeprecated)
 	return bOK;
 }
 
-
+/**
+ * Uninstall the kernel driver Windows service.
+ * Note: The driver will be unloaded, this is fatal in case of full system encryption.
+ * @param	[in] HWND hwndDlg		Dialog window handle.
+ * @param	[in] char *lpszService	Service name.
+ * @return	BOOL					True if successful.
+ */
 BOOL DoServiceUninstall (HWND hwndDlg, char *lpszService)
 {
 	SC_HANDLE hManager, hService = NULL;
@@ -793,6 +943,7 @@ BOOL DoServiceUninstall (HWND hwndDlg, char *lpszService)
 
 retry:
 
+	/* Service control manager. */
 	hManager = OpenSCManager (NULL, NULL, SC_MANAGER_ALL_ACCESS);
 	if (hManager == NULL)
 		goto error;
@@ -801,13 +952,15 @@ retry:
 	if (hService == NULL)
 		goto error;
 
-	if (strcmp ("ciphershed", lpszService) == 0)
+	if (strcmp ("truecrypt", lpszService) == 0)
 	{
 		try
 		{
 			BootEncryption bootEnc (hwndDlg);
+
 			if (bootEnc.GetDriverServiceStartType() == SERVICE_BOOT_START)
 			{
+				/* Uninstall filter drivers. */
 				try { bootEnc.RegisterFilterDriver (false, BootEncryption::DriveFilter); } catch (...) { }
 				try { bootEnc.RegisterFilterDriver (false, BootEncryption::VolumeFilter); } catch (...) { }
 				try { bootEnc.RegisterFilterDriver (false, BootEncryption::DumpFilter); } catch (...) { }
@@ -822,6 +975,7 @@ retry:
 
 #define WAIT_PERIOD 3
 
+	/* Status pending. */
 	for (x = 0; x < WAIT_PERIOD; x++)
 	{
 		bRet = QueryServiceStatus (hService, &status);
@@ -836,12 +990,15 @@ retry:
 		Sleep (1000);
 	}
 
+	/* Check if the service is running (driver is loaded). */
 	if (status.dwCurrentState != SERVICE_STOPPED)
 	{
+		/* Stop the service (unload the driver). */
 		bRet = ControlService (hService, SERVICE_CONTROL_STOP, &status);
 		if (bRet == FALSE)
 			goto try_delete;
 
+		/* Status pending. */
 		for (x = 0; x < WAIT_PERIOD; x++)
 		{
 			bRet = QueryServiceStatus (hService, &status);
@@ -862,7 +1019,7 @@ retry:
 
 try_delete:
 
-	if (strcmp ("ciphershed", lpszService) == 0)
+	if (strcmp ("truecrypt", lpszService) == 0)
 		StatusMessage (hwndDlg, "REMOVING_DRIVER");
 	else
 		StatusMessageParam (hwndDlg, "REMOVING", lpszService);
@@ -881,6 +1038,7 @@ try_delete:
 	if (hService == NULL)
 		goto error;
 
+	/* Delete service registry keys. */
 	bRet = DeleteService (hService);
 	if (bRet == FALSE)
 	{
@@ -919,12 +1077,17 @@ error:
 	return bOK;
 }
 
-
+/**
+ * Unload the kernel driver from CipherShed.
+ * @param	[in] HWND hwndDlg	Dialog window handle.
+ * @return	BOOL				True if successful.
+ */
 BOOL DoDriverUnload (HWND hwndDlg)
 {
 	BOOL bOK = TRUE;
 	int status;
 
+	/* Open a handle to the driver device. */
 	status = DriverAttach ();
 	if (status != 0)
 	{
@@ -956,22 +1119,23 @@ BOOL DoDriverUnload (HWND hwndDlg)
 		try
 		{
 			BootEncryption bootEnc (hwndDlg);
+
+			/* The driver starts at boot time in case of full system encryption. */
 			if (bootEnc.GetDriverServiceStartType() == SERVICE_BOOT_START)
 			{
 				try
 				{
 					// Check hidden OS update consistency
-					if (IsHiddenOSRunning())
+					if (IsHiddenOSRunning() &&
+						bootEnc.GetInstalledBootLoaderVersion() != VERSION_NUM &&
+						AskWarnNoYes ("UPDATE_TC_IN_DECOY_OS_FIRST") == IDNO)
 					{
-						if (bootEnc.GetInstalledBootLoaderVersion() != VERSION_NUM)
-						{
-							if (AskWarnNoYes ("UPDATE_TC_IN_DECOY_OS_FIRST") == IDNO)
-								AbortProcessSilent ();
-						}
+						AbortProcessSilent ();
 					}
 				}
 				catch (...) { }
 
+				/* Uninstall filter drivers and set driver start to "system start". */
 				if (bUninstallInProgress && driverVersion >= 0x500 && !bootEnc.GetStatus().DriveMounted)
 				{
 					try { bootEnc.RegisterFilterDriver (false, BootEncryption::DriveFilter); } catch (...) { }
@@ -979,6 +1143,7 @@ BOOL DoDriverUnload (HWND hwndDlg)
 					try { bootEnc.RegisterFilterDriver (false, BootEncryption::DumpFilter); } catch (...) { }
 					bootEnc.SetDriverServiceStartType (SERVICE_SYSTEM_START);
 				}
+				/* Abort if the boot drive is encrypted. */
 				else if (bUninstallInProgress || bDowngrade)
 				{
 					Error (bDowngrade ? "SETUP_FAILED_BOOT_DRIVE_ENCRYPTED_DOWNGRADE" : "SETUP_FAILED_BOOT_DRIVE_ENCRYPTED");
@@ -996,6 +1161,7 @@ BOOL DoDriverUnload (HWND hwndDlg)
 		}
 		catch (...)	{ }
 
+		/* Do not unload the driver in case of upgrade or system encryption update. */
 		if (!bUninstall
 			&& (bUpgrade || SystemEncryptionUpdate)
 			&& (!bDevm || SystemEncryptionUpdate))
@@ -1006,11 +1172,11 @@ BOOL DoDriverUnload (HWND hwndDlg)
 		if (PortableMode && !SystemEncryptionUpdate)
 			UnloadDriver = TRUE;
 
+		/* Check mounted volumes. */
 		if (UnloadDriver)
 		{
 			int volumesMounted = 0;
 
-			// Check mounted volumes
 			bResult = DeviceIoControl (hDriver, TC_IOCTL_IS_ANY_VOLUME_MOUNTED, NULL, 0, &volumesMounted, sizeof (volumesMounted), &dwResult, NULL);
 
 			if (!bResult)
@@ -1024,12 +1190,14 @@ BOOL DoDriverUnload (HWND hwndDlg)
 			{
 				if (volumesMounted != 0)
 				{
+					/* Abort. */
 					bOK = FALSE;
 					MessageBoxW (hwndDlg, GetString ("DISMOUNT_ALL_FIRST"), lpszTitle, MB_ICONHAND);
 				}
 			}
 			else
 			{
+				/* Abort. */
 				bOK = FALSE;
 				handleWin32Error (hwndDlg);
 			}
@@ -1054,11 +1222,13 @@ BOOL DoDriverUnload (HWND hwndDlg)
 
 			if (bOK && bResult && refCount > 1)
 			{
+				/* Abort. */
 				MessageBoxW (hwndDlg, GetString ("CLOSE_TC_FIRST"), lpszTitle, MB_ICONSTOP);
 				bOK = FALSE;
 			}
 		}
 
+		/* Close the driver device handle. */
 		if (!bOK || UnloadDriver)
 		{
 			CloseHandle (hDriver);
@@ -1076,24 +1246,36 @@ BOOL DoDriverUnload (HWND hwndDlg)
 	return bOK;
 }
 
-
+/**
+ * Upgrade the installed bootloader.
+ * @param	[in] HWND hwndDlg	Dialog window handle.
+ * @return	BOOL				Returns true if the upgrade was successful.
+ */
 BOOL UpgradeBootLoader (HWND hwndDlg)
 {
+	/*
+	 * The bootloader is only installed in case of full system encryption,
+	 * otherwise no upgrade is needed and we return here.
+	 */
 	if (!SystemEncryptionUpdate)
 		return TRUE;
 
 	try
 	{
 		BootEncryption bootEnc (hwndDlg);
+
 		if (bootEnc.GetInstalledBootLoaderVersion() < VERSION_NUM)
 		{
 			StatusMessage (hwndDlg, "INSTALLER_UPDATING_BOOT_LOADER");
 
+			/* Upgrade the installed bootloader to new version. */
 			bootEnc.InstallBootLoader (true);
 
+			/* Give the user an advice to create a new rescue disk with updated bootloader (<= TrueCrypt 6.0a). */
 			if (bootEnc.GetInstalledBootLoaderVersion() <= TC_RESCUE_DISK_UPGRADE_NOTICE_MAX_VERSION)
 				Info (IsHiddenOSRunning() ? "BOOT_LOADER_UPGRADE_OK_HIDDEN_OS" : "BOOT_LOADER_UPGRADE_OK");
 		}
+
 		return TRUE;
 	}
 	catch (Exception &e)
@@ -1106,7 +1288,9 @@ BOOL UpgradeBootLoader (HWND hwndDlg)
 	return FALSE;
 }
 
-
+/**
+ * Remove CipherShed desktop and startmenu shortcuts.
+ */
 BOOL DoShortcutsUninstall (HWND hwndDlg, char *szDestDir)
 {
 	char szLinkDir[TC_MAX_PATH];
@@ -1119,7 +1303,7 @@ BOOL DoShortcutsUninstall (HWND hwndDlg, char *szDestDir)
 	hOle = OleInitialize (NULL);
 
 	// User start menu
-    SHGetSpecialFolderPath (hwndDlg, szLinkDir, CSIDL_PROGRAMS, 0);
+	SHGetSpecialFolderPath (hwndDlg, szLinkDir, CSIDL_PROGRAMS, 0);
 	x = strlen (szLinkDir);
 	if (szLinkDir[x - 1] == '\\')
 		bSlash = TRUE;
@@ -1167,11 +1351,12 @@ BOOL DoShortcutsUninstall (HWND hwndDlg, char *szDestDir)
 
 	// Start menu group
 	RemoveMessage ((HWND) hwndDlg, szLinkDir);
-	if (StatRemoveDirectory (szLinkDir) == FALSE)
+	if (StatRemoveDirectory (szLinkDir))
+		SHChangeNotify (SHCNE_RMDIR, SHCNF_PATH, szLinkDir, NULL);
+	else
 		handleWin32Error ((HWND) hwndDlg);
 
 	// Desktop icon
-
 	if (allUsers)
 		SHGetSpecialFolderPath (hwndDlg, szLinkDir, CSIDL_COMMON_DESKTOPDIRECTORY, 0);
 	else
@@ -1182,6 +1367,98 @@ BOOL DoShortcutsUninstall (HWND hwndDlg, char *szDestDir)
 	RemoveMessage (hwndDlg, szTmp2);
 	if (StatDeleteFile (szTmp2) == FALSE)
 		goto error;
+
+	SHChangeNotify (SHCNE_DELETE, SHCNF_PATH, szTmp2, NULL);
+
+	bOK = TRUE;
+
+error:
+	OleUninitialize ();
+
+	return bOK;
+}
+
+/**
+ * Remove TrueCrypt desktop and startmenu shortcuts.
+ */
+BOOL DoTrueCryptShortcutsUninstall (HWND hwndDlg, char *szDestDir)
+{
+	char szLinkDir[TC_MAX_PATH];
+	char szTmp2[TC_MAX_PATH];
+	BOOL bSlash, bOK = FALSE;
+	HRESULT hOle;
+	int x;
+	BOOL allUsers = FALSE;
+
+	hOle = OleInitialize (NULL);
+
+	// User start menu
+	SHGetSpecialFolderPath (hwndDlg, szLinkDir, CSIDL_PROGRAMS, 0);
+	x = strlen (szLinkDir);
+	if (szLinkDir[x - 1] == '\\')
+		bSlash = TRUE;
+	else
+		bSlash = FALSE;
+
+	if (bSlash == FALSE)
+		strcat (szLinkDir, "\\");
+
+	strcat (szLinkDir, "TrueCrypt");
+
+	// Global start menu
+	{
+		struct _stat st;
+		char path[TC_MAX_PATH];
+
+		SHGetSpecialFolderPath (hwndDlg, path, CSIDL_COMMON_PROGRAMS, 0);
+		strcat (path, "\\TrueCrypt");
+
+		if (_stat (path, &st) == 0)
+		{
+			strcpy (szLinkDir, path);
+			allUsers = TRUE;
+		}
+	}
+
+	// Start menu entries
+	sprintf (szTmp2, "%s%s", szLinkDir, "\\TrueCrypt.lnk");
+	RemoveMessage (hwndDlg, szTmp2);
+	if (StatDeleteFile (szTmp2) == FALSE)
+		goto error;
+
+	sprintf (szTmp2, "%s%s", szLinkDir, "\\TrueCrypt Website.url");
+	RemoveMessage (hwndDlg, szTmp2);
+	if (StatDeleteFile (szTmp2) == FALSE)
+		goto error;
+
+	sprintf (szTmp2, "%s%s", szLinkDir, "\\Uninstall TrueCrypt.lnk");
+	RemoveMessage (hwndDlg, szTmp2);
+	if (StatDeleteFile (szTmp2) == FALSE)
+		goto error;
+	
+	sprintf (szTmp2, "%s%s", szLinkDir, "\\TrueCrypt User's Guide.lnk");
+	DeleteFile (szTmp2);
+
+	// Start menu group
+	RemoveMessage ((HWND) hwndDlg, szLinkDir);
+	if (StatRemoveDirectory (szLinkDir))
+		SHChangeNotify (SHCNE_RMDIR, SHCNF_PATH, szLinkDir, NULL);
+	else
+		handleWin32Error ((HWND) hwndDlg);
+
+	// Desktop icon
+	if (allUsers)
+		SHGetSpecialFolderPath (hwndDlg, szLinkDir, CSIDL_COMMON_DESKTOPDIRECTORY, 0);
+	else
+		SHGetSpecialFolderPath (hwndDlg, szLinkDir, CSIDL_DESKTOPDIRECTORY, 0);
+
+	sprintf (szTmp2, "%s%s", szLinkDir, "\\TrueCrypt.lnk");
+
+	RemoveMessage (hwndDlg, szTmp2);
+	if (StatDeleteFile (szTmp2) == FALSE)
+		goto error;
+
+	SHChangeNotify (SHCNE_DELETE, SHCNF_PATH, szTmp2, NULL);
 
 	bOK = TRUE;
 
@@ -1332,7 +1609,7 @@ void OutcomePrompt (HWND hwndDlg, BOOL bOK)
 		{
 			wchar_t str[4096];
 
-			swprintf (str, GetString ("UNINSTALL_OK"), InstallationPath);
+			swprintf (str, GetString ("UNINSTALL_OK"), UninstallationPath);
 			MessageBoxW (hwndDlg, str, lpszTitle, MB_ICONASTERISK);
 		}
 	}
@@ -1345,15 +1622,24 @@ void OutcomePrompt (HWND hwndDlg, BOOL bOK)
 	}
 }
 
+/**
+ * Set windows system restore point.
+ * @param	[in] HWND hwndDlg	Dialog window handle.
+ * @param	[in] BOOL finalize	If true the restore point is finalized.
+ * @return	void
+ */
 static void SetSystemRestorePoint (HWND hwndDlg, BOOL finalize)
 {
 	static RESTOREPOINTINFO RestPtInfo;
 	static STATEMGRSTATUS SMgrStatus;
 	static BOOL failed = FALSE;
 	static BOOL (__stdcall *_SRSetRestorePoint)(PRESTOREPOINTINFO, PSTATEMGRSTATUS);
-	
-	if (!SystemRestoreDll) return;
 
+	/* Abort if the system restore dll wasn't loaded successfully. */
+	if (!SystemRestoreDll)
+		return;
+
+	/* Retrieve the address of SRSetRestorePointA. */
 	_SRSetRestorePoint = (BOOL (__stdcall *)(PRESTOREPOINTINFO, PSTATEMGRSTATUS))GetProcAddress (SystemRestoreDll,"SRSetRestorePointA");
 	if (_SRSetRestorePoint == 0)
 	{
@@ -1362,6 +1648,7 @@ static void SetSystemRestorePoint (HWND hwndDlg, BOOL finalize)
 		return;
 	}
 
+	/* Begin system change. */
 	if (!finalize)
 	{
 		StatusMessage (hwndDlg, "CREATING_SYS_RESTORE");
@@ -1377,6 +1664,8 @@ static void SetSystemRestorePoint (HWND hwndDlg, BOOL finalize)
 			failed = TRUE;
 		}
 	}
+
+	/* End system change. */
 	else if (!failed)
 	{
 		RestPtInfo.dwEventType = END_SYSTEM_CHANGE;
@@ -1389,6 +1678,11 @@ static void SetSystemRestorePoint (HWND hwndDlg, BOOL finalize)
 	}
 }
 
+/**
+ * Uninstall worker.
+ * @param	[in] void *arg	Dialog window handle.
+ * @return	void
+ */
 void DoUninstall (void *arg)
 {
 	HWND hwndDlg = (HWND) arg;
@@ -1405,6 +1699,7 @@ void DoUninstall (void *arg)
 		ClearLogWindow (hwndDlg);
 	}
 
+	/* Unload the kernel driver. */
 	if (DoDriverUnload (hwndDlg) == FALSE)
 	{
 		bOK = FALSE;
@@ -1412,25 +1707,31 @@ void DoUninstall (void *arg)
 	}
 	else
 	{
+		/* Begin system change. */
 		if (!Rollback && bSystemRestore && !bTempSkipSysRestore)
 			SetSystemRestorePoint (hwndDlg, FALSE);
 
-		if (DoServiceUninstall (hwndDlg, "ciphershed") == FALSE)
+		/* Uninstall the kernel driver. */
+		if (DoServiceUninstall (hwndDlg, "truecrypt") == FALSE)
 		{
 			bOK = FALSE;
 		}
+		/* Uninstall registry keys. */
 		else if (DoRegUninstall ((HWND) hwndDlg, FALSE) == FALSE)
 		{
 			bOK = FALSE;
 		}
-		else if (DoFilesInstall ((HWND) hwndDlg, InstallationPath) == FALSE)
+		/* Remove files. */
+		else if (DoFilesInstall ((HWND) hwndDlg, UninstallationPath) == FALSE)
 		{
 			bOK = FALSE;
 		}
-		else if (DoShortcutsUninstall (hwndDlg, InstallationPath) == FALSE)
+		/* Remove desktop and startmenu shortcuts. */
+		else if (DoShortcutsUninstall (hwndDlg, UninstallationPath) == FALSE)
 		{
 			bOK = FALSE;
 		}
+		/* Remove configs. */
 		else if (!DoApplicationDataUninstall (hwndDlg))
 		{
 			bOK = FALSE;
@@ -1440,8 +1741,8 @@ void DoUninstall (void *arg)
 			char temp[MAX_PATH];
 			FILE *f;
 
-			// Deprecated service
-			DoServiceUninstall (hwndDlg, "CipherShedService");
+			/* Remove driver with deprecated name. */
+			DoServiceUninstall (hwndDlg, "TrueCryptService");
 
 			GetTempPath (sizeof (temp), temp);
 			_snprintf (UninstallBatch, sizeof (UninstallBatch), "%s\\CipherShed-Uninstall.bat", temp);
@@ -1459,9 +1760,9 @@ void DoUninstall (void *arg)
 					"if exist \"%s%s\" goto loop\n"
 					"rmdir \"%s\"\n"
 					"del \"%s\"",
-					InstallationPath, "CipherShed Setup.exe",
-					InstallationPath, "CipherShed Setup.exe",
-					InstallationPath,
+					UninstallationPath, "CipherShed Setup.exe",
+					UninstallationPath, "CipherShed Setup.exe",
+					UninstallationPath,
 					UninstallBatch
 					);
 
@@ -1476,6 +1777,7 @@ void DoUninstall (void *arg)
 	if (Rollback)
 		return;
 
+	/* End system change. */
 	if (bSystemRestore && !bTempSkipSysRestore)
 		SetSystemRestorePoint (hwndDlg, TRUE);
 
@@ -1488,12 +1790,18 @@ void DoUninstall (void *arg)
 	OutcomePrompt (hwndDlg, bOK);
 }
 
+/**
+ * Install / Upgrade worker.
+ * @param	[in] void *arg	Dialog window handle.
+ * @return	void
+ */
 void DoInstall (void *arg)
 {
 	HWND hwndDlg = (HWND) arg;
 	BOOL bOK = TRUE;
 	char path[MAX_PATH];
 
+	/* BootEncryption instance. */
 	BootEncryption bootEnc (hwndDlg);
 
 	// Refresh the main GUI (wizard thread)
@@ -1501,6 +1809,7 @@ void DoInstall (void *arg)
 
 	ClearLogWindow (hwndDlg);
 
+	/* Create the installation folder if it doesn't already exist. */
 	if (mkfulldir (InstallationPath, TRUE) != 0)
 	{
 		if (mkfulldir (InstallationPath, FALSE) != 0)
@@ -1518,6 +1827,7 @@ void DoInstall (void *arg)
 
 	UpdateProgressBarProc(2);
 
+	/* Unload the kernel driver, in case of full system encryption the driver is NOT unloaded. */
 	if (DoDriverUnload (hwndDlg) == FALSE)
 	{
 		NormalCursor ();
@@ -1525,10 +1835,17 @@ void DoInstall (void *arg)
 		return;
 	}
 
+	/* Check if the previous installed version is running. */
 	if (bUpgrade
-		&& (IsFileInUse (string (InstallationPath) + '\\' + TC_APP_NAME ".exe")
-			|| IsFileInUse (string (InstallationPath) + '\\' + TC_APP_NAME " Format.exe")
-			|| IsFileInUse (string (InstallationPath) + '\\' + TC_APP_NAME " Setup.exe")
+		&&	(
+			/* CipherShed. */
+			IsFileInUse (string (InstallationPath) + TC_APP_NAME ".exe")
+			|| IsFileInUse (string (InstallationPath) + TC_APP_NAME " Format.exe")
+			|| IsFileInUse (string (InstallationPath) + TC_APP_NAME " Setup.exe")
+			/* TrueCrypt. */
+			|| IsFileInUse (string (UninstallationPath) + TC_APP_NAME_LEGACY ".exe")
+			|| IsFileInUse (string (UninstallationPath) + TC_APP_NAME_LEGACY " Format.exe")
+			|| IsFileInUse (string (UninstallationPath) + TC_APP_NAME_LEGACY " Setup.exe")
 			)
 		)
 	{
@@ -1539,12 +1856,13 @@ void DoInstall (void *arg)
 	}
 
 	UpdateProgressBarProc(12);
-	
+
+	/* Begin system restore point. */
 	if (bSystemRestore)
 		SetSystemRestorePoint (hwndDlg, FALSE);
 
 	UpdateProgressBarProc(48);
-	
+
 	if (bDisableSwapFiles
 		&& IsPagingFileActive (FALSE))
 	{
@@ -1559,14 +1877,16 @@ void DoInstall (void *arg)
 
 	UpdateProgressBarProc(50);
 
-	// Remove deprecated
-	DoServiceUninstall (hwndDlg, "CipherShedService");
-	
+	/* Remove driver with deprecated name. */
+	DoServiceUninstall (hwndDlg, "TrueCryptService");
+
 	UpdateProgressBarProc(55);
 
+	/* Remove registry keys before re-install. */
 	if (!SystemEncryptionUpdate)
 		DoRegUninstall ((HWND) hwndDlg, TRUE);
 
+	/* Install new dump filter driver. */
 	if (SystemEncryptionUpdate && InstalledVersion < 0x700)
 	{
 		try
@@ -1602,6 +1922,7 @@ void DoInstall (void *arg)
 
 	UpdateProgressBarProc(61);
 
+	/* Migrate config file. */
 	if (bUpgrade && InstalledVersion < 0x700)
 	{
 		bool bMountFavoritesOnLogon = ConfigReadInt ("MountFavoritesOnLogon", FALSE) != 0;
@@ -1639,12 +1960,12 @@ void DoInstall (void *arg)
 
 					GetStartupRegKeyName (regk);
 
-					ReadRegistryString (regk, "CipherShed", "", regVal, sizeof (regVal));
+					ReadRegistryString (regk, "TrueCrypt", "", regVal, sizeof (regVal));
 
 					if (strstr (regVal, "favorites"))
 					{
 						strcat_s (regVal, sizeof (regVal), " /a logon");
-						WriteRegistryString (regk, "CipherShed", regVal);
+						WriteRegistryString (regk, "TrueCrypt", regVal);
 					}
 				}
 			}
@@ -1654,35 +1975,50 @@ void DoInstall (void *arg)
 		}
 	}
 
+	/* Remove deprecated setup file (TrueCrypt 1.0 - 4.2a) */
 	GetWindowsDirectory (path, sizeof (path));
-	strcat_s (path, sizeof (path), "\\CipherShed Setup.exe");
+	strcat_s (path, sizeof (path), "\\TrueCrypt Setup.exe");
 	DeleteFile (path);
 
-	if (UpdateProgressBarProc(63) && UnloadDriver && DoServiceUninstall (hwndDlg, "ciphershed") == FALSE)
+	/* Uninstall the old kernel driver, if it was unloaded before (NOT in case of full system encryption). */
+	if (UpdateProgressBarProc(63) && UnloadDriver && DoServiceUninstall (hwndDlg, "truecrypt") == FALSE)
 	{
 		bOK = FALSE;
 	}
+	/* Install new files. */
 	else if (UpdateProgressBarProc(72) && DoFilesInstall ((HWND) hwndDlg, InstallationPath) == FALSE)
 	{
 		bOK = FALSE;
 	}
+	/* Install registry keys. */
 	else if (UpdateProgressBarProc(80) && DoRegInstall ((HWND) hwndDlg, InstallationPath, bRegisterFileExt) == FALSE)
 	{
 		bOK = FALSE;
 	}
+	/* Install the new kernel driver, if it was unloaded before (NOT in case of full system encryption). */
 	else if (UpdateProgressBarProc(85) && UnloadDriver && DoDriverInstall (hwndDlg) == FALSE)
 	{
 		bOK = FALSE;
 	}
+	/* Upgrade the bootloader in case of full system encryption. */
 	else if (UpdateProgressBarProc(90) && SystemEncryptionUpdate && UpgradeBootLoader (hwndDlg) == FALSE)
 	{
 		bOK = FALSE;
 	}
+	/* Install desktop / startmenu shortcuts. */
 	else if (UpdateProgressBarProc(93) && DoShortcutsInstall (hwndDlg, InstallationPath, bAddToStartMenu, bDesktopIcon) == FALSE)
 	{
 		bOK = FALSE;
 	}
 
+	/* Remove TrueCrypt program files and shortcuts. */
+	else if (bCipherShedMigration)
+	{
+		DoTrueCryptShortcutsUninstall (hwndDlg, UninstallationPath);
+		DoTrueCryptFilesUninstall (hwndDlg);
+	}
+
+	/* Driver couldn't be unloaded, we need a system restart (full system encryption). */
 	if (!UnloadDriver)
 		bRestartRequired = TRUE;
 
@@ -1692,6 +2028,7 @@ void DoInstall (void *arg)
 	}
 	catch (...)	{ }
 
+	/* Move system favorite volumes config. */
 	if (SystemEncryptionUpdate && InstalledVersion == 0x630)
 	{
 		string sysFavorites = GetServiceConfigPath (TC_APPD_FILENAME_SYSTEM_FAVORITE_VOLUMES);
@@ -1704,6 +2041,7 @@ void DoInstall (void *arg)
 	if (bOK)
 		UpdateProgressBarProc(97);
 
+	/* End system restore point. */
 	if (bSystemRestore)
 		SetSystemRestorePoint (hwndDlg, TRUE);
 
@@ -1776,7 +2114,12 @@ outcome:
 	PostMessage (MainDlg, bOK ? TC_APPMSG_INSTALL_SUCCESS : TC_APPMSG_INSTALL_FAILURE, 0, 0);
 }
 
-
+/**
+ * Determines the current installation path and sets the "InstallationPath" global,
+ * if no installation path was found it defaults to "Program Files".
+ * @param	[in] HWND hwndDlg	Dialog window handle.
+ * @return	void
+ */
 void SetInstallationPath (HWND hwndDlg)
 {
 	HKEY hkey;
@@ -1787,26 +2130,26 @@ void SetInstallationPath (HWND hwndDlg)
 	memset (InstallationPath, 0, sizeof (InstallationPath));
 
 	// Determine if CipherShed is already installed and try to determine its "Program Files" location
-	if (RegOpenKeyEx (HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\CipherShed", 0, KEY_READ, &hkey) == ERROR_SUCCESS)
+	if (RegOpenKeyEx (HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\TrueCrypt", 0, KEY_READ, &hkey) == ERROR_SUCCESS)
 	{
 		/* Default 'UninstallString' registry strings written by past versions of CipherShed:
 		------------------------------------------------------------------------------------
-		1.0		C:\WINDOWS\CipherShed Setup.exe /u			[optional]
-		1.0a	C:\WINDOWS\CipherShed Setup.exe /u			[optional]
-		2.0		C:\WINDOWS\CipherShed Setup.exe /u			[optional]
-		2.1		C:\WINDOWS\CipherShed Setup.exe /u			[optional]
-		2.1a	C:\WINDOWS\CipherShed Setup.exe /u			[optional]
-		3.0		C:\WINDOWS\CipherShed Setup.exe /u			[optional]
-		3.0a	C:\WINDOWS\CipherShed Setup.exe /u			[optional]
+		1.0		C:\WINDOWS\TrueCrypt Setup.exe /u			[optional]
+		1.0a	C:\WINDOWS\TrueCrypt Setup.exe /u			[optional]
+		2.0		C:\WINDOWS\TrueCrypt Setup.exe /u			[optional]
+		2.1		C:\WINDOWS\TrueCrypt Setup.exe /u			[optional]
+		2.1a	C:\WINDOWS\TrueCrypt Setup.exe /u			[optional]
+		3.0		C:\WINDOWS\TrueCrypt Setup.exe /u			[optional]
+		3.0a	C:\WINDOWS\TrueCrypt Setup.exe /u			[optional]
 		3.1		The UninstallString was NEVER written (fortunately, 3.1a replaced 3.1 after 2 weeks)
-		3.1a	C:\WINDOWS\CipherShed Setup.exe /u
-		4.0		C:\WINDOWS\CipherShed Setup.exe /u C:\Program Files\CipherShed
-		4.1		C:\WINDOWS\CipherShed Setup.exe /u C:\Program Files\CipherShed
-		4.2		C:\WINDOWS\CipherShed Setup.exe /u C:\Program Files\CipherShed
-		4.2a	C:\WINDOWS\CipherShed Setup.exe /u C:\Program Files\CipherShed
-		4.3		"C:\Program Files\CipherShed\CipherShed Setup.exe" /u C:\Program Files\CipherShed\
-		4.3a	"C:\Program Files\CipherShed\CipherShed Setup.exe" /u C:\Program Files\CipherShed\
-		5.0+	"C:\Program Files\CipherShed\CipherShed Setup.exe" /u
+		3.1a	C:\WINDOWS\TrueCrypt Setup.exe /u
+		4.0		C:\WINDOWS\TrueCrypt Setup.exe /u C:\Program Files\TrueCrypt
+		4.1		C:\WINDOWS\TrueCrypt Setup.exe /u C:\Program Files\TrueCrypt
+		4.2		C:\WINDOWS\TrueCrypt Setup.exe /u C:\Program Files\TrueCrypt
+		4.2a	C:\WINDOWS\TrueCrypt Setup.exe /u C:\Program Files\TrueCrypt
+		4.3		"C:\Program Files\TrueCrypt\TrueCrypt Setup.exe" /u C:\Program Files\TrueCrypt\
+		4.3a	"C:\Program Files\TrueCrypt\TrueCrypt Setup.exe" /u C:\Program Files\TrueCrypt\
+		5.0+	"C:\Program Files\TrueCrypt\TrueCrypt Setup.exe" /u
 
 		Note: In versions 1.0-3.0a the user was able to choose whether to install the uninstaller.
 			  The default was to install it. If it wasn't installed, there was no UninstallString.
@@ -1887,7 +2230,7 @@ void SetInstallationPath (HWND hwndDlg)
 	}
 	else
 	{
-		/* TrueCypt is not installed or it wasn't possible to determine where it is installed. */
+		/* CipherShed is not installed or it wasn't possible to determine where it is installed. */
 
 		// Default "Program Files" path. 
 		SHGetSpecialFolderLocation (hwndDlg, CSIDL_PROGRAM_FILES, &itemList);
@@ -1915,10 +2258,24 @@ void SetInstallationPath (HWND hwndDlg)
 	{
 		strcat (InstallationPath, "\\");
 	}
+
+	/*
+	 * CipherShed changes the InstallationPath in case of TrueCrypt upgrade,
+	 * we need to store the original path for TrueCrypt uninstall.
+	 */
+	strcpy(UninstallationPath, InstallationPath);
 }
 
 
-// Handler for uninstall only (install is handled by the wizard)
+/**
+ * Handler for uninstall only (install is handled by the wizard).
+ * @param	[in] HWND hwndDlg	Dialog window handle.
+ * @param	[in] UINT msg		The message.
+ * @param	[in] WPARAM wParam	Additional message-specific information.
+ * @param	[in] LPARAM lParam	Additional message-specific information.
+ * @return	BOOL				TRUE if it processed the message, and FALSE if it did not.
+ * @see		http://msdn.microsoft.com/en-us/library/windows/desktop/ms645469%28v=vs.85%29.aspx
+ */
 BOOL CALLBACK UninstallDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	WORD lw = LOWORD (wParam);
@@ -1941,6 +2298,7 @@ BOOL CALLBACK UninstallDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lP
 		SetCheckBox (hwndDlg, IDC_SYSTEM_RESTORE, bSystemRestore);
 		if (SystemRestoreDll == 0)
 		{
+			/* No System Restore dll available, unset the checkbox and disable it. */
 			SetCheckBox (hwndDlg, IDC_SYSTEM_RESTORE, FALSE);
 			EnableWindow (GetDlgItem (hwndDlg, IDC_SYSTEM_RESTORE), FALSE);
 		}
@@ -1971,6 +2329,7 @@ BOOL CALLBACK UninstallDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lP
 
 			WaitCursor ();
 
+			/* Do uninstall. */
 			if (bUninstall)
 				_beginthread (DoUninstall, 0, (void *) hwndDlg);
 
@@ -2013,7 +2372,9 @@ BOOL CALLBACK UninstallDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lP
 	return 0;
 }
 
-
+/**
+ * Setup main.
+ */
 int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpszCommandLine, int nCmdShow)
 {
 	atexit (localcleanup);
@@ -2027,11 +2388,12 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpszComm
 	/* Call InitApp to initialize the common code */
 	InitApp (hInstance, NULL);
 
-	if (IsAdmin () != TRUE)
-		if (MessageBoxW (NULL, GetString ("SETUP_ADMIN"), lpszTitle, MB_YESNO | MB_ICONQUESTION) != IDYES)
-		{
-			exit (1);
-		}
+	/* The setup requires admin privileges, but give the user an option to continue. */
+	if (IsAdmin () != TRUE &&
+		MessageBoxW (NULL, GetString ("SETUP_ADMIN"), lpszTitle, MB_YESNO | MB_ICONQUESTION) != IDYES)
+	{
+		exit (1);
+	}
 
 	/* Setup directory */
 	{
@@ -2043,25 +2405,21 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpszComm
 	}
 
 	/* Parse command line arguments */
-
 	if (lpszCommandLine[0] == '/')
 	{
 		if (lpszCommandLine[1] == 'u')
 		{
 			// Uninstall:	/u
-
 			bUninstall = TRUE;
 		}
 		else if (lpszCommandLine[1] == 'c')
 		{
 			// Change:	/c
-
 			bChangeMode = TRUE;
 		}
 		else if (lpszCommandLine[1] == 'p')
 		{
 			// Create self-extracting package:	/p
-
 			bMakePackage = TRUE;
 		}
 		else if (lpszCommandLine[1] == 'd')
@@ -2074,7 +2432,6 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpszComm
 	if (bMakePackage)
 	{
 		/* Create self-extracting package */
-
 		MakeSelfExtractingPackage (NULL, SetupFilesDir);
 	}
 	else
@@ -2101,7 +2458,6 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpszComm
 			if (bChangeMode)
 			{
 				/* CipherShed is already installed on this system and we were launched from the Program Files folder */
-
 				char *tmpStr[] = {0, "SELECT_AN_ACTION", "REPAIR_REINSTALL", "UNINSTALL", "EXIT", 0};
 
 				// Ask the user to select either Repair or Unistallation
@@ -2119,22 +2475,21 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpszComm
 			}
 		}
 
-		// System Restore
+		/* Try to load the System Restore dll. */
 		SystemRestoreDll = LoadLibrary ("srclient.dll");
 
 		if (!bUninstall)
 		{
 			/* Create the main dialog for install */
-
 			DialogBoxParamW (hInstance, MAKEINTRESOURCEW (IDD_INSTL_DLG), NULL, (DLGPROC) MainDialogProc, 
 				(LPARAM)lpszCommandLine);
 		}
 		else
 		{
-			/* Create the main dialog for uninstall  */
-
+			/* Create the main dialog for uninstall */
 			DialogBoxW (hInstance, MAKEINTRESOURCEW (IDD_UNINSTALL), NULL, (DLGPROC) UninstallDlgProc);
 
+			/* Check if the UninstallBatch path is not empty. */
 			if (UninstallBatch[0])
 			{
 				STARTUPINFO si;
@@ -2145,8 +2500,11 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpszComm
 				si.dwFlags = STARTF_USESHOWWINDOW;
 				si.wShowWindow = SW_HIDE;
 
+				/* Execute the uninstall batch script. */
 				if (!CreateProcess (UninstallBatch, NULL, NULL, NULL, FALSE, IDLE_PRIORITY_CLASS, NULL, NULL, &si, &pi))
+				{
 					DeleteFile (UninstallBatch);
+				}
 				else
 				{
 					CloseHandle (pi.hProcess);

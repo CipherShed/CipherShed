@@ -41,13 +41,13 @@ extern "C" BOOL RegisterComServers (char *modulePath)
 	CRegObject ro;
 	HRESULT r;
 
-	if (!SUCCEEDED (r = ro.FinalConstruct ())
-		|| !SUCCEEDED (r = ro.AddReplacement (L"MAIN_MODULE", mainModule))
+	if (!SUCCEEDED (r = ro.FinalConstruct ())	/* Init. */
+		|| !SUCCEEDED (r = ro.AddReplacement (L"MAIN_MODULE", mainModule))	/* Replaceable parameters. */
 		|| !SUCCEEDED (r = ro.AddReplacement (L"FORMAT_MODULE", formatModule))
-		|| !SUCCEEDED (r = ro.ResourceRegister (setupModule, IDR_COMREG, L"REGISTRY"))
-		|| !SUCCEEDED (r = LoadTypeLib (mainModule, &tl))
+		|| !SUCCEEDED (r = ro.ResourceRegister (setupModule, IDR_COMREG, L"REGISTRY"))	/* Register ComSetup.rgs */
+		|| !SUCCEEDED (r = LoadTypeLib (mainModule, &tl))	/* CipherShed type class. */
 		|| !SUCCEEDED (r = RegisterTypeLib (tl, mainModule, 0))
-		|| !SUCCEEDED (r = LoadTypeLib (formatModule, &tl2))
+		|| !SUCCEEDED (r = LoadTypeLib (formatModule, &tl2))	/* CipherShedFormat type class. */
 		|| !SUCCEEDED (r = RegisterTypeLib (tl2, formatModule, 0)))
 	{
 		MessageBox (MainDlg, _com_error (r).ErrorMessage(), TC_APP_NAME, MB_ICONERROR);
@@ -70,8 +70,11 @@ extern "C" BOOL UnregisterComServers (char *modulePath)
 
 	wchar_t module[1024];
 	CRegObject ro;
+
+	/* Init. */
 	ro.FinalConstruct ();
 
+	/* Replaceable parameters. */
 	wsprintfW (module, L"%hsCipherShed.exe", modulePath);
 	ro.AddReplacement (L"MAIN_MODULE", module);
 
@@ -81,6 +84,7 @@ extern "C" BOOL UnregisterComServers (char *modulePath)
 	wchar_t setupModule[MAX_PATH];
 	GetModuleFileNameW (NULL, setupModule, sizeof (setupModule) / sizeof (setupModule[0]));
 
+	/* Unregister ComSetup.rgs */
 	ret = ro.ResourceUnregister (setupModule, IDR_COMREG, L"REGISTRY") == S_OK;
 
 	ro.FinalRelease ();
