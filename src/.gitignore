@@ -1,6 +1,8 @@
 *.o
 *.d
 *.a
+/*/Debug/
+/*/Release/
 /Common/Language.xml.h
 /Common/Textual_logo_96dpi.bmp.h
 /Format/TrueCrypt_Wizard.bmp.h
@@ -56,3 +58,5 @@
 /Common/build_driver_release.err
 /Common/build_driver_release.wrn
 /Common/build_errors.log
+/LocalTestRun.testrunconfig
+/TestResults/
