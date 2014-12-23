@@ -56,10 +56,14 @@ namespace unittesting
 		*/
 		UnitTestingFramework()
 		{
-			TEST_ADD(UnitTestingFramework::TestFramework)
+			TEST_ADD(UnitTestingFramework::TestFramework);
 		}
 	};
 }
+
+#ifndef _MSC_FULL_VER
+#include "tests/algo/crcTest.cpp"
+#endif
 
 #pragma warning( push )
 #pragma warning( disable : 4956 )
