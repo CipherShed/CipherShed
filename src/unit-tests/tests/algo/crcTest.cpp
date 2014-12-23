@@ -55,15 +55,40 @@ namespace crc
 			//http://reveng.sourceforge.net/crc-catalogue/
 
 			TEST_ASSERT(1==1) //crc32_selftests()
-			TEST_ASSERT(crc32_selftests())
+			TEST_ASSERT(crc32_selftests()!=FALSE)
 		};
+
+
+		TESTMETHOD
+		void testCRCsmall()
+		{
+				TEST_ASSERT(crc32_selfTestSmall()!=FALSE)
+		}
+
+
+		TESTMETHOD
+		void testCRCbig()
+		{
+				TEST_ASSERT(crc32_selfTestLarge()!=FALSE);
+		}
+
+		TESTMETHOD
+		void testCRCcatalog()
+		{
+				//http://reveng.sourceforge.net/crc-catalogue/17plus.htm
+				unsigned char testData[]={'1','2','3','4','5','6','7','8','9'};
+				TEST_ASSERT(GetCrc32 (testData, sizeof (testData)) == 0xcbf43926UL);
+		}
 
 		/**
 		The constructor needs the add each test method for the non-VS unit test execution.
 		*/
 		CrcTest()
 		{
-			TEST_ADD(UnitTestingFramework::testCRC)
+			TEST_ADD(CrcTest::testCRC);
+			TEST_ADD(CrcTest::testCRCsmall);
+			TEST_ADD(CrcTest::testCRCbig);
+			TEST_ADD(CrcTest::testCRCcatalog);
 		}
 	};
 }

@@ -1,7 +1,9 @@
 #ifndef _unittesting_h_
 #define _unittesting_h_
 
+#ifndef CS_UNITTESTING
 #define CS_UNITTESTING
+#endif
 
 #ifdef _MSC_FULL_VER
 

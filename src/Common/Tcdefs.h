@@ -84,13 +84,11 @@ typedef uint64_t uint64;
 
 typedef uint64 TC_LARGEST_COMPILER_UINT;
 
-#define BOOL int
-#ifndef FALSE
-#define FALSE 0
-#define TRUE 1
-#endif
-
 #endif // !_MSC_VER
+
+#if !defined(_MSC_VER) || defined (CS_UNITTESTING)
+#include "bool.h"
+#endif
 
 #define TC_INT_TYPES_DEFINED
 

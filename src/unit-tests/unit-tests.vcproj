@@ -43,7 +43,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				PreprocessorDefinitions="WIN32;_DEBUG"
+				PreprocessorDefinitions="CS_UNITTESTING"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -115,7 +115,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="WIN32;NDEBUG"
+				PreprocessorDefinitions="CS_UNITTESTING"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
@@ -262,6 +262,14 @@
 					RelativePath=".\unittesting.h"
 					>
 				</File>
+				<Filter
+					Name="tests"
+					>
+					<Filter
+						Name="algo"
+						>
+					</Filter>
+				</Filter>
 			</Filter>
 		</Filter>
 		<Filter
