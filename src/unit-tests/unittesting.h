@@ -48,7 +48,7 @@ using namespace	Microsoft::VisualStudio::TestTools::UnitTesting;
 
 #define MAINTESTDECL Test::Suite ts;
 #define MAINADDTEST(x) ts.add(std::auto_ptr<Test::Suite>((x)));
-#define MAINTESTRUN Test::TextOutput output(Test::TextOutput::Verbose); return ts.run(output);
+#define MAINTESTRUN Test::TextOutput output(Test::TextOutput::Verbose); return !ts.run(output);
 
 #endif
 

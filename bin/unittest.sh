@@ -4,6 +4,7 @@ cd "$DIR"/src/unit-tests/
 
 g++ unittesting.cpp                                         \
     -DCS_UNITTESTING                                        \
+    -fprofile-arcs -ftest-coverage                          \
                                                             \
     ../Common/Crc.c                \
                                                             \
@@ -19,3 +20,5 @@ g++ unittesting.cpp                                         \
 ../../var/opt/cpptest-code/cpptest/src/htmloutput.cpp       \
 ../../var/opt/cpptest-code/cpptest/src/missing.cpp          \
 -o unittesting
+
+./unittesting && for i in *.gcda; do gcov `basename $i .gcda`; done
