@@ -1,9 +1,17 @@
-#include "unittesting.h"
 
-namespace unittesting
+#include "../../unittesting.h"
+
+//#pragma warning( push )
+//#pragma warning( disable : 4959 4956 )
+#undef TC_WINDOWS_DRIVER
+#define BOOL int
+#include "../../../Common/Crc.h"
+//#pragma warning( pop )
+
+namespace crc
 {
 	TESTCLASS
-	PUBLIC_REF_CLASS UnitTestingFramework TESTCLASSEXTENDS
+	PUBLIC_REF_CLASS CrcTest TESTCLASSEXTENDS
 	{
 	private:
 		TESTCONTEXT testContextInstance;
@@ -41,35 +49,21 @@ namespace unittesting
 		The each test method needs this decoration for the VS unit test execution.
 		*/
 		TESTMETHOD
-		void TestFramework()
+		void testCRC()
 		{
-			//http://blogs.msdn.com/b/jsocha/archive/2010/11/19/writing-unit-tests-in-visual-studio-for-native-c.aspx
-			//Assert::AreEqual<int>(1,2);
-			TEST_ASSERT(1==1)
-			//
-			// TODO: Add test logic	here
-			//
+			//http://www.ross.net/crc/download/crc_v3.txt
+			//http://reveng.sourceforge.net/crc-catalogue/
+
+			TEST_ASSERT(1==1) //crc32_selftests()
+			TEST_ASSERT(crc32_selftests())
 		};
 
 		/**
 		The constructor needs the add each test method for the non-VS unit test execution.
 		*/
-		UnitTestingFramework()
+		CrcTest()
 		{
-			TEST_ADD(UnitTestingFramework::TestFramework)
+			TEST_ADD(UnitTestingFramework::testCRC)
 		}
 	};
 }
-
-#pragma warning( push )
-#pragma warning( disable : 4956 )
-int main(int argc, char *argv[], char *envp[])
-{
-	MAINTESTDECL
-	MAINADDTEST(new unittesting::UnitTestingFramework);
-	MAINADDTEST(new crc::CrcTest);
-	MAINTESTRUN
-
-}
-#pragma warning( pop )
-

@@ -164,11 +164,15 @@ typedef int BOOL;
 #	define	_WIN32_WINNT 0x0501	/* Does not apply to the driver */
 #endif
 
+#ifndef CS_UNITTESTING
+
 #include <windows.h>		/* Windows header */
 #include <commctrl.h>		/* The common controls */
 #include <process.h>		/* Process control */
 #include <winioctl.h>
 #include <stdio.h>		/* For sprintf */
+
+#endif
 
 #endif				/* _WIN32 */
 

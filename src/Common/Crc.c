@@ -11,7 +11,7 @@
 
 #include "Tcdefs.h"
 #include "Crc.h"
-#include "Common/Endian.h"
+#include "Endian.h"
 
 #ifndef TC_MINIMIZE_CODE_SIZE
 

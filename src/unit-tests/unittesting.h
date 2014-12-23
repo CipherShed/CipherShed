@@ -1,6 +1,8 @@
 #ifndef _unittesting_h_
 #define _unittesting_h_
 
+#define CS_UNITTESTING
+
 #ifdef _MSC_FULL_VER
 
 #define TESTCLASS [TestClass]

@@ -12,7 +12,7 @@
 #ifndef TC_ENDIAN_H
 #define TC_ENDIAN_H
 
-#include "Common/Tcdefs.h"
+#include "Tcdefs.h"
 
 #if defined(__cplusplus)
 extern "C"
