@@ -28,8 +28,8 @@
 #ifndef _SHA2_H
 #define _SHA2_H
 
-#include "Common/Tcdefs.h"
-#include "Common/Endian.h"
+#include "../Common/Tcdefs.h"
+#include "../Common/Endian.h"
 
 #define SHA_64BIT
 

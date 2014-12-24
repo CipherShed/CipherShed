@@ -9,7 +9,7 @@
 #ifndef TC_HEADER_Crypto_Aes_Hw_Cpu
 #define TC_HEADER_Crypto_Aes_Hw_Cpu
 
-#include "Common/Tcdefs.h"
+#include "../Common/Tcdefs.h"
 
 #if defined(__cplusplus)
 extern "C"

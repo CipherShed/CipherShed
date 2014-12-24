@@ -1,7 +1,7 @@
 #ifndef HEADER_Crypto_Serpent
 #define HEADER_Crypto_Serpent
 
-#include "Common/Tcdefs.h"
+#include "../Common/Tcdefs.h"
 
 #ifdef __cplusplus
 extern "C"

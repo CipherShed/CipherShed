@@ -12,6 +12,11 @@
 #ifndef TC_HEADER_Common_Volumes
 #define TC_HEADER_Common_Volumes
 
+#ifdef CS_UNITTESTING
+#include "../unit-tests/faux/windows/HANDLE.h"
+#include "../unit-tests/faux/windows/DWORD.h"
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

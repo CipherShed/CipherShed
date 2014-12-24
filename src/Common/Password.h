@@ -12,6 +12,12 @@
 #ifndef PASSWORD_H
 #define PASSWORD_H
 
+#ifdef CS_UNITTESTING
+#include "../unit-tests/faux/windows/HWND.h"
+#include "../unit-tests/faux/windows/GetWindowText.h"
+#include "../unit-tests/faux/windows/GetWindowTextLength.h"
+#endif
+
 // User text input limits
 #define MIN_PASSWORD			1		// Minimum possible password length
 #define MAX_PASSWORD			64		// Maximum possible password length

@@ -1,7 +1,7 @@
 #ifndef WHIRLPOOL_H
 #define WHIRLPOOL_H 1
 
-#include "Common/Tcdefs.h"
+#include "../Common/Tcdefs.h"
 
 #if defined(__cplusplus)
 extern "C"

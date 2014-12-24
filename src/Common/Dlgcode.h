@@ -12,6 +12,17 @@
 #ifndef TC_HEADER_DLGCODE
 #define TC_HEADER_DLGCODE
 
+#ifdef CS_UNITTESTING
+#include "../unit-tests/faux/windows/HFONT.h"
+#include "../unit-tests/faux/windows/HINSTANCE.h"
+#include "../unit-tests/faux/windows/WM_APP.h"
+#include "../unit-tests/faux/windows/FILETIME.h"
+#include "../unit-tests/faux/windows/HDC.h"
+#include "../unit-tests/faux/windows/HBITMAP.h"
+#include "../unit-tests/faux/windows/LRESULT.h"
+#include "../unit-tests/faux/windows/FILE.h"
+#endif
+
 #include "Common.h"
 #include "Apidrvr.h"
 #include "Keyfiles.h"
