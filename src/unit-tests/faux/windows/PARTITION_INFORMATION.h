@@ -1,8 +1,9 @@
 #ifndef _faux_windows_partition_information_h_
 #define _faux_windows_partition_information_h_
 
-#define LARGE_INTEGER int
-
+#include "DWORD.h"
+#include "LONG.h"
+#include "LARGE_INTEGER.h"
 #include "DWORD.h"
 #include "BYTE.h"
 #include "BOOLEAN.h"

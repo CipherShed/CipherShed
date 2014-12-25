@@ -3,5 +3,14 @@
 
 #include "HWND.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 int GetWindowTextLength(HWND hWnd);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

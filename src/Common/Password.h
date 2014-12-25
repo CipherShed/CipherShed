@@ -13,9 +13,24 @@
 #define PASSWORD_H
 
 #ifdef CS_UNITTESTING
-#include "../unit-tests/faux/windows/HWND.h"
+#include "../unit-tests/faux/windows/EnableWindow.h"
 #include "../unit-tests/faux/windows/GetWindowText.h"
 #include "../unit-tests/faux/windows/GetWindowTextLength.h"
+#include "../unit-tests/faux/windows/ACCESSTYPES.h"
+#include "../unit-tests/faux/windows/IOCTL_DISK.h"
+#include "../unit-tests/faux/windows/ERROR.h"
+#include "../unit-tests/faux/windows/CreateFile.h"
+#include "../unit-tests/faux/windows/DeviceIoControl.h"
+#include "../unit-tests/faux/windows/GetFileSize.h"
+#include "../unit-tests/faux/windows/SetFilePointer.h"
+#include "../unit-tests/faux/windows/FlushFileBuffers.h"
+#include "../unit-tests/faux/windows/GetFileTime.h"
+#include "../unit-tests/faux/windows/GetLastError.h"
+#include "../unit-tests/faux/windows/SetLastError.h"
+#include "../unit-tests/faux/windows/SetFileTime.h"
+#include "../unit-tests/faux/windows/CloseHandle.h"
+#undef __nullterminated
+#include <string.h>
 #endif
 
 // User text input limits

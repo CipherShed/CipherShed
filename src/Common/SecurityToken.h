@@ -23,9 +23,9 @@
 #define CK_CALLBACK_FUNCTION(RET_TYPE, NAME) RET_TYPE (* NAME)
 
 #ifdef TC_WINDOWS
-
+#ifndef CS_UNITTESTING
 #	include <windows.h>
-
+#endif
 #	define CK_DEFINE_FUNCTION(RET_TYPE, NAME) RET_TYPE __declspec(dllexport) NAME
 #	define CK_DECLARE_FUNCTION(RET_TYPE, NAME) RET_TYPE __declspec(dllimport) NAME
 #	define CK_DECLARE_FUNCTION_POINTER(RET_TYPE, NAME) RET_TYPE __declspec(dllimport) (* NAME)

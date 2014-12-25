@@ -4,7 +4,6 @@
 //#pragma warning( push )
 //#pragma warning( disable : 4959 4956 )
 #undef TC_WINDOWS_DRIVER
-#define BOOL int
 #include "../../../Common/Crc.h"
 //#pragma warning( pop )
 
