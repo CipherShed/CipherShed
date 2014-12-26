@@ -8,7 +8,7 @@
 
 #include <unistd.h>
 #include "Pipe.h"
-#include "Platform/SystemException.h"
+#include "../SystemException.h"
 
 namespace CipherShed
 {

@@ -20,17 +20,19 @@ IMPORTANT: Due to this issue, functions in this file must not directly interact 
 
 #include <stdlib.h>
 #include <string.h>
+#ifndef CS_UNITTESTING
 #include <string>
+#endif
 
-#include "Tcdefs.h"
-#include "Platform/Finally.h"
+#include "../Common/Tcdefs.h"
+#include "../Platform/Finally.h"
 
-#include "Common.h"
-#include "Crc.h"
-#include "Dlgcode.h"
-#include "Language.h"
+#include "../Common/Common.h"
+#include "../Common/Crc.h"
+#include "../Common/Dlgcode.h"
+#include "../Common/Language.h"
 #include "Tcformat.h"
-#include "Volumes.h"
+#include "../Common/Volumes.h"
 
 #include "InPlace.h"
 

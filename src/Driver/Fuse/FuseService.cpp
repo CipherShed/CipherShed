@@ -9,7 +9,9 @@
 #define FUSE_USE_VERSION  25
 #include <errno.h>
 #include <fcntl.h>
+#ifndef CS_UNITTESTING
 #include <fuse.h>
+#endif
 #include <iostream>
 #include <signal.h>
 #include <string.h>
@@ -21,14 +23,14 @@
 #include <sys/wait.h>
 
 #include "FuseService.h"
-#include "Platform/FileStream.h"
-#include "Platform/MemoryStream.h"
-#include "Platform/Serializable.h"
-#include "Platform/SystemLog.h"
-#include "Platform/Unix/Pipe.h"
-#include "Platform/Unix/Poller.h"
-#include "Volume/EncryptionThreadPool.h"
-#include "Core/Core.h"
+#include "../../Platform/FileStream.h"
+#include "../../Platform/MemoryStream.h"
+#include "../../Platform/Serializable.h"
+#include "../../Platform/SystemLog.h"
+#include "../../Platform/Unix/Pipe.h"
+#include "../../Platform/Unix/Poller.h"
+#include "../../Volume/EncryptionThreadPool.h"
+#include "../../Core/Core.h"
 
 namespace CipherShed
 {

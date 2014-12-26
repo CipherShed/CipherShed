@@ -10,7 +10,7 @@
 #define TC_HEADER_Main_Resources
 
 #include "System.h"
-#include "Platform/Platform.h"
+#include "../Platform/Platform.h"
 
 namespace CipherShed
 {

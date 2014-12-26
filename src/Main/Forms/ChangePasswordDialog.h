@@ -10,7 +10,7 @@
 #define TC_HEADER_Main_Forms_ChangePasswordDialog
 
 #include "Forms.h"
-#include "Main/Main.h"
+#include "../Main.h"
 #include "VolumePasswordPanel.h"
 
 namespace CipherShed

@@ -9,8 +9,8 @@
 #ifndef TC_HEADER_Encryption_Password
 #define TC_HEADER_Encryption_Password
 
-#include "Platform/Platform.h"
-#include "Platform/Serializable.h"
+#include "../Platform/Platform.h"
+#include "../Platform/Serializable.h"
 
 namespace CipherShed
 {

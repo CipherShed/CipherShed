@@ -7,8 +7,8 @@
 */
 
 #include "MountOptions.h"
-#include "Platform/MemoryStream.h"
-#include "Platform/SerializerFactory.h"
+#include "../Platform/MemoryStream.h"
+#include "../Platform/SerializerFactory.h"
 
 namespace CipherShed
 {

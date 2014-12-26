@@ -9,7 +9,7 @@
 #ifndef TC_HEADER_Volume_VolumePasswordCache
 #define TC_HEADER_Volume_VolumePasswordCache
 
-#include "Platform/Platform.h"
+#include "../Platform/Platform.h"
 #include "VolumePassword.h"
 
 namespace CipherShed

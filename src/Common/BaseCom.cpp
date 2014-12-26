@@ -6,8 +6,10 @@
  packages.
 */
 
+#ifndef CS_UNITTESTING
 #include <atlcomcli.h>
 #include <atlconv.h>
+#endif
 #include <comutil.h>
 #include <windows.h>
 #include "BaseCom.h"

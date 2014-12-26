@@ -7,7 +7,9 @@
 */
 
 #include "System.h"
+#ifndef CS_UNITTESTING
 #include <wx/stdpaths.h>
+#endif
 #include "Main.h"
 #include "Application.h"
 #include "CommandLineInterface.h"

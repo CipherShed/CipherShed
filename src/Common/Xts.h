@@ -12,7 +12,7 @@
 // Header files (optional)
 
 #include "Tcdefs.h"
-#include "Common/Endian.h"
+#include "Endian.h" // we are in Common ... #include "Common/Endian.h"
 #include "Crypto.h"
 
 #ifdef __cplusplus

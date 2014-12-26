@@ -14,7 +14,7 @@
 #include "Volume.h"
 #include "VolumeHeader.h"
 #include "VolumeLayout.h"
-#include "Common/Crypto.h"
+#include "../Common/Crypto.h"
 
 namespace CipherShed
 {

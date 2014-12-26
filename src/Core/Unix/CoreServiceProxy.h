@@ -10,7 +10,7 @@
 #define TC_HEADER_Core_Windows_CoreServiceProxy
 
 #include "CoreService.h"
-#include "Volume/VolumePasswordCache.h"
+#include "../../Volume/VolumePasswordCache.h"
 
 namespace CipherShed
 {

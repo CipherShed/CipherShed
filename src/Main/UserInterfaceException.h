@@ -9,7 +9,7 @@
 #ifndef TC_HEADER_Main_UserInterfaceException
 #define TC_HEADER_Main_UserInterfaceException
 
-#include "Platform/Platform.h"
+#include "../Platform/Platform.h"
 
 namespace CipherShed
 {

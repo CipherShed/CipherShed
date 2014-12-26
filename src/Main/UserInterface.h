@@ -10,7 +10,7 @@
 #define TC_HEADER_Main_UserInterface
 
 #include "System.h"
-#include "Core/Core.h"
+#include "../Core/Core.h"
 #include "Main.h"
 #include "CommandLineInterface.h"
 #include "FavoriteVolume.h"

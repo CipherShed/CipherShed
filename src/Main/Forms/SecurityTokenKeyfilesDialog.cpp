@@ -7,8 +7,8 @@
 */
 
 #include "System.h"
-#include "Main/GraphicUserInterface.h"
-#include "Common/SecurityToken.h"
+#include "../GraphicUserInterface.h"
+#include "../../Common/SecurityToken.h"
 #include "NewSecurityTokenKeyfileDialog.h"
 #include "SecurityTokenKeyfilesDialog.h"
 

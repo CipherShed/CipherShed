@@ -9,13 +9,13 @@
 #include "System.h"
 #include <sys/mman.h>
 
-#include "Platform/Platform.h"
-#include "Platform/SystemLog.h"
-#include "Volume/EncryptionThreadPool.h"
-#include "Core/Unix/CoreService.h"
-#include "Main/Application.h"
-#include "Main/Main.h"
-#include "Main/UserInterface.h"
+#include "../../Platform/Platform.h"
+#include "../../Platform/SystemLog.h"
+#include "../../Volume/EncryptionThreadPool.h"
+#include "../../Core/Unix/CoreService.h"
+#include "../Application.h"
+#include "../Main.h"
+#include "../UserInterface.h"
 
 #if defined (TC_MACOSX) && !defined (TC_NO_GUI)
 #include <ApplicationServices/ApplicationServices.h>

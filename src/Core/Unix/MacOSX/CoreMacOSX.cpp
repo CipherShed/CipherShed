@@ -10,14 +10,16 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/param.h>
+#ifndef CS_UNITTESTING
 #include <sys/ucred.h>
-#include <sys/mount.h>
 #include <sys/sysctl.h>
+#endif
+#include <sys/mount.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include "CoreMacOSX.h"
-#include "Driver/Fuse/FuseService.h"
-#include "Core/Unix/CoreServiceProxy.h"
+#include "../../../Driver/Fuse/FuseService.h"
+#include "../CoreServiceProxy.h"
 
 namespace CipherShed
 {

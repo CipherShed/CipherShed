@@ -10,8 +10,8 @@
 #define TC_HEADER_Main_Forms_FavoriteVolumesDialog
 
 #include "Forms.h"
-#include "Main/Main.h"
-#include "Main/FavoriteVolume.h"
+#include "../Main.h"
+#include "../FavoriteVolume.h"
 
 namespace CipherShed
 {

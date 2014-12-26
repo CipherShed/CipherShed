@@ -13,7 +13,7 @@
 #include "Crypto.h"
 #include "Xts.h"
 #include "Crc.h"
-#include "Common/Endian.h"
+#include "Endian.h"
 #include <string.h>
 #ifndef TC_WINDOWS_BOOT
 #include "EncryptionThreadPool.h"

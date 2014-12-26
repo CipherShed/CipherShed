@@ -9,20 +9,20 @@
  contained in the file License.txt included in TrueCrypt binary and source
  code distribution packages. */
 
-#include "TCdefs.h"
+#include "../Common/Tcdefs.h"
 #include <wchar.h>
-#include "Crypto.h"
-#include "Volumes.h"
+#include "../Common/Crypto.h"
+#include "../Common/Volumes.h"
 
-#include "Apidrvr.h"
+#include "../Common/Apidrvr.h"
 #include "DriveFilter.h"
 #include "Ntdriver.h"
 #include "Ntvol.h"
 #include "VolumeFilter.h"
 
-#include "Boot/Windows/BootCommon.h"
+#include "../Boot/Windows/BootCommon.h"
 
-#include "Cache.h"
+#include "../Common/Cache.h"
 
 #if 0 && _DEBUG
 #define EXTRA_INFO 1

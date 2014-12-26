@@ -10,7 +10,7 @@
  code distribution packages. */
 
 #include "Tcdefs.h"
-#include "Common/Endian.h"
+#include "Endian.h"
 
 
 unsigned __int16 MirrorBytes16 (unsigned __int16 x)

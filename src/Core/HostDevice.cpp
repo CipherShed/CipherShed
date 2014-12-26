@@ -7,7 +7,7 @@
 */
 
 #include "HostDevice.h"
-#include "Platform/SerializerFactory.h"
+#include "../Platform/SerializerFactory.h"
 
 namespace CipherShed
 {

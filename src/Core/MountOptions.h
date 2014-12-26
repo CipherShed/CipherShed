@@ -9,11 +9,11 @@
 #ifndef TC_HEADER_Core_MountOptions
 #define TC_HEADER_Core_MountOptions
 
-#include "Platform/Serializable.h"
-#include "Volume/Keyfile.h"
-#include "Volume/Volume.h"
-#include "Volume/VolumeSlot.h"
-#include "Volume/VolumePassword.h"
+#include "../Platform/Serializable.h"
+#include "../Volume/Keyfile.h"
+#include "../Volume/Volume.h"
+#include "../Volume/VolumeSlot.h"
+#include "../Volume/VolumePassword.h"
 
 namespace CipherShed
 {

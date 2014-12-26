@@ -6,13 +6,13 @@
  packages.
 */
 
-#include "TCdefs.h"
-#include "Apidrvr.h"
+#include "../Common/Tcdefs.h"
+#include "../Common/Apidrvr.h"
 #include "Ntdriver.h"
 #include "DriveFilter.h"
 #include "EncryptedIoQueue.h"
-#include "EncryptionThreadPool.h"
-#include "Volumes.h"
+#include "../Common/EncryptionThreadPool.h"
+#include "../Common/Volumes.h"
 
 
 static void AcquireBufferPoolMutex (EncryptedIoQueue *queue)

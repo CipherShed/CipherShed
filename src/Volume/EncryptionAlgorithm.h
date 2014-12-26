@@ -9,7 +9,7 @@
 #ifndef TC_HEADER_Encryption_EncryptionAlgorithm
 #define TC_HEADER_Encryption_EncryptionAlgorithm
 
-#include "Platform/Platform.h"
+#include "../Platform/Platform.h"
 #include "Cipher.h"
 #include "EncryptionMode.h"
 

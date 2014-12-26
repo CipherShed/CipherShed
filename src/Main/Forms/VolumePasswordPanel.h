@@ -10,8 +10,8 @@
 #define TC_HEADER_Main_Forms_PasswordPanel
 
 #include "Forms.h"
-#include "Platform/Functor.h"
-#include "Main/Main.h"
+#include "../../Platform/Functor.h"
+#include "../Main.h"
 
 namespace CipherShed
 {

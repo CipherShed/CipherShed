@@ -12,12 +12,14 @@
 #define TC_FORMAT_COM_VERSION_MAJOR 2
 #define TC_FORMAT_COM_VERSION_MINOR 4
 
+#ifndef CS_UNITTESTING
 #include <atlbase.h>
 #include <comdef.h>
 #include <statreg.h>
+#endif
 #include <windows.h>
 #include "ComSetup.h"
-#include "Dlgcode.h"
+#include "../Common/Dlgcode.h"
 #include "Resource.h"
 #include "../Mount/MainCom_i.c"
 #include "../Format/FormatCom_i.c"

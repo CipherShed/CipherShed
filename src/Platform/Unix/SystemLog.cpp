@@ -7,7 +7,7 @@
 */
 
 #include <syslog.h>
-#include "Platform/SystemLog.h"
+#include "../SystemLog.h"
 
 namespace CipherShed
 {

@@ -9,7 +9,9 @@
 #ifndef TC_HEADER_Platform_Serializable
 #define TC_HEADER_Platform_Serializable
 
+#ifndef CS_UNITTESTING
 #include <stdexcept>
+#endif
 #include "PlatformBase.h"
 #include "ForEach.h"
 #include "Serializer.h"

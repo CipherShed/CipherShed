@@ -6,15 +6,17 @@
  packages.
 */
 
+#ifndef CS_UNITTESTING
 #include <atlcomcli.h>
 #include <atlconv.h>
+#endif
 #include <comutil.h>
 #include <windows.h>
-#include "BaseCom.h"
-#include "BootEncryption.h"
-#include "Dlgcode.h"
-#include "Format.h"
-#include "Progress.h"
+#include "../Common/BaseCom.h"
+#include "../Common/BootEncryption.h"
+#include "../Common/Dlgcode.h"
+#include "../Common/Format.h"
+#include "../Common/Progress.h"
 #include "TcFormat.h"
 #include "FormatCom.h"
 #include "FormatCom_h.h"

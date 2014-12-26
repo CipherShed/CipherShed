@@ -7,8 +7,8 @@
 */
 
 #include "System.h"
-#include "Main/GraphicUserInterface.h"
-#include "Main/VolumeHistory.h"
+#include "../GraphicUserInterface.h"
+#include "../VolumeHistory.h"
 #include "VolumeLocationWizardPage.h"
 
 namespace CipherShed

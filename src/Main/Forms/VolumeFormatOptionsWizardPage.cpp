@@ -7,7 +7,7 @@
 */
 
 #include "System.h"
-#include "Main/GraphicUserInterface.h"
+#include "../GraphicUserInterface.h"
 #include "VolumeFormatOptionsWizardPage.h"
 
 namespace CipherShed

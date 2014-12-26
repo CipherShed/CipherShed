@@ -9,11 +9,11 @@
 #ifndef TC_HEADER_Driver_Fuse_FuseService
 #define TC_HEADER_Driver_Fuse_FuseService
 
-#include "Platform/Platform.h"
-#include "Platform/Unix/Pipe.h"
-#include "Platform/Unix/Process.h"
-#include "Volume/VolumeInfo.h"
-#include "Volume/Volume.h"
+#include "../../Platform/Platform.h"
+#include "../../Platform/Unix/Pipe.h"
+#include "../../Platform/Unix/Process.h"
+#include "../../Volume/VolumeInfo.h"
+#include "../../Volume/Volume.h"
 
 namespace CipherShed
 {

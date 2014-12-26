@@ -10,11 +10,13 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/param.h>
+#ifndef CS_UNITTESTING
 #include <sys/ucred.h>
+#endif
 #include <sys/mount.h>
 #include <sys/wait.h>
 #include "CoreFreeBSD.h"
-#include "Core/Unix/CoreServiceProxy.h"
+#include "../CoreServiceProxy.h"
 
 namespace CipherShed
 {

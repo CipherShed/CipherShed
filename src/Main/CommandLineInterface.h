@@ -11,9 +11,9 @@
 
 #include "System.h"
 #include "Main.h"
-#include "Volume/VolumeInfo.h"
-#include "Core/MountOptions.h"
-#include "Core/VolumeCreator.h"
+#include "../Volume/VolumeInfo.h"
+#include "../Core/MountOptions.h"
+#include "../Core/VolumeCreator.h"
 #include "UserPreferences.h"
 #include "UserInterfaceType.h"
 

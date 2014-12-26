@@ -12,7 +12,7 @@
 #include "Tcdefs.h"
 #include "Dlgcode.h"
 #include "Exception.h"
-#include "Platform/PlatformBase.h"
+#include "../Platform/PlatformBase.h"
 #include "Volumes.h"
 
 using namespace std;

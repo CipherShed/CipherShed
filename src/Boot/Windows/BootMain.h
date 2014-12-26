@@ -9,7 +9,7 @@
 #ifndef TC_HEADER_Boot_BootMain
 #define TC_HEADER_Boot_BootMain
 
-#include "TCdefs.h"
+#include "../../Common/Tcdefs.h"
 #include "Platform.h"
 
 static byte AskPassword (Password &password);

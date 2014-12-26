@@ -6,7 +6,7 @@
  packages.
 */
 
-#include "Crypto.h"
+#include "../../Common/Crypto.h"
 #include "Platform.h"
 #include "BootConfig.h"
 #include "BootDebug.h"

@@ -6,17 +6,17 @@
  packages.
 */
 
-#include "Tcdefs.h"
+#include "../Common/Tcdefs.h"
 
-#include "Inflate.h"
+#include "../Common/Inflate.h"
 #include "SelfExtract.h"
 #include "Wizard.h"
 #include "Setup.h"
-#include "Crc.h"
+#include "../Common/Crc.h"
 #include "Endian.h"
-#include "Dlgcode.h"
+#include "../Common/Dlgcode.h"
 #include "Dir.h"
-#include "Language.h"
+#include "../Common/Language.h"
 #include "Resource.h"
 
 #define OutputPackageFile "CipherShed Setup " VERSION_STRING ".exe"

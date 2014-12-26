@@ -6,9 +6,9 @@
  packages.
 */
 
-#include "Platform/Memory.h"
-#include "Common/Crc.h"
-#include "Common/Endian.h"
+#include "../Platform/Memory.h"
+#include "../Common/Crc.h"
+#include "../Common/Endian.h"
 #include "EncryptionModeCBC.h"
 
 namespace CipherShed

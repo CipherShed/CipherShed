@@ -9,17 +9,17 @@
  contained in the file License.txt included in TrueCrypt binary and source
  code distribution packages. */
 
-#include "Tcdefs.h"
+#include "../Common/Tcdefs.h"
 #include <Shlobj.h>
 #include <io.h>
 #include <stdio.h>
 #include <time.h>
 #include "SelfExtract.h"
 #include "Wizard.h"
-#include "Dlgcode.h"
-#include "Language.h"
-#include "Common/Resource.h"
-#include "Common/snprintf.h"
+#include "../Common/Dlgcode.h"
+#include "../Common/Language.h"
+#include "../Common/Resource.h"
+#include "../Common/snprintf.h"
 #include "Resource.h"
 #include "Setup.h"
 

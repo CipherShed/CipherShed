@@ -9,16 +9,18 @@
 #include "System.h"
 #include <set>
 #include <typeinfo>
+#ifndef CS_UNITTESTING
 #include <wx/apptrait.h>
 #include <wx/cmdline.h>
-#include "Platform/PlatformTest.h"
+#endif
+#include "../Platform/PlatformTest.h"
 #ifdef TC_UNIX
 #include <errno.h>
-#include "Platform/Unix/Process.h"
+#include "../Platform/Unix/Process.h"
 #endif
-#include "Platform/SystemInfo.h"
-#include "Common/SecurityToken.h"
-#include "Volume/EncryptionTest.h"
+#include "../Platform/SystemInfo.h"
+#include "../Common/SecurityToken.h"
+#include "../Volume/EncryptionTest.h"
 #include "Application.h"
 #include "FavoriteVolume.h"
 #include "UserInterface.h"

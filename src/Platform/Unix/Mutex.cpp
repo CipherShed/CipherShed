@@ -7,8 +7,8 @@
 */
 
 #include <pthread.h>
-#include "Platform/Mutex.h"
-#include "Platform/SystemException.h"
+#include "../Mutex.h"
+#include "../SystemException.h"
 
 namespace CipherShed
 {

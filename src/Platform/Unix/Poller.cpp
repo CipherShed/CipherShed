@@ -9,7 +9,7 @@
 #include <poll.h>
 #include <unistd.h>
 #include "Poller.h"
-#include "Platform/SystemException.h"
+#include "../SystemException.h"
 
 namespace CipherShed
 {

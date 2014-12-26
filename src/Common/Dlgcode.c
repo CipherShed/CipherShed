@@ -37,7 +37,7 @@
 #include "Dlgcode.h"
 #include "EncryptionThreadPool.h"
 #include "Endian.h"
-#include "../Format/Inplace.h"
+#include "../Format/InPlace.h"
 #include "Language.h"
 #include "Keyfiles.h"
 #include "Pkcs5.h"

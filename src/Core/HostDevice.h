@@ -9,8 +9,8 @@
 #ifndef TC_HEADER_Core_HostDevice
 #define TC_HEADER_Core_HostDevice
 
-#include "Platform/Platform.h"
-#include "Platform/Serializable.h"
+#include "../Platform/Platform.h"
+#include "../Platform/Serializable.h"
 
 namespace CipherShed
 {

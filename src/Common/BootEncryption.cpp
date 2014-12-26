@@ -7,16 +7,18 @@
 */
 
 #include "Tcdefs.h"
-#include "Platform/Finally.h"
-#include "Platform/ForEach.h"
+#include "../Platform/Finally.h"
+#include "../Platform/ForEach.h"
 #include <Setupapi.h>
 #include <devguid.h>
 #include <io.h>
 #include <shlobj.h>
+#ifndef CS_UNITTESTING
 #include <atlbase.h>
+#endif
 #include "BootEncryption.h"
-#include "Boot/Windows/BootCommon.h"
-#include "Common/Resource.h"
+#include "../Boot/Windows/BootCommon.h"
+#include "Resource.h" // we are in Common ... #include "Common/Resource.h"
 #include "Crc.h"
 #include "Crypto.h"
 #include "Dlgcode.h"

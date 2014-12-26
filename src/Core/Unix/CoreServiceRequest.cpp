@@ -8,7 +8,7 @@
 
 #include <errno.h>
 #include "CoreServiceRequest.h"
-#include "Platform/SerializerFactory.h"
+#include "../../Platform/SerializerFactory.h"
 
 namespace CipherShed
 {

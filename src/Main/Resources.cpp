@@ -7,10 +7,11 @@
 */
 
 #include "System.h"
-#include "Platform/Platform.h"
+#include "../Platform/Platform.h"
 #include "Resources.h"
 
 #ifdef TC_WINDOWS
+// WTF: this would be the same as above, but the case is different, and it is guarded!
 #include "Main/resource.h"
 #endif
 
@@ -47,6 +48,7 @@ namespace CipherShed
 #else
 		static const char LanguageXml[] =
 		{
+//			include "../Common/Language.xml.h" ??? it does not exist and the next is known wrong ???
 #			include "Common/Language.xml.h"
 			, 0
 		};

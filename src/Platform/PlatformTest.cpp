@@ -18,7 +18,7 @@
 #include "StringConverter.h"
 #include "SyncEvent.h"
 #include "Thread.h"
-#include "Common/Tcdefs.h"
+#include "../Common/Tcdefs.h"
 
 namespace CipherShed
 {

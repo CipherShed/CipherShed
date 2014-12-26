@@ -26,8 +26,8 @@
 #include "Language.h"
 #include "Progress.h"
 #include "Resource.h"
-#include "Format/FormatCom.h"
-#include "Format/Tcformat.h"
+#include "../Format/FormatCom.h"
+#include "../Format/Tcformat.h"
 
 int FormatWriteBufferSize = 1024 * 1024;
 static uint32 FormatSectorSize = 0;

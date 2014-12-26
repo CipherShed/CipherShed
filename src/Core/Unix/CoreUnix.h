@@ -10,9 +10,9 @@
 #define TC_HEADER_Core_CoreUnix
 
 #include "System.h"
-#include "Platform/Unix/Process.h"
-#include "Core/CoreBase.h"
-#include "Core/Unix/MountedFilesystem.h"
+#include "../../Platform/Unix/Process.h"
+#include "../CoreBase.h"
+#include "MountedFilesystem.h"
 
 namespace CipherShed
 {

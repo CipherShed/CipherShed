@@ -10,8 +10,8 @@
 /* Adapted for CipherShed */
 
 #include <memory.h>
-#include "Common/Tcdefs.h"
-#include "Common/Endian.h"
+#include "../Common/Tcdefs.h"
+#include "../Common/Endian.h"
 #include "Rmd160.h"
 
 #define F(x, y, z)    (x ^ y ^ z) 

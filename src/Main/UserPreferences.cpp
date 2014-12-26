@@ -7,7 +7,7 @@
 */
 
 #include "System.h"
-#include "Main/Application.h"
+#include "Application.h"
 #include "UserPreferences.h"
 #include "Xml.h"
 
