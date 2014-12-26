@@ -6,7 +6,7 @@
  packages.
 */
 
-#include "System.h"
+#include "../System.h"
 
 #ifdef TC_UNIX
 #include <fcntl.h>

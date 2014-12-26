@@ -6,7 +6,7 @@
  packages.
 */
 
-#include "System.h"
+#include "../System.h"
 #ifndef CS_UNITTESTING
 #include <wx/dynlib.h>
 #ifdef TC_WINDOWS

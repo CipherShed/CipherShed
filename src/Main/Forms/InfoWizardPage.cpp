@@ -6,7 +6,7 @@
  packages.
 */
 
-#include "System.h"
+#include "../System.h"
 #include "InfoWizardPage.h"
 
 namespace CipherShed

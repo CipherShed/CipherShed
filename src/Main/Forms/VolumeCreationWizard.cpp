@@ -6,7 +6,7 @@
  packages.
 */
 
-#include "System.h"
+#include "../System.h"
 #include "../../Platform/SystemInfo.h"
 #ifdef TC_UNIX
 #include <unistd.h>

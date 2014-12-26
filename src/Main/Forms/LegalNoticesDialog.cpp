@@ -6,7 +6,7 @@
  packages.
 */
 
-#include "System.h"
+#include "../System.h"
 #include "LegalNoticesDialog.h"
 #include "../GraphicUserInterface.h"
 #include "../Resources.h"
