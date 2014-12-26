@@ -196,7 +196,7 @@
 
 /* #define DEBUG */
 #define INFMOD          /* tell inflate.h to include code to be compiled */
-#include "inflate.h"
+#include "Inflate.h"
 
 
 #ifndef WSIZE           /* default is 32K */
