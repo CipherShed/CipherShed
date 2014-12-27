@@ -55,7 +55,7 @@ namespace CipherShed_Tests_Algo
 		*/
 		PasswordTest()
 		{
-			TEST_ADD(CrcTest::testTrue);
+			TEST_ADD(PasswordTest::testTrue);
 		}
 	};
 }
