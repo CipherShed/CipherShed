@@ -6,7 +6,8 @@ g++ unittesting.cpp                                         \
     -DCS_UNITTESTING                                        \
     -fprofile-arcs -ftest-coverage                          \
                                                             \
-    ../Common/Crc.c                \
+    ../Common/Crc.c                                         \
+    ../Common/Endian.c                                      \
                                                             \
         -I .                                                \
         -I ../../var/opt/cpptest-code/cpptest/src/          \
@@ -19,6 +20,6 @@ g++ unittesting.cpp                                         \
 ../../var/opt/cpptest-code/cpptest/src/compileroutput.cpp   \
 ../../var/opt/cpptest-code/cpptest/src/htmloutput.cpp       \
 ../../var/opt/cpptest-code/cpptest/src/missing.cpp          \
--o unittesting
-
+-o unittesting &&\
+\
 ./unittesting && for i in *.gcda; do gcov `basename $i .gcda`; done

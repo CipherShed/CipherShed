@@ -9,7 +9,6 @@
  contained in the file License.txt included in TrueCrypt binary and source
  code distribution packages. */
 
-#include "Tcdefs.h"
 #include "Endian.h"
 
 

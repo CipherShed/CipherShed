@@ -204,6 +204,18 @@
 						/>
 					</FileConfiguration>
 				</File>
+				<File
+					RelativePath="..\Common\Endian.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							CompileAsManaged="0"
+						/>
+					</FileConfiguration>
+				</File>
 			</Filter>
 			<Filter
 				Name="unit-tests"
@@ -229,6 +241,10 @@
 									UsePrecompiledHeader="0"
 								/>
 							</FileConfiguration>
+						</File>
+						<File
+							RelativePath=".\tests\algo\endianTest.cpp"
+							>
 						</File>
 						<File
 							RelativePath=".\tests\algo\passwordTest.cpp"

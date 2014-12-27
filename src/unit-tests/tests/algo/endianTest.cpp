@@ -1,9 +1,68 @@
-#include "unittesting.h"
+#include "../../unittesting.h"
 
-namespace unittesting
+#include "../../../Common/Endian.h"
+
+typedef unsigned __int8 uint8;
+
+typedef union 
+{
+	uint64 a;
+	struct
+	{
+		uint32 a;
+		uint32 b;
+	} b;
+	struct
+	{
+		uint16 a;
+		uint16 b;
+		uint16 c;
+		uint16 d;
+	} c;
+	struct
+	{
+		uint8 a;
+		uint8 b;
+		uint8 c;
+		uint8 d;
+		uint8 e;
+		uint8 f;
+		uint8 g;
+		uint8 h;
+	} d;
+} test_s64;
+
+typedef union 
+{
+	uint32 a;
+	struct
+	{
+		uint16 a;
+		uint16 b;
+	} b;
+	struct
+	{
+		uint8 a;
+		uint8 b;
+		uint8 c;
+		uint8 d;
+	} c;
+} test_s32;
+
+typedef union 
+{
+	uint16 a;
+	struct
+	{
+		uint8 a;
+		uint8 b;
+	} b;
+} test_s16;
+
+namespace CipherShed_Tests_Algo
 {
 	TESTCLASS
-	PUBLIC_REF_CLASS UnitTestingFramework TESTCLASSEXTENDS
+	PUBLIC_REF_CLASS EndianTest TESTCLASSEXTENDS
 	{
 	private:
 		TESTCONTEXT testContextInstance;
@@ -41,41 +100,27 @@ namespace unittesting
 		The each test method needs this decoration for the VS unit test execution.
 		*/
 		TESTMETHOD
-		void TestFramework()
+		void testEndian16bitSwap()
 		{
-			//http://blogs.msdn.com/b/jsocha/archive/2010/11/19/writing-unit-tests-in-visual-studio-for-native-c.aspx
-			//Assert::AreEqual<int>(1,2);
-			TEST_ASSERT(1==1)
-			//
-			// TODO: Add test logic	here
-			//
+			test_s16 w1;
+			w1.b.a=0x12;
+			w1.b.b=0x34;
+			test_s16 w2;
+			w2.a=MirrorBytes16(w1.a);
+			
+			TEST_ASSERT(w1.b.a!=w1.b.b);
+			
+			TEST_ASSERT(w1.b.a==w2.b.b);
+			
+			TEST_ASSERT(w1.b.b==w2.b.a);
 		};
 
 		/**
 		The constructor needs the add each test method for the non-VS unit test execution.
 		*/
-		UnitTestingFramework()
+		EndianTest()
 		{
-			TEST_ADD(UnitTestingFramework::TestFramework);
+			TEST_ADD(EndianTest::testEndian16bitSwap);
 		}
 	};
 }
-
-#ifndef _MSC_FULL_VER
-#include "tests/algo/crcTest.cpp"
-#include "tests/algo/endianTest.cpp"
-#endif
-
-#pragma warning( push )
-#pragma warning( disable : 4956 )
-int main(int argc, char *argv[], char *envp[])
-{
-	MAINTESTDECL
-	MAINADDTEST(new unittesting::UnitTestingFramework);
-	MAINADDTEST(new crc::CrcTest);
-	MAINADDTEST(new CipherShed_Tests_Algo::EndianTest);
-	MAINTESTRUN
-
-}
-#pragma warning( pop )
-
