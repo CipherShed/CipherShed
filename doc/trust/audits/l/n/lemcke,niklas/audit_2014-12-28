@@ -1,0 +1,5 @@
+Audit report from the 29th of december 2014, by Niklas Lemcke
+
+I reviewed all commits listed under 3.1.3. "Selected critical commits' log entries" of "doc/trust/audits/p/y/pyeron,jason/audit-report-2014-12-18-04af5c7cbff47b17bd4b0153330028adb28eae4c.pdf" (md5sum: c3cb20d4e659c9dfcabc8a09c8297a9c, sha256sum: 439df72855a1b7f2b10dd306781014a28129b9d75311d33502528880b28279fd) by Jason Pyeron, and can hereby confirm their correctness, as well as agree with the conclusion the audit makes.
+
+However, I have not yet individually reviewed every single commit that has been made to the CS repository, nor have I verified that Jason Pyeron's list of "commits with potential conflict of interest" is complete. This will happen prior to the first full release of CipherShed 0.7.3.
