@@ -95,7 +95,7 @@
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="1"
-			ManagedExtensions="3"
+			ManagedExtensions="1"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -117,7 +117,7 @@
 				Name="VCCLCompilerTool"
 				PreprocessorDefinitions="CS_UNITTESTING"
 				RuntimeLibrary="2"
-				UsePrecompiledHeader="2"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
@@ -203,12 +203,28 @@
 							CompileAsManaged="0"
 						/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							CompileAsManaged="0"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\Common\Endian.c"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							CompileAsManaged="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -241,14 +257,26 @@
 									UsePrecompiledHeader="0"
 								/>
 							</FileConfiguration>
+							<FileConfiguration
+								Name="Release|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="1"
+								/>
+							</FileConfiguration>
 						</File>
 						<File
 							RelativePath=".\tests\algo\endianTest.cpp"
 							>
-						</File>
-						<File
-							RelativePath=".\tests\algo\passwordTest.cpp"
-							>
+							<FileConfiguration
+								Name="Release|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="1"
+								/>
+							</FileConfiguration>
 						</File>
 					</Filter>
 					<Filter
@@ -266,66 +294,6 @@
 					<Filter
 						Name="windows"
 						>
-						<File
-							RelativePath=".\faux\windows\CloseHandle.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\faux\windows\CreateFile.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\faux\windows\DeviceIoControl.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\faux\windows\EnableWindow.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\faux\windows\FlushFileBuffers.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\faux\windows\GetFileSize.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\faux\windows\GetFileTime.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\faux\windows\GetLastError.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\faux\windows\GetWindowText.cpp"
-							>
-							<FileConfiguration
-								Name="Debug|Win32"
-								>
-								<Tool
-									Name="VCCLCompilerTool"
-									CompileAsManaged="0"
-								/>
-							</FileConfiguration>
-						</File>
-						<File
-							RelativePath=".\faux\windows\GetWindowTextLength.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\faux\windows\SetFilePointer.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\faux\windows\SetFileTime.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\faux\windows\SetLastError.cpp"
-							>
-						</File>
 					</Filter>
 				</Filter>
 			</Filter>

@@ -14,6 +14,13 @@
 
 #include "Tcdefs.h"
 
+typedef enum 
+{
+	ENDIAN_UNKNOWN,
+	ENDIAN_BIG,
+	ENDIAN_LITTLE
+} ENDIAN_ENUM;
+
 #if defined(__cplusplus)
 extern "C"
 {
