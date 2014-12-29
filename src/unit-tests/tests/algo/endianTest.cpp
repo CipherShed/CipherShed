@@ -339,7 +339,7 @@ namespace CipherShed_Tests_Algo
 			TEST_ASSERT(sizeof(a)==4);
 
 			a=0xffffffff;
-			TEST_ASSERT_MSG(a==4294967295,"max uint32");
+			TEST_ASSERT_MSG(a==4294967295U,"max uint32");
 
 			++a;
 			TEST_ASSERT_MSG(a!=4294967296, "max uint32 + 1");
@@ -364,7 +364,7 @@ namespace CipherShed_Tests_Algo
 			TEST_ASSERT(sizeof(a)==8);
 
 			a=0xffffffffffffffff;
-			TEST_ASSERT_MSG(a==18446744073709551615,"max uint64");
+			TEST_ASSERT_MSG(a==18446744073709551615U,"max uint64");
 
 			++a;
 
