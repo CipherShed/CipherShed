@@ -5083,8 +5083,23 @@ exit:
 	}
 	return 0;
 }
+/**
+This was moved from Endian.c because it is only used in the CipherTestDialogProc below.
+*/
+void
+LongReverse (unsigned __int32 *buffer, unsigned byteCount)
+{
+	unsigned __int32 value;
 
-
+	byteCount /= sizeof (unsigned __int32);
+	while (byteCount--)
+	{
+		value = *buffer;
+		value = ((value & 0xFF00FF00L) >> 8) | \
+		    ((value & 0x00FF00FFL) << 8);
+		*buffer++ = (value << 16) | (value >> 16);
+	}
+}
 
 /* Except in response to the WM_INITDIALOG message, the dialog box procedure
 should return nonzero if it processes the message, and zero if it does
