@@ -1,0 +1,89 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            04:00:00:00:00:01:08:d9:61:1c:d6
+    Signature Algorithm: sha1WithRSAEncryption
+        Issuer: C=BE, O=GlobalSign nv-sa, OU=Root CA, CN=GlobalSign Root CA
+        Validity
+            Not Before: Jan 28 12:00:00 1999 GMT
+            Not After : Jan 27 11:00:00 2014 GMT
+        Subject: C=BE, O=GlobalSign nv-sa, OU=Primary Object Publishing CA, CN=GlobalSign Primary Object Publishing CA
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                Public-Key: (2048 bit)
+                Modulus:
+                    00:a2:9b:75:2a:a7:13:ba:09:71:24:18:df:a1:06:
+                    62:29:12:9e:dc:9e:75:73:e8:df:56:57:69:96:13:
+                    56:4f:f2:c8:bc:01:58:ed:26:86:72:0b:60:f5:19:
+                    c5:55:03:57:9b:b9:10:c9:a1:d4:74:40:ff:6c:00:
+                    e8:e6:53:37:fe:b7:da:79:3e:b8:52:38:e9:81:2c:
+                    9f:0e:33:52:a6:cd:70:ce:4a:5d:62:f4:d1:67:5e:
+                    bc:97:4a:07:ca:bc:dd:8d:47:b1:cd:f1:65:5b:85:
+                    01:b0:4b:6b:de:cd:8e:2e:f5:50:e8:a3:9c:9d:26:
+                    98:6b:36:63:41:03:70:44:f0:5f:e2:25:75:79:50:
+                    7d:5f:a1:06:a2:46:0c:55:95:47:14:d3:91:46:86:
+                    68:99:e7:27:f4:94:ec:9a:41:51:f7:96:d4:7a:8c:
+                    e1:44:97:68:71:03:d8:58:6f:bd:b4:10:42:ee:0d:
+                    66:75:46:8b:44:96:d2:30:00:12:07:63:f7:44:9b:
+                    01:70:ca:56:6f:9c:58:97:2a:27:17:8b:2e:71:52:
+                    6d:46:ab:a7:2b:0f:7f:16:48:64:c8:52:fa:06:17:
+                    00:07:74:d7:45:b3:0c:f5:78:95:73:e8:0a:ee:c4:
+                    e0:72:8c:1e:11:aa:1e:bb:5e:ce:f9:b4:00:ee:73:
+                    bd:cd
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            X509v3 Key Usage: critical
+                Certificate Sign, CRL Sign
+            X509v3 Basic Constraints: critical
+                CA:TRUE
+            X509v3 Subject Key Identifier: 
+                15:51:79:1A:7C:0C:59:F9:DA:CD:D8:C4:3A:13:9A:C9:78:2D:7F:4D
+            X509v3 CRL Distribution Points: 
+
+                Full Name:
+                  URI:http://crl.globalsign.net/Root.crl
+
+            X509v3 Authority Key Identifier: 
+                keyid:60:7B:66:1A:45:0D:97:CA:89:50:2F:7D:04:CD:34:A8:FF:FC:FD:4B
+
+    Signature Algorithm: sha1WithRSAEncryption
+         a0:42:2e:b8:76:a7:42:71:86:40:4d:46:4d:5b:26:b0:b0:74:
+         f9:3f:89:a8:7b:7c:b7:f1:c6:97:e0:82:39:99:9d:43:fe:60:
+         82:36:42:b5:5b:87:8d:f5:5d:f4:bb:ff:a9:10:44:a8:71:d3:
+         c7:f1:22:41:f2:9a:a4:a5:ec:63:fa:e5:eb:65:4a:19:30:9d:
+         8b:c7:b6:fd:dc:3f:e1:6c:fd:d5:52:14:07:fc:6d:24:cc:b3:
+         cc:81:a2:c0:52:f3:27:b9:6d:9e:06:3d:d8:a8:49:02:32:69:
+         c7:05:42:94:d0:bb:e3:bb:a9:08:c3:93:50:1b:db:84:6d:c0:
+         ba:1e:52:98:65:9c:13:76:bd:b3:d5:67:29:2f:1f:7b:aa:2c:
+         51:a0:fd:85:4f:26:3c:48:a3:81:27:a6:fe:ee:7f:78:99:c2:
+         45:cf:9d:1f:52:7e:d7:95:8b:fd:e1:d0:20:c3:af:7e:51:a2:
+         2f:66:3b:ab:2d:cf:2d:8e:8c:4d:7d:18:39:21:28:fb:dc:ae:
+         6d:65:81:d0:e0:d7:18:4b:e7:b5:f7:74:d7:84:e6:52:2a:ac:
+         3b:68:fd:3b:4a:b8:01:54:84:91:32:bb:95:d2:8e:63:30:a6:
+         9e:ce:23:96:fe:ab:2e:b8:6a:8b:74:dc:de:21:a1:14:c2:fb:
+         bf:53:af:10
+-----BEGIN CERTIFICATE-----
+MIID+DCCAuCgAwIBAgILBAAAAAABCNlhHNYwDQYJKoZIhvcNAQEFBQAwVzELMAkG
+A1UEBhMCQkUxGTAXBgNVBAoTEEdsb2JhbFNpZ24gbnYtc2ExEDAOBgNVBAsTB1Jv
+b3QgQ0ExGzAZBgNVBAMTEkdsb2JhbFNpZ24gUm9vdCBDQTAeFw05OTAxMjgxMjAw
+MDBaFw0xNDAxMjcxMTAwMDBaMIGBMQswCQYDVQQGEwJCRTEZMBcGA1UEChMQR2xv
+YmFsU2lnbiBudi1zYTElMCMGA1UECxMcUHJpbWFyeSBPYmplY3QgUHVibGlzaGlu
+ZyBDQTEwMC4GA1UEAxMnR2xvYmFsU2lnbiBQcmltYXJ5IE9iamVjdCBQdWJsaXNo
+aW5nIENBMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAopt1KqcTuglx
+JBjfoQZiKRKe3J51c+jfVldplhNWT/LIvAFY7SaGcgtg9RnFVQNXm7kQyaHUdED/
+bADo5lM3/rfaeT64UjjpgSyfDjNSps1wzkpdYvTRZ168l0oHyrzdjUexzfFlW4UB
+sEtr3s2OLvVQ6KOcnSaYazZjQQNwRPBf4iV1eVB9X6EGokYMVZVHFNORRoZomecn
+9JTsmkFR95bUeozhRJdocQPYWG+9tBBC7g1mdUaLRJbSMAASB2P3RJsBcMpWb5xY
+lyonF4sucVJtRqunKw9/FkhkyFL6BhcAB3TXRbMM9XiVc+gK7sTgcoweEaoeu17O
++bQA7nO9zQIDAQABo4GZMIGWMA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMBAf8EBTAD
+AQH/MB0GA1UdDgQWBBQVUXkafAxZ+drN2MQ6E5rJeC1/TTAzBgNVHR8ELDAqMCig
+JqAkhiJodHRwOi8vY3JsLmdsb2JhbHNpZ24ubmV0L1Jvb3QuY3JsMB8GA1UdIwQY
+MBaAFGB7ZhpFDZfKiVAvfQTNNKj//P1LMA0GCSqGSIb3DQEBBQUAA4IBAQCgQi64
+dqdCcYZATUZNWyawsHT5P4moe3y38caX4II5mZ1D/mCCNkK1W4eN9V30u/+pEESo
+cdPH8SJB8pqkpexj+uXrZUoZMJ2Lx7b93D/hbP3VUhQH/G0kzLPMgaLAUvMnuW2e
+Bj3YqEkCMmnHBUKU0Lvju6kIw5NQG9uEbcC6HlKYZZwTdr2z1WcpLx97qixRoP2F
+TyY8SKOBJ6b+7n94mcJFz50fUn7XlYv94dAgw69+UaIvZjurLc8tjoxNfRg5ISj7
+3K5tZYHQ4NcYS+e193TXhOZSKqw7aP07SrgBVISRMruV0o5jMKaeziOW/qsuuGqL
+dNzeIaEUwvu/U68Q
+-----END CERTIFICATE-----

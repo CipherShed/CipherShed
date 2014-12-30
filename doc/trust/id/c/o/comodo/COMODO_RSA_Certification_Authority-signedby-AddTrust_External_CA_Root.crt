@@ -1,0 +1,120 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            27:66:ee:56:eb:49:f3:8e:ab:d7:70:a2:fc:84:de:22
+    Signature Algorithm: sha384WithRSAEncryption
+        Issuer: C=SE, O=AddTrust AB, OU=AddTrust External TTP Network, CN=AddTrust External CA Root
+        Validity
+            Not Before: May 30 10:48:38 2000 GMT
+            Not After : May 30 10:48:38 2020 GMT
+        Subject: C=GB, ST=Greater Manchester, L=Salford, O=COMODO CA Limited, CN=COMODO RSA Certification Authority
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                Public-Key: (4096 bit)
+                Modulus:
+                    00:91:e8:54:92:d2:0a:56:b1:ac:0d:24:dd:c5:cf:
+                    44:67:74:99:2b:37:a3:7d:23:70:00:71:bc:53:df:
+                    c4:fa:2a:12:8f:4b:7f:10:56:bd:9f:70:72:b7:61:
+                    7f:c9:4b:0f:17:a7:3d:e3:b0:04:61:ee:ff:11:97:
+                    c7:f4:86:3e:0a:fa:3e:5c:f9:93:e6:34:7a:d9:14:
+                    6b:e7:9c:b3:85:a0:82:7a:76:af:71:90:d7:ec:fd:
+                    0d:fa:9c:6c:fa:df:b0:82:f4:14:7e:f9:be:c4:a6:
+                    2f:4f:7f:99:7f:b5:fc:67:43:72:bd:0c:00:d6:89:
+                    eb:6b:2c:d3:ed:8f:98:1c:14:ab:7e:e5:e3:6e:fc:
+                    d8:a8:e4:92:24:da:43:6b:62:b8:55:fd:ea:c1:bc:
+                    6c:b6:8b:f3:0e:8d:9a:e4:9b:6c:69:99:f8:78:48:
+                    30:45:d5:ad:e1:0d:3c:45:60:fc:32:96:51:27:bc:
+                    67:c3:ca:2e:b6:6b:ea:46:c7:c7:20:a0:b1:1f:65:
+                    de:48:08:ba:a4:4e:a9:f2:83:46:37:84:eb:e8:cc:
+                    81:48:43:67:4e:72:2a:9b:5c:bd:4c:1b:28:8a:5c:
+                    22:7b:b4:ab:98:d9:ee:e0:51:83:c3:09:46:4e:6d:
+                    3e:99:fa:95:17:da:7c:33:57:41:3c:8d:51:ed:0b:
+                    b6:5c:af:2c:63:1a:df:57:c8:3f:bc:e9:5d:c4:9b:
+                    af:45:99:e2:a3:5a:24:b4:ba:a9:56:3d:cf:6f:aa:
+                    ff:49:58:be:f0:a8:ff:f4:b8:ad:e9:37:fb:ba:b8:
+                    f4:0b:3a:f9:e8:43:42:1e:89:d8:84:cb:13:f1:d9:
+                    bb:e1:89:60:b8:8c:28:56:ac:14:1d:9c:0a:e7:71:
+                    eb:cf:0e:dd:3d:a9:96:a1:48:bd:3c:f7:af:b5:0d:
+                    22:4c:c0:11:81:ec:56:3b:f6:d3:a2:e2:5b:b7:b2:
+                    04:22:52:95:80:93:69:e8:8e:4c:65:f1:91:03:2d:
+                    70:74:02:ea:8b:67:15:29:69:52:02:bb:d7:df:50:
+                    6a:55:46:bf:a0:a3:28:61:7f:70:d0:c3:a2:aa:2c:
+                    21:aa:47:ce:28:9c:06:45:76:bf:82:18:27:b4:d5:
+                    ae:b4:cb:50:e6:6b:f4:4c:86:71:30:e9:a6:df:16:
+                    86:e0:d8:ff:40:dd:fb:d0:42:88:7f:a3:33:3a:2e:
+                    5c:1e:41:11:81:63:ce:18:71:6b:2b:ec:a6:8a:b7:
+                    31:5c:3a:6a:47:e0:c3:79:59:d6:20:1a:af:f2:6a:
+                    98:aa:72:bc:57:4a:d2:4b:9d:bb:10:fc:b0:4c:41:
+                    e5:ed:1d:3d:5e:28:9d:9c:cc:bf:b3:51:da:a7:47:
+                    e5:84:53
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            X509v3 Authority Key Identifier: 
+                keyid:AD:BD:98:7A:34:B4:26:F7:FA:C4:26:54:EF:03:BD:E0:24:CB:54:1A
+
+            X509v3 Subject Key Identifier: 
+                BB:AF:7E:02:3D:FA:A6:F1:3C:84:8E:AD:EE:38:98:EC:D9:32:32:D4
+            X509v3 Key Usage: critical
+                Digital Signature, Certificate Sign, CRL Sign
+            X509v3 Basic Constraints: critical
+                CA:TRUE
+            X509v3 Certificate Policies: 
+                Policy: X509v3 Any Policy
+
+            X509v3 CRL Distribution Points: 
+
+                Full Name:
+                  URI:http://crl.usertrust.com/AddTrustExternalCARoot.crl
+
+            Authority Information Access: 
+                OCSP - URI:http://ocsp.usertrust.com
+
+    Signature Algorithm: sha384WithRSAEncryption
+         64:bf:83:f1:5f:9a:85:d0:cd:b8:a1:29:57:0d:e8:5a:f7:d1:
+         e9:3e:f2:76:04:6e:f1:52:70:bb:1e:3c:ff:4d:0d:74:6a:cc:
+         81:82:25:d3:c3:a0:2a:5d:4c:f5:ba:8b:a1:6d:c4:54:09:75:
+         c7:e3:27:0e:5d:84:79:37:40:13:77:f5:b4:ac:1c:d0:3b:ab:
+         17:12:d6:ef:34:18:7e:2b:e9:79:d3:ab:57:45:0c:af:28:fa:
+         d0:db:e5:50:95:88:bb:df:85:57:69:7d:92:d8:52:ca:73:81:
+         bf:1c:f3:e6:b8:6e:66:11:05:b3:1e:94:2d:7f:91:95:92:59:
+         f1:4c:ce:a3:91:71:4c:7c:47:0c:3b:0b:19:f6:a1:b1:6c:86:
+         3e:5c:aa:c4:2e:82:cb:f9:07:96:ba:48:4d:90:f2:94:c8:a9:
+         73:a2:eb:06:7b:23:9d:de:a2:f3:4d:55:9f:7a:61:45:98:18:
+         68:c7:5e:40:6b:23:f5:79:7a:ef:8c:b5:6b:8b:b7:6f:46:f4:
+         7b:f1:3d:4b:04:d8:93:80:59:5a:e0:41:24:1d:b2:8f:15:60:
+         58:47:db:ef:6e:46:fd:15:f5:d9:5f:9a:b3:db:d8:b8:e4:40:
+         b3:cd:97:39:ae:85:bb:1d:8e:bc:dc:87:9b:d1:a6:ef:f1:3b:
+         6f:10:38:6f
+-----BEGIN CERTIFICATE-----
+MIIFdDCCBFygAwIBAgIQJ2buVutJ846r13Ci/ITeIjANBgkqhkiG9w0BAQwFADBv
+MQswCQYDVQQGEwJTRTEUMBIGA1UEChMLQWRkVHJ1c3QgQUIxJjAkBgNVBAsTHUFk
+ZFRydXN0IEV4dGVybmFsIFRUUCBOZXR3b3JrMSIwIAYDVQQDExlBZGRUcnVzdCBF
+eHRlcm5hbCBDQSBSb290MB4XDTAwMDUzMDEwNDgzOFoXDTIwMDUzMDEwNDgzOFow
+gYUxCzAJBgNVBAYTAkdCMRswGQYDVQQIExJHcmVhdGVyIE1hbmNoZXN0ZXIxEDAO
+BgNVBAcTB1NhbGZvcmQxGjAYBgNVBAoTEUNPTU9ETyBDQSBMaW1pdGVkMSswKQYD
+VQQDEyJDT01PRE8gUlNBIENlcnRpZmljYXRpb24gQXV0aG9yaXR5MIICIjANBgkq
+hkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAkehUktIKVrGsDSTdxc9EZ3SZKzejfSNw
+AHG8U9/E+ioSj0t/EFa9n3Byt2F/yUsPF6c947AEYe7/EZfH9IY+Cvo+XPmT5jR6
+2RRr55yzhaCCenavcZDX7P0N+pxs+t+wgvQUfvm+xKYvT3+Zf7X8Z0NyvQwA1onr
+ayzT7Y+YHBSrfuXjbvzYqOSSJNpDa2K4Vf3qwbxstovzDo2a5JtsaZn4eEgwRdWt
+4Q08RWD8MpZRJ7xnw8outmvqRsfHIKCxH2XeSAi6pE6p8oNGN4Tr6MyBSENnTnIq
+m1y9TBsoilwie7SrmNnu4FGDwwlGTm0+mfqVF9p8M1dBPI1R7Qu2XK8sYxrfV8g/
+vOldxJuvRZnio1oktLqpVj3Pb6r/SVi+8Kj/9Lit6Tf7urj0Czr56ENCHonYhMsT
+8dm74YlguIwoVqwUHZwK53Hrzw7dPamWoUi9PPevtQ0iTMARgexWO/bTouJbt7IE
+IlKVgJNp6I5MZfGRAy1wdALqi2cVKWlSArvX31BqVUa/oKMoYX9w0MOiqiwhqkfO
+KJwGRXa/ghgntNWutMtQ5mv0TIZxMOmm3xaG4Nj/QN370EKIf6MzOi5cHkERgWPO
+GHFrK+ymircxXDpqR+DDeVnWIBqv8mqYqnK8V0rSS527EPywTEHl7R09XiidnMy/
+s1Hap0flhFMCAwEAAaOB9DCB8TAfBgNVHSMEGDAWgBStvZh6NLQm9/rEJlTvA73g
+JMtUGjAdBgNVHQ4EFgQUu69+Aj36pvE8hI6t7jiY7NkyMtQwDgYDVR0PAQH/BAQD
+AgGGMA8GA1UdEwEB/wQFMAMBAf8wEQYDVR0gBAowCDAGBgRVHSAAMEQGA1UdHwQ9
+MDswOaA3oDWGM2h0dHA6Ly9jcmwudXNlcnRydXN0LmNvbS9BZGRUcnVzdEV4dGVy
+bmFsQ0FSb290LmNybDA1BggrBgEFBQcBAQQpMCcwJQYIKwYBBQUHMAGGGWh0dHA6
+Ly9vY3NwLnVzZXJ0cnVzdC5jb20wDQYJKoZIhvcNAQEMBQADggEBAGS/g/FfmoXQ
+zbihKVcN6Fr30ek+8nYEbvFScLsePP9NDXRqzIGCJdPDoCpdTPW6i6FtxFQJdcfj
+Jw5dhHk3QBN39bSsHNA7qxcS1u80GH4r6XnTq1dFDK8o+tDb5VCViLvfhVdpfZLY
+Uspzgb8c8+a4bmYRBbMelC1/kZWSWfFMzqORcUx8Rww7Cxn2obFshj5cqsQugsv5
+B5a6SE2Q8pTIqXOi6wZ7I53eovNNVZ96YUWYGGjHXkBrI/V5eu+MtWuLt29G9Hvx
+PUsE2JOAWVrgQSQdso8VYFhH2+9uRv0V9dlfmrPb2LjkQLPNlzmuhbsdjrzch5vR
+pu/xO28QOG8=
+-----END CERTIFICATE-----
