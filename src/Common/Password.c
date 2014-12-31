@@ -64,13 +64,27 @@ void VerifyPasswordAndUpdate (HWND hwndDlg, HWND hButton, HWND hPassword,
 BOOL CheckPasswordCharEncoding (HWND hPassword, Password *ptrPw)
 {
 	int i, len;
-	
+
+	//It would not make sense to have both parameters specified.
+	if (hPassword!=NULL && ptrPw!=NULL)
+	{
+		return FALSE;
+	}
+
+	if (hPassword==NULL && ptrPw==NULL)
+	{
+		return FALSE;
+	}
+
 	if (hPassword == NULL)
 	{
 		unsigned char *pw;
 		len = ptrPw->Length;
 
-		if (len>=sizeof(ptrPw->Text)) return FALSE;
+		if (len>=sizeof(ptrPw->Text))
+		{
+			return FALSE;
+		}
 
 		pw = (unsigned char *) ptrPw->Text;
 
@@ -78,16 +92,28 @@ BOOL CheckPasswordCharEncoding (HWND hPassword, Password *ptrPw)
 		{
 			//for i in `seq 32 126`; do printf "\x$(printf %x $i) "; done
 			if (pw[i] >= 0x7f || pw[i] < 0x20)	// A non-ASCII or non-printable character?
+			{
 				return FALSE;
+			}
 		}
 	}
 	else
 	{
 		wchar_t s[MAX_PASSWORD + 1];
-		len = GetWindowTextLength (hPassword);
+		// Below GetWindowTextW is called, ensure the same suffix functionis called 
+		// GetWindowTextLength may be defined as GetWindowTextLengthA which would at 
+		// best return double the length
+		len = GetWindowTextLengthW (hPassword);
 
+		// this is disingenuous here, because the GetWindowTextLength function docs say to use strlen 
+		// on the return from GetWindowText because GetWindowTextLength >= strlen
+		//
+		// This check should happen after GetWindowText
+		// len=strlen(s)
 		if (len > MAX_PASSWORD)
+		{
 			return FALSE; 
+		}
 
 		GetWindowTextW (hPassword, s, sizeof (s) / sizeof (wchar_t));
 
@@ -100,7 +126,9 @@ BOOL CheckPasswordCharEncoding (HWND hPassword, Password *ptrPw)
 		burn (s, sizeof(s));
 
 		if (i < len)
+		{
 			return FALSE; 
+		}
 	}
 
 	return TRUE;

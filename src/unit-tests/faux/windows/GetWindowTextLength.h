@@ -7,7 +7,14 @@
 extern "C" {
 #endif
 
-int GetWindowTextLength(HWND hWnd);
+int GetWindowTextLengthA(HWND hWnd);
+int GetWindowTextLengthW(HWND hWnd);
+
+#ifdef UNICODE
+#define GetWindowTextLength  GetWindowTextLengthW
+#else
+#define GetWindowTextLength  GetWindowTextLengthA
+#endif // !UNICODE
 
 #ifdef __cplusplus
 }

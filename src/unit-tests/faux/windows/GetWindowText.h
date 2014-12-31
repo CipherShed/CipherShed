@@ -9,7 +9,12 @@
 extern "C" {
 #endif
 
-int GetWindowText(HWND hWnd, LPSTR lpString, int nMaxCount);
+#ifdef UNICODE
+#define GetWindowText  GetWindowTextW
+#else
+#define GetWindowText  GetWindowTextA
+#endif // !UNICODE
+
 int GetWindowTextA(HWND hWnd, LPSTR lpString, int nMaxCount);
 int GetWindowTextW(HWND hWnd, LPWSTR lpString, int nMaxCount);
 

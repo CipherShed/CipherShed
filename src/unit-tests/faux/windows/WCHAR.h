@@ -1,6 +1,8 @@
 #ifndef _faux_windows_wchar_h_
 #define _faux_windows_wchar_h_
 
+#include "CONST.h"
+
 #ifndef __nullterminated 
 #define __nullterminated 
 #endif

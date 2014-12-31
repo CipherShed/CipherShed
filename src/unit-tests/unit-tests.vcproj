@@ -621,6 +621,10 @@
 							>
 						</File>
 						<File
+							RelativePath=".\faux\windows\NULL.h"
+							>
+						</File>
+						<File
 							RelativePath=".\faux\windows\OUT.h"
 							>
 						</File>
