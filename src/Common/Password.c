@@ -137,11 +137,27 @@ BOOL CheckPasswordCharEncoding (HWND hPassword, Password *ptrPw)
 
 BOOL CheckPasswordLength (HWND hwndDlg, HWND hwndItem)
 {
-	if (GetWindowTextLength (hwndItem) < PASSWORD_LEN_WARNING)
+	if (hwndDlg==NULL)
 	{
-#ifndef _DEBUG
+		return FALSE;
+	}
+	
+	if (hwndItem==NULL)
+	{
+		return FALSE;
+	}
+
+	// Again, this is not what this function is for, use strlen on GetWindowText, it 
+	// can return a size twice the actual size of the string.
+	if (GetWindowTextLengthW (hwndItem) < PASSWORD_LEN_WARNING)
+	{
+//DEBUG builds do not have this dialog box prompt, and the function always returns true.
+#if !defined(_DEBUG) || defined(CS_UNITTESTING)
+		// The MessageBoxW function is taking the title bar text from a global var "lpszTitle" in Dlgcode.c
 		if (MessageBoxW (hwndDlg, GetString ("PASSWORD_LENGTH_WARNING"), lpszTitle, MB_YESNO|MB_ICONWARNING|MB_DEFBUTTON2) != IDYES)
+		{
 			return FALSE;
+		}
 #endif
 	}
 	return TRUE;

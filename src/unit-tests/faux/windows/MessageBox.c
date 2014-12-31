@@ -1,12 +1,17 @@
 #include "MessageBox.h"
+#include "NULL.h"
 
 int MessageBoxA(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType)
 {
-	return 0;
+	if (hWnd==NULL) return 0;
+	
+	return *((int*)hWnd);
 }
 int MessageBoxW(HWND hWnd, LPCWSTR lpText, LPCWSTR lpCaption, UINT uType)
 {
-	return 0;
+	if (hWnd==NULL) return 0;
+	
+	return *((int*)hWnd);
 }
 
 
