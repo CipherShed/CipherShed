@@ -12,6 +12,8 @@
 #ifndef TCDEFS_H
 #define TCDEFS_H
 
+#include "constants.h"
+
 #define TC_APP_NAME						"CipherShed"
 #define TC_APP_NAME_LEGACY				"TrueCrypt"
 

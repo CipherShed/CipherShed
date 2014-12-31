@@ -9,10 +9,10 @@
  contained in the file License.txt included in TrueCrypt binary and source
  code distribution packages. */
 
-#include "Tcdefs.h"
+
 
 #include "Crypto.h"
-#include "Volumes.h"
+
 #include "Password.h"
 #include "Dlgcode.h"
 #include "Language.h"

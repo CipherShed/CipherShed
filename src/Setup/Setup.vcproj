@@ -346,6 +346,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\Common\constants.h"
+				>
+			</File>
+			<File
 				RelativePath="..\Common\Crc.h"
 				>
 			</File>
@@ -404,18 +408,6 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
-				RelativePath=".\Setup.ico"
-				>
-			</File>
-			<File
-				RelativePath=".\Setup.manifest"
-				>
-			</File>
-			<File
-				RelativePath=".\Setup.rc"
-				>
-			</File>
-			<File
 				RelativePath="..\Common\CipherShed.ico"
 				>
 			</File>
@@ -429,6 +421,18 @@
 			</File>
 			<File
 				RelativePath="..\Common\CipherShed_Volume.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\Setup.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\Setup.manifest"
+				>
+			</File>
+			<File
+				RelativePath=".\Setup.rc"
 				>
 			</File>
 			<Filter

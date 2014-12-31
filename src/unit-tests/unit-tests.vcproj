@@ -232,6 +232,18 @@
 						/>
 					</FileConfiguration>
 				</File>
+				<File
+					RelativePath="..\Common\Password.c"
+					>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							CompileAsManaged="0"
+						/>
+					</FileConfiguration>
+				</File>
 			</Filter>
 			<Filter
 				Name="unit-tests"
@@ -278,6 +290,10 @@
 								/>
 							</FileConfiguration>
 						</File>
+						<File
+							RelativePath=".\tests\algo\passwordTest.cpp"
+							>
+						</File>
 					</Filter>
 					<Filter
 						Name="io"
@@ -294,6 +310,78 @@
 					<Filter
 						Name="windows"
 						>
+						<File
+							RelativePath=".\faux\windows\CloseHandle.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\CreateFile.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\DeviceIoControl.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\EnableWindow.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\FlushFileBuffers.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\GetFileSize.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\GetFileTime.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\GetLastError.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\GetWindowText.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\GetWindowTextLength.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\MessageBox.c"
+							>
+							<FileConfiguration
+								Name="Release|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+						</File>
+						<File
+							RelativePath=".\faux\windows\SetFilePointer.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\SetFileTime.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\SetLastError.cpp"
+							>
+						</File>
+					</Filter>
+					<Filter
+						Name="ciphershed"
+						>
+						<File
+							RelativePath=".\faux\ciphershed\wip.cpp"
+							>
+						</File>
 					</Filter>
 				</Filter>
 			</Filter>
@@ -307,6 +395,10 @@
 				Name="Common"
 				>
 				<File
+					RelativePath="..\Common\constants.h"
+					>
+				</File>
+				<File
 					RelativePath="..\Common\Crc.h"
 					>
 				</File>
@@ -315,9 +407,21 @@
 					>
 				</File>
 				<File
+					RelativePath="..\Common\Password.h"
+					>
+				</File>
+				<File
 					RelativePath="..\Common\Tcdefs.h"
 					>
 				</File>
+				<Filter
+					Name="types"
+					>
+					<File
+						RelativePath="..\Common\types\password.h"
+						>
+					</File>
+				</Filter>
 			</Filter>
 			<Filter
 				Name="unit-tests"
@@ -509,6 +613,10 @@
 							>
 						</File>
 						<File
+							RelativePath=".\faux\windows\MessageBox.h"
+							>
+						</File>
+						<File
 							RelativePath=".\faux\windows\NEAR.h"
 							>
 						</File>
@@ -549,11 +657,11 @@
 							>
 						</File>
 						<File
-							RelativePath=".\faux\windows\UINT_PTR.h"
+							RelativePath=".\faux\windows\UINT.h"
 							>
 						</File>
 						<File
-							RelativePath=".\faux\windows\UNIT.h"
+							RelativePath=".\faux\windows\UINT_PTR.h"
 							>
 						</File>
 						<File

@@ -417,6 +417,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\Common\constants.h"
+				>
+			</File>
+			<File
 				RelativePath="..\Common\Crc.h"
 				>
 			</File>
@@ -493,11 +497,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\resource.h"
+				RelativePath="..\Common\Resource.h"
 				>
 			</File>
 			<File
-				RelativePath="..\Common\Resource.h"
+				RelativePath=".\resource.h"
 				>
 			</File>
 			<File
@@ -543,6 +547,14 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
+				RelativePath="..\Common\CipherShed_Volume.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\CipherShed_Wizard.bmp"
+				>
+			</File>
+			<File
 				RelativePath=".\Format.manifest"
 				>
 			</File>
@@ -555,21 +567,9 @@
 				SubType="Designer"
 				>
 			</File>
-			<File
-				RelativePath="..\Common\CipherShed_Volume.ico"
-				>
-			</File>
-			<File
-				RelativePath=".\CipherShed_Wizard.bmp"
-				>
-			</File>
 			<Filter
 				Name="Common"
 				>
-				<File
-					RelativePath="..\Boot\Windows\Rescue_AES\BootLoader.com.gz"
-					>
-				</File>
 				<File
 					RelativePath="..\Boot\Windows\Rescue\BootLoader.com.gz"
 					>
@@ -596,6 +596,10 @@
 				</File>
 				<File
 					RelativePath="..\Boot\Windows\Rescue_Serpent\BootLoader.com.gz"
+					>
+				</File>
+				<File
+					RelativePath="..\Boot\Windows\Rescue_AES\BootLoader.com.gz"
 					>
 				</File>
 				<File
@@ -628,6 +632,10 @@
 				</File>
 				<File
 					RelativePath="..\Boot\Windows\Release_AES\BootSector.bin"
+					>
+				</File>
+				<File
+					RelativePath="..\Common\CipherShed.ico"
 					>
 				</File>
 				<File
@@ -672,10 +680,6 @@
 				</File>
 				<File
 					RelativePath="..\Common\Textual_logo_background.bmp"
-					>
-				</File>
-				<File
-					RelativePath="..\Common\CipherShed.ico"
 					>
 				</File>
 			</Filter>

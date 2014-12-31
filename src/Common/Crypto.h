@@ -198,7 +198,7 @@ typedef struct
 #endif
 
 #include "GfMul.h"
-#include "Password.h"
+#include "types/password.h"
 
 typedef struct keyInfo_t
 {

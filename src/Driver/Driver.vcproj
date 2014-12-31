@@ -302,6 +302,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\Common\constants.h"
+				>
+			</File>
+			<File
 				RelativePath=".\DriveFilter.h"
 				>
 			</File>

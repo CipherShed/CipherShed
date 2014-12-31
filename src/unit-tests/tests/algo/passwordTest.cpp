@@ -45,7 +45,7 @@ namespace CipherShed_Tests_Algo
 		The each test method needs this decoration for the VS unit test execution.
 		*/
 		TESTMETHOD
-		void testTrue()
+		void testPasswordTrue()
 		{
 			TEST_ASSERT(1==1);
 		};
@@ -55,7 +55,7 @@ namespace CipherShed_Tests_Algo
 		*/
 		PasswordTest()
 		{
-			TEST_ADD(PasswordTest::testTrue);
+			TEST_ADD(PasswordTest::testPasswordTrue);
 		}
 	};
 }

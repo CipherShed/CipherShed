@@ -5,6 +5,14 @@
 #include "HANDLE.h"
 #include "FILETIME.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 BOOL GetFileTime(HANDLE hFile, LPFILETIME lpCreationTime, LPFILETIME lpLastAccessTime, LPFILETIME lpLastWriteTime );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

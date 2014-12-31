@@ -12,6 +12,9 @@
 #ifndef PASSWORD_H
 #define PASSWORD_H
 
+#include "constants.h"
+#include "types/password.h"
+
 #ifdef CS_UNITTESTING
 #include "../unit-tests/faux/windows/EnableWindow.h"
 #include "../unit-tests/faux/windows/GetWindowText.h"
@@ -29,27 +32,24 @@
 #include "../unit-tests/faux/windows/SetLastError.h"
 #include "../unit-tests/faux/windows/SetFileTime.h"
 #include "../unit-tests/faux/windows/CloseHandle.h"
+#include "../unit-tests/faux/windows/MessageBox.h"
 #undef __nullterminated
 #include <string.h>
+#define MB_YESNO                    0x00000004L
+#define MB_ICONWARNING              MB_ICONEXCLAMATION
+#define MB_ICONEXCLAMATION          0x00000030L
+#define MB_DEFBUTTON2               0x00000100L
+#define IDYES               6
 #endif
 
 // User text input limits
 #define MIN_PASSWORD			1		// Minimum possible password length
-#define MAX_PASSWORD			64		// Maximum possible password length
 
 #define PASSWORD_LEN_WARNING	20		// Display a warning when a password is shorter than this
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-typedef struct
-{
-	// Modifying this structure can introduce incompatibility with previous versions
-	unsigned __int32 Length;
-	unsigned char Text[MAX_PASSWORD + 1];
-	char Pad[3]; // keep 64-bit alignment
-} Password;
 
 #if defined(_WIN32) && !defined(TC_WINDOWS_DRIVER)
 
