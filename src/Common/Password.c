@@ -69,6 +69,9 @@ BOOL CheckPasswordCharEncoding (HWND hPassword, Password *ptrPw)
 	{
 		unsigned char *pw;
 		len = ptrPw->Length;
+
+		if (len>=sizeof(ptrPw->Text)) return FALSE;
+
 		pw = (unsigned char *) ptrPw->Text;
 
 		for (i = 0; i < len; i++)
