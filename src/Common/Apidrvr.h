@@ -24,7 +24,7 @@
 #include "Volumes.h"
 #include "Wipe.h"
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(CS_UNITTESTING)
 
 /* WARNING: Modifying the following values or their meanings can introduce incompatibility with previous versions. */
 

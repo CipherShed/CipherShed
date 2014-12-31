@@ -51,7 +51,7 @@
 extern "C" {
 #endif
 
-#if defined(_WIN32) && !defined(TC_WINDOWS_DRIVER)
+#if defined(_WIN32) && !defined(TC_WINDOWS_DRIVER) || defined(CS_UNITTESTING)
 
 void VerifyPasswordAndUpdate ( HWND hwndDlg , HWND hButton , HWND hPassword , HWND hVerify , unsigned char *szPassword , char *szVerify, BOOL keyFilesEnabled );
 BOOL CheckPasswordLength (HWND hwndDlg, HWND hwndItem);		

@@ -21,6 +21,7 @@
 #include "Random.h"
 
 #include <io.h>
+#include "strcpys.h"
 
 void VerifyPasswordAndUpdate (HWND hwndDlg, HWND hButton, HWND hPassword,
 			 HWND hVerify, unsigned char *szPassword,
@@ -253,7 +254,7 @@ int ChangePwd (char *lpszVolume, Password *oldPassword, Password *newPassword, i
 		}
 
 		/* Read in volume header */
-		if (!ReadEffectiveVolumeHeader (bDevice, dev, buffer, &bytesRead))
+		if (!ReadEffectiveVolumeHeader (bDevice, dev, (byte*)buffer, &bytesRead))
 		{
 			nStatus = ERR_OS_ERROR;
 			goto error;
@@ -333,7 +334,7 @@ int ChangePwd (char *lpszVolume, Password *oldPassword, Password *newPassword, i
 				cryptoInfo->mode,
 				newPassword,
 				cryptoInfo->pkcs5,
-				cryptoInfo->master_keydata,
+				(char*)cryptoInfo->master_keydata, //unsigned __int8
 				&ci,
 				cryptoInfo->VolumeSize.Value,
 				(volumeType == TC_VOLUME_TYPE_HIDDEN || volumeType == TC_VOLUME_TYPE_HIDDEN_LEGACY) ? cryptoInfo->hiddenVolumeSize : 0,
@@ -356,7 +357,7 @@ int ChangePwd (char *lpszVolume, Password *oldPassword, Password *newPassword, i
 				goto error;
 			}
 
-			if (!WriteEffectiveVolumeHeader (bDevice, dev, buffer))
+			if (!WriteEffectiveVolumeHeader (bDevice, dev, (byte*)buffer))
 			{
 				nStatus = ERR_OS_ERROR;
 				goto error;

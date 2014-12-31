@@ -8,6 +8,24 @@ g++ unittesting.cpp                                         \
                                                             \
     ../Common/Crc.c                                         \
     ../Common/Endian.c                                      \
+    ../Common/Password.c                                    \
+    ../Common/strcpys.c                                     \
+                                                            \
+    faux/windows/CloseHandle.cpp                            \
+    faux/windows/CreateFile.cpp                             \
+    faux/windows/DeviceIoControl.cpp                        \
+    faux/windows/EnableWindow.cpp                           \
+    faux/windows/FlushFileBuffers.cpp                       \
+    faux/windows/GetFileSize.cpp                            \
+    faux/windows/GetFileTime.cpp                            \
+    faux/windows/GetLastError.cpp                           \
+    faux/windows/GetWindowText.cpp                          \
+    faux/windows/GetWindowTextLength.cpp                    \
+    faux/windows/SetFilePointer.cpp                         \
+    faux/windows/SetFileTime.cpp                            \
+    faux/windows/SetLastError.cpp                           \
+    faux/windows/MessageBox.c                               \
+    faux/ciphershed/wip.cpp                                 \
                                                             \
         -I .                                                \
         -I ../../var/opt/cpptest-code/cpptest/src/          \
@@ -24,4 +42,3 @@ g++ unittesting.cpp                                         \
 
 exit $?
 
-#    ../Common/Password.c                                    \
