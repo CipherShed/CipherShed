@@ -236,6 +236,14 @@
 					RelativePath="..\Common\Password.c"
 					>
 					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							CompileAsManaged="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
 						Name="Release|Win32"
 						>
 						<Tool
@@ -353,6 +361,14 @@
 						<File
 							RelativePath=".\faux\windows\MessageBox.c"
 							>
+							<FileConfiguration
+								Name="Debug|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
 							<FileConfiguration
 								Name="Release|Win32"
 								>
