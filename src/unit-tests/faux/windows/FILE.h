@@ -15,8 +15,12 @@ struct _iobuf {
         };
 typedef struct _iobuf FILE;
 #else
+#ifdef __CYGWIN__ 
 #include <sys/reent.h>
 typedef __FILE FILE;
+#else
+#include <stdio.h>
+#endif
 #endif
 #define _FILE_DEFINED
 #endif

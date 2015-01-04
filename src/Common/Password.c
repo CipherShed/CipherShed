@@ -20,7 +20,9 @@
 #include "Endian.h"
 #include "Random.h"
 
+#if defined(_MSC_VER) || defined(__CYGWIN__)
 #include <io.h>
+#endif
 #include "strcpys.h"
 
 void VerifyPasswordAndUpdate (HWND hwndDlg, HWND hButton, HWND hPassword,

@@ -10,6 +10,7 @@ g++ unittesting.cpp                                         \
     ../Common/Endian.c                                      \
     ../Common/Password.c                                    \
     ../Common/strcpys.c                                     \
+    ../Common/util/unicode/ConvertUTF.c                     \
                                                             \
     faux/windows/CloseHandle.cpp                            \
     faux/windows/CreateFile.cpp                             \

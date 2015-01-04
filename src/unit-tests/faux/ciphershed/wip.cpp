@@ -7,7 +7,9 @@
 #include "../../../Common/Endian.h"
 #include "../../../Common/Random.h"
 
+#if defined(_MSC_VER) || defined(__CYGWIN__)
 #include <io.h>
+#endif
 
 #ifdef CS_UNITTESTING
 //Dlgcode.c
