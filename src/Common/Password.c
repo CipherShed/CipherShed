@@ -25,6 +25,8 @@
 #endif
 #include "strcpys.h"
 
+#include "util/unicode/ConvertUTF.h"
+
 void VerifyPasswordAndUpdate (HWND hwndDlg, HWND hButton, HWND hPassword,
 			 HWND hVerify, unsigned char *szPassword,
 			 char *szVerify,
@@ -134,6 +136,16 @@ BOOL CheckPasswordCharEncoding (HWND hPassword, Password *ptrPw)
 	}
 
 	return TRUE;
+}
+
+void VerifyPasswordAndUpdate2 (HWND hwndDlg, HWND hButton, HWND hPassword,
+			 HWND hVerify, unsigned char *szPassword,
+			 int sizeOfPassword,
+			 char *szVerify,
+			 int sizeOfVerify,
+			 BOOL keyFilesEnabled)
+{
+	VerifyPasswordAndUpdate(hwndDlg,hButton,hPassword,hVerify,szPassword,szVerify,keyFilesEnabled);
 }
 
 

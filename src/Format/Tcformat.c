@@ -3950,11 +3950,11 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 				EnableWindow (GetDlgItem (GetParent (hwndDlg), IDC_PREV), TRUE);
 
-				VerifyPasswordAndUpdate (hwndDlg, GetDlgItem (GetParent (hwndDlg), IDC_NEXT),
+				VerifyPasswordAndUpdate2(hwndDlg, GetDlgItem (GetParent (hwndDlg), IDC_NEXT),
 					 GetDlgItem (hwndDlg, IDC_PASSWORD),
 					   GetDlgItem (hwndDlg, IDC_VERIFY),
-						      NULL,
-							  NULL,
+						      NULL, 0,
+							  NULL, 0,
 							  KeyFilesEnable && FirstKeyFile!=NULL && !SysEncInEffect());
 				volumePassword.Length = strlen ((char *) volumePassword.Text);
 			}
@@ -5001,11 +5001,11 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 		
 		if (hw == EN_CHANGE && nCurPageNo == PASSWORD_PAGE)
 		{
-			VerifyPasswordAndUpdate (hwndDlg, GetDlgItem (GetParent (hwndDlg), IDC_NEXT),
+			VerifyPasswordAndUpdate2(hwndDlg, GetDlgItem (GetParent (hwndDlg), IDC_NEXT),
 				GetDlgItem (hwndDlg, IDC_PASSWORD),
 				GetDlgItem (hwndDlg, IDC_VERIFY),
-				NULL,
-				NULL,
+				NULL, 0,
+				NULL, 0,
 				KeyFilesEnable && FirstKeyFile!=NULL && !SysEncInEffect());
 			volumePassword.Length = strlen ((char *) volumePassword.Text);
 
@@ -5057,10 +5057,10 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 					if (nCurPageNo != HIDDEN_VOL_HOST_PASSWORD_PAGE && nCurPageNo != NONSYS_INPLACE_ENC_RESUME_PASSWORD_PAGE)
 					{
-						VerifyPasswordAndUpdate (hwndDlg, GetDlgItem (GetParent (hwndDlg), IDC_NEXT),
+						VerifyPasswordAndUpdate2(hwndDlg, GetDlgItem (GetParent (hwndDlg), IDC_NEXT),
 							GetDlgItem (hCurPage, IDC_PASSWORD),
 							GetDlgItem (hCurPage, IDC_VERIFY),
-							volumePassword.Text, szVerify, KeyFilesEnable && FirstKeyFile!=NULL);
+							volumePassword.Text, sizeof(volumePassword.Text), szVerify, sizeof(szVerify), KeyFilesEnable && FirstKeyFile!=NULL);
 					}
 				}
 
@@ -5075,10 +5075,10 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				{
 					EnableWindow (GetDlgItem (hwndDlg, IDC_KEY_FILES), KeyFilesEnable);
 
-					VerifyPasswordAndUpdate (hwndDlg, GetDlgItem (GetParent (hwndDlg), IDC_NEXT),
+					VerifyPasswordAndUpdate2(hwndDlg, GetDlgItem (GetParent (hwndDlg), IDC_NEXT),
 						GetDlgItem (hCurPage, IDC_PASSWORD),
 						GetDlgItem (hCurPage, IDC_VERIFY),
-						volumePassword.Text, szVerify, KeyFilesEnable && FirstKeyFile!=NULL);
+						volumePassword.Text, sizeof(volumePassword.Text), szVerify, sizeof(szVerify), KeyFilesEnable && FirstKeyFile!=NULL);
 				}
 
 				return 1;
@@ -6638,11 +6638,11 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 			else if (nCurPageNo == PASSWORD_PAGE)
 			{
-				VerifyPasswordAndUpdate (hwndDlg, GetDlgItem (MainDlg, IDC_NEXT),
+				VerifyPasswordAndUpdate2(hwndDlg, GetDlgItem (MainDlg, IDC_NEXT),
 					GetDlgItem (hCurPage, IDC_PASSWORD),
 					GetDlgItem (hCurPage, IDC_VERIFY),
-					volumePassword.Text,
-					szVerify,
+					volumePassword.Text, sizeof(volumePassword.Text),
+					szVerify, sizeof(szVerify),
 					KeyFilesEnable && FirstKeyFile!=NULL && !SysEncInEffect());
 
 				volumePassword.Length = strlen ((char *) volumePassword.Text);
@@ -7647,11 +7647,11 @@ ovf_end:
 				// Store the password in case we need to restore it after keyfile is applied to it
 				GetWindowText (GetDlgItem (hCurPage, IDC_PASSWORD), szRawPassword, sizeof (szRawPassword));
 
-				VerifyPasswordAndUpdate (hwndDlg, GetDlgItem (MainDlg, IDC_NEXT),
+				VerifyPasswordAndUpdate2(hwndDlg, GetDlgItem (MainDlg, IDC_NEXT),
 					GetDlgItem (hCurPage, IDC_PASSWORD),
 					GetDlgItem (hCurPage, IDC_VERIFY),
-					volumePassword.Text,
-					szVerify,
+					volumePassword.Text, sizeof(volumePassword.Text),
+					szVerify, sizeof(szVerify),
 					KeyFilesEnable && FirstKeyFile!=NULL && !SysEncInEffect ());
 
 				volumePassword.Length = strlen ((char *) volumePassword.Text);
