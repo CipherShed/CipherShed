@@ -2,6 +2,7 @@
 
 #include "../../faux/windows/HWND.h"
 #include "../../faux/windows/BOOL.h"
+#include "../../faux/windows/EnableWindow.h"
 #include "../../../Common/Password.h"
 #include <string.h>
 
@@ -349,6 +350,68 @@ namespace CipherShed_Tests_Algo
 
 
 
+		TESTMETHOD
+		void testPasswordVerifyPasswordAndUpdate()
+		{
+			fauxEnablableWidget few;
+			few.enabled=false;
+			HWND hwndDlg;
+			HWND hButton=&few;
+			HWND hPassword=(HWND)"password";
+			HWND hVerify=(HWND)"password";
+			char buf1[2048];
+			unsigned char *szPassword=(unsigned char *)buf1;
+			char buf2[2048];
+			char *szVerify=buf2;
+			BOOL keyFilesEnabled=false;
+			VerifyPasswordAndUpdate2(hwndDlg, hButton, hPassword, hVerify, szPassword, sizeof(buf1), szVerify, sizeof(buf2), keyFilesEnabled);
+			TEST_ASSERT(few.enabled==true);
+			TEST_ASSERT(0==strcmp((char*)hPassword,buf1));
+			TEST_ASSERT(0==strcmp((char*)hVerify,buf2));
+		}
+
+		TESTMETHOD
+		void testPasswordVerifyPasswordAndUpdateMTString()
+		{
+			fauxEnablableWidget few;
+			few.enabled=false;
+			HWND hwndDlg;
+			HWND hButton=&few;
+			HWND hPassword=(HWND)"";
+			HWND hVerify=(HWND)"";
+			char buf1[2048];
+			unsigned char *szPassword=(unsigned char *)buf1;
+			char buf2[2048];
+			char *szVerify=buf2;
+			BOOL keyFilesEnabled=false;
+			VerifyPasswordAndUpdate2(hwndDlg, hButton, hPassword, hVerify, szPassword, sizeof(buf1), szVerify, sizeof(buf2), keyFilesEnabled);
+			TEST_ASSERT(few.enabled==false);
+			TEST_ASSERT(0==strcmp((char*)hPassword,buf1));
+			TEST_ASSERT(0==strcmp((char*)hVerify,buf2));
+		}
+
+
+		TESTMETHOD
+		void testPasswordVerifyPasswordAndUpdateMissmatch()
+		{
+			fauxEnablableWidget few;
+			few.enabled=false;
+			HWND hwndDlg;
+			HWND hButton=&few;
+			HWND hPassword=(HWND)"xyzzy";
+			HWND hVerify=(HWND)"password";
+			char buf1[2048];
+			unsigned char *szPassword=(unsigned char *)buf1;
+			char buf2[2048];
+			char *szVerify=buf2;
+			BOOL keyFilesEnabled=false;
+			VerifyPasswordAndUpdate2(hwndDlg, hButton, hPassword, hVerify, szPassword, sizeof(buf1), szVerify, sizeof(buf2), keyFilesEnabled);
+			TEST_ASSERT(few.enabled==false);
+			TEST_ASSERT(0==strcmp((char*)hPassword,buf1));
+			TEST_ASSERT(0==strcmp((char*)hVerify,buf2));
+		}
+
+
 
 		/**
 		The constructor needs the add each test method for the non-VS unit test execution.
@@ -363,6 +426,10 @@ namespace CipherShed_Tests_Algo
 
 			TEST_ADD(PasswordTest::testPasswordCheckPasswordLengthInvalid);
 			TEST_ADD(PasswordTest::testPasswordCheckPasswordLength);
+
+			TEST_ADD(PasswordTest::testPasswordVerifyPasswordAndUpdate);
+			TEST_ADD(PasswordTest::testPasswordVerifyPasswordAndUpdateMTString);
+			TEST_ADD(PasswordTest::testPasswordVerifyPasswordAndUpdateMissmatch);
 		}
 	};
 }
