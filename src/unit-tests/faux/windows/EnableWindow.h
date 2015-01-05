@@ -4,6 +4,11 @@
 #include "HWND.h"
 #include "BOOL.h"
 
+typedef struct fauxEnablableWidget
+{
+	BOOL enabled;
+} fauxEnablableWidget;
+
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -25,6 +25,8 @@
 #endif
 #include "strcpys.h"
 
+#include "util/unicode/ConvertUTF.h"
+
 void VerifyPasswordAndUpdate (HWND hwndDlg, HWND hButton, HWND hPassword,
 			 HWND hVerify, unsigned char *szPassword,
 			 char *szVerify,
@@ -32,13 +34,13 @@ void VerifyPasswordAndUpdate (HWND hwndDlg, HWND hButton, HWND hPassword,
 {
 	char szTmp1[MAX_PASSWORD + 1];
 	char szTmp2[MAX_PASSWORD + 1];
-	int k = GetWindowTextLength (hPassword);
+	int k = GetWindowTextLengthA(hPassword);
 	BOOL bEnable = FALSE;
 
 	if (hwndDlg);		/* Remove warning */
 
-	GetWindowText (hPassword, szTmp1, sizeof (szTmp1));
-	GetWindowText (hVerify, szTmp2, sizeof (szTmp2));
+	GetWindowTextA(hPassword, szTmp1, sizeof (szTmp1));
+	GetWindowTextA(hVerify, szTmp2, sizeof (szTmp2));
 
 	if (strcmp (szTmp1, szTmp2) != 0)
 		bEnable = FALSE;
@@ -134,6 +136,16 @@ BOOL CheckPasswordCharEncoding (HWND hPassword, Password *ptrPw)
 	}
 
 	return TRUE;
+}
+
+void VerifyPasswordAndUpdate2 (HWND hwndDlg, HWND hButton, HWND hPassword,
+			 HWND hVerify, unsigned char *szPassword,
+			 int sizeOfPassword,
+			 char *szVerify,
+			 int sizeOfVerify,
+			 BOOL keyFilesEnabled)
+{
+	VerifyPasswordAndUpdate(hwndDlg,hButton,hPassword,hVerify,szPassword,szVerify,keyFilesEnabled);
 }
 
 
