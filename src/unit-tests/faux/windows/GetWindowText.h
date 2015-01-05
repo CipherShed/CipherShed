@@ -1,6 +1,7 @@
 #ifndef _faux_windows_GetWindowText_h_
 #define _faux_windows_GetWindowText_h_
 
+#include "GetWindowTextLength.h"
 #include "HWND.h"
 #include "CHAR.h"
 #include "WCHAR.h"

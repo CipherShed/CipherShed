@@ -53,7 +53,8 @@ int GetWindowTextLengthA(HWND hWnd)
 	{
 		return 0;
 	}
-	char* src=(char*)hWnd;
+	fauxWindowText* fwt=(fauxWindowText*)hWnd;
+	char* src=fwt->buf.a;
 	int cnt=0;
 	while(*src++)
 	{
@@ -68,7 +69,8 @@ int GetWindowTextLengthW(HWND hWnd)
 	{
 		return 0;
 	}
-	WCHAR* src=(WCHAR*)hWnd;
+	fauxWindowText* fwt=(fauxWindowText*)hWnd;
+	WCHAR* src=fwt->buf.w;
 	int cnt=0;
 	while(*src++)
 	{
