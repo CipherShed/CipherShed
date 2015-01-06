@@ -16,12 +16,14 @@
 
 # VS C++ cache files
 *.ncb
+*.aps
 
 # VS User-specific files
 *.suo
 *.user
 
 /Boot/Windows/Release/
+/Boot/Windows/Release Loader/
 /Boot/Windows/Release_AES/
 /Boot/Windows/Release_Serpent/
 /Boot/Windows/Release_Twofish/
