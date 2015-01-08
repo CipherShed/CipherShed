@@ -1,0 +1,52 @@
+/*
+ Copyright (c) 2007-2010 TrueCrypt Developers Association. All rights reserved.
+
+ Governed by the TrueCrypt License 3.0 the full text of which is contained in
+ the file License.txt included in TrueCrypt binary and source code distribution
+ packages.
+*/
+
+import "wtypes.idl";
+import "..\Common\Password.h";
+
+[
+	uuid(9ACF6176-5FC4-4690-A025-B3306A50EB6A),
+	helpstring("VeraCrypt Main UAC Support Library"),
+	version(2.6)	// Update ComSetup.cpp when changing version number
+]
+library TrueCryptMainCom
+{
+	[
+		uuid(C786E27C-2801-482c-B45D-D4357B270A29),
+		object,
+		oleautomation,
+		helpstring("VeraCrypt Main UAC Support Interface")
+	]
+	interface ITrueCryptMainCom : IUnknown
+	{
+		void AnalyzeKernelMiniDump (LONG_PTR hwndDlg);
+		int BackupVolumeHeader (LONG_PTR hwndDlg, BOOL bRequireConfirmation, BSTR lpszVolume);
+		DWORD CallDriver (DWORD ioctl, BSTR input, BSTR *output);
+		int ChangePassword (BSTR volumePath, Password *oldPassword, Password *newPassword, int pkcs5, int wipePassCount, LONG_PTR hWnd);
+		DWORD CopyFile (BSTR sourceFile, BSTR destinationFile);
+		DWORD DeleteFile (BSTR file);
+		BOOL IsPagingFileActive (BOOL checkNonWindowsPartitionsOnly);
+		DWORD ReadWriteFile (BOOL write, BOOL device, BSTR filePath, BSTR *bufferBstr, unsigned __int64 offset, unsigned __int32 size, DWORD *sizeDone);
+		DWORD RegisterFilterDriver (BOOL registerDriver, int filterType);
+		DWORD RegisterSystemFavoritesService (BOOL registerService);
+		int RestoreVolumeHeader (LONG_PTR hwndDlg, BSTR lpszVolume);
+		DWORD SetDriverServiceStartType (DWORD startType);
+		DWORD WriteLocalMachineRegistryDwordValue (BSTR keyPath, BSTR valueName, DWORD value);
+		int ChangePasswordEx (BSTR volumePath, Password *oldPassword, int old_pkcs5, Password *newPassword, int pkcs5, int wipePassCount, LONG_PTR hWnd);
+		int ChangePasswordEx2 (BSTR volumePath, Password *oldPassword, int old_pkcs5, BOOL truecryptMode, Password *newPassword, int pkcs5, int wipePassCount, LONG_PTR hWnd);
+	};
+
+	[
+		uuid(FE8B3B95-C80C-41f7-830F-FBA271C26F7E),
+		helpstring("VeraCrypt Main UAC Support Coclass")
+	]
+	coclass TrueCryptMainCom
+	{
+		[default] interface ITrueCryptMainCom;
+	}
+}

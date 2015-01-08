@@ -1,0 +1,48 @@
+/*
+ Copyright (c) 2007-2010 TrueCrypt Developers Association. All rights reserved.
+
+ Governed by the TrueCrypt License 3.0 the full text of which is contained in
+ the file License.txt included in TrueCrypt binary and source code distribution
+ packages.
+*/
+
+import "wtypes.idl";
+import "..\Common\Password.h";
+
+[
+	uuid(56327DDA-F1A7-4e13-B128-520D129BDEF6),
+	helpstring("VeraCrypt Format UAC Support Library"),
+	version(2.4)	// Update ComSetup.cpp when changing version number
+]
+library TrueCryptFormatCom
+{
+	[
+		uuid(7AB357D9-A17F-466e-BCD6-F49E97C218D8),
+		object,
+		oleautomation,
+		helpstring("VeraCrypt Format UAC Support Interface")
+	]
+	interface ITrueCryptFormatCom : IUnknown
+	{
+		int AnalyzeHiddenVolumeHost (LONG_PTR hwndDlg, int *driveNo, __int64 hiddenVolHostSize, int *realClusterSize, __int64 *nbrFreeClusters);
+		DWORD CallDriver (DWORD ioctl, BSTR input, BSTR *output);
+		DWORD CopyFile (BSTR sourceFile, BSTR destinationFile);
+		DWORD DeleteFile (BSTR file);
+		BOOL FormatNtfs (int driveNo, int clusterSize);
+		BOOL IsPagingFileActive (BOOL checkNonWindowsPartitionsOnly);
+		DWORD ReadWriteFile (BOOL write, BOOL device, BSTR filePath, BSTR *bufferBstr, unsigned __int64 offset, unsigned __int32 size, DWORD *sizeDone);
+		DWORD RegisterFilterDriver (BOOL registerDriver, int filterType);
+		DWORD RegisterSystemFavoritesService (BOOL registerService);
+		DWORD SetDriverServiceStartType (DWORD startType);
+		DWORD WriteLocalMachineRegistryDwordValue (BSTR keyPath, BSTR valueName, DWORD value);
+	};
+
+	[
+		uuid(A96D3797-9F31-49f4-A0CE-9657392CF789),
+		helpstring("VeraCrypt Format UAC Support Coclass")
+	]
+	coclass TrueCryptFormatCom
+	{
+		[default] interface ITrueCryptFormatCom;
+	}
+}
