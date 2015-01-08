@@ -1188,7 +1188,7 @@ void LoadDriveLetters (HWND hwndDlg, HWND hTree, int drive)
 			GetSizeString (GetSysEncDeviceSize(TRUE), szTmpW, sizeof(szTmpW));
 			ListSubItemSetW (hTree, listItem.iItem, 2, szTmpW);
 
-			EAGetName (szTmp, propSysEnc.ea);
+			EAGetName (szTmp, propSysEnc.ea, 1);
 			listItem.iSubItem = 3;
 			ListView_SetItem (hTree, &listItem);
 
@@ -1305,7 +1305,7 @@ void LoadDriveLetters (HWND hwndDlg, HWND hTree, int drive)
 			GetSizeString (bSysEncPartition ? GetSysEncDeviceSize(TRUE) : driver.diskLength[i], szTmpW, sizeof(szTmpW));
 			ListSubItemSetW (hTree, listItem.iItem, 2, szTmpW);
 
-			EAGetName (szTmp, bSysEncPartition ? propSysEnc.ea : driver.ea[i]);
+			EAGetName (szTmp, bSysEncPartition ? propSysEnc.ea : driver.ea[i], 1);
 			listItem.iSubItem = 3;
 			ListView_SetItem (hTree, &listItem);
 
@@ -1334,7 +1334,14 @@ void LoadDriveLetters (HWND hwndDlg, HWND hTree, int drive)
 				default:
 					ws = L"?";
 				}
-				ListSubItemSetW (hTree, listItem.iItem, 4, ws);
+				
+				if (driver.truecryptMode[i])
+				{
+					StringCbPrintfW (szTmpW, sizeof(szTmpW), L"TrueCrypt-%s", ws);
+					ListSubItemSetW (hTree, listItem.iItem, 4, szTmpW);
+				}
+				else
+					ListSubItemSetW (hTree, listItem.iItem, 4, ws);
 
 				if (driver.volumeType[i] == PROP_VOL_TYPE_OUTER_VOL_WRITE_PREVENTED)	// Normal/outer volume (hidden volume protected AND write denied)
 				{				
@@ -3081,14 +3088,14 @@ BOOL CALLBACK VolumePropertiesDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LP
 				return 1;
 			}
 
-			EAGetName (szTmp, prop.ea);
+			EAGetName (szTmp, prop.ea, 1);
 			ListSubItemSet (list, i++, 1, szTmp);
 
 			// Key size(s)
 			{
 				char name[128];
 				int size = EAGetKeySize (prop.ea);	
-				EAGetName (name, prop.ea);
+				EAGetName (name, prop.ea, 1);
 
 				// Primary key
 				ListItemAddW (list, i, GetString ("KEY_SIZE"));
@@ -3509,7 +3516,7 @@ void BuildTree (HWND hwndDlg, HWND hTree)
 	SendMessage (hTree,LVM_INSERTCOLUMNW,0,(LPARAM)&lvCol);
 
 	lvCol.pszText = GetString ("VOLUME");  
-	lvCol.cx = CompensateXDPI (253);           
+	lvCol.cx = CompensateXDPI (200);           
 	lvCol.fmt = LVCFMT_LEFT;
 	SendMessage (hTree,LVM_INSERTCOLUMNW,1,(LPARAM)&lvCol);
 	LastDriveListVolumeColumnWidth = ListView_GetColumnWidth (hTree, 1);
@@ -3520,12 +3527,12 @@ void BuildTree (HWND hwndDlg, HWND hTree)
 	SendMessage (hTree,LVM_INSERTCOLUMNW,2,(LPARAM)&lvCol);
 
 	lvCol.pszText = GetString ("ENCRYPTION_ALGORITHM_LV");  
-	lvCol.cx = CompensateXDPI (121);
+	lvCol.cx = CompensateXDPI (123);
 	lvCol.fmt = LVCFMT_LEFT;
 	SendMessage (hTree,LVM_INSERTCOLUMNW,3,(LPARAM)&lvCol);
 
 	lvCol.pszText = GetString ("TYPE");  
-	lvCol.cx = CompensateXDPI (52);
+	lvCol.cx = CompensateXDPI (100);
 	lvCol.fmt = LVCFMT_LEFT;
 	SendMessage (hTree,LVM_INSERTCOLUMNW,4,(LPARAM)&lvCol);
 

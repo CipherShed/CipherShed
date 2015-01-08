@@ -4350,6 +4350,8 @@ static void DisplayBenchmarkResults (HWND hwndDlg)
 
 		SendMessageW (hList, LVM_SETITEMW, 0, (LPARAM)&LvItem); 
 	}
+
+	SendMessageW(hList, LVM_SETCOLUMNWIDTH, 0, MAKELPARAM(LVSCW_AUTOSIZE_USEHEADER, 0));
 }
 
 // specific implementation for support of benchmark operation in wait dialog mechanism
@@ -4574,7 +4576,7 @@ static BOOL PerformBenchmark(HWND hBenchDlg, HWND hwndDlg)
 		benchmarkTable[benchmarkTotalItems].decSpeed = performanceCountEnd.QuadPart - performanceCountStart.QuadPart;
 		benchmarkTable[benchmarkTotalItems].id = ci->ea;
 		benchmarkTable[benchmarkTotalItems].meanBytesPerSec = ((unsigned __int64) (benchmarkBufferSize / ((float) benchmarkTable[benchmarkTotalItems].encSpeed / benchmarkPerformanceFrequency.QuadPart)) + (unsigned __int64) (benchmarkBufferSize / ((float) benchmarkTable[benchmarkTotalItems].decSpeed / benchmarkPerformanceFrequency.QuadPart))) / 2;
-		EAGetName (benchmarkTable[benchmarkTotalItems].name, ci->ea);
+		EAGetName (benchmarkTable[benchmarkTotalItems].name, ci->ea, 1);
 
 		benchmarkTotalItems++;
 	}
@@ -5349,7 +5351,7 @@ CipherTestDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			for (ea = EAGetFirst (); ea != 0; ea = EAGetNext (ea))
 			{
 				if (EAGetCipherCount (ea) == 1 && EAIsFormatEnabled (ea))
-					AddComboPair (GetDlgItem (hwndDlg, IDC_CIPHER), EAGetName (buf, ea), EAGetFirstCipher (ea));
+					AddComboPair (GetDlgItem (hwndDlg, IDC_CIPHER), EAGetName (buf, ea, 1), EAGetFirstCipher (ea));
 			}
 
 			ResetCipherTest(hwndDlg, idTestCipher);
