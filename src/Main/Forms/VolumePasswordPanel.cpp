@@ -6,8 +6,8 @@
  packages.
 */
 
-#include "System.h"
-#include "Main/GraphicUserInterface.h"
+#include "../System.h"
+#include "../GraphicUserInterface.h"
 #include "KeyfilesDialog.h"
 #include "VolumePasswordPanel.h"
 #include "SecurityTokenKeyfilesDialog.h"

@@ -6,10 +6,10 @@
  packages.
 */
 
-#include "System.h"
-#include "Volume/EncryptionModeXTS.h"
-#include "Volume/EncryptionTest.h"
-#include "Main/GraphicUserInterface.h"
+#include "../System.h"
+#include "../../Volume/EncryptionModeXTS.h"
+#include "../../Volume/EncryptionTest.h"
+#include "../GraphicUserInterface.h"
 #include "EncryptionTestDialog.h"
 
 namespace CipherShed

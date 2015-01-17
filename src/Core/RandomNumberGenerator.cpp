@@ -13,7 +13,7 @@
 #endif
 
 #include "RandomNumberGenerator.h"
-#include "Volume/Crc32.h"
+#include "../Volume/Crc32.h"
 
 namespace CipherShed
 {

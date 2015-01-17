@@ -7,7 +7,7 @@
 #endif
 
 #include "Serpent.h"
-#include "Common/Endian.h"
+#include "../Common/Endian.h"
 
 #include <memory.h>
 

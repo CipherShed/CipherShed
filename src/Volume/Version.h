@@ -9,8 +9,8 @@
 #ifndef TC_HEADER_Volume_Version
 #define TC_HEADER_Volume_Version
 
-#include "Platform/PlatformBase.h"
-#include "Common/Tcdefs.h"
+#include "../Platform/PlatformBase.h"
+#include "../Common/Tcdefs.h"
 
 namespace CipherShed
 {

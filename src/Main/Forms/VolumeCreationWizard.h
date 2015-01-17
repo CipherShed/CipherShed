@@ -10,7 +10,7 @@
 #define TC_HEADER_Main_Forms_VolumeCreationWizard
 
 #include "WizardFrame.h"
-#include "Core/VolumeCreator.h"
+#include "../../Core/VolumeCreator.h"
 
 namespace CipherShed
 {

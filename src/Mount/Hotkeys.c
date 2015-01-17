@@ -7,9 +7,9 @@
 */
 
 #include <windows.h>
-#include "Dlgcode.h"
+#include "../Common/Dlgcode.h"
 #include "Hotkeys.h"
-#include "Language.h"
+#include "../Common/Language.h"
 #include "Mount.h"
 #include "Resource.h"
 

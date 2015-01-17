@@ -6,10 +6,10 @@
  packages.
 */
 
-#include "System.h"
+#include "../System.h"
 #include "LegalNoticesDialog.h"
-#include "Main/GraphicUserInterface.h"
-#include "Main/Resources.h"
+#include "../GraphicUserInterface.h"
+#include "../Resources.h"
 
 namespace CipherShed
 {

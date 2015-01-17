@@ -14,6 +14,12 @@
 
 #include "Tcdefs.h"
 
+#if BYTE_ORDER == LITTLE_ENDIAN
+#	define CRC_SELFTEST 0x6fcf9e13
+#else
+#	define CRC_SELFTEST 0xca87914d
+#endif
+
 #if defined(__cplusplus)
 extern "C"
 {
@@ -23,10 +29,20 @@ extern "C"
   (unsigned __int32)((crc_32_tab[(((unsigned __int32)(crc)) ^ ((unsigned char)(octet))) & 0xff] ^ (((unsigned __int32)(crc)) >> 8)))
 
 unsigned __int32 GetCrc32 (unsigned char *data, int length);
+
+#if !defined(TC_MINIMIZE_CODE_SIZE) || defined(CS_UNITTESTING)
+
 unsigned __int32 crc32int (unsigned __int32 *data);
+extern unsigned __int32 crc_32_tab[256];
+
+#endif
+
 BOOL crc32_selftests (void);
 
-extern unsigned __int32 crc_32_tab[];
+#ifdef CS_UNITTESTING
+BOOL crc32_selfTestLarge(void);
+BOOL crc32_selfTestSmall(void);
+#endif
 
 #if defined(__cplusplus)
 }

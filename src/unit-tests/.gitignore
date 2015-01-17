@@ -1,0 +1,5 @@
+/unittesting.exe
+/unittesting
+*.gcno
+*.gcda
+*.gcov

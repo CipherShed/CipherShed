@@ -6,9 +6,9 @@
  packages.
 */
 
-#include "System.h"
-#include "Main/GraphicUserInterface.h"
-#include "Main/Resources.h"
+#include "../System.h"
+#include "../GraphicUserInterface.h"
+#include "../Resources.h"
 #include "WizardFrame.h"
 
 namespace CipherShed

@@ -9,8 +9,8 @@
 #ifndef TC_HEADER_Volume_VolumeCreator
 #define TC_HEADER_Volume_VolumeCreator
 
-#include "Platform/Platform.h"
-#include "Volume/Volume.h"
+#include "../Platform/Platform.h"
+#include "../Volume/Volume.h"
 #include "RandomNumberGenerator.h"
 
 namespace CipherShed

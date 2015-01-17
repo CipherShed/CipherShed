@@ -178,23 +178,23 @@ typedef struct
 #endif
 
 #if !defined (TC_WINDOWS_BOOT) || defined (TC_WINDOWS_BOOT_AES)
-#	include "Aes.h"
+#	include "../Crypto/Aes.h"
 #else
 #	include "AesSmall.h"
 #endif
 
-#include "Aes_hw_cpu.h"
-#include "Blowfish.h"
-#include "Cast.h"
-#include "Des.h"
-#include "Serpent.h"
-#include "Twofish.h"
+#include "../Crypto/Aes_hw_cpu.h"
+#include "../Crypto/Blowfish.h"
+#include "../Crypto/Cast.h"
+#include "../Crypto/Des.h"
+#include "../Crypto/Serpent.h"
+#include "../Crypto/Twofish.h"
 
-#include "Rmd160.h"
+#include "../Crypto/Rmd160.h"
 #ifndef TC_WINDOWS_BOOT
-#	include "Sha1.h"
-#	include "Sha2.h"
-#	include "Whirlpool.h"
+#	include "../Crypto/Sha1.h"
+#	include "../Crypto/Sha2.h"
+#	include "../Crypto/Whirlpool.h"
 #endif
 
 #include "GfMul.h"

@@ -9,8 +9,8 @@
 #ifndef TC_HEADER_Encryption_Keyfile
 #define TC_HEADER_Encryption_Keyfile
 
-#include "Platform/Platform.h"
-#include "Platform/Stream.h"
+#include "../Platform/Platform.h"
+#include "../Platform/Stream.h"
 #include "VolumePassword.h"
 
 namespace CipherShed

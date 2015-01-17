@@ -16,7 +16,7 @@
 #include "Tcdefs.h"
 
 #include "Crypto.h"
-#include "Common/Endian.h"
+#include "Endian.h"
 #include "Format.h"
 #include "Fat.h"
 #include "Progress.h"

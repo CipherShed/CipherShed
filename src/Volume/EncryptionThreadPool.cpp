@@ -15,9 +15,9 @@
 #	include <sys/sysctl.h>
 #endif
 
-#include "Platform/SyncEvent.h"
-#include "Platform/SystemLog.h"
-#include "Common/Crypto.h"
+#include "../Platform/SyncEvent.h"
+#include "../Platform/SystemLog.h"
+#include "../Common/Crypto.h"
 #include "EncryptionThreadPool.h"
 
 namespace CipherShed

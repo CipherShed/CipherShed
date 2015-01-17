@@ -6,9 +6,9 @@
  packages.
 */
 
-#include "System.h"
-#include "Main/Main.h"
-#include "Main/GraphicUserInterface.h"
+#include "../System.h"
+#include "../Main.h"
+#include "../GraphicUserInterface.h"
 #include "MountOptionsDialog.h"
 
 namespace CipherShed

@@ -9,7 +9,7 @@
 #ifndef TC_HEADER_Main_Forms_WizardPage
 #define TC_HEADER_Main_Forms_WizardPage
 
-#include "Main/Main.h"
+#include "../Main.h"
 
 namespace CipherShed
 {

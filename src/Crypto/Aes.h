@@ -33,7 +33,7 @@
 #ifndef _AES_H
 #define _AES_H
 
-#include "Common/Tcdefs.h"
+#include "../Common/Tcdefs.h"
 
 #ifndef EXIT_SUCCESS
 #define EXIT_SUCCESS    0

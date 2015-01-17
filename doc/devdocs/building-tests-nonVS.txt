@@ -1,0 +1,15 @@
+g++ unittesting.cpp                                         \
+	-I .                                                \
+	-I ../../var/opt/cpptest-code/cpptest/src/          \
+../../var/opt/cpptest-code/cpptest/src/source.cpp           \
+../../var/opt/cpptest-code/cpptest/src/suite.cpp            \
+../../var/opt/cpptest-code/cpptest/src/textoutput.cpp       \
+../../var/opt/cpptest-code/cpptest/src/time.cpp             \
+../../var/opt/cpptest-code/cpptest/src/utils.cpp            \
+../../var/opt/cpptest-code/cpptest/src/collectoroutput.cpp  \
+../../var/opt/cpptest-code/cpptest/src/compileroutput.cpp   \
+../../var/opt/cpptest-code/cpptest/src/htmloutput.cpp       \
+../../var/opt/cpptest-code/cpptest/src/missing.cpp          \
+-o unittesting
+
+./unittesting

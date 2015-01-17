@@ -9,8 +9,8 @@
 #ifndef TC_HEADER_Encryption_Crc32
 #define TC_HEADER_Encryption_Crc32
 
-#include "Platform/Platform.h"
-#include "Common/Crc.h"
+#include "../Platform/Platform.h"
+#include "../Common/Crc.h"
 
 namespace CipherShed
 {

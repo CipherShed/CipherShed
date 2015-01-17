@@ -7,9 +7,11 @@
 */
 
 #include "System.h"
+#ifndef CS_UNITTESTING
 #include <wx/cmdline.h>
 #include <wx/tokenzr.h>
-#include "Core/Core.h"
+#endif
+#include "../Core/Core.h"
 #include "Application.h"
 #include "CommandLineInterface.h"
 #include "LanguageStrings.h"

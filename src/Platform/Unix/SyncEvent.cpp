@@ -6,9 +6,9 @@
  packages.
 */
 
-#include "Platform/Exception.h"
-#include "Platform/SyncEvent.h"
-#include "Platform/SystemException.h"
+#include "../Exception.h"
+#include "../SyncEvent.h"
+#include "../SystemException.h"
 
 namespace CipherShed
 {

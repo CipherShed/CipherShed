@@ -9,6 +9,15 @@
 #ifndef KEYFILES_H
 #define	KEYFILES_H
 
+#ifdef CS_UNITTESTING
+#include "../unit-tests/faux/windows/MAX_PATH.h"
+#include "../unit-tests/faux/windows/CALLBACK.h"
+#include "../unit-tests/faux/windows/UNIT.h"
+#include "../unit-tests/faux/windows/WPARAM.h"
+#include "../unit-tests/faux/windows/LPARAM.h"
+#include "../unit-tests/faux/windows/POINT.h"
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

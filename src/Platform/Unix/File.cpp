@@ -28,8 +28,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "Platform/File.h"
-#include "Platform/TextReader.h"
+#include "../File.h"
+#include "../TextReader.h"
 
 namespace CipherShed
 {

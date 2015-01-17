@@ -9,7 +9,7 @@
 #ifndef TC_HEADER_Volume_VolumeExceptions
 #define TC_HEADER_Volume_VolumeExceptions
 
-#include "Platform/Platform.h"
+#include "../Platform/Platform.h"
 
 namespace CipherShed
 {

@@ -7,13 +7,14 @@
 */
 
 #include "System.h"
+#ifndef CS_UNITTESTING
 #include <wx/stackwalk.h>
-
+#endif
 #include "Main.h"
 #include "Application.h"
 #include "UserInterface.h"
 #include "GraphicUserInterface.h"
-#include "Volume/Crc32.h"
+#include "../Volume/Crc32.h"
 
 #ifdef TC_UNIX
 #include <signal.h>

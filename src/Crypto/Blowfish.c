@@ -6,8 +6,8 @@
 /* Adapted for CipherShed */
 
 #include <memory.h>
-#include "Common/Tcdefs.h"
-#include "Common/Endian.h"
+#include "../Common/Tcdefs.h"
+#include "../Common/Endian.h"
 #include "Blowfish.h"
 
 #define word32 unsigned __int32

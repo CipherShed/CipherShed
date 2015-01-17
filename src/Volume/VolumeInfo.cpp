@@ -6,9 +6,9 @@
  packages.
 */
 
-#include "Common/Tcdefs.h"
+#include "../Common/Tcdefs.h"
 #include "VolumeInfo.h"
-#include "Platform/SerializerFactory.h"
+#include "../Platform/SerializerFactory.h"
 
 namespace CipherShed
 {

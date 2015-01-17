@@ -6,12 +6,12 @@
  packages.
 */
 
-#include "Volume/EncryptionMode.h"
-#include "Volume/EncryptionModeCBC.h"
-#include "Volume/EncryptionModeLRW.h"
-#include "Volume/EncryptionModeXTS.h"
+#include "EncryptionMode.h"
+#include "EncryptionModeCBC.h"
+#include "EncryptionModeLRW.h"
+#include "EncryptionModeXTS.h"
 #include "VolumeLayout.h"
-#include "Boot/Windows/BootCommon.h"
+#include "../Boot/Windows/BootCommon.h"
 
 namespace CipherShed
 {

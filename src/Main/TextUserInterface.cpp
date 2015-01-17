@@ -13,11 +13,11 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include "Platform/Unix/Process.h"
+#include "../Platform/Unix/Process.h"
 #endif
 
-#include "Common/SecurityToken.h"
-#include "Core/RandomNumberGenerator.h"
+#include "../Common/SecurityToken.h"
+#include "../Core/RandomNumberGenerator.h"
 #include "Application.h"
 #include "TextUserInterface.h"
 

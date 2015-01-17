@@ -9,6 +9,7 @@
 #ifndef TC_HEADER_Platform_PlatformBase
 #define TC_HEADER_Platform_PlatformBase
 
+#ifndef CS_UNITTESTING
 #include <cstddef>
 #include <list>
 #include <map>
@@ -16,6 +17,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#endif
 
 #ifndef _MSC_VER
 #include <inttypes.h>

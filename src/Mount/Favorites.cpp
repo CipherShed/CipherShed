@@ -6,15 +6,15 @@
  packages.
 */
 
-#include "Tcdefs.h"
-#include "Platform/Finally.h"
-#include "Platform/ForEach.h"
-#include "BootEncryption.h"
-#include "Dlgcode.h"
-#include "Language.h"
+#include "../Common/Tcdefs.h"
+#include "../Platform/Finally.h"
+#include "../Platform/ForEach.h"
+#include "../Common/BootEncryption.h"
+#include "../Common/Dlgcode.h"
+#include "../Common/Language.h"
 #include "Mount.h"
 #include "Resource.h"
-#include "Xml.h"
+#include "../Common/Xml.h"
 #include "Favorites.h"
 
 using namespace std;

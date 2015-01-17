@@ -6,22 +6,24 @@
  packages.
 */
 
-#include "TCdefs.h"
+#include "../Common/Tcdefs.h"
+#ifndef CS_UNITTESTING
 #include <ntddk.h>
+#endif
 #include <ntddvol.h>
-#include "Cache.h"
-#include "Crc.h"
-#include "Crypto.h"
-#include "Apidrvr.h"
+#include "../Common/Cache.h"
+#include "../Common/Crc.h"
+#include "../Common/Crypto.h"
+#include "../Common/Apidrvr.h"
 #include "EncryptedIoQueue.h"
-#include "Common/Endian.h"
+#include "../Common/Endian.h"
 #include "Ntdriver.h"
 #include "Ntvol.h"
-#include "Volumes.h"
+#include "../Common/Volumes.h"
 #include "VolumeFilter.h"
-#include "Wipe.h"
+#include "../Common/Wipe.h"
 #include "DriveFilter.h"
-#include "Boot/Windows/BootCommon.h"
+#include "../Boot/Windows/BootCommon.h"
 
 static BOOL DeviceFilterActive = FALSE;
 

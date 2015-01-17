@@ -11,7 +11,7 @@
 
 #pragma warning (disable: 4018 4102 4704 4769)
 
-#include "TCdefs.h"
+#include "../../Common/Tcdefs.h"
 #include <memory.h>
 
 typedef char bool;

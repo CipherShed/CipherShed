@@ -9,7 +9,9 @@
 #ifndef TC_HEADER_Platform_SharedPtr
 #define TC_HEADER_Platform_SharedPtr
 
+#ifndef CS_UNITTESTING
 #include <stdexcept>
+#endif
 #include "SharedVal.h"
 
 #ifdef nullptr

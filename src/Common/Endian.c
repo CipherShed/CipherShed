@@ -9,8 +9,7 @@
  contained in the file License.txt included in TrueCrypt binary and source
  code distribution packages. */
 
-#include "Tcdefs.h"
-#include "Common/Endian.h"
+#include "Endian.h"
 
 
 unsigned __int16 MirrorBytes16 (unsigned __int16 x)
@@ -41,17 +40,3 @@ uint64 MirrorBytes64 (uint64 x)
 }
 #endif
 
-void
-LongReverse (unsigned __int32 *buffer, unsigned byteCount)
-{
-	unsigned __int32 value;
-
-	byteCount /= sizeof (unsigned __int32);
-	while (byteCount--)
-	{
-		value = *buffer;
-		value = ((value & 0xFF00FF00L) >> 8) | \
-		    ((value & 0x00FF00FFL) << 8);
-		*buffer++ = (value << 16) | (value >> 16);
-	}
-}

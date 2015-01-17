@@ -9,7 +9,7 @@
  contained in the file License.txt included in TrueCrypt binary and source
  code distribution packages. */
 
-#include "Tcdefs.h"
+#include "../Common/Tcdefs.h"
 
 #include <stdlib.h>
 #include <limits.h>
@@ -19,34 +19,34 @@
 #include <sys/stat.h>
 #include <shlobj.h>
 
-#include "Crypto.h"
-#include "Apidrvr.h"
-#include "Dlgcode.h"
-#include "Language.h"
-#include "Combo.h"
-#include "Registry.h"
-#include "Boot/Windows/BootDefs.h"
-#include "Common/Common.h"
-#include "Common/BootEncryption.h"
-#include "Common/Dictionary.h"
-#include "Common/Endian.h"
-#include "Common/resource.h"
-#include "Platform/Finally.h"
-#include "Platform/ForEach.h"
-#include "Random.h"
-#include "Fat.h"
+#include "../Common/Crypto.h"
+#include "../Common/Apidrvr.h"
+#include "../Common/Dlgcode.h"
+#include "../Common/Language.h"
+#include "../Common/Combo.h"
+#include "../Common/Registry.h"
+#include "../Boot/Windows/BootDefs.h"
+#include "../Common/Common.h"
+#include "../Common/BootEncryption.h"
+#include "../Common/Dictionary.h"
+#include "../Common/Endian.h"
+#include "../Common/resource.h"
+#include "../Platform/Finally.h"
+#include "../Platform/ForEach.h"
+#include "../Common/Random.h"
+#include "../Common/Fat.h"
 #include "InPlace.h"
 #include "Resource.h"
 #include "TcFormat.h"
-#include "Format.h"
+#include "../Common/Format.h"
 #include "FormatCom.h"
-#include "Password.h"
-#include "Progress.h"
-#include "Tests.h"
-#include "Cmdline.h"
-#include "Volumes.h"
-#include "Wipe.h"
-#include "Xml.h"
+#include "../Common/Password.h"
+#include "../Common/Progress.h"
+#include "../Common/Tests.h"
+#include "../Common/Cmdline.h"
+#include "../Common/Volumes.h"
+#include "../Common/Wipe.h"
+#include "../Common/Xml.h"
 
 using namespace CipherShed;
 

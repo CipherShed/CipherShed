@@ -10,7 +10,7 @@ typedef unsigned char	uch;
 typedef unsigned short	ush;
 typedef void			zvoid;
 
-typedef struct huft 
+struct huft
 {
 	uch b, e;
 	union 
@@ -19,6 +19,8 @@ typedef struct huft
 		struct huft *t;
 	}v;
 };
+
+typedef struct huft huft;
 
 typedef struct 
 {

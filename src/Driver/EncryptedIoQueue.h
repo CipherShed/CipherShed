@@ -9,8 +9,8 @@
 #ifndef TC_HEADER_DRIVER_ENCRYPTED_IO_QUEUE
 #define TC_HEADER_DRIVER_ENCRYPTED_IO_QUEUE
 
-#include "TCdefs.h"
-#include "Apidrvr.h"
+#include "../Common/Tcdefs.h"
+#include "../Common/Apidrvr.h"
 
 #if 0
 #	define TC_TRACE_IO_QUEUE

@@ -6,16 +6,18 @@
  packages.
 */
 
-#include "System.h"
+#include "../System.h"
+#ifndef CS_UNITTESTING
 #include <wx/dynlib.h>
 #ifdef TC_WINDOWS
 #include <wx/msw/registry.h>
 #endif
-#include "Common/SecurityToken.h"
-#include "Main/Main.h"
-#include "Main/Application.h"
-#include "Main/GraphicUserInterface.h"
-#include "Volume/Cipher.h"
+#endif
+#include "../../Common/SecurityToken.h"
+#include "../Main.h"
+#include "../Application.h"
+#include "../GraphicUserInterface.h"
+#include "../../Volume/Cipher.h"
 #include "PreferencesDialog.h"
 
 namespace CipherShed

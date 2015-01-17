@@ -9,7 +9,7 @@
 #ifndef TC_HEADER_DRIVER_VOLUME_FILTER
 #define TC_HEADER_DRIVER_VOLUME_FILTER
 
-#include "TCdefs.h"
+#include "../Common/Tcdefs.h"
 
 extern uint32 HiddenSysLeakProtectionCount;
 

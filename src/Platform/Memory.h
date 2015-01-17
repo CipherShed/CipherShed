@@ -9,7 +9,9 @@
 #ifndef TC_HEADER_Platform_Memory
 #define TC_HEADER_Platform_Memory
 
+#ifndef CS_UNITTESTING
 #include <new>
+#endif
 #include <memory.h>
 #include "PlatformBase.h"
 

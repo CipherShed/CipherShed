@@ -7,7 +7,7 @@
 */
 
 #include "EncryptionModeXTS.h"
-#include "Common/Crypto.h"
+#include "../Common/Crypto.h"
 
 namespace CipherShed
 {

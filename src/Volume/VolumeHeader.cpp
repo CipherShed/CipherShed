@@ -12,7 +12,7 @@
 #include "Pkcs5Kdf.h"
 #include "VolumeHeader.h"
 #include "VolumeException.h"
-#include "Common/Crypto.h"
+#include "../Common/Crypto.h"
 
 namespace CipherShed
 {

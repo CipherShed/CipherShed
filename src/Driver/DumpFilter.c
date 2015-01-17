@@ -9,7 +9,7 @@
 #include "DumpFilter.h"
 #include "DriveFilter.h"
 #include "Ntdriver.h"
-#include "Tests.h"
+#include "../Common/Tests.h"
 
 static DriveFilterExtension *BootDriveFilterExtension = NULL;
 static LARGE_INTEGER DumpPartitionOffset;

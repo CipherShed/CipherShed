@@ -9,7 +9,7 @@
  contained in the file License.txt included in TrueCrypt binary and source
  code distribution packages. */
 
-#include "Tcdefs.h"
+#include "../Common/Tcdefs.h"
 #include <SrRestorePtApi.h>
 #include <io.h>
 #include <propkey.h>
@@ -17,14 +17,14 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "Apidrvr.h"
-#include "BootEncryption.h"
-#include "Boot/Windows/BootCommon.h"
-#include "Combo.h"
+#include "../Common/Apidrvr.h"
+#include "../Common/BootEncryption.h"
+#include "../Boot/Windows/BootCommon.h"
+#include "../Common/Combo.h"
 #include "ComSetup.h"
-#include "Dlgcode.h"
-#include "Language.h"
-#include "Registry.h"
+#include "../Common/Dlgcode.h"
+#include "../Common/Language.h"
+#include "../Common/Registry.h"
 #include "Resource.h"
 
 #include "Dir.h"

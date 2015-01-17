@@ -8,10 +8,10 @@
 
 #include "Hash.h"
 
-#include "Crypto/Rmd160.h"
-#include "Crypto/Sha1.h"
-#include "Crypto/Sha2.h"
-#include "Crypto/Whirlpool.h"
+#include "../Crypto/Rmd160.h"
+#include "../Crypto/Sha1.h"
+#include "../Crypto/Sha2.h"
+#include "../Crypto/Whirlpool.h"
 
 namespace CipherShed
 {

@@ -9,7 +9,7 @@
 #ifndef TC_HEADER_Common_Exception
 #define TC_HEADER_Common_Exception
 
-#include "Platform/PlatformBase.h"
+#include "../Platform/PlatformBase.h"
 #include "Dlgcode.h"
 
 namespace CipherShed

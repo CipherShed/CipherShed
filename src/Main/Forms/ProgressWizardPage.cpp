@@ -6,8 +6,8 @@
  packages.
 */
 
-#include "System.h"
-#include "Main/GraphicUserInterface.h"
+#include "../System.h"
+#include "../GraphicUserInterface.h"
 #include "ProgressWizardPage.h"
 
 namespace CipherShed

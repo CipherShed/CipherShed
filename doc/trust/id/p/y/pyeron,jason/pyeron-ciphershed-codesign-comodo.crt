@@ -1,3 +1,82 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            af:ec:55:84:4c:b0:94:67:3e:92:75:24:ae:de:6d:6f
+    Signature Algorithm: sha256WithRSAEncryption
+        Issuer: C=GB, ST=Greater Manchester, L=Salford, O=COMODO CA Limited, CN=COMODO RSA Code Signing CA
+        Validity
+            Not Before: Sep 16 00:00:00 2014 GMT
+            Not After : Sep 16 23:59:59 2015 GMT
+        Subject: C=US/postalCode=21218, ST=MD, L=Baltimore/street=10 w 24th st #373, O=Jason Pyeron, OU=CipherShed PMC, CN=Jason Pyeron
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                Public-Key: (2048 bit)
+                Modulus:
+                    00:d8:e4:ce:1a:12:2c:7a:1b:b9:8a:36:31:fc:c2:
+                    73:e9:1e:75:76:87:2c:21:6f:37:6e:b8:a8:d0:fe:
+                    57:69:03:b3:a7:a0:61:85:f4:08:2c:c7:5d:86:cf:
+                    d5:12:33:cc:bf:73:e9:4a:39:39:ec:39:5d:91:0d:
+                    b2:41:d9:ac:88:34:c5:10:a1:0e:7f:fc:f9:27:ac:
+                    15:85:79:31:f3:e6:7b:35:42:f5:18:14:e8:73:1d:
+                    e1:be:f6:24:29:03:d9:d1:c4:dc:d2:50:4f:f5:71:
+                    f8:d4:cb:5d:1e:c0:4f:ab:62:9f:60:6c:24:3f:d8:
+                    c1:2d:e4:9d:6a:0c:d8:79:4d:2c:9b:f9:a5:02:1a:
+                    8c:25:87:db:a9:3c:98:3b:fd:74:c4:0b:9e:f3:b8:
+                    e6:c0:6f:af:86:f6:52:3a:46:d8:0a:2d:ca:87:55:
+                    fa:aa:86:63:97:54:d7:59:28:6d:82:75:2d:db:bf:
+                    df:7d:33:9d:0a:1d:34:9d:3d:c6:67:ca:af:e8:7f:
+                    fc:36:db:1f:03:d7:d7:96:15:9f:c3:0c:f3:47:10:
+                    3b:54:4d:83:c6:bd:1b:13:59:ce:85:c9:ce:ec:2a:
+                    bb:bc:08:1c:96:9a:21:ec:4c:73:64:98:f9:21:df:
+                    6c:cf:29:bd:4a:3b:2b:76:2f:70:06:7e:28:6a:3d:
+                    da:61
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            X509v3 Authority Key Identifier: 
+                keyid:29:91:60:FF:8A:4D:FA:EB:F9:A6:6A:B8:CF:F9:E6:4B:BD:49:CE:12
+
+            X509v3 Subject Key Identifier: 
+                C3:08:26:49:88:5B:D2:6D:79:06:84:C9:01:74:EF:F9:24:49:60:F9
+            X509v3 Key Usage: critical
+                Digital Signature
+            X509v3 Basic Constraints: critical
+                CA:FALSE
+            X509v3 Extended Key Usage: 
+                Code Signing
+            Netscape Cert Type: 
+                Object Signing
+            X509v3 Certificate Policies: 
+                Policy: 1.3.6.1.4.1.6449.1.2.1.3.2
+                  CPS: https://secure.comodo.net/CPS
+
+            X509v3 CRL Distribution Points: 
+
+                Full Name:
+                  URI:http://crl.comodoca.com/COMODORSACodeSigningCA.crl
+
+            Authority Information Access: 
+                CA Issuers - URI:http://crt.comodoca.com/COMODORSACodeSigningCA.crt
+                OCSP - URI:http://ocsp.comodoca.com
+
+            X509v3 Subject Alternative Name: 
+                email:trust@ciphershed.org
+    Signature Algorithm: sha256WithRSAEncryption
+         90:86:65:5e:bd:01:7f:65:e5:b8:06:08:e7:39:6b:7b:95:a6:
+         c9:35:fd:3b:1a:49:b5:cc:33:b4:06:9a:01:d6:60:e8:21:2b:
+         3d:fc:bc:e0:95:74:dd:33:a3:e0:5a:d6:37:69:4c:2c:14:85:
+         4f:72:16:78:b3:46:bc:f5:84:f3:22:c9:73:de:a5:2a:b1:17:
+         ea:6c:1b:a8:44:6f:ee:b1:e7:76:55:a4:86:c4:76:09:43:1b:
+         8e:ce:1f:e6:4e:40:a0:c3:2b:48:f3:a3:75:a1:45:2b:4a:85:
+         9c:70:0b:b9:51:70:f2:1d:c9:82:a0:6b:ac:3a:36:e2:4a:1a:
+         06:a3:e6:04:15:77:23:e3:cf:12:fc:16:74:b5:9b:5f:69:c6:
+         d0:89:0d:4b:0c:50:e4:7b:a4:b8:92:f0:bc:92:62:b5:3c:44:
+         fd:9f:89:0f:69:dd:d7:f1:db:62:e2:64:2c:52:fe:42:43:70:
+         56:88:eb:36:28:e6:3f:82:13:09:de:fd:42:eb:70:7e:2d:66:
+         2c:8c:fb:3b:f4:33:65:43:90:41:51:0f:4a:bd:40:e2:57:fc:
+         9d:84:64:40:8a:31:5c:4e:f1:be:11:d1:5d:60:8f:4a:de:55:
+         e1:ce:30:78:c1:89:42:f0:79:d3:ce:c4:36:28:3d:28:60:bc:
+         49:f7:d6:50
 -----BEGIN CERTIFICATE-----
 MIIFWjCCBEKgAwIBAgIRAK/sVYRMsJRnPpJ1JK7ebW8wDQYJKoZIhvcNAQELBQAw
 fTELMAkGA1UEBhMCR0IxGzAZBgNVBAgTEkdyZWF0ZXIgTWFuY2hlc3RlcjEQMA4G

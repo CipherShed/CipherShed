@@ -6,8 +6,8 @@
  packages.
 */
 
-#include "System.h"
-#include "Main/GraphicUserInterface.h"
+#include "../System.h"
+#include "../GraphicUserInterface.h"
 #include "FavoriteVolumesDialog.h"
 
 namespace CipherShed

@@ -12,11 +12,11 @@
 #include "Tcdefs.h"
 
 #include <memory.h>
-#include "Rmd160.h"
+#include "../Crypto/Rmd160.h"
 #ifndef TC_WINDOWS_BOOT
-#include "Sha1.h"
-#include "Sha2.h"
-#include "Whirlpool.h"
+#include "../Crypto/Sha1.h"
+#include "../Crypto/Sha2.h"
+#include "../Crypto/Whirlpool.h"
 #endif
 #include "Pkcs5.h"
 #include "Crypto.h"

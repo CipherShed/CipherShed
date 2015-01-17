@@ -7,7 +7,7 @@
 */
 
 #include "EncryptionModeLRW.h"
-#include "Common/GfMul.h"
+#include "../Common/GfMul.h"
 
 namespace CipherShed
 {

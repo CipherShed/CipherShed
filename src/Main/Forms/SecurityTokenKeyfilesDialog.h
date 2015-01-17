@@ -10,8 +10,8 @@
 #define TC_HEADER_Main_Forms_SecurityTokenKeyfilesDialog
 
 #include "Forms.h"
-#include "Common/SecurityToken.h"
-#include "Main/Main.h"
+#include "../../Common/SecurityToken.h"
+#include "../Main.h"
 
 namespace CipherShed
 {

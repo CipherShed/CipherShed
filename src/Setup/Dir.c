@@ -9,11 +9,13 @@
  contained in the file License.txt included in TrueCrypt binary and source
  code distribution packages. */
 
-#include "Tcdefs.h"
+#include "../Common/Tcdefs.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#ifndef CS_UNITTESTING
 #include <direct.h>
+#endif
 #include <string.h>
 #include <stdlib.h>
 #include <errno.h>

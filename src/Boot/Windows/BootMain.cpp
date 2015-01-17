@@ -6,10 +6,10 @@
  packages.
 */
 
-#include "Crc.h"
-#include "Crypto.h"
-#include "Password.h"
-#include "Volumes.h"
+#include "../../Common/Crc.h"
+#include "../../Common/Crypto.h"
+#include "../../Common/Password.h"
+#include "../../Common/Volumes.h"
 
 #include "Platform.h"
 #include "Bios.h"

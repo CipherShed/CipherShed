@@ -6,11 +6,11 @@
  packages.
 */
 
-#include "System.h"
-#include "Volume/Version.h"
-#include "Main/Application.h"
-#include "Main/GraphicUserInterface.h"
-#include "Main/Resources.h"
+#include "../System.h"
+#include "../../Volume/Version.h"
+#include "../Application.h"
+#include "../GraphicUserInterface.h"
+#include "../Resources.h"
 #include "AboutDialog.h"
 
 namespace CipherShed

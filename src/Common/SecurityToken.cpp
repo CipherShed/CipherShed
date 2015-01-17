@@ -6,13 +6,13 @@
  packages.
 */
 
-#include "Platform/Finally.h"
-#include "Platform/ForEach.h"
+#include "../Platform/Finally.h"
+#include "../Platform/ForEach.h"
 
 #if !defined (TC_WINDOWS) || defined (TC_PROTOTYPE)
-#	include "Platform/SerializerFactory.h"
-#	include "Platform/StringConverter.h"
-#	include "Platform/SystemException.h"
+#	include "../Platform/SerializerFactory.h"
+#	include "../Platform/StringConverter.h"
+#	include "../Platform/SystemException.h"
 #else
 #	include "Dictionary.h"
 #	include "Language.h"

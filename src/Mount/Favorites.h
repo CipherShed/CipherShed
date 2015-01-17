@@ -9,7 +9,7 @@
 #ifndef TC_HEADER_Mount_FavoriteVolumes
 #define TC_HEADER_Mount_FavoriteVolumes
 
-#include <Tcdefs.h>
+#include "../Common/Tcdefs.h"
 
 namespace CipherShed
 {

@@ -6,10 +6,10 @@
  packages.
 */
 
-#include "System.h"
-#include "Volume/EncryptionTest.h"
-#include "Volume/Hash.h"
-#include "Main/GraphicUserInterface.h"
+#include "../System.h"
+#include "../../Volume/EncryptionTest.h"
+#include "../../Volume/Hash.h"
+#include "../GraphicUserInterface.h"
 #include "BenchmarkDialog.h"
 #include "EncryptionOptionsWizardPage.h"
 #include "EncryptionTestDialog.h"

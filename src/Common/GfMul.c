@@ -51,7 +51,7 @@
 #include <stdlib.h>
 #include "GfMul.h"
 #include "Tcdefs.h"
-#include "Common/Endian.h"
+#include "Endian.h"
 
 /* BUFFER_ALIGN32 or BUFFER_ALIGN64 must be defined at this point to    */
 /* enable faster operation by taking advantage of memory aligned values */

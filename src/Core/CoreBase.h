@@ -9,14 +9,14 @@
 #ifndef TC_HEADER_Core_CoreBase
 #define TC_HEADER_Core_CoreBase
 
-#include "Platform/Platform.h"
-#include "Platform/Functor.h"
-#include "Platform/User.h"
-#include "Common/Crypto.h"
-#include "Volume/Keyfile.h"
-#include "Volume/VolumeInfo.h"
-#include "Volume/Volume.h"
-#include "Volume/VolumePassword.h"
+#include "../Platform/Platform.h"
+#include "../Platform/Functor.h"
+#include "../Platform/User.h"
+#include "../Common/Crypto.h"
+#include "../Volume/Keyfile.h"
+#include "../Volume/VolumeInfo.h"
+#include "../Volume/Volume.h"
+#include "../Volume/VolumePassword.h"
 #include "CoreException.h"
 #include "HostDevice.h"
 #include "MountOptions.h"

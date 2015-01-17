@@ -6,8 +6,8 @@
  packages.
 */
 
-#include "Volume/EncryptionTest.h"
-#include "Volume/EncryptionModeXTS.h"
+#include "../Volume/EncryptionTest.h"
+#include "../Volume/EncryptionModeXTS.h"
 #include "Core.h"
 
 #ifdef TC_UNIX

@@ -10,8 +10,8 @@
 #define TC_HEADER_Main_Main
 
 #include "System.h"
-#include "Platform/Platform.h"
-#include "Core/Core.h"
-#include "Main/StringFormatter.h"
+#include "../Platform/Platform.h"
+#include "../Core/Core.h"
+#include "StringFormatter.h"
 
 #endif // TC_HEADER_Main_Main

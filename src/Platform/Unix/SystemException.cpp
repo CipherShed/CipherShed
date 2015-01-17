@@ -8,9 +8,9 @@
 
 #include <errno.h>
 #include <string.h>
-#include "Platform/SerializerFactory.h"
-#include "Platform/SystemException.h"
-#include "Platform/StringConverter.h"
+#include "../SerializerFactory.h"
+#include "../SystemException.h"
+#include "../StringConverter.h"
 
 namespace CipherShed
 {

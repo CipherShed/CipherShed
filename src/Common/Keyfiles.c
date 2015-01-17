@@ -19,9 +19,9 @@
 #include "Dlgcode.h"
 #include "Language.h"
 #include "SecurityToken.h"
-#include "Common/resource.h"
-#include "Platform/Finally.h"
-#include "Platform/ForEach.h"
+#include "resource.h"
+#include "../Platform/Finally.h"
+#include "../Platform/ForEach.h"
 
 using namespace CipherShed;
 

@@ -6,6 +6,7 @@
  packages.
 */
 
+#ifndef CS_UNITTESTING
 #include <wx/wx.h>
 #include <wx/filename.h>
 #include <wx/mstream.h>
@@ -21,6 +22,7 @@
 #include <wx/power.h>
 #include <wx/taskbar.h>
 #include <wx/valgen.h>
+#endif
 #endif
 
 #include <iostream>

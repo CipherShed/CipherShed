@@ -10,7 +10,7 @@
 #define TC_HEADER_Core_CoreSolaris
 
 #include "System.h"
-#include "Core/Unix/CoreUnix.h"
+#include "../CoreUnix.h"
 
 namespace CipherShed
 {

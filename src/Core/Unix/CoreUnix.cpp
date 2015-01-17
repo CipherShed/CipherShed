@@ -14,9 +14,9 @@
 #include <sys/types.h>
 #include <stdio.h>
 #include <unistd.h>
-#include "Platform/FileStream.h"
-#include "Driver/Fuse/FuseService.h"
-#include "Volume/VolumePasswordCache.h"
+#include "../../Platform/FileStream.h"
+#include "../../Driver/Fuse/FuseService.h"
+#include "../../Volume/VolumePasswordCache.h"
 
 namespace CipherShed
 {

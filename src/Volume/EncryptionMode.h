@@ -9,8 +9,8 @@
 #ifndef TC_HEADER_Encryption_EncryptionMode
 #define TC_HEADER_Encryption_EncryptionMode
 
-#include "Platform/Platform.h"
-#include "Common/Crypto.h"
+#include "../Platform/Platform.h"
+#include "../Common/Crypto.h"
 #include "Cipher.h"
 
 namespace CipherShed

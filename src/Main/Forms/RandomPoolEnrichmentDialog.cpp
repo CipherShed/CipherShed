@@ -6,9 +6,9 @@
  packages.
 */
 
-#include "System.h"
-#include "Main/GraphicUserInterface.h"
-#include "Volume/Hash.h"
+#include "../System.h"
+#include "../GraphicUserInterface.h"
+#include "../../Volume/Hash.h"
 #include "RandomPoolEnrichmentDialog.h"
 
 namespace CipherShed

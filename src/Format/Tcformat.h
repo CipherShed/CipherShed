@@ -9,7 +9,7 @@
  contained in the file License.txt included in TrueCrypt binary and source
  code distribution packages. */
 
-#include "Common/Common.h"
+#include "../Common/Common.h"
 
 #ifdef __cplusplus
 extern "C" {

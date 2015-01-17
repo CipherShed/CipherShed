@@ -9,9 +9,9 @@
  contained in the file License.txt included in TrueCrypt binary and source
  code distribution packages. */
 
-#include "Common/Tcdefs.h"
-#include "Platform/Platform.h"
-#include "Volume/VolumeHeader.h"
+#include "../Common/Tcdefs.h"
+#include "../Platform/Platform.h"
+#include "../Volume/VolumeHeader.h"
 #include "FatFormatter.h"
 #include "RandomNumberGenerator.h"
 

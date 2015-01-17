@@ -6,7 +6,7 @@
  packages.
 */
 
-#include "System.h"
+#include "../System.h"
 
 #ifdef TC_UNIX
 #include <fcntl.h>
@@ -15,13 +15,13 @@
 #include <sys/types.h>
 #endif
 
-#include "Common/SecurityToken.h"
-#include "Main/Main.h"
-#include "Main/Resources.h"
-#include "Main/Application.h"
-#include "Main/GraphicUserInterface.h"
-#include "Main/VolumeHistory.h"
-#include "Main/Xml.h"
+#include "../../Common/SecurityToken.h"
+#include "../Main.h"
+#include "../Resources.h"
+#include "../Application.h"
+#include "../GraphicUserInterface.h"
+#include "../VolumeHistory.h"
+#include "../Xml.h"
 #include "MainFrame.h"
 #include "AboutDialog.h"
 #include "BenchmarkDialog.h"

@@ -9,7 +9,9 @@
 #ifndef TC_HEADER_Platform_Exception
 #define TC_HEADER_Platform_Exception
 
+#ifndef CS_UNITTESTING
 #include <exception>
+#endif
 #include "PlatformBase.h"
 #include "Serializable.h"
 

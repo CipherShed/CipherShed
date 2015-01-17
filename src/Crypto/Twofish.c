@@ -37,7 +37,7 @@
 #endif
 
 #include "Twofish.h"
-#include "Common/Endian.h"
+#include "../Common/Endian.h"
 
 #define Q_TABLES
 #define M_TABLE

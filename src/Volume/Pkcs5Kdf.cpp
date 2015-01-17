@@ -6,7 +6,7 @@
  packages.
 */
 
-#include "Common/Pkcs5.h"
+#include "../Common/Pkcs5.h"
 #include "Pkcs5Kdf.h"
 #include "VolumePassword.h"
 

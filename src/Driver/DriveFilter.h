@@ -9,8 +9,8 @@
 #ifndef TC_HEADER_DRIVER_DRIVE_FILTER
 #define TC_HEADER_DRIVER_DRIVE_FILTER
 
-#include "TCdefs.h"
-#include "Boot/Windows/BootCommon.h"
+#include "../Common/Tcdefs.h"
+#include "../Boot/Windows/BootCommon.h"
 #include "EncryptedIoQueue.h"
 
 typedef struct _DriveFilterExtension
