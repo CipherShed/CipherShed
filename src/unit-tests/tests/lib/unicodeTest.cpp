@@ -298,7 +298,7 @@ namespace CipherShed_Tests_lib
 
 			wchar_t* srcBackup=src;
 			char*  dstBackup=dst;
-
+#ifdef DEBUG
 			printf("src                             =%08x\n",src);
 			printf("dst                             =%08x\n",dst);
 			printf("src[0]                          =%08x\n",src[0]);
@@ -313,7 +313,7 @@ namespace CipherShed_Tests_lib
 			printf("src[sizeof(src)/sizeof(src[0])] =%08x\n",src[sizeof(src)/sizeof(src[0])]);
 			printf("src+sizeof(src)-1               =%08x\n",src+sizeof(src)-1);
 			printf("dst+sizeof(dst)-1               =%08x\n",dst+sizeof(dst)-1);
-
+#endif
 
 
 			ConvertUTF16toUTF8s((const UTF16*)src,arraysize(src),(UTF8*)dst,arraysize(dst),strictConversion);
