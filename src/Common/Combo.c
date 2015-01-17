@@ -25,7 +25,7 @@ void AddComboItem (HWND hComboBox, char *lpszFileName, BOOL saveHistory)
 	if (!saveHistory)
 	{
 		SendMessage (hComboBox, CB_RESETCONTENT, 0, 0);
-		SetWindowText (hComboBox, lpszFileName);
+		SetWindowTextA(hComboBox, lpszFileName);
 		return;
 	}
 
@@ -55,13 +55,13 @@ LPARAM MoveEditToCombo (HWND hComboBox, BOOL saveHistory)
 
 	if (!saveHistory)
 	{
-		GetWindowText (hComboBox, szTmp, sizeof (szTmp));
+		GetWindowTextA(hComboBox, szTmp, sizeof (szTmp));
 		SendMessage (hComboBox, CB_RESETCONTENT, 0, 0);
-		SetWindowText (hComboBox, szTmp);
+		SetWindowTextA(hComboBox, szTmp);
 		return 0;
 	}
 
-	GetWindowText (hComboBox, szTmp, sizeof (szTmp));
+	GetWindowTextA(hComboBox, szTmp, sizeof (szTmp));
 
 	if (strlen (szTmp) > 0)
 	{

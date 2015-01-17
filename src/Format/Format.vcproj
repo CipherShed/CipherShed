@@ -401,6 +401,18 @@
 					RelativePath="..\Common\Xts.c"
 					>
 				</File>
+				<Filter
+					Name="util"
+					>
+					<Filter
+						Name="unicode"
+						>
+						<File
+							RelativePath="..\Common\util\unicode\ConvertUTF.c"
+							>
+						</File>
+					</Filter>
+				</Filter>
 			</Filter>
 		</Filter>
 		<Filter
@@ -497,11 +509,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\Common\Resource.h"
+				RelativePath=".\resource.h"
 				>
 			</File>
 			<File
-				RelativePath=".\resource.h"
+				RelativePath="..\Common\Resource.h"
 				>
 			</File>
 			<File
@@ -571,10 +583,6 @@
 				Name="Common"
 				>
 				<File
-					RelativePath="..\Boot\Windows\Rescue\BootLoader.com.gz"
-					>
-				</File>
-				<File
 					RelativePath="..\Boot\Windows\Rescue_Twofish\BootLoader.com.gz"
 					>
 				</File>
@@ -600,6 +608,10 @@
 				</File>
 				<File
 					RelativePath="..\Boot\Windows\Rescue_AES\BootLoader.com.gz"
+					>
+				</File>
+				<File
+					RelativePath="..\Boot\Windows\Rescue\BootLoader.com.gz"
 					>
 				</File>
 				<File

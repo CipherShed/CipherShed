@@ -351,6 +351,43 @@ namespace CipherShed_Tests_Algo
 			}
 		};
 
+		WCHAR* strcpyw(WCHAR* d, WCHAR* s)
+		{
+			WCHAR* r=d;
+			while (*s) *d++=*s++;
+			*d=0;
+			return r;
+		}
+
+		int strcmpwa(WCHAR* a, char* b)
+		{
+			if ((void*)a==(void*)b) return 0;
+			if (a==NULL) return -1;
+			if (b==NULL) return 1;
+			while(1)
+			{
+				if (*a==*b)
+				{
+					if (*a==0)
+					{
+						return 0;
+					}
+					else
+					{
+						++a;
+						++b;
+					}
+				}
+				else if (*a>*b)
+				{
+					return 1;
+				}
+				else
+				{
+					return -1;
+				}
+			}
+		}
 
 
 		TESTMETHOD
@@ -358,13 +395,13 @@ namespace CipherShed_Tests_Algo
 		{
 			fauxEnablableWidget few;
 			few.enabled=false;
-			HWND hwndDlg;
+			HWND hwndDlg=NULL;
 			HWND hButton=&few;
 			fauxWindowText fwtPassword;
-			strcpy(fwtPassword.buf.a,"password");
+			strcpyw(fwtPassword.buf.w,(WCHAR*)L"password");
 			HWND hPassword=&fwtPassword;
 			fauxWindowText fwtVerify;
-			strcpy(fwtVerify.buf.a,"password");
+			strcpyw(fwtVerify.buf.w,(WCHAR*)L"password");
 			HWND hVerify=&fwtVerify;
 			char buf1[2048];
 			unsigned char *szPassword=(unsigned char *)buf1;
@@ -372,9 +409,9 @@ namespace CipherShed_Tests_Algo
 			char *szVerify=buf2;
 			BOOL keyFilesEnabled=false;
 			VerifyPasswordAndUpdate2(hwndDlg, hButton, hPassword, hVerify, szPassword, sizeof(buf1), szVerify, sizeof(buf2), keyFilesEnabled);
-			TEST_ASSERT(few.enabled==true);
-			TEST_ASSERT(0==strcmp(fwtPassword.buf.a,buf1));
-			TEST_ASSERT(0==strcmp(fwtVerify.buf.a,buf2));
+			TEST_ASSERT(few.enabled==TRUE);
+			TEST_ASSERT(0==strcmpwa(fwtPassword.buf.w,buf1));
+			TEST_ASSERT(0==strcmpwa(fwtVerify.buf.w,buf2));
 		}
 
 		TESTMETHOD
@@ -382,13 +419,13 @@ namespace CipherShed_Tests_Algo
 		{
 			fauxEnablableWidget few;
 			few.enabled=false;
-			HWND hwndDlg;
+			HWND hwndDlg=NULL;
 			HWND hButton=&few;
 			fauxWindowText fwtPassword;
-			strcpy(fwtPassword.buf.a,"");
+			strcpyw(fwtPassword.buf.w,(WCHAR*)L"");
 			HWND hPassword=&fwtPassword;
 			fauxWindowText fwtVerify;
-			strcpy(fwtVerify.buf.a,"");
+			strcpyw(fwtVerify.buf.w,(WCHAR*)L"");
 			HWND hVerify=&fwtVerify;
 			char buf1[2048];
 			unsigned char *szPassword=(unsigned char *)buf1;
@@ -397,8 +434,8 @@ namespace CipherShed_Tests_Algo
 			BOOL keyFilesEnabled=false;
 			VerifyPasswordAndUpdate2(hwndDlg, hButton, hPassword, hVerify, szPassword, sizeof(buf1), szVerify, sizeof(buf2), keyFilesEnabled);
 			TEST_ASSERT(few.enabled==false);
-			TEST_ASSERT(0==strcmp(fwtPassword.buf.a,buf1));
-			TEST_ASSERT(0==strcmp(fwtVerify.buf.a,buf2));
+			TEST_ASSERT(0==strcmpwa(fwtPassword.buf.w,buf1));
+			TEST_ASSERT(0==strcmpwa(fwtVerify.buf.w,buf2));
 		}
 
 
@@ -407,13 +444,13 @@ namespace CipherShed_Tests_Algo
 		{
 			fauxEnablableWidget few;
 			few.enabled=false;
-			HWND hwndDlg;
+			HWND hwndDlg=NULL;
 			HWND hButton=&few;
 			fauxWindowText fwtPassword;
-			strcpy(fwtPassword.buf.a,"xyzzy");
+			strcpyw(fwtPassword.buf.w,(WCHAR*)L"xyzzy");
 			HWND hPassword=&fwtPassword;
 			fauxWindowText fwtVerify;
-			strcpy(fwtVerify.buf.a,"password");
+			strcpyw(fwtVerify.buf.w,(WCHAR*)L"password");
 			HWND hVerify=&fwtVerify;
 			char buf1[2048];
 			unsigned char *szPassword=(unsigned char *)buf1;
@@ -422,8 +459,8 @@ namespace CipherShed_Tests_Algo
 			BOOL keyFilesEnabled=false;
 			VerifyPasswordAndUpdate2(hwndDlg, hButton, hPassword, hVerify, szPassword, sizeof(buf1), szVerify, sizeof(buf2), keyFilesEnabled);
 			TEST_ASSERT(few.enabled==false);
-			TEST_ASSERT(0==strcmp(fwtPassword.buf.a,buf1));
-			TEST_ASSERT(0==strcmp(fwtVerify.buf.a,buf2));
+			TEST_ASSERT(0==strcmpwa(fwtPassword.buf.w,buf1));
+			TEST_ASSERT(0==strcmpwa(fwtVerify.buf.w,buf2));
 		}
 
 

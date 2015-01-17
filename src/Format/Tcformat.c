@@ -48,7 +48,12 @@
 #include "../Common/Wipe.h"
 #include "../Common/Xml.h"
 
+#include "../Common/util/unicode/ConvertUTF.h"
+
 using namespace CipherShed;
+
+template <typename T,unsigned S>
+inline unsigned arraysize(const T (&v)[S]) { return S; }
 
 enum wizard_pages
 {
@@ -218,8 +223,9 @@ BOOL bKeybLayoutAltKeyWarningShown = FALSE;	/* TRUE if the user has been informe
 BOOL bWarnOuterVolSuitableFileSys = TRUE;
 
 Password volumePassword;			/* User password */
-char szVerify[MAX_PASSWORD + 1];	/* Tmp password buffer */
-char szRawPassword[MAX_PASSWORD + 1];	/* Password before keyfile was applied to it */
+char szTmpPas[MAX_PASSWORD + 1];	/* Tmp password buffer */
+WCHAR szVerify[MAX_PASSWORD + 1];	
+WCHAR szRawPassword[MAX_PASSWORD + 1];	/* Password before keyfile was applied to it */
 
 BOOL bHistoryCmdLine = FALSE; /* History control is always disabled */
 BOOL ComServerMode = FALSE;
@@ -275,20 +281,21 @@ static BOOL ElevateWholeWizardProcess (string arguments)
 
 static void WipePasswordsAndKeyfiles (void)
 {
-	char tmp[MAX_PASSWORD+1];
+	WCHAR tmp[MAX_PASSWORD+1];
 
 	// Attempt to wipe passwords stored in the input field buffers
-	memset (tmp, 'X', MAX_PASSWORD);
+	memset (tmp, 0x20, sizeof(tmp)); //0x20 = ASCII space or 0x2020 = Unicode DAGGER
 	tmp [MAX_PASSWORD] = 0;
-	SetWindowText (hPasswordInputField, tmp);
-	SetWindowText (hVerifyPasswordInputField, tmp);
+	SetWindowTextW(hPasswordInputField, tmp);
+	SetWindowTextW(hVerifyPasswordInputField, tmp);
 
+	burn (&szTmpPas[0], sizeof (szTmpPas));
 	burn (&szVerify[0], sizeof (szVerify));
 	burn (&volumePassword, sizeof (volumePassword));
 	burn (&szRawPassword[0], sizeof (szRawPassword));
 
-	SetWindowText (hPasswordInputField, "");
-	SetWindowText (hVerifyPasswordInputField, "");
+	SetWindowTextW(hPasswordInputField,L"");
+	SetWindowTextW(hVerifyPasswordInputField,L"");
 
 	KeyFileRemoveAll (&FirstKeyFile);
 	KeyFileRemoveAll (&defaultKeyFilesParam.FirstKeyFile);
@@ -347,12 +354,12 @@ static void localcleanup (void)
 	burn (szDiskFile, sizeof(szDiskFile));
 
 	// Attempt to wipe the GUI fields showing portions of randpool, of the master and header keys
-	memset (tmp, 'X', sizeof(tmp));
+	memset (tmp, 0x20, sizeof(tmp)); //0x20 = ASCII space or 0x2020 = Unicode DAGGER
 	tmp [sizeof(tmp)-1] = 0;
-	SetWindowText (hRandPool, tmp);
-	SetWindowText (hRandPoolSys, tmp);
-	SetWindowText (hMasterKey, tmp);
-	SetWindowText (hHeaderKey, tmp);
+	SetWindowTextA(hRandPool, tmp);
+	SetWindowTextA(hRandPoolSys, tmp);
+	SetWindowTextA(hMasterKey, tmp);
+	SetWindowTextA(hHeaderKey, tmp);
 
 	UnregisterRedTick (hInst);
 
@@ -379,7 +386,7 @@ static BOOL CALLBACK BroadcastSysEncCfgUpdateCallb (HWND hwnd, LPARAM lParam)
 	if (GetWindowLongPtr (hwnd, GWLP_USERDATA) == (LONG_PTR) 'TRUE')
 	{
 		char name[1024] = { 0 };
-		GetWindowText (hwnd, name, sizeof (name) - 1);
+		GetWindowTextA(hwnd, name, sizeof (name) - 1);
 		if (hwnd != MainDlg && strstr (name, "CipherShed"))
 		{
 			PostMessage (hwnd, TC_APPMSG_SYSENC_CONFIG_UPDATE, 0, 0);
@@ -1174,7 +1181,7 @@ void ComboSelChangeEA (HWND hwndDlg)
 
 	if (nIndex == CB_ERR)
 	{
-		SetWindowText (GetDlgItem (hwndDlg, IDC_BOX_HELP), "");
+		SetWindowTextA(GetDlgItem (hwndDlg, IDC_BOX_HELP), "");
 	}
 	else
 	{
@@ -1261,7 +1268,7 @@ static void VerifySizeAndUpdate (HWND hwndDlg, BOOL bUpdate)
 	size_t i;
 	static unsigned __int64 nLastVolumeSize = 0;
 
-	GetWindowText (GetDlgItem (hwndDlg, IDC_SIZEBOX), szTmp, sizeof (szTmp));
+	GetWindowTextA(GetDlgItem (hwndDlg, IDC_SIZEBOX), szTmp, sizeof (szTmp));
 
 	for (i = 0; i < strlen (szTmp); i++)
 	{
@@ -1534,7 +1541,7 @@ static void UpdateSysEncControls (void)
 			SetWindowTextW (GetDlgItem (hCurPage, IDC_BYTESWRITTEN), tmpStr);
 		}
 
-		SetWindowText (GetDlgItem (hCurPage, IDC_TIMEREMAIN), " ");
+		SetWindowTextA(GetDlgItem (hCurPage, IDC_TIMEREMAIN), " ");
 	}
 }
 
@@ -1886,9 +1893,9 @@ void UpdateNonSysInPlaceEncControls (void)
 			SetNonSysInplaceEncUIStatus (NONSYS_INPLACE_ENC_STATUS_PAUSED);
 		}
 		else
-			SetWindowText (GetDlgItem (hCurPage, IDC_WRITESPEED), " ");
+			SetWindowTextA(GetDlgItem (hCurPage, IDC_WRITESPEED), " ");
 
-		SetWindowText (GetDlgItem (hCurPage, IDC_TIMEREMAIN), " ");
+		SetWindowTextA(GetDlgItem (hCurPage, IDC_TIMEREMAIN), " ");
 	}
 
 	ShowNonSysInPlaceEncUIStatus ();
@@ -1959,7 +1966,7 @@ void DisplayRandPool (HWND hPoolDisplay, BOOL bShow)
 
 	if (!bShow)
 	{
-		SetWindowText (hPoolDisplay, "");
+		SetWindowTextA(hPoolDisplay, "");
 		return;
 	}
 
@@ -1980,7 +1987,7 @@ void DisplayRandPool (HWND hPoolDisplay, BOOL bShow)
 			}
 			strcat ((char *) outRandPoolDispBuffer, "\n");
 		}
-		SetWindowText (hPoolDisplay, (char *) outRandPoolDispBuffer);
+		SetWindowTextA(hPoolDisplay, (char *) outRandPoolDispBuffer);
 
 		memcpy (lastRandPool, randPool, sizeof(lastRandPool));
 	}
@@ -2208,7 +2215,7 @@ static void UpdateWipeControls (void)
 
 		if (!bDeviceWipeInProgress)
 		{
-			SetWindowText (GetDlgItem (hCurPage, IDC_TIMEREMAIN), " ");
+			SetWindowTextA(GetDlgItem (hCurPage, IDC_TIMEREMAIN), " ");
 		}
 	}
 
@@ -2520,6 +2527,7 @@ static void __cdecl volTransformThreadFunction (void *hwndDlgArg)
 				nHiddenVolHostSize = nVolumeSize;
 
 				// Clear the outer volume password
+				memset(&szTmpPas[0], 0, sizeof (szTmpPas));
 				memset(&szVerify[0], 0, sizeof (szVerify));
 				memset(&szRawPassword[0], 0, sizeof (szRawPassword));
 
@@ -2599,15 +2607,15 @@ static void LoadPage (HWND hwndDlg, int nPageNo)
 		{
 		case PASSWORD_PAGE:
 			{
-				char tmp[MAX_PASSWORD+1];
+				WCHAR tmp[MAX_PASSWORD+1];
 
 				// Attempt to wipe passwords stored in the input field buffers. This is performed here (and 
 				// not in the IDC_PREV or IDC_NEXT sections) in order to prevent certain race conditions
 				// when keyfiles are used.
-				memset (tmp, 'X', MAX_PASSWORD);
+				memset (tmp, 0x20, sizeof(tmp)); //0x20 = ASCII space or 0x2020 = Unicode DAGGER
 				tmp [MAX_PASSWORD] = 0;
-				SetWindowText (hPasswordInputField, tmp);
-				SetWindowText (hVerifyPasswordInputField, tmp);
+				SetWindowTextW(hPasswordInputField, tmp);
+				SetWindowTextW(hVerifyPasswordInputField, tmp);
 			}
 			break;
 		}
@@ -2694,7 +2702,7 @@ static void LoadPage (HWND hwndDlg, int nPageNo)
 		EnableWindow (GetDlgItem(hCurPage, IDC_NO_HISTORY), !bHistoryCmdLine);
 
 		EnableWindow (GetDlgItem (hwndDlg, IDC_NEXT), 
-			GetWindowTextLength (GetDlgItem (hCurPage, IDC_COMBO_BOX)) > 0);
+			GetWindowTextLengthA(GetDlgItem (hCurPage, IDC_COMBO_BOX)) > 0);
 
 		break;
 
@@ -2931,7 +2939,7 @@ void DisplaySizingErrorText (HWND hwndTextBox)
 	}
 	else
 	{
-		SetWindowText (hwndTextBox, "");
+		SetWindowTextA(hwndTextBox, "");
 	}
 }
 
@@ -3825,7 +3833,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				{
 					char szTmp[32];
 					sprintf (szTmp, "%I64u", nUIVolumeSize);
-					SetWindowText (GetDlgItem (hwndDlg, IDC_SIZEBOX), szTmp);
+					SetWindowTextA(GetDlgItem (hwndDlg, IDC_SIZEBOX), szTmp);
 				}
 
 				SetFocus (GetDlgItem (hwndDlg, IDC_SIZEBOX));
@@ -3853,7 +3861,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 			SendMessage (GetDlgItem (hwndDlg, IDC_PASSWORD_DIRECT), EM_LIMITTEXT, MAX_PASSWORD, 0);
 
-			SetWindowText (GetDlgItem (hwndDlg, IDC_PASSWORD_DIRECT), szRawPassword);
+			SetWindowTextW(GetDlgItem (hwndDlg, IDC_PASSWORD_DIRECT), szRawPassword);
 
 			SetFocus (GetDlgItem (hwndDlg, IDC_PASSWORD_DIRECT));
 
@@ -3926,8 +3934,8 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				SendMessage (GetDlgItem (hwndDlg, IDC_PASSWORD), EM_LIMITTEXT, MAX_PASSWORD, 0);
 				SendMessage (GetDlgItem (hwndDlg, IDC_VERIFY), EM_LIMITTEXT, MAX_PASSWORD, 0);
 
-				SetWindowText (GetDlgItem (hwndDlg, IDC_PASSWORD), szRawPassword);
-				SetWindowText (GetDlgItem (hwndDlg, IDC_VERIFY), szVerify);
+				SetWindowTextW(GetDlgItem (hwndDlg, IDC_PASSWORD), szRawPassword);
+				SetWindowTextW(GetDlgItem (hwndDlg, IDC_VERIFY), szVerify);
 
 				SetFocus (GetDlgItem (hwndDlg, IDC_PASSWORD));
 
@@ -4037,7 +4045,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_PREV), GetString ("PREV"));
 			SetWindowTextW (GetDlgItem (hwndDlg, IDT_RESCUE_DISK_INFO), GetString ("RESCUE_DISK_INFO"));
 			SetDlgItemText (hwndDlg, IDC_RESCUE_DISK_ISO_PATH, szRescueDiskISO);
-			EnableWindow (GetDlgItem (GetParent (hwndDlg), IDC_NEXT), (GetWindowTextLength (GetDlgItem (hwndDlg, IDC_RESCUE_DISK_ISO_PATH)) > 1));
+			EnableWindow (GetDlgItem (GetParent (hwndDlg), IDC_NEXT), (GetWindowTextLengthA(GetDlgItem (hwndDlg, IDC_RESCUE_DISK_ISO_PATH)) > 1));
 			EnableWindow (GetDlgItem (GetParent (hwndDlg), IDC_PREV), TRUE);
 
 			break;
@@ -4370,9 +4378,9 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				}
 
 				SendMessage (GetDlgItem (hwndDlg, IDC_SHOW_KEYS), BM_SETCHECK, showKeys ? BST_CHECKED : BST_UNCHECKED, 0);
-				SetWindowText (GetDlgItem (hwndDlg, IDC_RANDOM_BYTES), showKeys ? "" : "********************************                                              ");
-				SetWindowText (GetDlgItem (hwndDlg, IDC_HEADER_KEY), showKeys ? "" : "********************************                                              ");
-				SetWindowText (GetDlgItem (hwndDlg, IDC_DISK_KEY), showKeys ? "" : "********************************                                              ");
+				SetWindowTextA(GetDlgItem (hwndDlg, IDC_RANDOM_BYTES), showKeys ? "" : "********************************                                              ");
+				SetWindowTextA(GetDlgItem (hwndDlg, IDC_HEADER_KEY), showKeys ? "" : "********************************                                              ");
+				SetWindowTextA(GetDlgItem (hwndDlg, IDC_DISK_KEY), showKeys ? "" : "********************************                                              ");
 
 				SendMessage (GetDlgItem (hwndDlg, IDC_CLUSTERSIZE), CB_RESETCONTENT, 0, 0);
 				AddComboPairW (GetDlgItem (hwndDlg, IDC_CLUSTERSIZE), GetString ("DEFAULT"), 0);
@@ -4575,7 +4583,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				// Regular device wipe (not decoy system partition wipe)
 
 				// Title bar
-				SetWindowText (MainDlg, TC_APP_NAME);
+				SetWindowTextA(MainDlg, TC_APP_NAME);
 
 				EnableWindow (GetDlgItem (GetParent (hwndDlg), IDC_PREV), FALSE);
 			}
@@ -4967,7 +4975,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 		if (hw == CBN_EDITCHANGE && nCurPageNo == VOLUME_LOCATION_PAGE)
 		{
 			EnableWindow (GetDlgItem (GetParent (hwndDlg), IDC_NEXT), 
-				GetWindowTextLength (GetDlgItem (hCurPage, IDC_COMBO_BOX)) > 0);
+				GetWindowTextLengthA(GetDlgItem (hCurPage, IDC_COMBO_BOX)) > 0);
 
 			bDeviceTransformModeChoiceMade = FALSE;
 			bInPlaceEncNonSys = FALSE;
@@ -5060,7 +5068,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 						VerifyPasswordAndUpdate2(hwndDlg, GetDlgItem (GetParent (hwndDlg), IDC_NEXT),
 							GetDlgItem (hCurPage, IDC_PASSWORD),
 							GetDlgItem (hCurPage, IDC_VERIFY),
-							volumePassword.Text, sizeof(volumePassword.Text), szVerify, sizeof(szVerify), KeyFilesEnable && FirstKeyFile!=NULL);
+							volumePassword.Text, sizeof(volumePassword.Text), szTmpPas, sizeof(szTmpPas), KeyFilesEnable && FirstKeyFile!=NULL);
 					}
 				}
 
@@ -5078,7 +5086,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 					VerifyPasswordAndUpdate2(hwndDlg, GetDlgItem (GetParent (hwndDlg), IDC_NEXT),
 						GetDlgItem (hCurPage, IDC_PASSWORD),
 						GetDlgItem (hCurPage, IDC_VERIFY),
-						volumePassword.Text, sizeof(volumePassword.Text), szVerify, sizeof(szVerify), KeyFilesEnable && FirstKeyFile!=NULL);
+						volumePassword.Text, sizeof(volumePassword.Text), szTmpPas, sizeof(szTmpPas), KeyFilesEnable && FirstKeyFile!=NULL);
 				}
 
 				return 1;
@@ -5090,7 +5098,11 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 		{
 			if (hw == EN_CHANGE)
 			{
-				GetWindowText (GetDlgItem (hCurPage, IDC_PASSWORD_DIRECT), (char *) volumePassword.Text, sizeof (volumePassword.Text));
+				WCHAR tmpUTF16buf[MAX_PASSWORD+1];
+				VirtualLock(tmpUTF16buf,sizeof(tmpUTF16buf));
+				GetWindowTextW(GetDlgItem (hCurPage, IDC_PASSWORD_DIRECT), tmpUTF16buf, sizeof(tmpUTF16buf)/sizeof(*tmpUTF16buf));
+				ConvertUTF16toUTF8s((const UTF16*)tmpUTF16buf,arraysize(tmpUTF16buf),(UTF8*)volumePassword.Text,arraysize(volumePassword.Text),strictConversion);
+				burn(tmpUTF16buf,sizeof(tmpUTF16buf));
 				volumePassword.Length = strlen ((char *) volumePassword.Text);
 				return 1;
 			}
@@ -5267,9 +5279,9 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 		{
 			showKeys = IsButtonChecked (GetDlgItem (hCurPage, IDC_SHOW_KEYS));
 
-			SetWindowText (GetDlgItem (hCurPage, IDC_RANDOM_BYTES), showKeys ? "                                                                              " : "********************************                                              ");
-			SetWindowText (GetDlgItem (hCurPage, IDC_HEADER_KEY), showKeys ? "" : "********************************                                              ");
-			SetWindowText (GetDlgItem (hCurPage, IDC_DISK_KEY), showKeys ? "" : "********************************                                              ");
+			SetWindowTextA(GetDlgItem (hCurPage, IDC_RANDOM_BYTES), showKeys ? "                                                                              " : "********************************                                              ");
+			SetWindowTextA(GetDlgItem (hCurPage, IDC_HEADER_KEY), showKeys ? "" : "********************************                                              ");
+			SetWindowTextA(GetDlgItem (hCurPage, IDC_DISK_KEY), showKeys ? "" : "********************************                                              ");
 			return 1;
 		}
 		
@@ -5302,14 +5314,14 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				strcpy (szRescueDiskISO, tmpszRescueDiskISO);
 
 				SetDlgItemText (hwndDlg, IDC_RESCUE_DISK_ISO_PATH, szRescueDiskISO);
-				EnableWindow (GetDlgItem (MainDlg, IDC_NEXT), (GetWindowTextLength (GetDlgItem (hwndDlg, IDC_RESCUE_DISK_ISO_PATH)) > 1));
+				EnableWindow (GetDlgItem (MainDlg, IDC_NEXT), (GetWindowTextLengthA(GetDlgItem (hwndDlg, IDC_RESCUE_DISK_ISO_PATH)) > 1));
 				return 1;
 			}
 
 			if ( hw == EN_CHANGE )
 			{
 				GetDlgItemText (hwndDlg, IDC_RESCUE_DISK_ISO_PATH, szRescueDiskISO, sizeof(szRescueDiskISO));
-				EnableWindow (GetDlgItem (MainDlg, IDC_NEXT), (GetWindowTextLength (GetDlgItem (hwndDlg, IDC_RESCUE_DISK_ISO_PATH)) > 1));
+				EnableWindow (GetDlgItem (MainDlg, IDC_NEXT), (GetWindowTextLengthA(GetDlgItem (hwndDlg, IDC_RESCUE_DISK_ISO_PATH)) > 1));
 				return 1;
 			}
 		}
@@ -5440,12 +5452,6 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				// possible) makes partition-hosted volume creation safer.
 				bWarnDeviceFormatAdvanced = FALSE;	
 			}
-
-#ifdef _DEBUG
-			// For faster testing
-			strcpy (szVerify, "q");
-			strcpy (szRawPassword, "q");
-#endif
 
 			PostMessage (hwndDlg, TC_APPMSG_PERFORM_POST_WMINIT_TASKS, 0, 0);
 		}
@@ -5688,8 +5694,8 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 					WipePasswordsAndKeyfiles ();
 
-					SetWindowText (GetDlgItem (hCurPage, IDC_PASSWORD), szRawPassword);
-					SetWindowText (GetDlgItem (hCurPage, IDC_VERIFY), szVerify);
+					SetWindowTextW(GetDlgItem (hCurPage, IDC_PASSWORD), szRawPassword);
+					SetWindowTextW(GetDlgItem (hCurPage, IDC_VERIFY), szVerify);
 
 					keybLayout = (DWORD) LoadKeyboardLayout ("00000409", KLF_ACTIVATE);
 
@@ -5875,11 +5881,11 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				KillTimer (hwndDlg, TIMER_ID_RANDVIEW);
 
 			// Attempt to wipe the GUI fields showing portions of randpool, of the master and header keys
-			memset (tmp, 'X', sizeof(tmp));
+			memset (tmp, 0x20, sizeof(tmp)); //0x20 = ASCII space or 0x2020 = Unicode DAGGER
 			tmp [sizeof(tmp)-1] = 0;
-			SetWindowText (hRandPool, tmp);
-			SetWindowText (hMasterKey, tmp);
-			SetWindowText (hHeaderKey, tmp);
+			SetWindowTextA(hRandPool, tmp);
+			SetWindowTextA(hMasterKey, tmp);
+			SetWindowTextA(hHeaderKey, tmp);
 
 			LoadPage (hwndDlg, FORMAT_FINISHED_PAGE);
 		}
@@ -6412,7 +6418,7 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 				WaitCursor();
 
-				GetWindowText (GetDlgItem (hCurPage, IDC_COMBO_BOX), szFileName, sizeof (szFileName));
+				GetWindowTextA(GetDlgItem (hCurPage, IDC_COMBO_BOX), szFileName, sizeof (szFileName));
 				RelativePath2Absolute (szFileName);
 				CreateFullVolumePath (szDiskFile, szFileName, &tmpbDevice);
 
@@ -6642,7 +6648,7 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 					GetDlgItem (hCurPage, IDC_PASSWORD),
 					GetDlgItem (hCurPage, IDC_VERIFY),
 					volumePassword.Text, sizeof(volumePassword.Text),
-					szVerify, sizeof(szVerify),
+					szTmpPas, sizeof(szTmpPas),
 					KeyFilesEnable && FirstKeyFile!=NULL && !SysEncInEffect());
 
 				volumePassword.Length = strlen ((char *) volumePassword.Text);
@@ -6664,7 +6670,7 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				}
 
 				// Store the password in case we need to restore it after keyfile is applied to it
-				GetWindowText (GetDlgItem (hCurPage, IDC_PASSWORD), szRawPassword, sizeof (szRawPassword));
+				GetWindowTextW(GetDlgItem (hCurPage, IDC_PASSWORD), szRawPassword, sizeof (szRawPassword)/sizeof(*szRawPassword));
 
 				if (!SysEncInEffect ()) 
 				{
@@ -6713,13 +6719,16 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 			else if (nCurPageNo == HIDDEN_VOL_HOST_PASSWORD_PAGE
 				|| nCurPageNo == NONSYS_INPLACE_ENC_RESUME_PASSWORD_PAGE)
 			{
+				WCHAR tmpUTF16buf[MAX_PASSWORD+1];
+				VirtualLock(tmpUTF16buf,sizeof(tmpUTF16buf));
 				WaitCursor ();
 
-				GetWindowText (GetDlgItem (hCurPage, IDC_PASSWORD_DIRECT), (char *) volumePassword.Text, sizeof (volumePassword.Text));
+				GetWindowTextW(GetDlgItem (hCurPage, IDC_PASSWORD_DIRECT), tmpUTF16buf, sizeof(tmpUTF16buf)/sizeof(*tmpUTF16buf));
+				ConvertUTF16toUTF8s((const UTF16*)tmpUTF16buf,arraysize(tmpUTF16buf),(UTF8*)volumePassword.Text,arraysize(volumePassword.Text),strictConversion);
 				volumePassword.Length = strlen ((char *) volumePassword.Text);
 
 				// Store the password in case we need to restore it after keyfile is applied to it
-				GetWindowText (GetDlgItem (hCurPage, IDC_PASSWORD_DIRECT), szRawPassword, sizeof (szRawPassword));
+				GetWindowTextW(GetDlgItem (hCurPage, IDC_PASSWORD_DIRECT), szRawPassword, sizeof (szRawPassword)/sizeof(*szRawPassword));
 
 				if (KeyFilesEnable)
 				{
@@ -6955,9 +6964,9 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				KillTimer (hwndDlg, TIMER_ID_RANDVIEW);
 
 				// Attempt to wipe the GUI field showing portions of randpool
-				memset (tmp, 'X', sizeof(tmp));
+				memset (tmp, 0x20, sizeof(tmp)); //0x20 = ASCII space or 0x2020 = Unicode DAGGER
 				tmp [sizeof(tmp)-1] = 0;
-				SetWindowText (hRandPoolSys, tmp);
+				SetWindowTextA(hRandPoolSys, tmp);
 
 				NormalCursor ();
 			}
@@ -6967,17 +6976,17 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				char tmp[KEY_GUI_VIEW_SIZE+1];
 
 				// Attempt to wipe the GUI fields showing portions of the master and header keys
-				memset (tmp, 'X', sizeof(tmp));
+				memset (tmp, 0x20, sizeof(tmp)); //0x20 = ASCII space or 0x2020 = Unicode DAGGER
 				tmp [sizeof(tmp)-1] = 0;
-				SetWindowText (hMasterKey, tmp);
-				SetWindowText (hHeaderKey, tmp);
+				SetWindowTextA(hMasterKey, tmp);
+				SetWindowTextA(hHeaderKey, tmp);
 			}
 
 			else if (nCurPageNo == SYSENC_RESCUE_DISK_CREATION_PAGE)
 			{
 				/* Generate rescue disk for boot encryption */
 
-				GetWindowText (GetDlgItem (hCurPage, IDC_RESCUE_DISK_ISO_PATH), szRescueDiskISO, sizeof (szRescueDiskISO));
+				GetWindowTextA(GetDlgItem (hCurPage, IDC_RESCUE_DISK_ISO_PATH), szRescueDiskISO, sizeof (szRescueDiskISO));
 
 				try
 				{
@@ -7592,7 +7601,7 @@ ovf_end:
 			{
 				BOOL tmpbDevice;
 
-				GetWindowText (GetDlgItem (hCurPage, IDC_COMBO_BOX), szFileName, sizeof (szFileName));
+				GetWindowTextA(GetDlgItem (hCurPage, IDC_COMBO_BOX), szFileName, sizeof (szFileName));
 				CreateFullVolumePath (szDiskFile, szFileName, &tmpbDevice);
 
 				if (tmpbDevice == bDevice)
@@ -7645,13 +7654,13 @@ ovf_end:
 			else if (nCurPageNo == PASSWORD_PAGE)
 			{
 				// Store the password in case we need to restore it after keyfile is applied to it
-				GetWindowText (GetDlgItem (hCurPage, IDC_PASSWORD), szRawPassword, sizeof (szRawPassword));
+				GetWindowTextW(GetDlgItem (hCurPage, IDC_PASSWORD), szRawPassword, sizeof (szRawPassword)/sizeof(*szRawPassword));
 
 				VerifyPasswordAndUpdate2(hwndDlg, GetDlgItem (MainDlg, IDC_NEXT),
 					GetDlgItem (hCurPage, IDC_PASSWORD),
 					GetDlgItem (hCurPage, IDC_VERIFY),
 					volumePassword.Text, sizeof(volumePassword.Text),
-					szVerify, sizeof(szVerify),
+					szTmpPas, sizeof(szTmpPas),
 					KeyFilesEnable && FirstKeyFile!=NULL && !SysEncInEffect ());
 
 				volumePassword.Length = strlen ((char *) volumePassword.Text);
@@ -7680,10 +7689,14 @@ ovf_end:
 			else if (nCurPageNo == HIDDEN_VOL_HOST_PASSWORD_PAGE
 				|| nCurPageNo == NONSYS_INPLACE_ENC_RESUME_PASSWORD_PAGE)
 			{
+				WCHAR tmpUTF16buf[MAX_PASSWORD+1];
+				VirtualLock(tmpUTF16buf,sizeof(tmpUTF16buf));
 				// Store the password in case we need to restore it after keyfile is applied to it
-				GetWindowText (GetDlgItem (hCurPage, IDC_PASSWORD_DIRECT), szRawPassword, sizeof (szRawPassword));
+				GetWindowTextW(GetDlgItem (hCurPage, IDC_PASSWORD_DIRECT), szRawPassword, sizeof (szRawPassword)/sizeof(*szRawPassword));
 
-				GetWindowText (GetDlgItem (hCurPage, IDC_PASSWORD_DIRECT), (char *) volumePassword.Text, sizeof (volumePassword.Text));
+				GetWindowTextW(GetDlgItem (hCurPage, IDC_PASSWORD_DIRECT), tmpUTF16buf, sizeof(tmpUTF16buf)/sizeof(*tmpUTF16buf));
+				ConvertUTF16toUTF8s((const UTF16*)tmpUTF16buf,arraysize(tmpUTF16buf),(UTF8*)volumePassword.Text,arraysize(volumePassword.Text),strictConversion);
+				burn(tmpUTF16buf,sizeof(tmpUTF16buf));
 				volumePassword.Length = strlen ((char *) volumePassword.Text);
 
 				if (!bInPlaceEncNonSys)
@@ -7698,9 +7711,9 @@ ovf_end:
 				KillTimer (hwndDlg, TIMER_ID_RANDVIEW);
 
 				// Attempt to wipe the GUI field showing portions of randpool
-				memset (tmp, 'X', sizeof(tmp));
+				memset (tmp, 0x20, sizeof(tmp)); //0x20 = ASCII space or 0x2020 = Unicode DAGGER
 				tmp [sizeof(tmp)-1] = 0;
-				SetWindowText (hRandPoolSys, tmp);
+				SetWindowTextA(hRandPoolSys, tmp);
 
 				nNewPageNo = PASSWORD_PAGE + 1;		// Skip irrelevant pages
 			}
@@ -7710,10 +7723,10 @@ ovf_end:
 				char tmp[KEY_GUI_VIEW_SIZE+1];
 
 				// Attempt to wipe the GUI fields showing portions of the master and header keys
-				memset (tmp, 'X', sizeof(tmp));
+				memset (tmp, 0x20, sizeof(tmp)); //0x20 = ASCII space or 0x2020 = Unicode DAGGER
 				tmp [sizeof(tmp)-1] = 0;
-				SetWindowText (hMasterKey, tmp);
-				SetWindowText (hHeaderKey, tmp);
+				SetWindowTextA(hMasterKey, tmp);
+				SetWindowTextA(hHeaderKey, tmp);
 			}
 
 			else if (nCurPageNo == SYSENC_WIPE_MODE_PAGE)
@@ -7729,11 +7742,11 @@ ovf_end:
 				KillTimer (hwndDlg, TIMER_ID_RANDVIEW);
 
 				// Attempt to wipe the GUI fields showing portions of randpool, of the master and header keys
-				memset (tmp, 'X', sizeof(tmp));
+				memset (tmp, 0x20, sizeof(tmp)); //0x20 = ASCII space or 0x2020 = Unicode DAGGER
 				tmp [sizeof(tmp)-1] = 0;
-				SetWindowText (hRandPool, tmp);
-				SetWindowText (hMasterKey, tmp);
-				SetWindowText (hHeaderKey, tmp);
+				SetWindowTextA(hRandPool, tmp);
+				SetWindowTextA(hMasterKey, tmp);
+				SetWindowTextA(hHeaderKey, tmp);
 
 				if (WizardMode != WIZARD_MODE_SYS_DEVICE)
 				{
@@ -8920,6 +8933,7 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpszComm
 	atexit (localcleanup);
 
 	VirtualLock (&volumePassword, sizeof(volumePassword));
+	VirtualLock (szTmpPas, sizeof(szTmpPas));
 	VirtualLock (szVerify, sizeof(szVerify));
 	VirtualLock (szRawPassword, sizeof(szRawPassword));
 

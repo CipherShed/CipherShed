@@ -385,6 +385,18 @@
 					RelativePath="..\Common\Xts.c"
 					>
 				</File>
+				<Filter
+					Name="util"
+					>
+					<Filter
+						Name="unicode"
+						>
+						<File
+							RelativePath="..\Common\util\unicode\ConvertUTF.c"
+							>
+						</File>
+					</Filter>
+				</Filter>
 			</Filter>
 		</Filter>
 		<Filter
@@ -574,10 +586,6 @@
 				Name="Common"
 				>
 				<File
-					RelativePath="..\Boot\Windows\Release\BootLoader.com.gz"
-					>
-				</File>
-				<File
 					RelativePath="..\Boot\Windows\Release_Twofish\BootLoader.com.gz"
 					>
 				</File>
@@ -603,6 +611,10 @@
 				</File>
 				<File
 					RelativePath="..\Boot\Windows\Release_AES\BootLoader.com.gz"
+					>
+				</File>
+				<File
+					RelativePath="..\Boot\Windows\Release\BootLoader.com.gz"
 					>
 				</File>
 				<File
