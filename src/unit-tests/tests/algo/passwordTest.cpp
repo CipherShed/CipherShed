@@ -8,8 +8,10 @@
 
 #include <stdio.h>
 
+extern "C" {
 //an embedded function in Password.c TODO: move to library...
 int strcmpw(WCHAR* a, WCHAR* b);
+}
 
 #pragma warning(disable: 4996)
 #ifndef _MSC_VER
@@ -490,6 +492,28 @@ namespace CipherShed_Tests_Algo
 
 
 
+		TESTMETHOD
+		void testPasswordChangePwdMtPasswords()
+		{
+			char *lpszVolume;
+
+			Password mt={0,{0x00},{0,0,0}};
+			Password notmt={1,{0x20,0x00},{0,0,0}};
+
+			Password *oldPassword;
+			Password *newPassword;
+			int pkcs5;
+			HWND hwndDlg;
+			int res;
+
+			TEST_ASSERT_MSG(ChangePwd (lpszVolume, &mt, newPassword, pkcs5, hwndDlg)==-1,"mt old password should return -1");
+
+			TEST_ASSERT_MSG(ChangePwd (lpszVolume, &notmt, &mt, pkcs5, hwndDlg)==-1,"mt new password should return -1");
+		}
+
+
+
+
 		/**
 		The constructor needs the add each test method for the non-VS unit test execution.
 		*/
@@ -509,6 +533,8 @@ namespace CipherShed_Tests_Algo
 			TEST_ADD(PasswordTest::testPasswordVerifyPasswordAndUpdateMissmatch);
 
 			TEST_ADD(PasswordTest::testPasswordstrcmpw);
+
+			TEST_ADD(PasswordTest::testPasswordChangePwdMtPasswords);
 		}
 	};
 }
