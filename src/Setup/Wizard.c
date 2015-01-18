@@ -239,7 +239,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				licenseText = GetLegalNotices ();
 				if (licenseText != NULL)
 				{
-					SetWindowText (GetDlgItem (hwndDlg, IDC_LICENSE_TEXT), licenseText);
+					SetWindowTextA(GetDlgItem (hwndDlg, IDC_LICENSE_TEXT), licenseText);
 					free (licenseText);
 				}
 				else
@@ -631,13 +631,13 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 		if ( nCurPageNo == EXTRACTION_OPTIONS_PAGE && hw == EN_CHANGE )
 		{
-			EnableWindow (GetDlgItem (MainDlg, IDC_NEXT), (GetWindowTextLength (GetDlgItem (hCurPage, IDC_DESTINATION)) > 1));
+			EnableWindow (GetDlgItem (MainDlg, IDC_NEXT), (GetWindowTextLengthA(GetDlgItem (hCurPage, IDC_DESTINATION)) > 1));
 			return 1;
 		}
 
 		if ( nCurPageNo == INSTALL_OPTIONS_PAGE && hw == EN_CHANGE )
 		{
-			EnableWindow (GetDlgItem (MainDlg, IDC_NEXT), (GetWindowTextLength (GetDlgItem (hCurPage, IDC_DESTINATION)) > 1));
+			EnableWindow (GetDlgItem (MainDlg, IDC_NEXT), (GetWindowTextLengthA(GetDlgItem (hCurPage, IDC_DESTINATION)) > 1));
 			return 1;
 		}
 
@@ -862,7 +862,7 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 			SendMessage (GetDlgItem (hwndDlg, IDC_BOX_TITLE), WM_SETFONT, (WPARAM) hUserBoldFont, (LPARAM) TRUE);
 
-			SetWindowText (hwndDlg, "CipherShed Setup " VERSION_STRING);
+			SetWindowTextA(hwndDlg, "CipherShed Setup " VERSION_STRING);
 
 			DonColorSchemeId = GetDonVal (2, 9);
 
@@ -968,14 +968,14 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 			else if (nCurPageNo == EXTRACTION_OPTIONS_PAGE)
 			{
-				GetWindowText (GetDlgItem (hCurPage, IDC_DESTINATION), WizardDestExtractPath, sizeof (WizardDestExtractPath));
+				GetWindowTextA(GetDlgItem (hCurPage, IDC_DESTINATION), WizardDestExtractPath, sizeof (WizardDestExtractPath));
 
 				bStartExtraction = TRUE;
 			}
 
 			else if (nCurPageNo == INSTALL_OPTIONS_PAGE)
 			{
-				GetWindowText (GetDlgItem (hCurPage, IDC_DESTINATION), WizardDestInstallPath, sizeof (WizardDestInstallPath));
+				GetWindowTextA(GetDlgItem (hCurPage, IDC_DESTINATION), WizardDestInstallPath, sizeof (WizardDestInstallPath));
 
 				bStartInstall = TRUE;
 			}
@@ -1015,13 +1015,13 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 			else if (nCurPageNo == EXTRACTION_OPTIONS_PAGE)
 			{
-				GetWindowText (GetDlgItem (hCurPage, IDC_DESTINATION), WizardDestExtractPath, sizeof (WizardDestExtractPath));
+				GetWindowTextA(GetDlgItem (hCurPage, IDC_DESTINATION), WizardDestExtractPath, sizeof (WizardDestExtractPath));
 				nCurPageNo = WIZARD_MODE_PAGE + 1;
 			}
 
 			else if (nCurPageNo == INSTALL_OPTIONS_PAGE)
 			{
-				GetWindowText (GetDlgItem (hCurPage, IDC_DESTINATION), WizardDestInstallPath, sizeof (WizardDestInstallPath));
+				GetWindowTextA(GetDlgItem (hCurPage, IDC_DESTINATION), WizardDestInstallPath, sizeof (WizardDestInstallPath));
 			}
 
 			LoadPage (hwndDlg, --nCurPageNo);

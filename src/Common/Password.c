@@ -27,43 +27,18 @@
 
 #include "util/unicode/ConvertUTF.h"
 
-void VerifyPasswordAndUpdate (HWND hwndDlg, HWND hButton, HWND hPassword,
-			 HWND hVerify, unsigned char *szPassword,
-			 char *szVerify,
-			 BOOL keyFilesEnabled)
+#ifdef _MSC_VER
+__inline
+#else
+inline 
+#endif
+int strlenw(WCHAR* s)
 {
-	char szTmp1[MAX_PASSWORD + 1];
-	char szTmp2[MAX_PASSWORD + 1];
-	int k = GetWindowTextLengthA(hPassword);
-	BOOL bEnable = FALSE;
-
-	if (hwndDlg);		/* Remove warning */
-
-	GetWindowTextA(hPassword, szTmp1, sizeof (szTmp1));
-	GetWindowTextA(hVerify, szTmp2, sizeof (szTmp2));
-
-	if (strcmp (szTmp1, szTmp2) != 0)
-		bEnable = FALSE;
-	else
-	{
-		if (k >= MIN_PASSWORD || keyFilesEnabled)
-			bEnable = TRUE;
-		else
-			bEnable = FALSE;
-	}
-
-	if (szPassword != NULL)
-		memcpy (szPassword, szTmp1, sizeof (szTmp1));
-
-	if (szVerify != NULL)
-		memcpy (szVerify, szTmp2, sizeof (szTmp2));
-
-	burn (szTmp1, sizeof (szTmp1));
-	burn (szTmp2, sizeof (szTmp2));
-
-	EnableWindow (hButton, bEnable);
+	int len=0;
+	if (!s) return 0;
+	while (*s++) ++len;
+	return len;
 }
-
 
 BOOL CheckPasswordCharEncoding (HWND hPassword, Password *ptrPw)
 {
@@ -138,6 +113,36 @@ BOOL CheckPasswordCharEncoding (HWND hPassword, Password *ptrPw)
 	return TRUE;
 }
 
+int strcmpw(WCHAR* a, WCHAR* b)
+{
+	if (a==b) return 0;
+	if (a==NULL) return -1;
+	if (b==NULL) return 1;
+	while(1)
+	{
+		if (*a==*b)
+		{
+			if (*a==0)
+			{
+				return 0;
+			}
+			else
+			{
+				++a;
+				++b;
+			}
+		}
+		else if (*a>*b)
+		{
+			return 1;
+		}
+		else
+		{
+			return -1;
+		}
+	}
+}
+
 void VerifyPasswordAndUpdate2 (HWND hwndDlg, HWND hButton, HWND hPassword,
 			 HWND hVerify, unsigned char *szPassword,
 			 int sizeOfPassword,
@@ -145,7 +150,49 @@ void VerifyPasswordAndUpdate2 (HWND hwndDlg, HWND hButton, HWND hPassword,
 			 int sizeOfVerify,
 			 BOOL keyFilesEnabled)
 {
-	VerifyPasswordAndUpdate(hwndDlg,hButton,hPassword,hVerify,szPassword,szVerify,keyFilesEnabled);
+	WCHAR szTmp1[MAX_PASSWORD + 1];
+	WCHAR szTmp2[MAX_PASSWORD + 1];
+	int k = GetWindowTextLengthW(hPassword);
+	BOOL bEnable = FALSE;
+	int len;
+	int r;
+
+	if (hwndDlg);		/* Remove warning */
+
+	GetWindowTextW(hPassword, szTmp1, sizeof (szTmp1)/sizeof(*szTmp1));
+	GetWindowTextW(hVerify, szTmp2, sizeof (szTmp2)/sizeof(*szTmp2));
+
+	if (strcmpw (szTmp1, szTmp2) != 0)
+		bEnable = FALSE;
+	else
+	{
+		if (k >= MIN_PASSWORD || keyFilesEnabled)
+			bEnable = TRUE;
+		else
+			bEnable = FALSE;
+	}
+
+	if (szPassword != NULL)
+	{
+		len=strlenw(szTmp1);
+		r=ConvertUTF16toUTF8s(szTmp1,len+1,szPassword,sizeOfPassword,strictConversion);
+		if (r!=conversionOK) bEnable=FALSE;
+	}
+
+	if (szVerify != NULL)
+	{
+		len=strlenw(szTmp2);
+		r=ConvertUTF16toUTF8s(szTmp2,len+1,(UTF8*)szVerify,sizeOfVerify,strictConversion);
+		if (r!=conversionOK) bEnable=FALSE;
+	}
+
+	//clean up memory which contains passwords or metadata (e.g. length)
+	burn (szTmp1, sizeof (szTmp1));
+	burn (szTmp2, sizeof (szTmp2));
+	k=0;
+	len=0;
+
+	EnableWindow (hButton, bEnable);
 }
 
 

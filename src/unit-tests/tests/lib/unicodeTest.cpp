@@ -17,6 +17,9 @@
 namespace CipherShed_Tests_lib
 {
 
+	template <typename T,unsigned S>
+	inline unsigned arraysize(const T (&v)[S]) { return S; }
+
 	char assertmsg[2048];
 
 	typedef struct ts1
@@ -126,15 +129,11 @@ namespace CipherShed_Tests_lib
 
 				ConversionResult cr1;
 
-				wchar_t* bufPtr;
 				int bufEnd;
-				char* utf8BufPtr;
 
-				bufPtr=testw;
-				utf8BufPtr=buf;
 				for (bufEnd=0; testw[bufEnd]; ++bufEnd);
 				++bufEnd;
-				cr1=ConvertUTF16toUTF8((const UTF16**)&bufPtr, (const UTF16*)&testw[bufEnd], (UTF8**)&utf8BufPtr, (UTF8*)&utf8BufPtr[sizeof(buf)], strictConversion);
+				cr1=ConvertUTF16toUTF8s((const UTF16*)testw, bufEnd, (UTF8*)buf, arraysize(buf), strictConversion);
 
 				TEST_ASSERT(cr1==conversionOK);
 
@@ -174,15 +173,11 @@ namespace CipherShed_Tests_lib
 
 				ConversionResult cr1;
 
-				wchar_t* bufPtr;
 				int bufEnd;
-				char* utf8BufPtr;
 
-				bufPtr=testw;
-				utf8BufPtr=buf;
 				for (bufEnd=0; testw[bufEnd]; ++bufEnd);
 				++bufEnd;
-				cr1=ConvertUTF16toUTF8((const UTF16**)&bufPtr, (const UTF16*)&testw[bufEnd], (UTF8**)&utf8BufPtr, (UTF8*)&utf8BufPtr[sizeof(buf)], strictConversion);
+				cr1=ConvertUTF16toUTF8s((const UTF16*)testw, bufEnd, (UTF8*)buf, arraysize(buf), strictConversion);
 
 				sprintf(assertmsg,"i:%d, test str <%s> expected:%04x, got %04x", i, test, test2.r, cr1);
 				TEST_ASSERT_MSG(cr1==test2.r,assertmsg);
@@ -221,19 +216,13 @@ namespace CipherShed_Tests_lib
 
 			ConversionResult cr1;
 
-			wchar_t* bufPtr;
-			char* utf8BufPtr;
-
-			bufPtr=testw;
-			
-			utf8BufPtr=buf;
 			int r=conversionOK;
-			cr1=ConvertUTF16toUTF8
+			cr1=ConvertUTF16toUTF8s
 			(
-				(const UTF16**)&bufPtr, 
-				(const UTF16*)&testw[0], 
-				(UTF8**)&utf8BufPtr, 
-				(UTF8*)&utf8BufPtr[sizeof(buf)], 
+				(const UTF16*)testw,
+				0,
+				(UTF8*)buf,
+				arraysize(buf),
 				strictConversion
 			);
 
@@ -255,19 +244,13 @@ namespace CipherShed_Tests_lib
 
 			ConversionResult cr1;
 
-			wchar_t* bufPtr;
-			char* utf8BufPtr;
-
-			bufPtr=testw;
-			
-			utf8BufPtr=buf;
 			int r=conversionOK;
-			cr1=ConvertUTF16toUTF8
+			cr1=ConvertUTF16toUTF8s
 			(
-				(const UTF16**)&bufPtr, 
-				(const UTF16*)&testw[sizeof(testw)/sizeof(testw[0])], 
-				(UTF8**)&utf8BufPtr, 
-				(UTF8*)&utf8BufPtr[sizeof(buf)], 
+				(const UTF16*)testw,
+				sizeof(testw)/sizeof(testw[0]),
+				(UTF8*)buf,
+				arraysize(buf),
 				strictConversion
 			);
 
@@ -288,19 +271,13 @@ namespace CipherShed_Tests_lib
 
 			ConversionResult cr1;
 
-			wchar_t* bufPtr;
-			char* utf8BufPtr;
-
-			bufPtr=testw;
-			
-			utf8BufPtr=buf;
 			int r=targetExhausted;
-			cr1=ConvertUTF16toUTF8
+			cr1=ConvertUTF16toUTF8s
 			(
-				(const UTF16**)&bufPtr, 
-				(const UTF16*)&testw[sizeof(testw)/sizeof(testw[0])], 
-				(UTF8**)&utf8BufPtr, 
-				(UTF8*)&utf8BufPtr[sizeof(buf)], 
+				(const UTF16*)testw,
+				sizeof(testw)/sizeof(testw[0]),
+				(UTF8*)buf,
+				arraysize(buf),
 				strictConversion
 			);
 
@@ -309,6 +286,40 @@ namespace CipherShed_Tests_lib
 
 			//sprintf(assertmsg,"i:%d, test str <%s> reached end of string without difference", i, test);
 			//TEST_ASSERT_MSG(r==conversionOK,assertmsg);
+		};
+
+		TESTMETHOD
+		void testUnicodePtrCheck()
+		{
+			wchar_t src[]=L"the quick brown fox";
+			char dst[2048];
+			wchar_t* ptr=src;
+
+
+			wchar_t* srcBackup=src;
+			char*  dstBackup=dst;
+#ifdef DEBUG
+			printf("src                             =%08x\n",src);
+			printf("dst                             =%08x\n",dst);
+			printf("src[0]                          =%08x\n",src[0]);
+			printf("dst[0]                          =%08x\n",dst[0]);
+			printf("sizeof(src)                     =%08x\n",sizeof(src));
+			printf("sizeof(dst)                     =%08x\n",sizeof(dst));
+			printf("sizeof(src[0])                  =%08x\n",sizeof(src[0]));
+			printf("sizeof(dst[0])                  =%08x\n",sizeof(dst[0]));
+			printf("&dst[sizeof(dst)/sizeof(dst[0])]=%08x\n",&dst[sizeof(dst)/sizeof(dst[0])]);
+			printf("&src[sizeof(src)/sizeof(src[0])]=%08x\n",&src[sizeof(src)/sizeof(src[0])]);
+			printf("dst[sizeof(dst)/sizeof(dst[0])] =%08x\n",dst[sizeof(dst)/sizeof(dst[0])]);
+			printf("src[sizeof(src)/sizeof(src[0])] =%08x\n",src[sizeof(src)/sizeof(src[0])]);
+			printf("src+sizeof(src)-1               =%08x\n",src+sizeof(src)-1);
+			printf("dst+sizeof(dst)-1               =%08x\n",dst+sizeof(dst)-1);
+#endif
+
+
+			ConvertUTF16toUTF8s((const UTF16*)src,arraysize(src),(UTF8*)dst,arraysize(dst),strictConversion);
+
+			TEST_ASSERT(src==srcBackup);
+			TEST_ASSERT(dst==dstBackup);
 		};
 
 		/**
@@ -322,6 +333,7 @@ namespace CipherShed_Tests_lib
 			TEST_ADD(UnicodeTest::testUnicodeUTF8ReplacementCharacter);
 			TEST_ADD(UnicodeTest::testUnicodeUTF8LargeNumber);
 			TEST_ADD(UnicodeTest::testUnicodeUTF8TargetExhausted);
+			TEST_ADD(UnicodeTest::testUnicodePtrCheck);
 		}
 	};
 }

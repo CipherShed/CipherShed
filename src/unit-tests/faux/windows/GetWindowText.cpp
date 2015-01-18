@@ -65,7 +65,8 @@ int GetWindowTextA(HWND hWnd, LPSTR lpString, int nMaxCount)
 	{
 		return 0;
 	}
-	char* src=(char*)hWnd;
+	fauxWindowText* fwt=(fauxWindowText*)hWnd;
+	char* src=fwt->buf.a;
     
 	int i=nMaxCount;
 
@@ -102,7 +103,8 @@ int GetWindowTextW(HWND hWnd, LPWSTR lpString, int nMaxCount)
 	{
 		return 0;
 	}
-	WCHAR* src=(WCHAR*)hWnd;
+	fauxWindowText* fwt=(fauxWindowText*)hWnd;
+	WCHAR* src=(WCHAR*)fwt->buf.w;
 
 	int i=nMaxCount;
 

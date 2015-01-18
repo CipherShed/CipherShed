@@ -874,7 +874,7 @@ BOOL CALLBACK AboutDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam
 			LocalizeDialog (hwndDlg, "IDD_ABOUT_DLG");
 
 			// Hyperlink
-			SetWindowText (GetDlgItem (hwndDlg, IDC_HOMEPAGE), "ciphershed.org");
+			SetWindowTextA(GetDlgItem (hwndDlg, IDC_HOMEPAGE), "ciphershed.org");
 			ToHyperlink (hwndDlg, IDC_HOMEPAGE);
 
 			// Logo area background (must not keep aspect ratio; must retain Windows-imposed distortion)
@@ -908,7 +908,7 @@ BOOL CALLBACK AboutDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam
 		}
 
 	case WM_APP:
-		SetWindowText (GetDlgItem (hwndDlg, IDC_ABOUT_CREDITS),
+		SetWindowTextA(GetDlgItem (hwndDlg, IDC_ABOUT_CREDITS),
 			"Portions of this software are based in part on the works of the following people: "
 			"Paul Le Roux, "
 			"Bruce Schneier, John Kelsey, Doug Whiting, David Wagner, Chris Hall, Niels Ferguson, "
@@ -2851,7 +2851,7 @@ BOOL CALLBACK TextInfoDialogBoxDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, L
 				r = GetLegalNotices ();
 				if (r != NULL)
 				{
-					SetWindowText (GetDlgItem (hwndDlg, IDC_INFO_BOX_TEXT), r);
+					SetWindowTextA(GetDlgItem (hwndDlg, IDC_INFO_BOX_TEXT), r);
 					free (r);
 				}
 				break;
@@ -4043,7 +4043,7 @@ void LocalizeDialog (HWND hwnd, char *stringId)
 	SendMessage (hwnd, WM_SETFONT, (WPARAM) hUserFont, 0);
 
 	if (stringId == NULL)
-		SetWindowText (hwnd, "CipherShed");
+		SetWindowTextW(hwnd, L"CipherShed");
 	else
 		SetWindowTextW (hwnd, GetString (stringId));
 	
@@ -4092,7 +4092,7 @@ static BOOL CALLBACK CloseVolumeExplorerWindowsEnum (HWND hwnd, LPARAM driveNo)
 	GetClassName (hwnd, s, sizeof s);
 	if (strcmp (s, "CabinetWClass") == 0)
 	{
-		GetWindowText (hwnd, s, sizeof s);
+		GetWindowTextA(hwnd, s, sizeof s);
 		if (strstr (s, driveStr) != NULL)
 		{
 			PostMessage (hwnd, WM_CLOSE, 0, 0);
@@ -4825,7 +4825,7 @@ static BOOL CALLBACK RandomPoolEnrichementDlgProc (HWND hwndDlg, UINT msg, WPARA
 						}
 						strcat (outputDispBuffer, "\n");
 					}
-					SetWindowText (GetDlgItem (hwndDlg, IDC_POOL_CONTENTS), outputDispBuffer);
+					SetWindowTextA(GetDlgItem (hwndDlg, IDC_POOL_CONTENTS), outputDispBuffer);
 
 					memcpy (lastRandPool, randPool, sizeof(lastRandPool));
 				}
@@ -4858,7 +4858,7 @@ static BOOL CALLBACK RandomPoolEnrichementDlgProc (HWND hwndDlg, UINT msg, WPARA
 
 				memset (tmp, ' ', sizeof(tmp));
 				tmp [RNG_POOL_SIZE] = 0;
-				SetWindowText (GetDlgItem (hwndDlg, IDC_POOL_CONTENTS), tmp);
+				SetWindowTextA(GetDlgItem (hwndDlg, IDC_POOL_CONTENTS), tmp);
 			}
 
 			return 1;
@@ -4879,7 +4879,7 @@ exit:
 			// Attempt to wipe the pool contents in the GUI text area
 			memset (tmp, ' ', RNG_POOL_SIZE);
 			tmp [RNG_POOL_SIZE] = 0;
-			SetWindowText (GetDlgItem (hwndDlg, IDC_POOL_CONTENTS), tmp);
+			SetWindowTextA(GetDlgItem (hwndDlg, IDC_POOL_CONTENTS), tmp);
 
 			if (msg == WM_COMMAND && lw == IDOK)
 				EndDialog (hwndDlg, IDOK);
@@ -4979,7 +4979,7 @@ BOOL CALLBACK KeyfileGeneratorDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LP
 						}
 						strcat (outputDispBuffer, "\n");
 					}
-					SetWindowText (GetDlgItem (hwndDlg, IDC_POOL_CONTENTS), outputDispBuffer);
+					SetWindowTextA(GetDlgItem (hwndDlg, IDC_POOL_CONTENTS), outputDispBuffer);
 
 					memcpy (lastRandPool, randPool, sizeof(lastRandPool));
 				}
@@ -5010,7 +5010,7 @@ BOOL CALLBACK KeyfileGeneratorDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LP
 
 				memset (tmp, ' ', sizeof(tmp));
 				tmp [RNG_POOL_SIZE] = 0;
-				SetWindowText (GetDlgItem (hwndDlg, IDC_POOL_CONTENTS), tmp);
+				SetWindowTextA(GetDlgItem (hwndDlg, IDC_POOL_CONTENTS), tmp);
 			}
 			return 1;
 		}
@@ -5074,7 +5074,7 @@ exit:
 			// Attempt to wipe the pool contents in the GUI text area
 			memset (tmp, ' ', RNG_POOL_SIZE);
 			tmp [RNG_POOL_SIZE] = 0;
-			SetWindowText (GetDlgItem (hwndDlg, IDC_POOL_CONTENTS), tmp);
+			SetWindowTextA(GetDlgItem (hwndDlg, IDC_POOL_CONTENTS), tmp);
 
 			EndDialog (hwndDlg, IDCLOSE);
 			NormalCursor ();
@@ -5232,7 +5232,7 @@ CipherTestDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 			memset(key,0,sizeof(key));
 			memset(szTmp,0,sizeof(szTmp));
-			n = GetWindowText(GetDlgItem(hwndDlg, IDC_KEY), szTmp, sizeof(szTmp));
+			n = GetWindowTextA(GetDlgItem(hwndDlg, IDC_KEY), szTmp, sizeof(szTmp));
 			if (n != ks * 2)
 			{
 				Warning ("TEST_KEY_SIZE");
@@ -5260,11 +5260,11 @@ CipherTestDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 			if (bEncrypt)
 			{
-				n = GetWindowText(GetDlgItem(hwndDlg, IDC_PLAINTEXT), szTmp, sizeof(szTmp));
+				n = GetWindowTextA(GetDlgItem(hwndDlg, IDC_PLAINTEXT), szTmp, sizeof(szTmp));
 			}
 			else
 			{
-				n = GetWindowText(GetDlgItem(hwndDlg, IDC_CIPHERTEXT), szTmp, sizeof(szTmp));
+				n = GetWindowTextA(GetDlgItem(hwndDlg, IDC_CIPHERTEXT), szTmp, sizeof(szTmp));
 			}
 
 			if (n != pt * 2)
@@ -5300,7 +5300,7 @@ CipherTestDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			{
 				// Secondary key
 
-				if (GetWindowText(GetDlgItem(hwndDlg, IDC_SECONDARY_KEY), szTmp, sizeof(szTmp)) != 64)
+				if (GetWindowTextA(GetDlgItem(hwndDlg, IDC_SECONDARY_KEY), szTmp, sizeof(szTmp)) != 64)
 				{
 					Warning ("TEST_INCORRECT_SECONDARY_KEY_SIZE");
 					return 1;
@@ -5322,7 +5322,7 @@ CipherTestDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 				// Data unit number
 
-				tlen = GetWindowText(GetDlgItem(hwndDlg, IDC_TEST_DATA_UNIT_NUMBER), szTmp, sizeof(szTmp));
+				tlen = GetWindowTextA(GetDlgItem(hwndDlg, IDC_TEST_DATA_UNIT_NUMBER), szTmp, sizeof(szTmp));
 
 				if (tlen > 16 || tlen < 1)
 				{
@@ -5438,9 +5438,9 @@ CipherTestDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				}
 
 				if (bEncrypt)
-					SetWindowText(GetDlgItem(hwndDlg,IDC_CIPHERTEXT), szTmp);
+					SetWindowTextA(GetDlgItem(hwndDlg,IDC_CIPHERTEXT), szTmp);
 				else
-					SetWindowText(GetDlgItem(hwndDlg,IDC_PLAINTEXT), szTmp);
+					SetWindowTextA(GetDlgItem(hwndDlg,IDC_PLAINTEXT), szTmp);
 			}
 
 			return 1;
@@ -5495,8 +5495,8 @@ ResetCipherTest(HWND hwndDlg, int idTestCipher)
 
 	SendMessage(GetDlgItem(hwndDlg, IDC_TEST_BLOCK_NUMBER), CB_SETCURSEL, 0, 0);
 
-	SetWindowText(GetDlgItem(hwndDlg, IDC_SECONDARY_KEY), "0000000000000000000000000000000000000000000000000000000000000000");
-	SetWindowText(GetDlgItem(hwndDlg, IDC_TEST_DATA_UNIT_NUMBER), "0");
+	SetWindowTextA(GetDlgItem(hwndDlg, IDC_SECONDARY_KEY), "0000000000000000000000000000000000000000000000000000000000000000");
+	SetWindowTextA(GetDlgItem(hwndDlg, IDC_TEST_DATA_UNIT_NUMBER), "0");
 
 	if (idTestCipher == BLOWFISH)
 	{
@@ -5511,7 +5511,7 @@ ResetCipherTest(HWND hwndDlg, int idTestCipher)
 		ndx = SendMessage (GetDlgItem(hwndDlg, IDC_KEY_SIZE), CB_ADDSTRING, 0,(LPARAM) "64");
 		SendMessage(GetDlgItem(hwndDlg, IDC_KEY_SIZE), CB_SETITEMDATA, ndx,(LPARAM) 8);
 		SendMessage(GetDlgItem(hwndDlg, IDC_KEY_SIZE), CB_SETCURSEL, 0,0);
-		SetWindowText(GetDlgItem(hwndDlg, IDC_KEY), "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
+		SetWindowTextA(GetDlgItem(hwndDlg, IDC_KEY), "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
 	} 
 
 
@@ -5522,7 +5522,7 @@ ResetCipherTest(HWND hwndDlg, int idTestCipher)
 		ndx = SendMessage (GetDlgItem(hwndDlg, IDC_KEY_SIZE), CB_ADDSTRING, 0,(LPARAM) "128");
 		SendMessage(GetDlgItem(hwndDlg, IDC_KEY_SIZE), CB_SETITEMDATA, ndx,(LPARAM) 16);
 		SendMessage(GetDlgItem(hwndDlg, IDC_KEY_SIZE), CB_SETCURSEL, ndx,0);
-		SetWindowText(GetDlgItem(hwndDlg, IDC_KEY), "00000000000000000000000000000000");
+		SetWindowTextA(GetDlgItem(hwndDlg, IDC_KEY), "00000000000000000000000000000000");
 	}
 
 	if (idTestCipher == TRIPLEDES)
@@ -5532,11 +5532,11 @@ ResetCipherTest(HWND hwndDlg, int idTestCipher)
 		ndx = SendMessage (GetDlgItem(hwndDlg, IDC_KEY_SIZE), CB_ADDSTRING, 0,(LPARAM) "168");
 		SendMessage(GetDlgItem(hwndDlg, IDC_KEY_SIZE), CB_SETITEMDATA, ndx,(LPARAM) 24);
 		SendMessage(GetDlgItem(hwndDlg, IDC_KEY_SIZE), CB_SETCURSEL, ndx,0);
-		SetWindowText(GetDlgItem(hwndDlg, IDC_KEY), "000000000000000000000000000000000000000000000000");
+		SetWindowTextA(GetDlgItem(hwndDlg, IDC_KEY), "000000000000000000000000000000000000000000000000");
 	}
 	
-	SetWindowText(GetDlgItem(hwndDlg, IDC_PLAINTEXT), "0000000000000000");
-	SetWindowText(GetDlgItem(hwndDlg, IDC_CIPHERTEXT), "0000000000000000");
+	SetWindowTextA(GetDlgItem(hwndDlg, IDC_PLAINTEXT), "0000000000000000");
+	SetWindowTextA(GetDlgItem(hwndDlg, IDC_CIPHERTEXT), "0000000000000000");
 
 	if (idTestCipher == AES || idTestCipher == SERPENT || idTestCipher == TWOFISH)
 	{
@@ -5549,9 +5549,9 @@ ResetCipherTest(HWND hwndDlg, int idTestCipher)
 		SendMessage(GetDlgItem(hwndDlg, IDC_PLAINTEXT_SIZE), CB_SETITEMDATA, ndx,(LPARAM) 16);
 		SendMessage(GetDlgItem(hwndDlg, IDC_PLAINTEXT_SIZE), CB_SETCURSEL, ndx,0);
 
-		SetWindowText(GetDlgItem(hwndDlg, IDC_KEY), "0000000000000000000000000000000000000000000000000000000000000000");
-		SetWindowText(GetDlgItem(hwndDlg, IDC_PLAINTEXT), "00000000000000000000000000000000");
-		SetWindowText(GetDlgItem(hwndDlg, IDC_CIPHERTEXT), "00000000000000000000000000000000");
+		SetWindowTextA(GetDlgItem(hwndDlg, IDC_KEY), "0000000000000000000000000000000000000000000000000000000000000000");
+		SetWindowTextA(GetDlgItem(hwndDlg, IDC_PLAINTEXT), "00000000000000000000000000000000");
+		SetWindowTextA(GetDlgItem(hwndDlg, IDC_CIPHERTEXT), "00000000000000000000000000000000");
 	}
 }
 
@@ -8450,7 +8450,7 @@ BOOL CALLBACK CloseTCWindowsEnum (HWND hwnd, LPARAM lParam)
 	if (GetWindowLongPtr (hwnd, GWLP_USERDATA) == (LONG_PTR) 'TRUE')
 	{
 		char name[1024] = { 0 };
-		GetWindowText (hwnd, name, sizeof (name) - 1);
+		GetWindowTextA(hwnd, name, sizeof (name) - 1);
 		if (hwnd != MainDlg && (strstr (name, "CipherShed") || strstr (name, "TrueCrypt")))
 		{
 			PostMessage (hwnd, TC_APPMSG_CLOSE_BKG_TASK, 0, 0);
@@ -8476,7 +8476,7 @@ BOOL CALLBACK FindTCWindowEnum (HWND hwnd, LPARAM lParam)
 	if (GetWindowLongPtr (hwnd, GWLP_USERDATA) == (LONG_PTR) 'TRUE')
 	{
 		char name[32] = { 0 };
-		GetWindowText (hwnd, name, sizeof (name) - 1);
+		GetWindowTextA(hwnd, name, sizeof (name) - 1);
 		if (hwnd != MainDlg && (strcmp (name, "CipherShed") == 0 || strcmp (name, "TrueCrypt") == 0))
 		{
 			if (lParam != 0)
@@ -8968,7 +8968,7 @@ BOOL CALLBACK SecurityTokenPasswordDlgProc (HWND hwndDlg, UINT msg, WPARAM wPara
 			char tmp[SecurityToken::MaxPasswordLength+1];
 			memset (tmp, 'X', SecurityToken::MaxPasswordLength);
 			tmp[SecurityToken::MaxPasswordLength] = 0;
-			SetWindowText (GetDlgItem (hwndDlg, IDC_TOKEN_PASSWORD), tmp);	
+			SetWindowTextA(GetDlgItem (hwndDlg, IDC_TOKEN_PASSWORD), tmp);	
 
 			EndDialog (hwndDlg, lw);
 		}

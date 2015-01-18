@@ -6,6 +6,22 @@
 #include "UINT.h"
 #include "LPCWSTR.h"
 
+typedef struct fauxMessageBox
+{
+	int retval;
+	union
+	{
+		char* a;
+		WCHAR* w;
+	} text;
+	union
+	{
+		char* a;
+		WCHAR* w;
+	} caption;
+	UINT type;
+} fauxMessageBox;
+
 int MessageBoxA(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType);
 int MessageBoxW(HWND hWnd, LPCWSTR lpText, LPCWSTR lpCaption, UINT uType);
 #define MessageBox  MessageBoxA

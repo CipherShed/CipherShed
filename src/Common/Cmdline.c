@@ -55,7 +55,7 @@ BOOL CALLBACK CommandHelpDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM 
 			}
 		}
 
-		SetWindowText (GetDlgItem (hwndDlg, IDC_COMMANDHELP_TEXT), (char*) tmp);
+		SetWindowTextA(GetDlgItem (hwndDlg, IDC_COMMANDHELP_TEXT), (char*) tmp);
 		return 1;
 		}
 
