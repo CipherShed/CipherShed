@@ -211,7 +211,7 @@ static void WipeSignatureAreas (char *buffer)
 }
 
 
-BOOL MakeSelfExtractingPackage (HWND hwndDlg, char *szDestDir)
+BOOL MakeSelfExtractingPackage (HWND hwndDlg, char *szDestDir, BOOL quiet)
 {
 	int i, x;
 	unsigned char inputFile [TC_MAX_PATH];
@@ -426,7 +426,10 @@ BOOL MakeSelfExtractingPackage (HWND hwndDlg, char *szDestDir)
 	}
 
 	sprintf (tmpStr, "Self-extracting package successfully created (%s)", outputFile);
-	PkgInfo (tmpStr);
+	if (!quiet)
+	{
+		PkgInfo (tmpStr);
+	}
 	return TRUE;
 
 err:

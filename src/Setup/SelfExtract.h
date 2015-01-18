@@ -27,7 +27,7 @@ extern DECOMPRESSED_FILE	Decompressed_Files [NBR_COMPRESSED_FILES];
 void SelfExtractStartupInit (void);
 BOOL SelfExtractInMemory (char *path);
 void __cdecl ExtractAllFilesThread (void *hwndDlg);
-BOOL MakeSelfExtractingPackage (HWND hwndDlg, char *szDestDir);
+BOOL MakeSelfExtractingPackage (HWND hwndDlg, char *szDestDir, BOOL queit);
 BOOL VerifyPackageIntegrity (void);
 BOOL IsSelfExtractingPackage (void);
 static void DeobfuscateMagEndMarker (void);

@@ -50,7 +50,7 @@ do
 			rm -f "$i"
 		done
 		# build the installer
-		./CipherShed\ Setup.exe /p
+		./CipherShed\ Setup.exe /pq
 	fi
 	for i in CipherShed\ Setup\ 0.7.3.exe
 	do

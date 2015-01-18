@@ -79,6 +79,8 @@ BOOL bDesktopIconStatusDetermined = FALSE;
 
 HMODULE volatile SystemRestoreDll = 0;
 
+BOOL quiet = FALSE;
+
 void localcleanup (void)
 {
 	localcleanupwiz ();
@@ -2422,6 +2424,12 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpszComm
 		{
 			// Create self-extracting package:	/p
 			bMakePackage = TRUE;
+
+			if ('q' == lpszCommandLine[2] )
+			{
+				quiet=TRUE;
+			}
+
 		}
 		else if (lpszCommandLine[1] == 'd')
 		{
@@ -2433,7 +2441,7 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpszComm
 	if (bMakePackage)
 	{
 		/* Create self-extracting package */
-		MakeSelfExtractingPackage (NULL, SetupFilesDir);
+		MakeSelfExtractingPackage (NULL, SetupFilesDir, quiet);
 	}
 	else
 	{
