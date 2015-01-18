@@ -1,0 +1,28 @@
+see: https://lists.ciphershed.org/pipermail/devs/2015-January/000996.html
+
+Installed from manjaro-xfce-0.8.11-x86_64.iso, update firewall to allow 22, install ssh, add it to systemd, apply requested updates, reboot.
+
+ssh in and run the following:
+
+sudo mhwd-kernel -i linux312
+sudo pacman -S git
+sudo pacman -S nasm
+sudo pacman -S wxgtk2.8
+git clone https://github.com/CipherShed/CipherShed
+cd CipherShed/src
+WX_CONFIG=/usr/bin/wx-config-2.8 make
+
+Then I ran ciphershed in the CipherShed/src/Main directory
+
+I was able to create a vol, mount it write to it, dismount it, re-mount it and open the file.
+
+pyeron@manjaro ~/CipherShed
+$ git log -n 1
+commit a7035118324bba9e9e5898a192ae92e96b0908d6
+Merge: 63c31f1 b956223
+Author: Jason Pyeron <jpyeron@pdinc.us>
+Date:   Sat Jan 17 15:43:13 2015 -0500
+
+    Merge commit 'b95622396eba354be58600cf817adbdacdeceaf1' into v0.7.3.0-dev from https://github.com/srguglielmo/CipherShed
+
+
