@@ -8,6 +8,9 @@
 
 #include <stdio.h>
 
+//an embedded function in Password.c TODO: move to library...
+int strcmpw(WCHAR* a, WCHAR* b);
+
 #pragma warning(disable: 4996)
 #ifndef _MSC_VER
 #pragma GCC diagnostic ignored "-Wwrite-strings"
@@ -465,6 +468,28 @@ namespace CipherShed_Tests_Algo
 
 
 
+		TESTMETHOD
+		void testPasswordstrcmpw()
+		{
+			WCHAR a[64]={0x20,0x2020,0x00};
+			WCHAR b[64]={0x20,0x2021,0x00};
+			WCHAR c[64]={0x20,0x2021,0x00};
+
+			TEST_ASSERT_MSG(strcmpw(a,a)==0,"a!=a ?!?!");
+
+			TEST_ASSERT_MSG(strcmpw(NULL,a)==-1,"NULL,x not -1 ?!?!");
+
+			TEST_ASSERT_MSG(strcmpw(a,NULL)==1,"x,NULL not +1 ?!?!");
+
+			TEST_ASSERT_MSG(strcmpw(a,b)==-1,"a<b not -1 ?!?!");
+
+			TEST_ASSERT_MSG(strcmpw(b,a)==1,"b>a not +1 ?!?!");
+
+			TEST_ASSERT_MSG(strcmpw(b,c)==0,"b=c not 0 ?!?!");
+		}
+
+
+
 		/**
 		The constructor needs the add each test method for the non-VS unit test execution.
 		*/
@@ -482,6 +507,8 @@ namespace CipherShed_Tests_Algo
 			TEST_ADD(PasswordTest::testPasswordVerifyPasswordAndUpdate);
 			TEST_ADD(PasswordTest::testPasswordVerifyPasswordAndUpdateMTString);
 			TEST_ADD(PasswordTest::testPasswordVerifyPasswordAndUpdateMissmatch);
+
+			TEST_ADD(PasswordTest::testPasswordstrcmpw);
 		}
 	};
 }

@@ -113,11 +113,21 @@ BOOL CheckPasswordCharEncoding (HWND hPassword, Password *ptrPw)
 	return TRUE;
 }
 
+//an embedded function in Password.c TODO: move to library...
 int strcmpw(WCHAR* a, WCHAR* b)
 {
-	if (a==b) return 0;
-	if (a==NULL) return -1;
-	if (b==NULL) return 1;
+	if (a==b)
+	{
+		return 0;
+	}
+	if (a==NULL)
+	{
+		return -1;
+	}
+	if (b==NULL)
+	{
+		return 1;
+	}
 	while(1)
 	{
 		if (*a==*b)
