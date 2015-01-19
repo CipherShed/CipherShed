@@ -395,6 +395,10 @@
 							RelativePath="..\Common\util\unicode\ConvertUTF.c"
 							>
 						</File>
+						<File
+							RelativePath="..\Common\util\unicode\strcmpw.c"
+							>
+						</File>
 					</Filter>
 				</Filter>
 			</Filter>

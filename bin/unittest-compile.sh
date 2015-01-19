@@ -11,6 +11,7 @@ g++ unittesting.cpp                                         \
     ../Common/Password.c                                    \
     ../Common/strcpys.c                                     \
     ../Common/util/unicode/ConvertUTF.c                     \
+    ../Common/util/unicode/strcmpw.c                        \
                                                             \
     faux/windows/CloseHandle.cpp                            \
     faux/windows/CreateFile.cpp                             \

@@ -411,6 +411,10 @@
 							RelativePath="..\Common\util\unicode\ConvertUTF.c"
 							>
 						</File>
+						<File
+							RelativePath="..\Common\util\unicode\strcmpw.c"
+							>
+						</File>
 					</Filter>
 				</Filter>
 			</Filter>
@@ -552,6 +556,22 @@
 				RelativePath="..\Common\Xts.h"
 				>
 			</File>
+			<Filter
+				Name="Common"
+				>
+				<Filter
+					Name="util"
+					>
+					<Filter
+						Name="unicode"
+						>
+						<File
+							RelativePath="..\Common\util\unicode\strcmpw.h"
+							>
+						</File>
+					</Filter>
+				</Filter>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Resource Files"
