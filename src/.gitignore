@@ -42,6 +42,8 @@
 /Common/Textual_logo_96dpi.bmp.h
 /Crypto/obj_driver_debug/
 /Crypto/obj_driver_release/
+/Crypto/build_driver_*.*
+/Crypto/build_errors.log
 /Driver/obj_driver_debug/
 /Driver/obj_driver_release/
 /Format/FormatCom_h.h

@@ -278,7 +278,51 @@
 								/>
 							</FileConfiguration>
 						</File>
+						<File
+							RelativePath="..\Common\util\unicode\strcmpw.c"
+							>
+							<FileConfiguration
+								Name="Debug|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Release|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+						</File>
 					</Filter>
+				</Filter>
+				<Filter
+					Name="dialog"
+					>
+					<File
+						RelativePath="..\Common\dialog\cursor.c"
+						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								CompileAsManaged="0"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								CompileAsManaged="0"
+							/>
+						</FileConfiguration>
+					</File>
 				</Filter>
 			</Filter>
 			<Filter
@@ -395,7 +439,47 @@
 							>
 						</File>
 						<File
+							RelativePath=".\faux\windows\LoadCursor.c"
+							>
+							<FileConfiguration
+								Name="Debug|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Release|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+						</File>
+						<File
 							RelativePath=".\faux\windows\MessageBox.c"
+							>
+							<FileConfiguration
+								Name="Debug|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Release|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+						</File>
+						<File
+							RelativePath=".\faux\windows\SetCursor.c"
 							>
 							<FileConfiguration
 								Name="Debug|Win32"
@@ -484,7 +568,19 @@
 							RelativePath="..\Common\util\unicode\ConvertUTF.h"
 							>
 						</File>
+						<File
+							RelativePath="..\Common\util\unicode\strcmpw.h"
+							>
+						</File>
 					</Filter>
+				</Filter>
+				<Filter
+					Name="dialog"
+					>
+					<File
+						RelativePath="..\Common\dialog\cursor.h"
+						>
+					</File>
 				</Filter>
 			</Filter>
 			<Filter
@@ -621,11 +717,23 @@
 							>
 						</File>
 						<File
+							RelativePath=".\faux\windows\HCURSOR.h"
+							>
+						</File>
+						<File
 							RelativePath=".\faux\windows\HDC.h"
 							>
 						</File>
 						<File
+							RelativePath=".\faux\windows\HFILE.h"
+							>
+						</File>
+						<File
 							RelativePath=".\faux\windows\HFONT.h"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\HICON.h"
 							>
 						</File>
 						<File
@@ -634,6 +742,10 @@
 						</File>
 						<File
 							RelativePath=".\faux\windows\HWND.h"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\IDC_x.h"
 							>
 						</File>
 						<File
@@ -653,6 +765,10 @@
 							>
 						</File>
 						<File
+							RelativePath=".\faux\windows\LoadCursor.h"
+							>
+						</File>
+						<File
 							RelativePath=".\faux\windows\LONG.h"
 							>
 						</File>
@@ -666,6 +782,10 @@
 						</File>
 						<File
 							RelativePath=".\faux\windows\LRESULT.h"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\MAKEINTRESOURCE.h"
 							>
 						</File>
 						<File
@@ -706,6 +826,10 @@
 						</File>
 						<File
 							RelativePath=".\faux\windows\SECURITY_ATTRIBUTES.h"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\SetCursor.h"
 							>
 						</File>
 						<File

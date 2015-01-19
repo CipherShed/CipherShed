@@ -16,11 +16,9 @@
 BOOL bPreserveTimestamp = TRUE;
 BOOL UacElevated = FALSE;
 wchar_t *lpszTitle = NULL;
-void WaitCursor (){}
 BOOL IsUacSupported (){return 0;}
 void EnableElevatedCursorChange (HWND parent){}
 void CreateFullVolumePath (char *lpszDiskFile, const char *lpszFileName, BOOL * bDevice){}
-void NormalCursor (){}
 void handleError (HWND hwndDlg, int code){}
 int RemoveFakeDosName (char *lpszDiskFile, char *lpszDosDevice){return 0;}
 BOOL GetPartitionInfo (const char *deviceName, PPARTITION_INFORMATION rpartInfo){return 0;}

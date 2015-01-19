@@ -147,7 +147,7 @@ of the CipherShed or TrueCrypt installer is running (which is also useful for en
 volatile HANDLE hAppSetupMutex = NULL;
 
 HINSTANCE hInst = NULL;
-HCURSOR hCursor = NULL;
+//moved to cursor.c
 
 ATOM hDlgClass, hSplashClass;
 
@@ -1473,44 +1473,7 @@ SplashDlgProc (HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	return DefDlgProc (hwnd, uMsg, wParam, lParam);
 }
 
-void
-WaitCursor ()
-{
-	static HCURSOR hcWait;
-	if (hcWait == NULL)
-		hcWait = LoadCursor (NULL, IDC_WAIT);
-	SetCursor (hcWait);
-	hCursor = hcWait;
-}
-
-void
-NormalCursor ()
-{
-	static HCURSOR hcArrow;
-	if (hcArrow == NULL)
-		hcArrow = LoadCursor (NULL, IDC_ARROW);
-	SetCursor (hcArrow);
-	hCursor = NULL;
-}
-
-void
-ArrowWaitCursor ()
-{
-	static HCURSOR hcArrowWait;
-	if (hcArrowWait == NULL)
-		hcArrowWait = LoadCursor (NULL, IDC_APPSTARTING);
-	SetCursor (hcArrowWait);
-	hCursor = hcArrowWait;
-}
-
-void HandCursor ()
-{
-	static HCURSOR hcHand;
-	if (hcHand == NULL)
-		hcHand = LoadCursor (NULL, IDC_HAND);
-	SetCursor (hcHand);
-	hCursor = hcHand;
-}
+//moved to cursor.c
 
 void
 AddComboPair (HWND hComboBox, const char *lpszItem, int value)

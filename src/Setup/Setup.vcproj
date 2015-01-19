@@ -187,7 +187,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy Release\CipherShedSetup.exe &quot;..\Release\Setup Files\CipherShed Setup.exe&quot;&#x0D;&#x0A;copy ..\..\doc\userdocs\guide\CipherShed-User-Guide-0.7.3.0.pdf &quot;..\Release\Setup Files\CipherShed User Guide.pdf&quot;&#x0D;&#x0A;copy ..\License.txt &quot;..\Release\Setup Files\&quot;"
+				CommandLine="copy Release\CipherShedSetup.exe &quot;..\Release\Setup Files\CipherShed Setup.exe&quot;&#x0D;&#x0A;copy ..\..\doc\userdocs\guide\CipherShed-User-Guide-0.7.3.0.pdf &quot;..\Release\Setup Files\CipherShed User Guide.pdf&quot;&#x0D;&#x0A;copy ..\License.txt &quot;..\Release\Setup Files\&quot;&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>
@@ -326,6 +326,22 @@
 					RelativePath="..\Common\Registry.c"
 					>
 				</File>
+				<Filter
+					Name="dialog"
+					>
+					<File
+						RelativePath="..\Common\dialog\cursor.c"
+						>
+					</File>
+					<File
+						RelativePath="..\Common\dialog\errors.c"
+						>
+					</File>
+					<File
+						RelativePath="..\Common\dialog\userperms.c"
+						>
+					</File>
+				</Filter>
 			</Filter>
 		</Filter>
 		<Filter
@@ -378,11 +394,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Resource.h"
+				RelativePath="..\Common\Resource.h"
 				>
 			</File>
 			<File
-				RelativePath="..\Common\Resource.h"
+				RelativePath=".\Resource.h"
 				>
 			</File>
 			<File
@@ -401,6 +417,26 @@
 				RelativePath=".\Wizard.h"
 				>
 			</File>
+			<Filter
+				Name="Common"
+				>
+				<Filter
+					Name="dialog"
+					>
+					<File
+						RelativePath="..\Common\dialog\cursor.h"
+						>
+					</File>
+					<File
+						RelativePath="..\Common\dialog\errors.h"
+						>
+					</File>
+					<File
+						RelativePath="..\Common\dialog\userperms.h"
+						>
+					</File>
+				</Filter>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Resource Files"

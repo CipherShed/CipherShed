@@ -10,7 +10,9 @@ g++ unittesting.cpp                                         \
     ../Common/Endian.c                                      \
     ../Common/Password.c                                    \
     ../Common/strcpys.c                                     \
+    ../Common/dialog/cursor.c                               \
     ../Common/util/unicode/ConvertUTF.c                     \
+    ../Common/util/unicode/strcmpw.c                        \
                                                             \
     faux/windows/CloseHandle.cpp                            \
     faux/windows/CreateFile.cpp                             \
@@ -26,6 +28,8 @@ g++ unittesting.cpp                                         \
     faux/windows/SetFileTime.cpp                            \
     faux/windows/SetLastError.cpp                           \
     faux/windows/MessageBox.c                               \
+    faux/windows/SetCursor.c                                \
+    faux/windows/LoadCursor.c                               \
     faux/ciphershed/wip.cpp                                 \
                                                             \
         -I .                                                \

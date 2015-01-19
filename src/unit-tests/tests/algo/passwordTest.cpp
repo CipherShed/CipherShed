@@ -8,10 +8,7 @@
 
 #include <stdio.h>
 
-extern "C" {
-//an embedded function in Password.c TODO: move to library...
-int strcmpw(WCHAR* a, WCHAR* b);
-}
+#include "../../../Common/util/unicode/strcmpw.h"
 
 #pragma warning(disable: 4996)
 #ifndef _MSC_VER

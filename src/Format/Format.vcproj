@@ -411,7 +411,27 @@
 							RelativePath="..\Common\util\unicode\ConvertUTF.c"
 							>
 						</File>
+						<File
+							RelativePath="..\Common\util\unicode\strcmpw.c"
+							>
+						</File>
 					</Filter>
+				</Filter>
+				<Filter
+					Name="dialog"
+					>
+					<File
+						RelativePath="..\Common\dialog\cursor.c"
+						>
+					</File>
+					<File
+						RelativePath="..\Common\dialog\errors.c"
+						>
+					</File>
+					<File
+						RelativePath="..\Common\dialog\userperms.c"
+						>
+					</File>
 				</Filter>
 			</Filter>
 		</Filter>
@@ -509,11 +529,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\resource.h"
+				RelativePath="..\Common\Resource.h"
 				>
 			</File>
 			<File
-				RelativePath="..\Common\Resource.h"
+				RelativePath=".\resource.h"
 				>
 			</File>
 			<File
@@ -552,6 +572,38 @@
 				RelativePath="..\Common\Xts.h"
 				>
 			</File>
+			<Filter
+				Name="Common"
+				>
+				<Filter
+					Name="dialog"
+					>
+					<File
+						RelativePath="..\Common\dialog\cursor.h"
+						>
+					</File>
+					<File
+						RelativePath="..\Common\dialog\errors.h"
+						>
+					</File>
+					<File
+						RelativePath="..\Common\dialog\userperms.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="util"
+					>
+					<Filter
+						Name="unicode"
+						>
+						<File
+							RelativePath="..\Common\util\unicode\strcmpw.h"
+							>
+						</File>
+					</Filter>
+				</Filter>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Resource Files"
@@ -583,10 +635,6 @@
 				Name="Common"
 				>
 				<File
-					RelativePath="..\Boot\Windows\Rescue_Twofish\BootLoader.com.gz"
-					>
-				</File>
-				<File
 					RelativePath="..\Boot\Windows\Release_Serpent\BootLoader.com.gz"
 					>
 				</File>
@@ -612,6 +660,10 @@
 				</File>
 				<File
 					RelativePath="..\Boot\Windows\Rescue\BootLoader.com.gz"
+					>
+				</File>
+				<File
+					RelativePath="..\Boot\Windows\Rescue_Twofish\BootLoader.com.gz"
 					>
 				</File>
 				<File

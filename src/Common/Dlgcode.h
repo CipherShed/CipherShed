@@ -28,6 +28,8 @@
 #include "Keyfiles.h"
 #include "Wipe.h"
 
+#include "dialog/cursor.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -274,10 +276,7 @@ LRESULT CALLBACK RedTick ( HWND hwnd , UINT uMsg , WPARAM wParam , LPARAM lParam
 BOOL RegisterRedTick ( HINSTANCE hInstance );
 BOOL UnregisterRedTick ( HINSTANCE hInstance );
 LRESULT CALLBACK SplashDlgProc ( HWND hwnd , UINT uMsg , WPARAM wParam , LPARAM lParam );
-void WaitCursor ( void );
-void NormalCursor ( void );
-void ArrowWaitCursor ( void );
-void HandCursor ();
+//moved to cursor.h
 void AddComboPair (HWND hComboBox, const char *lpszItem, int value);
 void AddComboPairW (HWND hComboBox, const wchar_t *lpszItem, int value);
 void SelectAlgo ( HWND hComboBox , int *nCipher );
