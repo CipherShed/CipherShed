@@ -11,13 +11,13 @@ coverage.xml: ../../doc/devdocs/generated/reports/coverage.xml
 
 ../../doc/devdocs/generated/reports/coverage.xml: gcov
 	mkdir -p ../../doc/devdocs/generated/reports/
-	(cd ../../tmp/unittests  && gcovr --xml -b -r . -o ../../doc/devdocs/generated/reports/coverage.xml )
+	gcovr --xml -b -k -r ../../ -o ../../doc/devdocs/generated/reports/coverage.xml -v -g -s
 
-run:
+run: unittests
 	../../tmp/unittests/unittesting
 
 gcov: $(ODIR)/unittesting run
-	gcov -a -b -c ../../tmp/unittests/*.gcda -o ../../tmp/unittests/
+	gcov -b -c ../../tmp/unittests/*.gcda -o ../../tmp/unittests/
 	mv -v *.gcov ../../tmp/unittests/
 
 unittests: $(ODIR)/unittesting
