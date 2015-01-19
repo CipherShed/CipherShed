@@ -16,7 +16,7 @@ run:
 	../../tmp/unittests/unittesting
 
 gcov: $(ODIR)/unittesting run
-	gcov -a -b -c -r ../../tmp/unittests/*.gcda
+	gcov -a -b -c ../../tmp/unittests/*.gcda
 	mv -v *.gcov ../../tmp/unittests/
 
 unittests: $(ODIR)/unittesting
