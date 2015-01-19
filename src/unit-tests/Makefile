@@ -10,13 +10,14 @@ CFLAGS = -DCS_UNITTESTING -fprofile-arcs -ftest-coverage -I . -I ../../var/opt/c
 coverage.xml: ../../doc/devdocs/generated/reports/coverage.xml
 
 ../../doc/devdocs/generated/reports/coverage.xml: gcov
+	mkdir -p ../../doc/devdocs/generated/reports/
 	(cd ../../tmp/unittests  && gcovr --xml -b -r . -o ../../doc/devdocs/generated/reports/coverage.xml )
 
 run:
 	../../tmp/unittests/unittesting
 
 gcov: $(ODIR)/unittesting run
-	gcov -a -b -c ../../tmp/unittests/*.gcda
+	gcov -a -b -c ../../tmp/unittests/*.gcda -o ../../tmp/unittests/
 	mv -v *.gcov ../../tmp/unittests/
 
 unittests: $(ODIR)/unittesting
