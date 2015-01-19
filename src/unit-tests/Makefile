@@ -13,11 +13,9 @@ coverage.xml: ../../doc/devdocs/generated/reports/coverage.xml
 	(cd ../../tmp/unittests  && gcovr --xml -b -r . -o ../../doc/devdocs/generated/reports/coverage.xml )
 
 run:
-	../../tmp/unittests/unittesting.exe
+	../../tmp/unittests/unittesting
 
 gcov: $(ODIR)/unittesting run
-#	cd ../../ && ./tmp/unittests/unittesting.exe
-	../../tmp/unittests/unittesting.exe
 	gcov -a -b -c -r ../../tmp/unittests/*.gcda
 	mv -v *.gcov ../../tmp/unittests/
 
