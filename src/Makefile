@@ -299,3 +299,6 @@ endif
 	
 	@echo Building wxWidgets library...
 	cd "$(WX_BUILD_DIR)" && $(MAKE)
+
+unittests:
+	$(MAKE) -C unit-tests
