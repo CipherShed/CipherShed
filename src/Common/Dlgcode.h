@@ -29,6 +29,7 @@
 #include "Wipe.h"
 
 #include "dialog/cursor.h"
+#include "dialog/errors.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -132,7 +133,7 @@ extern HFONT WindowTitleBarFont;
 extern int ScreenDPI;
 extern double DlgAspectRatio;
 extern HWND MainDlg;
-extern BOOL Silent;
+//moved to errors.h
 extern BOOL bHistory;
 extern BOOL bPreserveTimestamp;
 extern BOOL bStartOnLogon;
@@ -254,11 +255,11 @@ void AbortProcess ( char *stringId );
 void AbortProcessSilent ( void );
 void *err_malloc ( size_t size );
 char *err_strdup ( char *lpszText );
-DWORD handleWin32Error ( HWND hwndDlg );
+//moved to errors.h
 BOOL IsDiskReadError (DWORD error);
 BOOL IsDiskWriteError (DWORD error);
 BOOL IsDiskError (DWORD error);
-BOOL translateWin32Error ( wchar_t *lpszMsgBuf , int nWSizeOfBuf );
+//moved to errors.h
 BOOL CALLBACK AboutDlgProc ( HWND hwndDlg , UINT msg , WPARAM wParam , LPARAM lParam );
 static BOOL CALLBACK StaticModelessWaitDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam);
 void DisplayStaticModelessWaitDlg (HWND parent);
@@ -329,7 +330,7 @@ void ResetCipherTest ( HWND hwndDlg , int idTestCipher );
 void ResetCurrentDirectory ();
 BOOL BrowseFiles (HWND hwndDlg, char *stringId, char *lpszFileName, BOOL keepHistory, BOOL saveMode, wchar_t *browseFilter);
 BOOL BrowseDirectories (HWND hWnd, char *lpszTitle, char *dirName);
-void handleError ( HWND hwndDlg , int code );
+//moved to errors.h
 BOOL CheckFileStreamWriteErrors (FILE *file, const char *fileName);
 void LocalizeDialog ( HWND hwnd, char *stringId );
 void OpenVolumeExplorerWindow (int driveNo);
@@ -394,36 +395,7 @@ char *GetConfigPath (char *fileName);
 char *GetProgramConfigPath (char *fileName);
 char GetSystemDriveLetter (void);
 void OpenPageHelp (HWND hwndDlg, int nPage);
-void TaskBarIconDisplayBalloonTooltip (HWND hwnd, wchar_t *headline, wchar_t *text, BOOL warning);
-void InfoBalloon (char *headingStringId, char *textStringId);
-void InfoBalloonDirect (wchar_t *headingString, wchar_t *textString);
-void WarningBalloon (char *headingStringId, char *textStringId);
-void WarningBalloonDirect (wchar_t *headingString, wchar_t *textString);
-int Info (char *stringId);
-int InfoTopMost (char *stringId);
-int InfoDirect (const wchar_t *msg);
-int Warning (char *stringId);
-int WarningTopMost (char *stringId);
-int WarningDirect (const wchar_t *warnMsg);
-int Error (char *stringId);
-int ErrorDirect (const wchar_t *errMsg);
-int ErrorTopMost (char *stringId);
-int AskYesNo (char *stringId);
-int AskYesNoString (const wchar_t *str);
-int AskYesNoTopmost (char *stringId);
-int AskNoYes (char *stringId);
-int AskOkCancel (char *stringId);
-int AskWarnYesNo (char *stringId);
-int AskWarnYesNoString (const wchar_t *string);
-int AskWarnYesNoTopmost (char *stringId);
-int AskWarnYesNoStringTopmost (const wchar_t *string);
-int AskWarnNoYes (char *stringId);
-int AskWarnNoYesString (const wchar_t *string);
-int AskWarnNoYesTopmost (char *stringId);
-int AskWarnOkCancel (char *stringId);
-int AskWarnCancelOk (char *stringId);
-int AskErrYesNo (char *stringId);
-int AskErrNoYes (char *stringId);
+//moved to errors.h
 int AskMultiChoice (void *strings[], BOOL bBold);
 BOOL ConfigWriteBegin ();
 BOOL ConfigWriteEnd ();
@@ -448,8 +420,7 @@ void HandleDriveNotReadyError ();
 BOOL CALLBACK CloseTCWindowsEnum( HWND hwnd, LPARAM lParam);
 BOOL CALLBACK FindTCWindowEnum (HWND hwnd, LPARAM lParam);
 BYTE *MapResource (char *resourceType, int resourceId, PDWORD size);
-void InconsistencyResolved (char *msg);
-void ReportUnexpectedState (char *techInfo);
+//moved to errors.h
 BOOL SelectMultipleFiles (HWND hwndDlg, char *stringId, char *lpszFileName, BOOL keepHistory);
 BOOL SelectMultipleFilesNext (char *lpszFileName);
 void OpenOnlineHelp ();
@@ -539,7 +510,7 @@ std::string WideToUtf8String (const std::wstring &wideString);
 std::string StringToUpperCase (const std::string &str);
 std::vector <HostDevice> GetAvailableHostDevices (bool noDeviceProperties = false, bool singleList = false, bool noFloppy = true, bool detectUnencryptedFilesystems = false);
 std::string ToUpperCase (const std::string &str);
-std::wstring GetWrongPasswordErrorMessage (HWND hwndDlg);
+//moved to errors.h
 std::string GetWindowsEdition ();
 std::string FitPathInGfxWidth (HWND hwnd, HFONT hFont, LONG width, const std::string &path);
 std::string GetServiceConfigPath (const char *fileName);

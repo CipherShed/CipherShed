@@ -110,6 +110,6 @@ static BOOL HandleDriveListMouseWheelEvent (UINT uMsg, WPARAM wParam, LPARAM lPa
 
 void SetDriverConfigurationFlag (uint32 flag, BOOL state);
 BOOL MountFavoriteVolumes (BOOL systemFavorites = FALSE, BOOL logOnMount = FALSE, BOOL hotKeyMount = FALSE, const CipherShed::FavoriteVolume &favoriteVolumeToMount = CipherShed::FavoriteVolume());
-BOOL GetExecutableImageInformation (const string &path, string &version, string &description, string &companyName, string &productName);
+BOOL GetExecutableImageInformation (const std::string &path, std::string &version, std::string &description, std::string &companyName, std::string &productName);
 
 #endif

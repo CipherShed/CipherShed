@@ -19,11 +19,22 @@ wchar_t *lpszTitle = NULL;
 BOOL IsUacSupported (){return 0;}
 void EnableElevatedCursorChange (HWND parent){}
 void CreateFullVolumePath (char *lpszDiskFile, const char *lpszFileName, BOOL * bDevice){}
-void handleError (HWND hwndDlg, int code){}
 int RemoveFakeDosName (char *lpszDiskFile, char *lpszDosDevice){return 0;}
 BOOL GetPartitionInfo (const char *deviceName, PPARTITION_INFORMATION rpartInfo){return 0;}
 int FakeDosNameForDevice (const char *lpszDiskFile, char *lpszDosDevice, char *lpszCFDevice, BOOL bNameOnly){return 0;}
 void UserEnrichRandomPool (HWND hwndDlg){}
+
+// secondary...
+void HandleDriveNotReadyError(){}
+BOOL CheckCapsLock (HWND hwnd, BOOL quiet){return 0;}
+BOOL IsDiskError (DWORD error){return 0;}
+BOOL KeyFilesEnable = FALSE;
+HWND MainDlg = NULL;
+BOOL IsOSAtLeast (OSVersionEnum reqMinOS){return 0;}
+BOOL IsAdmin (void){return 0;}
+OSVersionEnum nCurrentOS = WIN_UNKNOWN;
+
+
 //Volumes.c
 BOOL ReadEffectiveVolumeHeader (BOOL device, HANDLE fileHandle, byte *header, DWORD *bytesRead){return 0;}
 int ReadVolumeHeader (BOOL bBoot, char *encryptedHeader, Password *password, PCRYPTO_INFO *retInfo, CRYPTO_INFO *retHeaderCryptoInfo){return 0;}

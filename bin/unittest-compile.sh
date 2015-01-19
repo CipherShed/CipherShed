@@ -11,9 +11,13 @@ g++ unittesting.cpp                                         \
     ../Common/Password.c                                    \
     ../Common/strcpys.c                                     \
     ../Common/dialog/cursor.c                               \
+    ../Common/dialog/errors.cpp                             \
     ../Common/util/unicode/ConvertUTF.c                     \
     ../Common/util/unicode/strcmpw.c                        \
                                                             \
+    faux/windows/ShellNotifyIcon.c                          \
+    faux/windows/LocalFree.c                                \
+    faux/windows/FormatMessage.c                            \
     faux/windows/CloseHandle.cpp                            \
     faux/windows/CreateFile.cpp                             \
     faux/windows/DeviceIoControl.cpp                        \

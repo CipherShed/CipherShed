@@ -425,7 +425,7 @@
 						>
 					</File>
 					<File
-						RelativePath="..\Common\dialog\errors.c"
+						RelativePath="..\Common\dialog\errors.cpp"
 						>
 					</File>
 					<File

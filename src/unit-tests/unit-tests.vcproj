@@ -323,6 +323,10 @@
 							/>
 						</FileConfiguration>
 					</File>
+					<File
+						RelativePath="..\Common\dialog\errors.cpp"
+						>
+					</File>
 				</Filter>
 			</Filter>
 			<Filter
@@ -419,6 +423,26 @@
 							>
 						</File>
 						<File
+							RelativePath=".\faux\windows\FormatMessage.c"
+							>
+							<FileConfiguration
+								Name="Debug|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Release|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+						</File>
+						<File
 							RelativePath=".\faux\windows\GetFileSize.cpp"
 							>
 						</File>
@@ -440,6 +464,26 @@
 						</File>
 						<File
 							RelativePath=".\faux\windows\LoadCursor.c"
+							>
+							<FileConfiguration
+								Name="Debug|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Release|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+						</File>
+						<File
+							RelativePath=".\faux\windows\LocalFree.c"
 							>
 							<FileConfiguration
 								Name="Debug|Win32"
@@ -509,6 +553,26 @@
 						<File
 							RelativePath=".\faux\windows\SetLastError.cpp"
 							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\ShellNotifyIcon.c"
+							>
+							<FileConfiguration
+								Name="Debug|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Release|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
 						</File>
 					</Filter>
 					<Filter
@@ -581,6 +645,10 @@
 						RelativePath="..\Common\dialog\cursor.h"
 						>
 					</File>
+					<File
+						RelativePath="..\Common\dialog\errors.h"
+						>
+					</File>
 				</Filter>
 			</Filter>
 			<Filter
@@ -606,6 +674,10 @@
 						>
 						<File
 							RelativePath=".\faux\windows\ACCESSTYPES.h"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\ARRAYSIZE.h"
 							>
 						</File>
 						<File
@@ -685,6 +757,10 @@
 							>
 						</File>
 						<File
+							RelativePath=".\faux\windows\FormatMessage.h"
+							>
+						</File>
+						<File
 							RelativePath=".\faux\windows\FPO_DATA.h"
 							>
 						</File>
@@ -706,6 +782,10 @@
 						</File>
 						<File
 							RelativePath=".\faux\windows\GetWindowTextLength.h"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\GUID.h"
 							>
 						</File>
 						<File
@@ -757,6 +837,10 @@
 							>
 						</File>
 						<File
+							RelativePath=".\faux\windows\lang.h"
+							>
+						</File>
+						<File
 							RelativePath=".\faux\windows\LARGE_INTEGER.h"
 							>
 						</File>
@@ -805,6 +889,22 @@
 							>
 						</File>
 						<File
+							RelativePath=".\faux\windows\NIF.h"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\NIIF.h"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\NIM.h"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\NOTIFYICON.h"
+							>
+						</File>
+						<File
 							RelativePath=".\faux\windows\NULL.h"
 							>
 						</File>
@@ -845,6 +945,10 @@
 							>
 						</File>
 						<File
+							RelativePath=".\faux\windows\ShellNotifyIcon.h"
+							>
+						</File>
+						<File
 							RelativePath=".\faux\windows\SHORT.h"
 							>
 						</File>
@@ -878,6 +982,10 @@
 						</File>
 						<File
 							RelativePath=".\faux\windows\WPARAM.h"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\ZeroMemory.h"
 							>
 						</File>
 					</Filter>
