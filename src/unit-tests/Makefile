@@ -11,7 +11,7 @@ coverage.xml: ../../doc/devdocs/generated/reports/coverage.xml
 
 ../../doc/devdocs/generated/reports/coverage.xml: gcov
 	mkdir -p ../../doc/devdocs/generated/reports/
-	gcovr --xml -b -k -r ../../ -o ../../doc/devdocs/generated/reports/coverage.xml -v -g -s
+	gcovr --xml -b -k -r ../../ -o ../../doc/devdocs/generated/reports/coverage.xml -v -g -s -e '^src/unit-tests/' -e '^var/'
 
 run: unittests
 	../../tmp/unittests/unittesting
