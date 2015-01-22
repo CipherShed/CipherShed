@@ -110,8 +110,7 @@ int CurrentOSMajor = 0;
 int CurrentOSMinor = 0;
 int CurrentOSServicePack = 0;
 BOOL RemoteSession = FALSE;
-BOOL UacElevated = FALSE;
-
+//moved to userperms.c
 BOOL bPortableModeConfirmed = FALSE;		// TRUE if it is certain that the instance is running in portable mode
 
 BOOL bInPlaceEncNonSysPending = FALSE;		// TRUE if the non-system in-place encryption config file indicates that one or more partitions are scheduled to be encrypted. This flag is set only when config files are loaded during app startup.
@@ -6221,57 +6220,7 @@ int GetMountedVolumeDriveNo (char *volname)
 }
 
 
-BOOL IsAdmin (void)
-{
-	return IsUserAnAdmin ();
-}
-
-
-BOOL IsBuiltInAdmin ()
-{
-	HANDLE procToken;
-	DWORD size;
-
-	if (!IsAdmin() || !OpenProcessToken (GetCurrentProcess(), TOKEN_QUERY, &procToken))
-		return FALSE;
-
-	finally_do_arg (HANDLE, procToken, { CloseHandle (finally_arg); });
-
-	if (GetTokenInformation (procToken, TokenUser, NULL, 0, &size) || GetLastError() != ERROR_INSUFFICIENT_BUFFER)
-		return FALSE;
-
-	TOKEN_USER *tokenUser = (TOKEN_USER *) malloc (size);
-	if (!tokenUser)
-		return FALSE;
-
-	finally_do_arg (void *, tokenUser, { free (finally_arg); });
-
-	if (!GetTokenInformation (procToken, TokenUser, tokenUser, size, &size))
-		return FALSE;
-
-	return IsWellKnownSid (tokenUser->User.Sid, WinAccountAdministratorSid);
-}
-
-
-BOOL IsUacSupported ()
-{
-	HKEY hkey;
-	DWORD value = 1, size = sizeof (DWORD);
-
-	if (!IsOSAtLeast (WIN_VISTA))
-		return FALSE;
-
-	if (RegOpenKeyEx (HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System", 0, KEY_READ, &hkey) == ERROR_SUCCESS)
-	{
-		if (RegQueryValueEx (hkey, "EnableLUA", 0, 0, (LPBYTE) &value, &size) != ERROR_SUCCESS)
-			value = 1;
-
-		RegCloseKey (hkey);
-	}
-
-	return value != 0;
-}
-
+//moved to userperms.c
 
 BOOL ResolveSymbolicLink (const wchar_t *symLinkName, PWSTR targetName)
 {
@@ -7667,75 +7616,7 @@ void DebugMsgBox (char *format, ...)
 }
 
 
-BOOL IsOSAtLeast (OSVersionEnum reqMinOS)
-{
-	return IsOSVersionAtLeast (reqMinOS, 0);
-}
-
-
-// Returns TRUE if the operating system is at least reqMinOS and service pack at least reqMinServicePack.
-// Example 1: IsOSVersionAtLeast (WIN_VISTA, 1) called under Windows 2008, returns TRUE.
-// Example 2: IsOSVersionAtLeast (WIN_XP, 3) called under Windows XP SP1, returns FALSE.
-// Example 3: IsOSVersionAtLeast (WIN_XP, 3) called under Windows Vista SP1, returns TRUE.
-BOOL IsOSVersionAtLeast (OSVersionEnum reqMinOS, int reqMinServicePack)
-{
-	/* When updating this function, update IsOSAtLeast() in Ntdriver.c too. */
-
-	if (CurrentOSMajor <= 0)
-		TC_THROW_FATAL_EXCEPTION;
-
-	int major = 0, minor = 0;
-
-	switch (reqMinOS)
-	{
-	case WIN_2000:			major = 5; minor = 0; break;
-	case WIN_XP:			major = 5; minor = 1; break;
-	case WIN_SERVER_2003:	major = 5; minor = 2; break;
-	case WIN_VISTA:			major = 6; minor = 0; break;
-	case WIN_7:				major = 6; minor = 1; break;
-	case WIN_8:				major = 6; minor = 2; break;
-	case WIN_10:			major = 6; minor = 4; break;
-
-	default:
-		TC_THROW_FATAL_EXCEPTION;
-		break;
-	}
-
-	return ((CurrentOSMajor << 16 | CurrentOSMinor << 8 | CurrentOSServicePack)
-		>= (major << 16 | minor << 8 | reqMinServicePack));
-}
-
-
-BOOL Is64BitOs ()
-{
-    static BOOL isWow64 = FALSE;
-	static BOOL valid = FALSE;
-	typedef BOOL (__stdcall *LPFN_ISWOW64PROCESS ) (HANDLE hProcess,PBOOL Wow64Process);
-	LPFN_ISWOW64PROCESS fnIsWow64Process;
-
-	if (valid)
-		return isWow64;
-
-	fnIsWow64Process = (LPFN_ISWOW64PROCESS) GetProcAddress (GetModuleHandle("kernel32"), "IsWow64Process");
-
-    if (fnIsWow64Process != NULL)
-        if (!fnIsWow64Process (GetCurrentProcess(), &isWow64))
-			isWow64 = FALSE;
-
-	valid = TRUE;
-    return isWow64;
-}
-
-
-BOOL IsServerOS ()
-{
-	OSVERSIONINFOEXA osVer;
-	osVer.dwOSVersionInfoSize = sizeof (OSVERSIONINFOEXA);
-	GetVersionExA ((LPOSVERSIONINFOA) &osVer);
-
-	return (osVer.wProductType == VER_NT_SERVER || osVer.wProductType == VER_NT_DOMAIN_CONTROLLER);
-}
-
+//moved to userperms.c
 
 // Returns TRUE, if the currently running operating system is installed in a hidden volume. If it's not, or if 
 // there's an error, returns FALSE.
@@ -9185,37 +9066,7 @@ BOOL RemoveDeviceWriteProtection (HWND hwndDlg, char *devicePath)
 }
 
 
-static LRESULT CALLBACK EnableElevatedCursorChangeWndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	return DefWindowProc (hWnd, message, wParam, lParam);
-}
-
-
-void EnableElevatedCursorChange (HWND parent)
-{
-	// Create a transparent window to work around a UAC issue preventing change of the cursor
-	if (UacElevated)
-	{
-		const char *className = "CipherShedEnableElevatedCursorChange";
-		WNDCLASSEX winClass;
-		HWND hWnd;
-
-		memset (&winClass, 0, sizeof (winClass));
-		winClass.cbSize = sizeof (WNDCLASSEX); 
-		winClass.lpfnWndProc = (WNDPROC) EnableElevatedCursorChangeWndProc;
-		winClass.hInstance = hInst;
-		winClass.lpszClassName = className;
-		RegisterClassEx (&winClass);
-
-		hWnd = CreateWindowEx (WS_EX_TOOLWINDOW | WS_EX_LAYERED, className, "CipherShed UAC", 0, 0, 0, GetSystemMetrics (SM_CXSCREEN), GetSystemMetrics (SM_CYSCREEN), parent, NULL, hInst, NULL);
-		SetLayeredWindowAttributes (hWnd, 0, 1, LWA_ALPHA);
-		ShowWindow (hWnd, SW_SHOWNORMAL);
-
-		DestroyWindow (hWnd);
-		UnregisterClass (className, hInst);
-	}
-}
-
+//moved to userperms.c
 
 BOOL DisableFileCompression (HANDLE file)
 {

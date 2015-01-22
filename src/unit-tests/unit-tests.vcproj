@@ -327,6 +327,10 @@
 						RelativePath="..\Common\dialog\errors.cpp"
 						>
 					</File>
+					<File
+						RelativePath="..\Common\dialog\userperms.cpp"
+						>
+					</File>
 				</Filter>
 			</Filter>
 			<Filter
@@ -521,6 +525,10 @@
 									CompileAsManaged="0"
 								/>
 							</FileConfiguration>
+						</File>
+						<File
+							RelativePath=".\faux\windows\RegOpenKeyEx.c"
+							>
 						</File>
 						<File
 							RelativePath=".\faux\windows\SetCursor.c"
@@ -922,6 +930,10 @@
 						</File>
 						<File
 							RelativePath=".\faux\windows\POINT.h"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\RegOpenKeyEx.h"
 							>
 						</File>
 						<File

@@ -413,7 +413,7 @@
 						>
 					</File>
 					<File
-						RelativePath="..\Common\dialog\userperms.c"
+						RelativePath="..\Common\dialog\userperms.cpp"
 						>
 					</File>
 				</Filter>
@@ -626,10 +626,6 @@
 				Name="Common"
 				>
 				<File
-					RelativePath="..\Boot\Windows\Rescue_Serpent\BootLoader.com.gz"
-					>
-				</File>
-				<File
 					RelativePath="..\Boot\Windows\Rescue_AES\BootLoader.com.gz"
 					>
 				</File>
@@ -655,6 +651,10 @@
 				</File>
 				<File
 					RelativePath="..\Boot\Windows\Release_Twofish\BootLoader.com.gz"
+					>
+				</File>
+				<File
+					RelativePath="..\Boot\Windows\Rescue_Serpent\BootLoader.com.gz"
 					>
 				</File>
 				<File

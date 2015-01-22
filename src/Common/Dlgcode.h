@@ -30,6 +30,7 @@
 
 #include "dialog/cursor.h"
 #include "dialog/errors.h"
+#include "dialog/userperms.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -159,7 +160,7 @@ extern BOOL bInPlaceEncNonSysPending;
 extern BOOL	KeyFilesEnable;
 extern KeyFile	*FirstKeyFile;
 extern KeyFilesDlgParam		defaultKeyFilesParam;
-extern BOOL UacElevated;
+//moved to userperms.h
 extern BOOL IgnoreWmDeviceChange;
 extern BOOL DeviceChangeBroadcastDisabled;
 extern BOOL LastMountedVolumeDirty;
@@ -352,9 +353,7 @@ BOOL UnmountVolume (HWND hwndDlg , int nDosDriveNo, BOOL forceUnmount);
 BOOL IsPasswordCacheEmpty (void);
 BOOL IsMountedVolume (const char *volname);
 int GetMountedVolumeDriveNo (char *volname);
-BOOL IsAdmin (void);
-BOOL IsBuiltInAdmin ();
-BOOL IsUacSupported ();
+//moved to userperms.h
 BOOL ResolveSymbolicLink (const wchar_t *symLinkName, PWSTR targetName);
 int GetDiskDeviceDriveLetter (PWSTR deviceName);
 int FileSystemAppearsEmpty (const char *devicePath);
@@ -407,10 +406,7 @@ void RestoreDefaultKeyFilesParam (void);
 BOOL LoadDefaultKeyFilesParam (void);
 void Debug (char *format, ...);
 void DebugMsgBox (char *format, ...);
-BOOL IsOSAtLeast (OSVersionEnum reqMinOS);
-BOOL IsOSVersionAtLeast (OSVersionEnum reqMinOS, int reqMinServicePack);
-BOOL Is64BitOs ();
-BOOL IsServerOS ();
+//moved to userperms.h
 BOOL IsHiddenOSRunning (void);
 BOOL EnableWow64FsRedirection (BOOL enable);
 BOOL RestartComputer (void);
@@ -454,7 +450,7 @@ void CheckFilesystem (int driveNo, BOOL fixErrors);
 BOOL BufferContainsString (const byte *buffer, size_t bufferSize, const char *str);
 int AskNonSysInPlaceEncryptionResume ();
 BOOL RemoveDeviceWriteProtection (HWND hwndDlg, char *devicePath);
-void EnableElevatedCursorChange (HWND parent);
+//moved to userperms.h
 BOOL DisableFileCompression (HANDLE file);
 BOOL VolumePathExists (char *volumePath);
 BOOL IsWindowsIsoBurnerAvailable ();
