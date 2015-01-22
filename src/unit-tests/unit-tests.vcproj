@@ -278,6 +278,26 @@
 								/>
 							</FileConfiguration>
 						</File>
+						<File
+							RelativePath="..\Common\util\unicode\strcmpw.c"
+							>
+							<FileConfiguration
+								Name="Debug|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Release|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+						</File>
 					</Filter>
 				</Filter>
 			</Filter>
