@@ -25,6 +25,7 @@ typedef struct fauxMessageBox
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 int MessageBoxA(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType);
 int MessageBoxW(HWND hWnd, LPCWSTR lpText, LPCWSTR lpCaption, UINT uType);
 #ifdef __cplusplus

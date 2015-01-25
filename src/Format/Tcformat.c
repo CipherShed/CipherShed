@@ -3313,6 +3313,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 		sprintf (PageDebugId, "FORMAT_PAGE_%d", nCurPageNo);
 		LastDialogId = PageDebugId;
+		SetWindowTextW (MainDlg, GetString ("IDD_VOL_CREATION_WIZARD_DLG_INTRO_TITLE"));
 
 		switch (nCurPageNo)
 		{
@@ -3323,6 +3324,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 			SendMessage (GetDlgItem (hwndDlg, IDC_SYS_DEVICE), WM_SETFONT, (WPARAM) hUserBoldFont, (LPARAM) TRUE);
 
 			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), GetString ("INTRO_TITLE"));
+			SetWindowTextW (MainDlg, GetString ("IDD_VOL_CREATION_WIZARD_DLG_INTRO_TITLE"));
 
 			ToHyperlink (hwndDlg, IDC_MORE_INFO_ON_CONTAINERS);
 			ToHyperlink (hwndDlg, IDC_MORE_INFO_ON_SYS_ENCRYPTION);
@@ -3344,6 +3346,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 			bHiddenVolHost = bHiddenVol = bHiddenOS;
 
 			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), GetString ("SYSENC_TYPE_PAGE_TITLE"));
+			SetWindowTextW (MainDlg, GetString ("IDD_VOL_CREATION_WIZARD_DLG_SYSENC_TYPE_PAGE_TITLE"));
 
 			SendMessage (GetDlgItem (hwndDlg, IDC_SYSENC_HIDDEN), WM_SETFONT, (WPARAM) hUserBoldFont, (LPARAM) TRUE);
 			SendMessage (GetDlgItem (hwndDlg, IDC_SYSENC_NORMAL), WM_SETFONT, (WPARAM) hUserBoldFont, (LPARAM) TRUE);
@@ -3366,6 +3369,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 		case SYSENC_HIDDEN_OS_REQ_CHECK_PAGE:
 
 			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), GetString ("SYSENC_HIDDEN_OS_REQ_CHECK_PAGE_TITLE"));
+//			SetWindowTextW (MainDlg, GetString ("IDD_VOL_CREATION_WIZARD_DLG_SYSENC_HIDDEN_OS_REQ_CHECK_PAGE_TITLE"));
 			SetWindowTextW (GetDlgItem (hwndDlg, IDC_BOX_HELP), GetString ("SYSENC_HIDDEN_OS_REQ_CHECK_PAGE_HELP"));
 			SetWindowTextW (GetDlgItem (MainDlg, IDC_NEXT), GetString ("NEXT"));
 			SetWindowTextW (GetDlgItem (MainDlg, IDC_PREV), GetString ("PREV"));
@@ -3383,6 +3387,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 			SendMessage (GetDlgItem (hwndDlg, IDC_SYS_PARTITION), WM_SETFONT, (WPARAM) hUserBoldFont, (LPARAM) TRUE);
 
 			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), GetString ("SYS_ENCRYPTION_SPAN_TITLE"));
+			SetWindowTextW (MainDlg, GetString ("IDD_VOL_CREATION_WIZARD_DLG_SYS_ENCRYPTION_SPAN_TITLE"));
 
 			SetWindowTextW (GetDlgItem (hwndDlg, IDT_WHOLE_SYS_DRIVE), GetString ("SYS_ENCRYPTION_SPAN_WHOLE_SYS_DRIVE_HELP"));
 
@@ -3401,6 +3406,8 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 			Init2RadButtonPageYesNo (SysEncDetectHiddenSectors);
 			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), GetString ("SYSENC_PRE_DRIVE_ANALYSIS_TITLE"));
+			SetWindowTextW (MainDlg, GetString ("IDD_VOL_CREATION_WIZARD_DLG_SYSENC_PRE_DRIVE_ANALYSIS_TITLE"));
+
 			SetWindowTextW (GetDlgItem (hwndDlg, IDC_BOX_HELP), GetString ("SYSENC_PRE_DRIVE_ANALYSIS_HELP"));
 			break;
 
@@ -3408,6 +3415,8 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 		case SYSENC_DRIVE_ANALYSIS_PAGE:
 
 			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), GetString ("SYSENC_DRIVE_ANALYSIS_TITLE"));
+			SetWindowTextW (MainDlg, GetString ("IDD_VOL_CREATION_WIZARD_DLG_SYSENC_DRIVE_ANALYSIS_TITLE"));
+
 			SetWindowTextW (GetDlgItem (hwndDlg, IDT_SYSENC_DRIVE_ANALYSIS_INFO), GetString ("SYSENC_DRIVE_ANALYSIS_INFO"));
 			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_NEXT), GetString ("NEXT"));
 			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_PREV), GetString ("PREV"));
@@ -3458,6 +3467,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 			SendMessage (GetDlgItem (hwndDlg, IDC_MULTI_BOOT), WM_SETFONT, (WPARAM) hUserBoldFont, (LPARAM) TRUE);
 
 			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), GetString ("SYS_MULTI_BOOT_MODE_TITLE"));
+			SetWindowTextW (MainDlg, GetString ("IDD_VOL_CREATION_WIZARD_DLG_SYS_MULTI_BOOT_MODE_TITLE"));
 
 			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_NEXT), GetString ("NEXT"));
 			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_PREV), GetString ("PREV"));
@@ -3475,6 +3485,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 			Init2RadButtonPageYesNo (SysEncMultiBootCfg.SystemOnBootDrive);
 			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), GetString ("SYSENC_MULTI_BOOT_SYS_EQ_BOOT_TITLE"));
+//			SetWindowTextW (MainDlg, GetString ("IDD_VOL_CREATION_WIZARD_DLG_SYSENC_MULTI_BOOT_SYS_EQ_BOOT_TITLE"));
 			SetWindowTextW (GetDlgItem (hwndDlg, IDC_BOX_HELP), GetString ("SYSENC_MULTI_BOOT_SYS_EQ_BOOT_HELP"));
 			break;
 
@@ -3499,6 +3510,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				Update2RadButtonPage (-1);
 
 			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), GetString ("SYSENC_MULTI_BOOT_NBR_SYS_DRIVES_TITLE"));
+//			SetWindowTextW (hwndDlg, GetString ("IDD_VOL_CREATION_WIZARD_DLG_SYSENC_MULTI_BOOT_NBR_SYS_DRIVES_TITLE"));
 			SetWindowTextW (GetDlgItem (hwndDlg, IDC_BOX_HELP), GetString ("SYSENC_MULTI_BOOT_NBR_SYS_DRIVES_HELP"));
 			break;
 
@@ -3507,6 +3519,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 			Init2RadButtonPageYesNo (SysEncMultiBootCfg.MultipleSystemsOnDrive);
 			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), GetString ("SYSENC_MULTI_BOOT_ADJACENT_SYS_TITLE"));
+//			SetWindowTextW (MainDlg, GetString ("IDD_VOL_CREATION_WIZARD_DLG_SYSENC_MULTI_BOOT_ADJACENT_SYS_TITLE"));
 			SetWindowTextW (GetDlgItem (hwndDlg, IDC_BOX_HELP), GetString ("SYSENC_MULTI_BOOT_ADJACENT_SYS_HELP"));
 			break;
 
@@ -3515,6 +3528,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 			Init2RadButtonPageYesNo (SysEncMultiBootCfg.BootLoaderBrand);
 			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), GetString ("SYSENC_MULTI_BOOT_NONWIN_BOOT_LOADER_TITLE"));
+//			SetWindowTextW (MainDlg, GetString ("IDD_VOL_CREATION_WIZARD_DLG_SYSENC_MULTI_BOOT_NONWIN_BOOT_LOADER_TITLE"));
 			SetWindowTextW (GetDlgItem (hwndDlg, IDC_BOX_HELP), GetString ("SYSENC_MULTI_BOOT_NONWIN_BOOT_LOADER_HELP"));
 			break;
 
@@ -3522,6 +3536,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 		case SYSENC_MULTI_BOOT_OUTCOME_PAGE:
 
 			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), GetString ("SYSENC_MULTI_BOOT_OUTCOME_TITLE"));
+//			SetWindowTextW (MainDlg, GetString ("IDD_VOL_CREATION_WIZARD_DLG_SYSENC_MULTI_BOOT_OUTCOME_TITLE"));
 			SetWindowTextW (GetDlgItem (hwndDlg, IDC_BOX_HELP), SysEncMultiBootCfgOutcome);
 			SetWindowTextW (GetDlgItem (MainDlg, IDC_NEXT), GetString ("NEXT"));
 			SetWindowTextW (GetDlgItem (MainDlg, IDC_PREV), GetString ("PREV"));
@@ -3534,7 +3549,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 		case VOLUME_TYPE_PAGE:
 
 			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), GetString ("VOLUME_TYPE_TITLE"));
-
+//			SetWindowTextW (MainDlg, GetString ("IDD_VOL_CREATION_WIZARD_DLG_VOLUME_TYPE_TITLE"));
 			SendMessage (GetDlgItem (hwndDlg, IDC_HIDDEN_VOL), WM_SETFONT, (WPARAM) hUserBoldFont, (LPARAM) TRUE);
 			SendMessage (GetDlgItem (hwndDlg, IDC_STD_VOL), WM_SETFONT, (WPARAM) hUserBoldFont, (LPARAM) TRUE);
 
@@ -3556,7 +3571,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 		case HIDDEN_VOL_WIZARD_MODE_PAGE:
 
 			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), GetString ("HIDDEN_VOL_WIZARD_MODE_TITLE"));
-
+//			SetWindowTextW (MainDlg, GetString ("IDD_VOL_CREATION_WIZARD_DLG_HIDDEN_VOL_WIZARD_MODE_TITLE"));
 			SendMessage (GetDlgItem (hwndDlg, IDC_HIDVOL_WIZ_MODE_DIRECT), WM_SETFONT, (WPARAM) hUserBoldFont, (LPARAM) TRUE);
 			SendMessage (GetDlgItem (hwndDlg, IDC_HIDVOL_WIZ_MODE_FULL), WM_SETFONT, (WPARAM) hUserBoldFont, (LPARAM) TRUE);
 
@@ -3722,8 +3737,10 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				if (bHiddenVol)
 					SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), GetString (bHiddenVolHost ? "CIPHER_HIDVOL_HOST_TITLE" : "CIPHER_HIDVOL_TITLE"));
 				else
+				{
 					SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), GetString ("CIPHER_TITLE"));
-
+					SetWindowTextW (MainDlg, GetString ("IDD_VOL_CREATION_WIZARD_DLG_CIPHER_TITLE"));
+				}
 				for (ea = EAGetFirst (); ea != 0; ea = EAGetNext (ea))
 				{
 					if (EAIsFormatEnabled (ea))
@@ -3869,7 +3886,14 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 			SetWindowTextW (GetDlgItem (hwndDlg, IDC_BOX_HELP), GetString (bInPlaceEncNonSys ? "NONSYS_INPLACE_ENC_RESUME_PASSWORD_PAGE_HELP" : "PASSWORD_HIDDENVOL_HOST_DIRECT_HELP"));
 
-			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), GetString (bInPlaceEncNonSys ? "PASSWORD" : "PASSWORD_HIDVOL_HOST_TITLE"));
+			if (bInPlaceEncNonSys)
+			{
+				SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), GetString ("PASSWORD"));
+			}
+			else
+			{
+				SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), GetString ("PASSWORD_HIDVOL_HOST_TITLE"));
+			}
 
 			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_NEXT), GetString ("NEXT"));
 			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_PREV), GetString ("PREV"));
@@ -3949,7 +3973,10 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				else if (bHiddenVol)
 					SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), GetString (bHiddenVolHost ? "PASSWORD_HIDVOL_HOST_TITLE" : "PASSWORD_HIDVOL_TITLE"));
 				else if (WizardMode == WIZARD_MODE_SYS_DEVICE)
+				{
 					SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), GetString ("PASSWORD"));
+					SetWindowTextW (MainDlg, GetString ("IDD_VOL_CREATION_WIZARD_DLG_PASSWORD"));
+				}
 				else
 					SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), GetString ("PASSWORD_TITLE"));
 
@@ -4001,6 +4028,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 		case NONSYS_INPLACE_ENC_RAND_DATA_PAGE:
 
 			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), GetString ("COLLECTING_RANDOM_DATA_TITLE"));
+			SetWindowTextW (MainDlg, GetString ("IDD_VOL_CREATION_WIZARD_DLG_COLLECTING_RANDOM_DATA_TITLE"));
 			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_NEXT), GetString ("NEXT"));
 			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_PREV), GetString ("PREV"));
 			EnableWindow (GetDlgItem (GetParent (hwndDlg), IDC_NEXT), TRUE);
@@ -4021,6 +4049,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 		case SYSENC_KEYS_GEN_PAGE:
 
 			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), GetString ("KEYS_GEN_TITLE"));
+			SetWindowTextW (MainDlg, GetString ("IDD_VOL_CREATION_WIZARD_DLG_KEYS_GEN_TITLE"));
 			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_NEXT), GetString ("NEXT"));
 			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_PREV), GetString ("PREV"));
 			EnableWindow (GetDlgItem (GetParent (hwndDlg), IDC_NEXT), TRUE);
@@ -4041,6 +4070,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 		case SYSENC_RESCUE_DISK_CREATION_PAGE:
 
 			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), GetString ("RESCUE_DISK"));
+			SetWindowTextW (MainDlg, GetString ("IDD_VOL_CREATION_WIZARD_DLG_RESCUE_DISK"));
 			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_NEXT), GetString ("NEXT"));
 			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_PREV), GetString ("PREV"));
 			SetWindowTextW (GetDlgItem (hwndDlg, IDT_RESCUE_DISK_INFO), GetString ("RESCUE_DISK_INFO"));
@@ -4054,7 +4084,15 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 			{
 				wchar_t szTmp[8192];
 
-				SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), GetString (bDontVerifyRescueDisk ? "RESCUE_DISK_CREATED_TITLE" : "RESCUE_DISK_RECORDING_TITLE"));
+				if (bDontVerifyRescueDisk)
+				{
+					SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), GetString ("RESCUE_DISK_CREATED_TITLE"));
+				}
+				else
+				{
+					SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), GetString ("RESCUE_DISK_RECORDING_TITLE"));
+					SetWindowTextW (MainDlg, GetString ("IDD_VOL_CREATION_WIZARD_DLG_RESCUE_DISK_RECORDING_TITLE"));
+				}
 				SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_NEXT), GetString ("NEXT"));
 				SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_PREV), GetString ("PREV"));
 
@@ -4083,6 +4121,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 		case SYSENC_RESCUE_DISK_VERIFIED_PAGE:
 
 			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), GetString ("RESCUE_DISK_DISK_VERIFIED_TITLE"));
+			SetWindowTextW (MainDlg, GetString ("IDD_VOL_CREATION_WIZARD_DLG_RESCUE_DISK_DISK_VERIFIED_TITLE"));
 			SetWindowTextW (GetDlgItem (hwndDlg, IDC_BOX_HELP), GetString ("RESCUE_DISK_VERIFIED_INFO"));
 
 			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_NEXT), GetString ("NEXT"));
@@ -4105,6 +4144,8 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 					nWipeMode = TC_WIPE_NONE;
 
 				SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), GetString ("WIPE_MODE_TITLE"));
+				SetWindowTextW (MainDlg, GetString ("IDD_VOL_CREATION_WIZARD_DLG_WIPE_MODE_TITLE"));
+
 				SetWindowTextW (GetDlgItem (hwndDlg, IDT_WIPE_MODE_INFO), GetString ("INPLACE_ENC_WIPE_MODE_INFO"));
 
 				PopulateWipeModeCombo (GetDlgItem (hwndDlg, IDC_WIPE_MODE), 
@@ -4135,6 +4176,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				wchar_t finalMsg[8024] = {0};
 
 				SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), GetString ("SYS_ENCRYPTION_PRETEST_TITLE"));
+				SetWindowTextW (MainDlg, GetString ("IDD_VOL_CREATION_WIZARD_DLG_SYS_ENCRYPTION_PRETEST_TITLE"));
 
 				try
 				{
@@ -6663,7 +6705,7 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 					}
 					// Check password length (do not check if it's for an outer volume).
 					else if (!bHiddenVolHost
-						&& !CheckPasswordLength (hwndDlg, GetDlgItem (hCurPage, IDC_PASSWORD)))
+						&& !CheckPasswordLengthAlertTitle (hwndDlg, GetString("PASSWORD_LENGTH_WARNING_TITLE"), GetDlgItem (hCurPage, IDC_PASSWORD)))
 					{
 						return 1;
 					}
@@ -7055,7 +7097,7 @@ retryCDDriveCheck:
 							swprintf (szTmp, GetString ("RESCUE_DISK_CHECK_FAILED"), 
 								IsWindowsIsoBurnerAvailable () ? L"" : GetString ("RESCUE_DISK_CHECK_FAILED_SENTENCE_APPENDIX"));
 
-							ErrorDirect (szTmp);
+							ErrorDirectTitle(szTmp,GetString ("RESCUE_DISK_CHECK_FAILED_TITLE"));
 
 							NormalCursor ();
 #ifndef _DEBUG
@@ -7097,7 +7139,7 @@ retryCDDriveCheck:
 				if (!bHiddenOS)	// This text is not tailored to hidden OS
 					TextInfoDialogBox (TC_TBXID_SYS_ENCRYPTION_PRETEST);
 
-				if (AskWarnYesNo ("CONFIRM_RESTART") == IDNO)
+				if (AskWarnYesNoTitle("CONFIRM_RESTART",GetString("IDD_VOL_CREATION_WIZARD_DLG_CONFIRM_RESTART")) == IDNO)
 					return 1;
 
 				/* Install the pre-boot authentication component and initiate the system encryption pretest.

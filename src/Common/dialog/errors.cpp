@@ -366,8 +366,13 @@ int ErrorTopMost (char *stringId)
 
 int ErrorDirect (const wchar_t *errMsg)
 {
+	return ErrorDirectTitle(errMsg, lpszTitle);
+}
+
+int ErrorDirectTitle (const wchar_t* errMsg, const wchar_t* title)
+{
 	if (Silent) return 0;
-	return MessageBoxW (MainDlg, (LPCWSTR)errMsg, (LPCWSTR)lpszTitle, MB_ICONERROR);
+	return MessageBoxW (MainDlg, errMsg, title, MB_ICONERROR);
 }
 
 
@@ -408,8 +413,13 @@ int AskOkCancel (char *stringId)
 
 int AskWarnYesNo (char *stringId)
 {
+	return AskWarnYesNoTitle(stringId, lpszTitle);
+}
+
+int AskWarnYesNoTitle (char* stringId, wchar_t* title)
+{
 	if (Silent) return IDNO;
-	return MessageBoxW (MainDlg, (LPCWSTR)GetString (stringId), (LPCWSTR)lpszTitle, MB_ICONWARNING | MB_YESNO | MB_DEFBUTTON1);
+	return MessageBoxW (MainDlg, GetString (stringId), title, MB_ICONWARNING | MB_YESNO | MB_DEFBUTTON1);
 }
 
 

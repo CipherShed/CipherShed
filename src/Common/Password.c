@@ -170,6 +170,11 @@ void VerifyPasswordAndUpdate2 (HWND hwndDlg, HWND hButton, HWND hPassword,
 
 BOOL CheckPasswordLength (HWND hwndDlg, HWND hwndItem)
 {
+	return CheckPasswordLengthAlertTitle(hwndDlg, lpszTitle, hwndItem);
+}
+
+BOOL CheckPasswordLengthAlertTitle (HWND hwndDlg, wchar_t* title, HWND hwndItem)
+{
 	if (hwndDlg==NULL)
 	{
 		return FALSE;
@@ -187,7 +192,7 @@ BOOL CheckPasswordLength (HWND hwndDlg, HWND hwndItem)
 //DEBUG builds do not have this dialog box prompt, and the function always returns true.
 #if !defined(_DEBUG) || defined(CS_UNITTESTING)
 		// The MessageBoxW function is taking the title bar text from a global var "lpszTitle" in Dlgcode.c
-		if (MessageBoxW (hwndDlg, GetString ("PASSWORD_LENGTH_WARNING"), lpszTitle, MB_YESNO|MB_ICONWARNING|MB_DEFBUTTON2) != IDYES)
+		if (MessageBoxW (hwndDlg, GetString ("PASSWORD_LENGTH_WARNING"), title, MB_YESNO|MB_ICONWARNING|MB_DEFBUTTON2) != IDYES)
 		{
 			return FALSE;
 		}
