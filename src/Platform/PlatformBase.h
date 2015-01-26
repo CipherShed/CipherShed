@@ -116,7 +116,7 @@ namespace CipherShed
 #		define trace_msgw(stream_args) cerr << (SRC_POS); wcerr << L": " << stream_args << endl
 #	endif
 
-#	include "Platform/SystemLog.h"
+#	include "SystemLog.h"
 #	define trace_log_point SystemLog::WriteError (SRC_POS)
 #	define trace_log_msg(stream_args) do { stringstream s; s << (SRC_POS) << ": " << stream_args; SystemLog::WriteError (s.str()); } while (0)
 

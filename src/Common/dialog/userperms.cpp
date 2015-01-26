@@ -11,6 +11,29 @@
 #include "../../unit-tests/faux/windows/ERROR.h"
 #include "../../unit-tests/faux/windows/RegOpenKeyEx.h"
 #include "../../unit-tests/faux/windows/BYTE.h"
+#include "../../unit-tests/faux/windows/stdcall.h"
+#include "../../unit-tests/faux/windows/GetProcAddress.h"
+#include "../../unit-tests/faux/windows/GetModuleHandle.h"
+#include "../../unit-tests/faux/windows/GetCurrentProcess.h"
+#include "../../unit-tests/faux/windows/OSVERSIONINFOEX.h"
+#include "../../unit-tests/faux/windows/OSVERSIONINFO.h"
+#include "../../unit-tests/faux/windows/GetVersionEx.h"
+#include "../../unit-tests/faux/windows/DefWindowProc.h"
+#include "../../unit-tests/faux/windows/WNDCLASSEX.h"
+#include "../../unit-tests/faux/windows/RegisterClassEx.h"
+#include "../../unit-tests/faux/windows/CreateWindowEx.h"
+#include "../../unit-tests/faux/windows/GetSystemMetrics.h"
+#include "../../unit-tests/faux/windows/SetLayeredWindowAttributes.h"
+#include "../../unit-tests/faux/windows/ShowWindow.h"
+#include "../../unit-tests/faux/windows/DestroyWindow.h"
+#include "../../unit-tests/faux/windows/UnregisterClass.h"
+#include "../../unit-tests/faux/windows/IsUserAnAdmin.h"
+#include "../../unit-tests/faux/windows/OpenProcessToken.h"
+#include "../../unit-tests/faux/windows/TOKEN_INFORMATION_CLASS.h"
+#include "../../unit-tests/faux/windows/GetTokenInformation.h"
+#include "../../unit-tests/faux/windows/TOKEN_USER.h"
+#include "../../unit-tests/faux/windows/IsWellKnownSid.h"
+#include <stdlib.h>
 #endif
 
 
@@ -73,17 +96,19 @@ BOOL IsOSVersionAtLeast (OSVersionEnum reqMinOS, int reqMinServicePack)
 }
 
 
+typedef BOOL (__stdcall *LPFN_ISWOW64PROCESS ) (HANDLE hProcess,PBOOL Wow64Process);
+
+
 BOOL Is64BitOs ()
 {
     static BOOL isWow64 = FALSE;
 	static BOOL valid = FALSE;
-	typedef BOOL (__stdcall *LPFN_ISWOW64PROCESS ) (HANDLE hProcess,PBOOL Wow64Process);
 	LPFN_ISWOW64PROCESS fnIsWow64Process;
 
 	if (valid)
 		return isWow64;
 
-	fnIsWow64Process = (LPFN_ISWOW64PROCESS) GetProcAddress (GetModuleHandle("kernel32"), "IsWow64Process");
+	fnIsWow64Process = (LPFN_ISWOW64PROCESS) GetProcAddress (GetModuleHandleA("kernel32"), "IsWow64Process");
 
     if (fnIsWow64Process != NULL)
         if (!fnIsWow64Process (GetCurrentProcess(), &isWow64))
@@ -114,7 +139,7 @@ void EnableElevatedCursorChange (HWND parent)
 	if (UacElevated)
 	{
 		const char *className = "CipherShedEnableElevatedCursorChange";
-		WNDCLASSEX winClass;
+		WNDCLASSEXA winClass;
 		HWND hWnd;
 
 		memset (&winClass, 0, sizeof (winClass));
@@ -122,14 +147,14 @@ void EnableElevatedCursorChange (HWND parent)
 		winClass.lpfnWndProc = (WNDPROC) EnableElevatedCursorChangeWndProc;
 		winClass.hInstance = hInst;
 		winClass.lpszClassName = className;
-		RegisterClassEx (&winClass);
+		RegisterClassExA(&winClass);
 
-		hWnd = CreateWindowEx (WS_EX_TOOLWINDOW | WS_EX_LAYERED, className, "CipherShed UAC", 0, 0, 0, GetSystemMetrics (SM_CXSCREEN), GetSystemMetrics (SM_CYSCREEN), parent, NULL, hInst, NULL);
+		hWnd = CreateWindowExA(WS_EX_TOOLWINDOW | WS_EX_LAYERED, className, "CipherShed UAC", 0, 0, 0, GetSystemMetrics (SM_CXSCREEN), GetSystemMetrics (SM_CYSCREEN), parent, NULL, hInst, NULL);
 		SetLayeredWindowAttributes (hWnd, 0, 1, LWA_ALPHA);
 		ShowWindow (hWnd, SW_SHOWNORMAL);
 
 		DestroyWindow (hWnd);
-		UnregisterClass (className, hInst);
+		UnregisterClassA(className, hInst);
 	}
 }
 

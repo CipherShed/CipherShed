@@ -372,7 +372,7 @@ int ErrorDirect (const wchar_t *errMsg)
 int ErrorDirectTitle (const wchar_t* errMsg, const wchar_t* title)
 {
 	if (Silent) return 0;
-	return MessageBoxW (MainDlg, errMsg, title, MB_ICONERROR);
+	return MessageBoxW (MainDlg, (LPCWSTR)errMsg, (LPCWSTR)title, MB_ICONERROR);
 }
 
 
@@ -419,7 +419,7 @@ int AskWarnYesNo (char *stringId)
 int AskWarnYesNoTitle (char* stringId, wchar_t* title)
 {
 	if (Silent) return IDNO;
-	return MessageBoxW (MainDlg, GetString (stringId), title, MB_ICONWARNING | MB_YESNO | MB_DEFBUTTON1);
+	return MessageBoxW (MainDlg, (LPCWSTR)GetString (stringId), (LPCWSTR)title, MB_ICONWARNING | MB_YESNO | MB_DEFBUTTON1);
 }
 
 

@@ -4,4 +4,7 @@
 #include "DECLARE_HANDLE.h"
 DECLARE_HANDLE(HINSTANCE);
 
+
+typedef HINSTANCE HMODULE;      /* HMODULEs can be used in place of HINSTANCEs */
+
 #endif

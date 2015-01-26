@@ -13,11 +13,12 @@
 
 #ifdef CS_UNITTESTING
 //Dlgcode.c
+int CurrentOSMajor = 0;
+int CurrentOSMinor = 0;
+int CurrentOSServicePack = 0;
+HINSTANCE hInst = NULL;
 BOOL bPreserveTimestamp = TRUE;
-BOOL UacElevated = FALSE;
 wchar_t *lpszTitle = NULL;
-BOOL IsUacSupported (){return 0;}
-void EnableElevatedCursorChange (HWND parent){}
 void CreateFullVolumePath (char *lpszDiskFile, const char *lpszFileName, BOOL * bDevice){}
 int RemoveFakeDosName (char *lpszDiskFile, char *lpszDosDevice){return 0;}
 BOOL GetPartitionInfo (const char *deviceName, PPARTITION_INFORMATION rpartInfo){return 0;}
@@ -30,8 +31,6 @@ BOOL CheckCapsLock (HWND hwnd, BOOL quiet){return 0;}
 BOOL IsDiskError (DWORD error){return 0;}
 BOOL KeyFilesEnable = FALSE;
 HWND MainDlg = NULL;
-BOOL IsOSAtLeast (OSVersionEnum reqMinOS){return 0;}
-BOOL IsAdmin (void){return 0;}
 OSVersionEnum nCurrentOS = WIN_UNKNOWN;
 
 

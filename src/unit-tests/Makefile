@@ -1,148 +1,97 @@
-ODIR = ../../tmp/unittests
+#ODIR = ../../tmp/unittests
 CC = g++
 CommonSDIR = ../Common
 
 CFLAGS = -DCS_UNITTESTING -fprofile-arcs -ftest-coverage -I . -I ../../var/opt/cpptest-code/cpptest/src/
+CXXFLAGS = $(CFLAGS)
+
+SRC_c = \
+../Common/Crc.c \
+../Common/Endian.c \
+../Common/Password.c \
+../Common/dialog/cursor.c \
+../Common/strcpys.c \
+../Common/util/unicode/ConvertUTF.c \
+../Common/util/unicode/strcmpw.c \
+faux/windows/CreateWindowEx.c \
+faux/windows/DefWindowProc.c \
+faux/windows/DestroyWindow.c \
+faux/windows/FormatMessage.c \
+faux/windows/GetCurrentProcess.c \
+faux/windows/GetModuleHandle.c \
+faux/windows/GetProcAddress.c \
+faux/windows/GetSystemMetrics.c \
+faux/windows/GetTokenInformation.c \
+faux/windows/GetVersionEx.c \
+faux/windows/IsUserAnAdmin.c \
+faux/windows/IsWellKnownSid.c \
+faux/windows/LoadCursor.c \
+faux/windows/LocalFree.c \
+faux/windows/MessageBox.c \
+faux/windows/OpenProcessToken.c \
+faux/windows/RegOpenKeyEx.c \
+faux/windows/RegisterClassEx.c \
+faux/windows/SetCursor.c \
+faux/windows/SetLayeredWindowAttributes.c \
+faux/windows/ShellNotifyIcon.c \
+faux/windows/ShowWindow.c \
+faux/windows/UnregisterClass.c \
+# end of SRC_c
+
+SRC_cpp = \
+../../var/opt/cpptest-code/cpptest/src/collectoroutput.cpp \
+../../var/opt/cpptest-code/cpptest/src/compileroutput.cpp \
+../../var/opt/cpptest-code/cpptest/src/htmloutput.cpp \
+../../var/opt/cpptest-code/cpptest/src/missing.cpp \
+../../var/opt/cpptest-code/cpptest/src/source.cpp \
+../../var/opt/cpptest-code/cpptest/src/suite.cpp \
+../../var/opt/cpptest-code/cpptest/src/textoutput.cpp \
+../../var/opt/cpptest-code/cpptest/src/time.cpp \
+../../var/opt/cpptest-code/cpptest/src/utils.cpp \
+../Common/dialog/errors.cpp \
+../Common/dialog/userperms.cpp \
+faux/ciphershed/wip.cpp \
+faux/windows/CloseHandle.cpp \
+faux/windows/CreateFile.cpp \
+faux/windows/DeviceIoControl.cpp \
+faux/windows/EnableWindow.cpp \
+faux/windows/FlushFileBuffers.cpp \
+faux/windows/GetFileSize.cpp \
+faux/windows/GetFileTime.cpp \
+faux/windows/GetLastError.cpp \
+faux/windows/GetWindowText.cpp \
+faux/windows/GetWindowTextLength.cpp \
+faux/windows/SetFilePointer.cpp \
+faux/windows/SetFileTime.cpp \
+faux/windows/SetLastError.cpp \
+unittesting.cpp \
+# end of SRC_cpp
+
 
 
 .PHONY: clean gcov coverage.xml run unittests
 
 coverage.xml: ../../doc/devdocs/generated/reports/coverage.xml
 
-../../doc/devdocs/generated/reports/coverage.xml: gcov
+../../doc/devdocs/generated/reports/coverage.xml: run
 	mkdir -p ../../doc/devdocs/generated/reports/
-	gcovr --xml -b -k -r ../../ -o ../../doc/devdocs/generated/reports/coverage.xml -v -g -s -e '^src/unit-tests/' -e '^var/'
+	gcovr --xml -b -k -r ../../ -o ../../doc/devdocs/generated/reports/coverage.xml -v -s -e '^src/unit-tests/' -e '^var/'
 
 run: unittests
-	../../tmp/unittests/unittesting
+	./unittesting
 
-gcov: $(ODIR)/unittesting run
-	gcov -b -c ../../tmp/unittests/*.gcda -o ../../tmp/unittests/
-	mv -v *.gcov ../../tmp/unittests/
+unittests: unittesting
 
-unittests: $(ODIR)/unittesting
+OBJ=$(SRC_c:.c=.o) $(SRC_cpp:.cpp=.o)
 
-$(ODIR)/unittesting: $(ODIR)/unittesting.o $(ODIR)/Crc.o $(ODIR)/Endian.o $(ODIR)/Password.o $(ODIR)/strcpys.o $(ODIR)/ConvertUTF.o $(ODIR)/strcmpw.o $(ODIR)/CloseHandle.o $(ODIR)/CreateFile.o $(ODIR)/DeviceIoControl.o $(ODIR)/EnableWindow.o $(ODIR)/FlushFileBuffers.o $(ODIR)/GetFileSize.o $(ODIR)/GetFileTime.o $(ODIR)/GetLastError.o $(ODIR)/GetWindowText.o $(ODIR)/GetWindowTextLength.o $(ODIR)/SetFilePointer.o $(ODIR)/SetFileTime.o $(ODIR)/SetLastError.o $(ODIR)/MessageBox.o $(ODIR)/wip.o $(ODIR)/source.o $(ODIR)/suite.o $(ODIR)/textoutput.o $(ODIR)/time.o $(ODIR)/utils.o $(ODIR)/collectoroutput.o $(ODIR)/compileroutput.o $(ODIR)/htmloutput.o $(ODIR)/missing.o $(ODIR)/cursor.o $(ODIR)/errors.o $(ODIR)/ShellNotifyIcon.o $(ODIR)/LocalFree.o $(ODIR)/FormatMessage.o $(ODIR)/SetCursor.o $(ODIR)/LoadCursor.o
-	mkdir -p $(ODIR)
-	$(CC) $(CFLAGS) -o $@ $(ODIR)/unittesting.o $(ODIR)/Crc.o $(ODIR)/Endian.o $(ODIR)/Password.o $(ODIR)/strcpys.o $(ODIR)/ConvertUTF.o $(ODIR)/strcmpw.o $(ODIR)/CloseHandle.o $(ODIR)/CreateFile.o $(ODIR)/DeviceIoControl.o $(ODIR)/EnableWindow.o $(ODIR)/FlushFileBuffers.o $(ODIR)/GetFileSize.o $(ODIR)/GetFileTime.o $(ODIR)/GetLastError.o $(ODIR)/GetWindowText.o $(ODIR)/GetWindowTextLength.o $(ODIR)/SetFilePointer.o $(ODIR)/SetFileTime.o $(ODIR)/SetLastError.o $(ODIR)/MessageBox.o $(ODIR)/wip.o $(ODIR)/source.o $(ODIR)/suite.o $(ODIR)/textoutput.o $(ODIR)/time.o $(ODIR)/utils.o $(ODIR)/collectoroutput.o $(ODIR)/compileroutput.o $(ODIR)/htmloutput.o $(ODIR)/missing.o $(ODIR)/cursor.o $(ODIR)/errors.o $(ODIR)/ShellNotifyIcon.o $(ODIR)/LocalFree.o $(ODIR)/FormatMessage.o $(ODIR)/SetCursor.o $(ODIR)/LoadCursor.o
+compile: compile_c compile_cpp
 
-$(ODIR)/unittesting.o: unittesting.cpp
-	mkdir -p $(ODIR)
-	$(CC) -c -o $@ $< $(CFLAGS)
-$(ODIR)/Crc.o: ../Common/Crc.c
-	mkdir -p $(ODIR)
-	$(CC) -c -o $@ $< $(CFLAGS)
-$(ODIR)/Endian.o: ../Common/Endian.c
-	mkdir -p $(ODIR)
-	$(CC) -c -o $@ $< $(CFLAGS)
-$(ODIR)/Password.o: ../Common/Password.c
-	mkdir -p $(ODIR)
-	$(CC) -c -o $@ $< $(CFLAGS)
-$(ODIR)/strcpys.o: ../Common/strcpys.c
-	mkdir -p $(ODIR)
-	$(CC) -c -o $@ $< $(CFLAGS)
-$(ODIR)/cursor.o: ../Common/dialog/cursor.c
-	mkdir -p $(ODIR)
-	$(CC) -c -o $@ $< $(CFLAGS)
-$(ODIR)/errors.o: ../Common/dialog/errors.cpp
-	mkdir -p $(ODIR)
-	$(CC) -c -o $@ $< $(CFLAGS)
-$(ODIR)/ConvertUTF.o: ../Common/util/unicode/ConvertUTF.c
-	mkdir -p $(ODIR)
-	$(CC) -c -o $@ $< $(CFLAGS)
-$(ODIR)/strcmpw.o: ../Common/util/unicode/strcmpw.c
-	mkdir -p $(ODIR)
-	$(CC) -c -o $@ $< $(CFLAGS)
-$(ODIR)/ShellNotifyIcon.o: faux/windows/ShellNotifyIcon.c
-	mkdir -p $(ODIR)
-	$(CC) -c -o $@ $< $(CFLAGS)
-$(ODIR)/LocalFree.o: faux/windows/LocalFree.c
-	mkdir -p $(ODIR)
-	$(CC) -c -o $@ $< $(CFLAGS)
-$(ODIR)/FormatMessage.o: faux/windows/FormatMessage.c
-	mkdir -p $(ODIR)
-	$(CC) -c -o $@ $< $(CFLAGS)
-$(ODIR)/CloseHandle.o: faux/windows/CloseHandle.cpp
-	mkdir -p $(ODIR)
-	$(CC) -c -o $@ $< $(CFLAGS)
-$(ODIR)/CreateFile.o: faux/windows/CreateFile.cpp
-	mkdir -p $(ODIR)
-	$(CC) -c -o $@ $< $(CFLAGS)
-$(ODIR)/DeviceIoControl.o: faux/windows/DeviceIoControl.cpp
-	mkdir -p $(ODIR)
-	$(CC) -c -o $@ $< $(CFLAGS)
-$(ODIR)/EnableWindow.o: faux/windows/EnableWindow.cpp
-	mkdir -p $(ODIR)
-	$(CC) -c -o $@ $< $(CFLAGS)
-$(ODIR)/FlushFileBuffers.o: faux/windows/FlushFileBuffers.cpp
-	mkdir -p $(ODIR)
-	$(CC) -c -o $@ $< $(CFLAGS)
-$(ODIR)/GetFileSize.o: faux/windows/GetFileSize.cpp
-	mkdir -p $(ODIR)
-	$(CC) -c -o $@ $< $(CFLAGS)
-$(ODIR)/GetFileTime.o: faux/windows/GetFileTime.cpp
-	mkdir -p $(ODIR)
-	$(CC) -c -o $@ $< $(CFLAGS)
-$(ODIR)/GetLastError.o: faux/windows/GetLastError.cpp
-	mkdir -p $(ODIR)
-	$(CC) -c -o $@ $< $(CFLAGS)
-$(ODIR)/GetWindowText.o: faux/windows/GetWindowText.cpp
-	mkdir -p $(ODIR)
-	$(CC) -c -o $@ $< $(CFLAGS)
-$(ODIR)/GetWindowTextLength.o: faux/windows/GetWindowTextLength.cpp
-	mkdir -p $(ODIR)
-	$(CC) -c -o $@ $< $(CFLAGS)
-$(ODIR)/SetFilePointer.o: faux/windows/SetFilePointer.cpp
-	mkdir -p $(ODIR)
-	$(CC) -c -o $@ $< $(CFLAGS)
-$(ODIR)/SetFileTime.o: faux/windows/SetFileTime.cpp
-	mkdir -p $(ODIR)
-	$(CC) -c -o $@ $< $(CFLAGS)
-$(ODIR)/SetLastError.o: faux/windows/SetLastError.cpp
-	mkdir -p $(ODIR)
-	$(CC) -c -o $@ $< $(CFLAGS)
-$(ODIR)/MessageBox.o: faux/windows/MessageBox.c
-	mkdir -p $(ODIR)
-	$(CC) -c -o $@ $< $(CFLAGS)
-$(ODIR)/SetCursor.o: faux/windows/SetCursor.c
-	mkdir -p $(ODIR)
-	$(CC) -c -o $@ $< $(CFLAGS)
-$(ODIR)/LoadCursor.o: faux/windows/LoadCursor.c
-	mkdir -p $(ODIR)
-	$(CC) -c -o $@ $< $(CFLAGS)
-$(ODIR)/wip.o: faux/ciphershed/wip.cpp
-	mkdir -p $(ODIR)
-	$(CC) -c -o $@ $< $(CFLAGS)
-$(ODIR)/source.o: ../../var/opt/cpptest-code/cpptest/src/source.cpp
-	mkdir -p $(ODIR)
-	$(CC) -c -o $@ $< $(CFLAGS)
-$(ODIR)/suite.o: ../../var/opt/cpptest-code/cpptest/src/suite.cpp
-	mkdir -p $(ODIR)
-	$(CC) -c -o $@ $< $(CFLAGS)
-$(ODIR)/textoutput.o: ../../var/opt/cpptest-code/cpptest/src/textoutput.cpp
-	mkdir -p $(ODIR)
-	$(CC) -c -o $@ $< $(CFLAGS)
-$(ODIR)/time.o: ../../var/opt/cpptest-code/cpptest/src/time.cpp
-	mkdir -p $(ODIR)
-	$(CC) -c -o $@ $< $(CFLAGS)
-$(ODIR)/utils.o: ../../var/opt/cpptest-code/cpptest/src/utils.cpp
-	mkdir -p $(ODIR)
-	$(CC) -c -o $@ $< $(CFLAGS)
-$(ODIR)/collectoroutput.o: ../../var/opt/cpptest-code/cpptest/src/collectoroutput.cpp
-	mkdir -p $(ODIR)
-	$(CC) -c -o $@ $< $(CFLAGS)
-$(ODIR)/compileroutput.o: ../../var/opt/cpptest-code/cpptest/src/compileroutput.cpp
-	mkdir -p $(ODIR)
-	$(CC) -c -o $@ $< $(CFLAGS)
-$(ODIR)/htmloutput.o: ../../var/opt/cpptest-code/cpptest/src/htmloutput.cpp
-	mkdir -p $(ODIR)
-	$(CC) -c -o $@ $< $(CFLAGS)
-$(ODIR)/missing.o: ../../var/opt/cpptest-code/cpptest/src/missing.cpp
-	mkdir -p $(ODIR)
-	$(CC) -c -o $@ $< $(CFLAGS)
+compile_c: $(SRC_c:.c=.o)
 
+compile_cpp: $(SRC_cpp:.cpp=.o)
 
-
+unittesting: $(OBJ)
+	$(CC) $(CFLAGS) --disable-stdcall-fixup -o $@ $^
 
 clean:
-	rm -rf $(ODIR)/
+#	rm -rf $(ODIR)/

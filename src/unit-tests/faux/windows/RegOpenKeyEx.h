@@ -7,6 +7,10 @@
 #include "WCHAR.h"
 #include "BYTE.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 LSTATUS RegOpenKeyExA(HKEY hKey, LPCSTR lpSubKey, DWORD ulOptions, REGSAM samDesired, PHKEY phkResult);
 
@@ -29,6 +33,10 @@ LSTATUS RegQueryValueExW(HKEY hKey, LPCWSTR lpValueName, LPDWORD lpReserved, LPD
 #endif // !UNICODE
 
 LSTATUS RegCloseKey(HKEY hKey);
+
+#ifdef __cplusplus
+}
+#endif
 
 
 #endif

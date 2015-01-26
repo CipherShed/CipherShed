@@ -67,7 +67,7 @@ typedef ACCESS_MASK *PACCESS_MASK;
 
 typedef ACCESS_MASK REGSAM;
 
-typedef __success(return==ERROR_SUCCESS) LONG LSTATUS;
+typedef /*__success(return==ERROR_SUCCESS)*/ LONG LSTATUS;
 
 
 #endif

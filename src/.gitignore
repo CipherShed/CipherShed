@@ -3,6 +3,10 @@
 *.d
 *.a
 
+*.gcno
+*.gcov
+*.gcda
+
 # https://raw.githubusercontent.com/github/gitignore/master/VisualStudio.gitignore
 # VS Build results
 [Dd]ebug/

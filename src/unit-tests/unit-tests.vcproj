@@ -415,6 +415,66 @@
 							>
 						</File>
 						<File
+							RelativePath=".\faux\windows\CreateWindowEx.c"
+							>
+							<FileConfiguration
+								Name="Debug|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Release|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+						</File>
+						<File
+							RelativePath=".\faux\windows\DefWindowProc.c"
+							>
+							<FileConfiguration
+								Name="Debug|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Release|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+						</File>
+						<File
+							RelativePath=".\faux\windows\DestroyWindow.c"
+							>
+							<FileConfiguration
+								Name="Debug|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Release|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+						</File>
+						<File
 							RelativePath=".\faux\windows\DeviceIoControl.cpp"
 							>
 						</File>
@@ -447,6 +507,26 @@
 							</FileConfiguration>
 						</File>
 						<File
+							RelativePath=".\faux\windows\GetCurrentProcess.c"
+							>
+							<FileConfiguration
+								Name="Debug|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Release|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+						</File>
+						<File
 							RelativePath=".\faux\windows\GetFileSize.cpp"
 							>
 						</File>
@@ -459,12 +539,152 @@
 							>
 						</File>
 						<File
+							RelativePath=".\faux\windows\GetModuleHandle.c"
+							>
+							<FileConfiguration
+								Name="Debug|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Release|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+						</File>
+						<File
+							RelativePath=".\faux\windows\GetProcAddress.c"
+							>
+							<FileConfiguration
+								Name="Debug|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Release|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+						</File>
+						<File
+							RelativePath=".\faux\windows\GetSystemMetrics.c"
+							>
+							<FileConfiguration
+								Name="Debug|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Release|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+						</File>
+						<File
+							RelativePath=".\faux\windows\GetTokenInformation.c"
+							>
+							<FileConfiguration
+								Name="Debug|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Release|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+						</File>
+						<File
+							RelativePath=".\faux\windows\GetVersionEx.c"
+							>
+							<FileConfiguration
+								Name="Debug|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Release|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+						</File>
+						<File
 							RelativePath=".\faux\windows\GetWindowText.cpp"
 							>
 						</File>
 						<File
 							RelativePath=".\faux\windows\GetWindowTextLength.cpp"
 							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\IsUserAnAdmin.c"
+							>
+							<FileConfiguration
+								Name="Debug|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Release|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+						</File>
+						<File
+							RelativePath=".\faux\windows\IsWellKnownSid.c"
+							>
+							<FileConfiguration
+								Name="Debug|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Release|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
 						</File>
 						<File
 							RelativePath=".\faux\windows\LoadCursor.c"
@@ -527,8 +747,64 @@
 							</FileConfiguration>
 						</File>
 						<File
+							RelativePath=".\faux\windows\OpenProcessToken.c"
+							>
+							<FileConfiguration
+								Name="Debug|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Release|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+						</File>
+						<File
+							RelativePath=".\faux\windows\RegisterClassEx.c"
+							>
+							<FileConfiguration
+								Name="Debug|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Release|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+						</File>
+						<File
 							RelativePath=".\faux\windows\RegOpenKeyEx.c"
 							>
+							<FileConfiguration
+								Name="Debug|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Release|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
 						</File>
 						<File
 							RelativePath=".\faux\windows\SetCursor.c"
@@ -563,7 +839,67 @@
 							>
 						</File>
 						<File
+							RelativePath=".\faux\windows\SetLayeredWindowAttributes.c"
+							>
+							<FileConfiguration
+								Name="Debug|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Release|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+						</File>
+						<File
 							RelativePath=".\faux\windows\ShellNotifyIcon.c"
+							>
+							<FileConfiguration
+								Name="Debug|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Release|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+						</File>
+						<File
+							RelativePath=".\faux\windows\ShowWindow.c"
+							>
+							<FileConfiguration
+								Name="Debug|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Release|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									CompileAsManaged="0"
+								/>
+							</FileConfiguration>
+						</File>
+						<File
+							RelativePath=".\faux\windows\UnregisterClass.c"
 							>
 							<FileConfiguration
 								Name="Debug|Win32"
@@ -657,6 +993,10 @@
 						RelativePath="..\Common\dialog\errors.h"
 						>
 					</File>
+					<File
+						RelativePath="..\Common\dialog\userperms.h"
+						>
+					</File>
 				</Filter>
 			</Filter>
 			<Filter
@@ -686,6 +1026,10 @@
 						</File>
 						<File
 							RelativePath=".\faux\windows\ARRAYSIZE.h"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\ATOM.h"
 							>
 						</File>
 						<File
@@ -721,7 +1065,19 @@
 							>
 						</File>
 						<File
+							RelativePath=".\faux\windows\CreateWindowEx.h"
+							>
+						</File>
+						<File
 							RelativePath=".\faux\windows\DECLARE_HANDLE.h"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\DefWindowProc.h"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\DestroyWindow.h"
 							>
 						</File>
 						<File
@@ -773,6 +1129,10 @@
 							>
 						</File>
 						<File
+							RelativePath=".\faux\windows\GetCurrentProcess.h"
+							>
+						</File>
+						<File
 							RelativePath=".\faux\windows\GetFileSize.h"
 							>
 						</File>
@@ -782,6 +1142,26 @@
 						</File>
 						<File
 							RelativePath=".\faux\windows\GetLastError.h"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\GetModuleHandle.h"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\GetProcAddress.h"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\GetSystemMetrics.h"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\GetTokenInformation.h"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\GetVersionEx.h"
 							>
 						</File>
 						<File
@@ -802,6 +1182,10 @@
 						</File>
 						<File
 							RelativePath=".\faux\windows\HBITMAP.h"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\HBRUSH.h"
 							>
 						</File>
 						<File
@@ -842,6 +1226,14 @@
 						</File>
 						<File
 							RelativePath=".\faux\windows\IOCTL_DISK.h"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\IsUserAnAdmin.h"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\IsWellKnownSid.h"
 							>
 						</File>
 						<File
@@ -917,6 +1309,14 @@
 							>
 						</File>
 						<File
+							RelativePath=".\faux\windows\OpenProcessToken.h"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\OSVERSIONINFOEX.h"
+							>
+						</File>
+						<File
 							RelativePath=".\faux\windows\OUT.h"
 							>
 						</File>
@@ -930,6 +1330,10 @@
 						</File>
 						<File
 							RelativePath=".\faux\windows\POINT.h"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\RegisterClassEx.h"
 							>
 						</File>
 						<File
@@ -957,6 +1361,10 @@
 							>
 						</File>
 						<File
+							RelativePath=".\faux\windows\SetLayeredWindowAttributes.h"
+							>
+						</File>
+						<File
 							RelativePath=".\faux\windows\ShellNotifyIcon.h"
 							>
 						</File>
@@ -965,11 +1373,35 @@
 							>
 						</File>
 						<File
+							RelativePath=".\faux\windows\ShowWindow.h"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\SID_AND_ATTRIBUTES.h"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\stdcall.h"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\TOKEN_INFORMATION_CLASS.h"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\TOKEN_USER.h"
+							>
+						</File>
+						<File
 							RelativePath=".\faux\windows\UINT.h"
 							>
 						</File>
 						<File
 							RelativePath=".\faux\windows\UINT_PTR.h"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\UnregisterClass.h"
 							>
 						</File>
 						<File
@@ -986,6 +1418,14 @@
 						</File>
 						<File
 							RelativePath=".\faux\windows\WM_APP.h"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\WNDCLASSEX.h"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\WNDPROC.h"
 							>
 						</File>
 						<File
