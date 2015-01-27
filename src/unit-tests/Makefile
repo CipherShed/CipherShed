@@ -13,6 +13,7 @@ SRC_c = \
 ../Common/strcpys.c \
 ../Common/util/unicode/ConvertUTF.c \
 ../Common/util/unicode/strcmpw.c \
+../Crypto/Des.c \
 faux/windows/CreateWindowEx.c \
 faux/windows/DefWindowProc.c \
 faux/windows/DestroyWindow.c \
