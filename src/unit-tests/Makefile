@@ -5,15 +5,26 @@ CommonSDIR = ../Common
 CFLAGS = -DCS_UNITTESTING -fprofile-arcs -ftest-coverage -I . -I ../../var/opt/cpptest-code/cpptest/src/
 CXXFLAGS = $(CFLAGS)
 
+#sort as "LC_ALL=C sort -u"
+
 SRC_c = \
 ../Common/Crc.c \
 ../Common/Endian.c \
+../Common/GfMul.c \
 ../Common/Password.c \
 ../Common/dialog/cursor.c \
 ../Common/strcpys.c \
 ../Common/util/unicode/ConvertUTF.c \
 ../Common/util/unicode/strcmpw.c \
+../Crypto/Blowfish.c \
+../Crypto/Cast.c \
 ../Crypto/Des.c \
+../Crypto/Rmd160.c \
+../Crypto/Serpent.c \
+../Crypto/Sha1.c \
+../Crypto/Sha2.c \
+../Crypto/Twofish.c \
+../Crypto/Whirlpool.c \
 faux/windows/CreateWindowEx.c \
 faux/windows/DefWindowProc.c \
 faux/windows/DestroyWindow.c \
@@ -51,6 +62,7 @@ SRC_cpp = \
 ../../var/opt/cpptest-code/cpptest/src/utils.cpp \
 ../Common/dialog/errors.cpp \
 ../Common/dialog/userperms.cpp \
+../Main/System.cpp \
 faux/ciphershed/wip.cpp \
 faux/windows/CloseHandle.cpp \
 faux/windows/CreateFile.cpp \
