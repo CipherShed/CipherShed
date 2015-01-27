@@ -10,6 +10,7 @@
 #include "ForEach.h"
 #include "Memory.h"
 #include "Serializer.h"
+using namespace std;
 
 namespace CipherShed
 {

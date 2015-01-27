@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <string.h>
 #include "../SerializerFactory.h"
+using namespace std;
 #include "../SystemException.h"
 #include "../StringConverter.h"
 

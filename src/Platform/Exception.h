@@ -13,6 +13,7 @@
 #include <exception>
 #endif
 #include "PlatformBase.h"
+using namespace std;
 #include "Serializable.h"
 
 namespace CipherShed

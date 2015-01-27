@@ -9,6 +9,7 @@
 #include "MountOptions.h"
 #include "../Platform/MemoryStream.h"
 #include "../Platform/SerializerFactory.h"
+using namespace std;
 
 namespace CipherShed
 {

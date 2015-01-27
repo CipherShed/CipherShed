@@ -2,7 +2,7 @@
 CC = g++
 CommonSDIR = ../Common
 
-CFLAGS = -DCS_UNITTESTING -fprofile-arcs -ftest-coverage -I . -I ../../var/opt/cpptest-code/cpptest/src/
+CFLAGS = -DCS_UNITTESTING -fprofile-arcs -ftest-coverage -I . -I ../../var/opt/cpptest-code/cpptest/src/ -pthread 
 CXXFLAGS = $(CFLAGS)
 
 #sort as "LC_ALL=C sort -u"
@@ -63,6 +63,15 @@ SRC_cpp = \
 ../Common/dialog/errors.cpp \
 ../Common/dialog/userperms.cpp \
 ../Main/System.cpp \
+../Platform/Buffer.cpp \
+../Platform/Exception.cpp \
+../Platform/Memory.cpp \
+../Platform/Serializable.cpp \
+../Platform/Serializer.cpp \
+../Platform/SerializerFactory.cpp \
+../Platform/StringConverter.cpp \
+../Platform/Unix/Mutex.cpp \
+../Platform/Unix/SystemException.cpp \
 faux/ciphershed/wip.cpp \
 faux/windows/CloseHandle.cpp \
 faux/windows/CreateFile.cpp \

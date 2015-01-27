@@ -10,6 +10,7 @@
 #define TC_HEADER_Platform_User
 
 #include "PlatformBase.h"
+using namespace std;
 
 #ifdef TC_UNIX
 #include <unistd.h>

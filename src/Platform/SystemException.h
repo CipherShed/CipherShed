@@ -10,6 +10,7 @@
 #define TC_HEADER_Platform_SystemException
 
 #include "PlatformBase.h"
+using namespace std;
 #include "Exception.h"
 
 namespace CipherShed

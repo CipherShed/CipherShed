@@ -11,6 +11,7 @@
 
 #include <stdlib.h>
 #include "PlatformBase.h"
+using namespace std;
 
 namespace CipherShed
 {

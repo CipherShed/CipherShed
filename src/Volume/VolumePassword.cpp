@@ -8,6 +8,7 @@
 
 #include "VolumePassword.h"
 #include "../Platform/SerializerFactory.h"
+using namespace std;
 #include "../Platform/StringConverter.h"
 
 namespace CipherShed

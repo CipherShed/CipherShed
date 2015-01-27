@@ -10,6 +10,7 @@
 #define TC_HEADER_Platform_SharedVal
 
 #include "PlatformBase.h"
+using namespace std;
 #include "Mutex.h"
 
 namespace CipherShed

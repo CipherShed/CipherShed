@@ -10,6 +10,7 @@
 #define TC_HEADER_Platform_TextReader
 
 #include "PlatformBase.h"
+using namespace std;
 #include "FileStream.h"
 #include "FilesystemPath.h"
 #include "SharedPtr.h"

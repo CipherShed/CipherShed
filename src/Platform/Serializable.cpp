@@ -8,6 +8,7 @@
 
 #include "Serializable.h"
 #include "SerializerFactory.h"
+using namespace std;
 
 namespace CipherShed
 {

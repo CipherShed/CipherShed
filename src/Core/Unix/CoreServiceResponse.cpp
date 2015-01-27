@@ -8,6 +8,7 @@
 
 #include "CoreServiceResponse.h"
 #include "../../Platform/SerializerFactory.h"
+using namespace std;
 
 namespace CipherShed
 {

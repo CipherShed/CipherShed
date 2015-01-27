@@ -10,6 +10,7 @@
 #define TC_HEADER_Platform_FilesystemPath
 
 #include "PlatformBase.h"
+using namespace std;
 #include "User.h"
 #include "SharedPtr.h"
 #include "StringConverter.h"

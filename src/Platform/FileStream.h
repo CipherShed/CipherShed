@@ -10,6 +10,7 @@
 #define TC_HEADER_Platform_FileStream
 
 #include "PlatformBase.h"
+using namespace std;
 #include "File.h"
 #include "SharedPtr.h"
 #include "Stream.h"

@@ -16,6 +16,7 @@
 #include "ForEach.h"
 #include "StringConverter.h"
 #include "SystemException.h"
+#include <sstream>
 
 namespace CipherShed
 {

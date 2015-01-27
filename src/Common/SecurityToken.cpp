@@ -11,6 +11,7 @@
 
 #if !defined (TC_WINDOWS) || defined (TC_PROTOTYPE)
 #	include "../Platform/SerializerFactory.h"
+using namespace std;
 #	include "../Platform/StringConverter.h"
 #	include "../Platform/SystemException.h"
 #else

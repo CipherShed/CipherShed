@@ -10,6 +10,7 @@
 #define TC_HEADER_Platform_SystemInfo
 
 #include "PlatformBase.h"
+using namespace std;
 
 namespace CipherShed
 {

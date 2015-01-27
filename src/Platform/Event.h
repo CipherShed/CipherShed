@@ -10,6 +10,7 @@
 #define TC_HEADER_Platform_Event
 
 #include "PlatformBase.h"
+using namespace std;
 #include "ForEach.h"
 #include "Mutex.h"
 #include "SharedPtr.h"

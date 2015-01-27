@@ -10,6 +10,7 @@
 #define TC_HEADER_Common_Exception
 
 #include "../Platform/PlatformBase.h"
+using namespace std;
 #include "Dlgcode.h"
 
 namespace CipherShed

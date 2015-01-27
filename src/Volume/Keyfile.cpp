@@ -7,6 +7,7 @@
 */
 
 #include "../Platform/Serializer.h"
+using namespace std;
 #include "../Common/SecurityToken.h"
 #include "Crc32.h"
 #include "Keyfile.h"

@@ -17,6 +17,7 @@
 #	define TC_THREAD_PROC void*
 #endif
 #include "PlatformBase.h"
+using namespace std;
 #include "Functor.h"
 #include "SharedPtr.h"
 #include "SyncEvent.h"

@@ -15,15 +15,18 @@
 #include <map>
 #include <memory>
 #include <sstream>
+#endif
 #include <string>
 #include <vector>
-#endif
 
 #ifndef _MSC_VER
 #include <inttypes.h>
 #endif
 
+/*
+per: http://stackoverflow.com/questions/5527665/weird-string-does-not-name-a-type-error-c
 using namespace std;
+*/
 
 #ifdef nullptr
 #undef nullptr
@@ -75,15 +78,15 @@ namespace CipherShed
 #define TC_JOIN(a,b) TC_JOIN_ARGS(a,b)
 
 #ifdef __GNUC__
-	template <class T> string GetFunctionName (T pos)
+	template <class T> std::string GetFunctionName (T pos)
 	{
-		string s (pos);
+		std::string s (pos);
 		size_t p = s.find ('(');
-		if (p == string::npos)
+		if (p == std::string::npos)
 			return s;
 		s = s.substr (0, p);
 		p = s.find_last_of (" ");
-		if (p == string::npos)
+		if (p == std::string::npos)
 			return s;
 		return s.substr (p + 1);
 	}
