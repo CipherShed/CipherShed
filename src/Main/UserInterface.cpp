@@ -20,6 +20,7 @@
 #endif
 #include "../Platform/SystemInfo.h"
 #include "../Common/SecurityToken.h"
+using namespace std;
 #include "../Volume/EncryptionTest.h"
 #include "Application.h"
 #include "FavoriteVolume.h"

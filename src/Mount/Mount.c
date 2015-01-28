@@ -43,6 +43,7 @@
 #include "../Common/Common.h"
 #include "../Common/Resource.h"
 #include "../Common/SecurityToken.h"
+using namespace std;
 #include "../Platform/Finally.h"
 #include "../Platform/ForEach.h"
 

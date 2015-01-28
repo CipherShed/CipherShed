@@ -21,6 +21,7 @@
 #endif
 
 #include "../Common/SecurityToken.h"
+using namespace std;
 #include "Application.h"
 #include "GraphicUserInterface.h"
 #include "FatalErrorHandler.h"

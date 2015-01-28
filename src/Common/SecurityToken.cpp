@@ -29,6 +29,12 @@ using namespace std;
 #	define burn Memory::Erase
 #endif
 
+#include <sstream>
+
+#ifdef CS_UNITTESTING
+#include <dlfcn.h>
+#endif
+
 using namespace std;
 
 namespace CipherShed

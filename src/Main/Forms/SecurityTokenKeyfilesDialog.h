@@ -11,6 +11,7 @@
 
 #include "Forms.h"
 #include "../../Common/SecurityToken.h"
+using namespace std;
 #include "../Main.h"
 
 namespace CipherShed

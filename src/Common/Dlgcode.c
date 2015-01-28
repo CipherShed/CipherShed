@@ -44,6 +44,7 @@
 #include "Random.h"
 #include "Registry.h"
 #include "SecurityToken.h"
+using namespace std;
 #include "Tests.h"
 #include "Volumes.h"
 #include "Wipe.h"

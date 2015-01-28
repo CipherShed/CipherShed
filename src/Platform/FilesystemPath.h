@@ -14,6 +14,7 @@ using namespace std;
 #include "User.h"
 #include "SharedPtr.h"
 #include "StringConverter.h"
+#include <list>
 
 namespace CipherShed
 {

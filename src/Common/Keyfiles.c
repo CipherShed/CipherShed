@@ -19,6 +19,7 @@
 #include "Dlgcode.h"
 #include "Language.h"
 #include "SecurityToken.h"
+using namespace std;
 #include "resource.h"
 #include "../Platform/Finally.h"
 #include "../Platform/ForEach.h"

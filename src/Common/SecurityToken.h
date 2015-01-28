@@ -10,7 +10,6 @@
 #define TC_HEADER_Common_SecurityToken
 
 #include "../Platform/PlatformBase.h"
-using namespace std;
 #if defined (TC_WINDOWS) && !defined (TC_PROTOTYPE)
 #	include "Exception.h"
 #else
@@ -45,6 +44,7 @@ using namespace std;
 
 #endif // !TC_WINDOWS
 
+#include <memory>
 
 #define TC_SECURITY_TOKEN_KEYFILE_URL_PREFIX L"token://"
 #define TC_SECURITY_TOKEN_KEYFILE_URL_SLOT L"slot"

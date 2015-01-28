@@ -22,7 +22,7 @@ namespace CipherShed
 	struct UserId
 	{
 		UserId () { }
-#ifdef TC_UNIX
+#if defined(TC_UNIX) || defined(CS_UNITTESTING)
 		UserId (uid_t systemId) : SystemId (systemId) { }
 
 		uid_t SystemId;

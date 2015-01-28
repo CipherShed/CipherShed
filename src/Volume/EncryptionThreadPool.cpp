@@ -162,6 +162,10 @@ namespace CipherShed
 
 		cpuCount = (size_t) cpuCountSys;
 
+#elif defined (CS_UNITTESTING)
+
+		cpuCount = 1;
+
 #else
 #	error Cannot determine CPU count
 #endif

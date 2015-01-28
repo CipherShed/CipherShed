@@ -114,6 +114,9 @@ namespace CipherShed
 			throw_sys_sub_if (ioctl (FileHandle, DKIOCGMEDIAINFO, &mediaInfo) == -1, wstring (Path));
 			return mediaInfo.dki_lbsize;
 
+#elif defined (CS_UNITTESTING)
+			throw_sys_sub_if (1, wstring (Path));
+
 #else
 #	error GetDeviceSectorSize()
 #endif

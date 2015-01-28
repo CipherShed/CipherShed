@@ -101,7 +101,10 @@
 #endif
 
 #if defined( __cplusplus )
+/*
 #include "Aescpp.h"
+*/
+#include "Aes.h"
 #else
 #include "Aes.h"
 #endif

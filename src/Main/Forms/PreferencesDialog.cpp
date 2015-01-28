@@ -14,6 +14,7 @@
 #endif
 #endif
 #include "../../Common/SecurityToken.h"
+using namespace std;
 #include "../Main.h"
 #include "../Application.h"
 #include "../GraphicUserInterface.h"

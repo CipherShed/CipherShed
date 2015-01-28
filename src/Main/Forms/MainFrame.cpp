@@ -16,6 +16,7 @@
 #endif
 
 #include "../../Common/SecurityToken.h"
+using namespace std;
 #include "../Main.h"
 #include "../Resources.h"
 #include "../Application.h"

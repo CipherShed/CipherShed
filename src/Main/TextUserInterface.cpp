@@ -17,6 +17,7 @@
 #endif
 
 #include "../Common/SecurityToken.h"
+using namespace std;
 #include "../Core/RandomNumberGenerator.h"
 #include "Application.h"
 #include "TextUserInterface.h"
