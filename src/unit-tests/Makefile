@@ -2,7 +2,7 @@
 CC = g++
 CommonSDIR = ../Common
 
-CFLAGS = -DCS_UNITTESTING -fprofile-arcs -ftest-coverage -I . -I ../../var/opt/cpptest-code/cpptest/src/ -pthread 
+CFLAGS = -DCS_UNITTESTING -fprofile-arcs -ftest-coverage -I . -I ../../var/opt/cpptest-code/cpptest/src/ -pthread -ldl
 CXXFLAGS = $(CFLAGS)
 
 #sort as "LC_ALL=C sort -u"
