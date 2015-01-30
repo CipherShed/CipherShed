@@ -404,6 +404,10 @@
 				<Filter
 					Name="util"
 					>
+					<File
+						RelativePath="..\Common\util\csstringutil.cpp"
+						>
+					</File>
 					<Filter
 						Name="unicode"
 						>
@@ -529,11 +533,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\resource.h"
+				RelativePath="..\Common\Resource.h"
 				>
 			</File>
 			<File
-				RelativePath="..\Common\Resource.h"
+				RelativePath=".\resource.h"
 				>
 			</File>
 			<File
@@ -594,6 +598,10 @@
 				<Filter
 					Name="util"
 					>
+					<File
+						RelativePath="..\Common\util\csstringutil.h"
+						>
+					</File>
 					<Filter
 						Name="unicode"
 						>
@@ -635,10 +643,6 @@
 				Name="Common"
 				>
 				<File
-					RelativePath="..\Boot\Windows\Release_AES\BootLoader.com.gz"
-					>
-				</File>
-				<File
 					RelativePath="..\Boot\Windows\Release\BootLoader.com.gz"
 					>
 				</File>
@@ -664,6 +668,10 @@
 				</File>
 				<File
 					RelativePath="..\Boot\Windows\Release_Serpent\BootLoader.com.gz"
+					>
+				</File>
+				<File
+					RelativePath="..\Boot\Windows\Release_AES\BootLoader.com.gz"
 					>
 				</File>
 				<File

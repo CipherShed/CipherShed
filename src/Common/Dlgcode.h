@@ -31,6 +31,7 @@
 #include "dialog/cursor.h"
 #include "dialog/errors.h"
 #include "dialog/userperms.h"
+#include "util/csstringutil.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -247,8 +248,7 @@ typedef struct
 #define PRINT_TOOL "notepad"
 
 void cleanup ( void );
-void LowerCaseCopy ( char *lpszDest , const char *lpszSource );
-void UpperCaseCopy ( char *lpszDest , const char *lpszSource );
+//moved to csstringutil.h
 void CreateFullVolumePath ( char *lpszDiskFile , const char *lpszFileName , BOOL *bDevice );
 int FakeDosNameForDevice ( const char *lpszDiskFile , char *lpszDosDevice , char *lpszCFDevice , BOOL bNameOnly );
 int RemoveFakeDosName ( char *lpszDiskFile , char *lpszDosDevice );
@@ -267,9 +267,7 @@ void DisplayStaticModelessWaitDlg (HWND parent);
 void CloseStaticModelessWaitDlg (void);
 BOOL IsButtonChecked ( HWND hButton );
 void CheckButton ( HWND hButton );
-void LeftPadString (char *szTmp, int len, int targetLen, char filler);
-void ToSBCS ( LPWSTR lpszText );
-void ToUNICODE ( char *lpszText );
+//moved to csstringutil.h
 void InitDialog ( HWND hwndDlg );
 void ProcessPaintMessages (HWND hwnd, int maxMessagesToProcess);
 HDC CreateMemBitmap ( HINSTANCE hInstance , HWND hwnd , char *resource );
@@ -499,13 +497,9 @@ struct HostDevice
 };
 
 BOOL BrowseFilesInDir (HWND hwndDlg, char *stringId, char *initialDir, char *lpszFileName, BOOL keepHistory, BOOL saveMode, wchar_t *browseFilter, const wchar_t *initialFileName = NULL, const wchar_t *defaultExtension = NULL);
-std::wstring SingleStringToWide (const std::string &singleString);
-std::wstring Utf8StringToWide (const std::string &utf8String);
-std::string WideToSingleString (const std::wstring &wideString);
-std::string WideToUtf8String (const std::wstring &wideString);
-std::string StringToUpperCase (const std::string &str);
+//moved to csstringutil.h
 std::vector <HostDevice> GetAvailableHostDevices (bool noDeviceProperties = false, bool singleList = false, bool noFloppy = true, bool detectUnencryptedFilesystems = false);
-std::string ToUpperCase (const std::string &str);
+//moved to csstringutil.h
 //moved to errors.h
 std::string GetWindowsEdition ();
 std::string FitPathInGfxWidth (HWND hwnd, HFONT hFont, LONG width, const std::string &path);

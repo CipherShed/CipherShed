@@ -388,6 +388,10 @@
 				<Filter
 					Name="util"
 					>
+					<File
+						RelativePath="..\Common\util\csstringutil.cpp"
+						>
+					</File>
 					<Filter
 						Name="unicode"
 						>
@@ -571,6 +575,14 @@
 						>
 					</File>
 				</Filter>
+				<Filter
+					Name="util"
+					>
+					<File
+						RelativePath="..\Common\util\csstringutil.h"
+						>
+					</File>
+				</Filter>
 			</Filter>
 		</Filter>
 		<Filter
@@ -626,10 +638,6 @@
 				Name="Common"
 				>
 				<File
-					RelativePath="..\Boot\Windows\Rescue_AES\BootLoader.com.gz"
-					>
-				</File>
-				<File
 					RelativePath="..\Boot\Windows\Rescue\BootLoader.com.gz"
 					>
 				</File>
@@ -655,6 +663,10 @@
 				</File>
 				<File
 					RelativePath="..\Boot\Windows\Rescue_Serpent\BootLoader.com.gz"
+					>
+				</File>
+				<File
+					RelativePath="..\Boot\Windows\Rescue_AES\BootLoader.com.gz"
 					>
 				</File>
 				<File
