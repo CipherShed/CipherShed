@@ -57,3 +57,31 @@ int GetDiskDeviceDriveLetter (PWSTR deviceName)
 
 	return -1;
 }
+
+BOOL IsDiskReadError (DWORD error)
+{
+	return (error == ERROR_CRC
+		|| error == ERROR_IO_DEVICE
+		|| error == ERROR_BAD_CLUSTERS
+		|| error == ERROR_SECTOR_NOT_FOUND
+		|| error == ERROR_READ_FAULT
+		|| error == ERROR_INVALID_FUNCTION // I/O error may be reported as ERROR_INVALID_FUNCTION by buggy chipset drivers
+		|| error == ERROR_SEM_TIMEOUT);	// I/O operation timeout may be reported as ERROR_SEM_TIMEOUT
+}
+
+
+BOOL IsDiskWriteError (DWORD error)
+{
+	return (error == ERROR_IO_DEVICE
+		|| error == ERROR_BAD_CLUSTERS
+		|| error == ERROR_SECTOR_NOT_FOUND
+		|| error == ERROR_WRITE_FAULT
+		|| error == ERROR_INVALID_FUNCTION // I/O error may be reported as ERROR_INVALID_FUNCTION by buggy chipset drivers
+		|| error == ERROR_SEM_TIMEOUT);	// I/O operation timeout may be reported as ERROR_SEM_TIMEOUT
+}
+
+
+BOOL IsDiskError (DWORD error)
+{
+	return IsDiskReadError (error) || IsDiskWriteError (error);
+}

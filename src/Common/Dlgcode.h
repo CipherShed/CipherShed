@@ -260,9 +260,7 @@ void AbortProcessSilent ( void );
 void *err_malloc ( size_t size );
 char *err_strdup ( char *lpszText );
 //moved to errors.h
-BOOL IsDiskReadError (DWORD error);
-BOOL IsDiskWriteError (DWORD error);
-BOOL IsDiskError (DWORD error);
+//moved to diskutil.h
 //moved to errors.h
 BOOL CALLBACK AboutDlgProc ( HWND hwndDlg , UINT msg , WPARAM wParam , LPARAM lParam );
 static BOOL CALLBACK StaticModelessWaitDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam);
