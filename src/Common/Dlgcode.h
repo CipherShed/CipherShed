@@ -34,6 +34,7 @@
 #include "util/csstringutil.h"
 #include "volume/volutil.h"
 #include "fsutil/fsutil.h"
+#include "fsutil/diskutil.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -354,8 +355,8 @@ BOOL IsPasswordCacheEmpty (void);
 //moved to volutil.h
 //moved to userperms.h
 //moved to fsutil.h
-int GetDiskDeviceDriveLetter (PWSTR deviceName);
-int FileSystemAppearsEmpty (const char *devicePath);
+//moved to diskutil.h
+//moved to fsutil.h
 __int64 GetStatsFreeSpaceOnPartition (const char *devicePath, float *percent, __int64 *occupiedBytes, BOOL silent);
 __int64 GetDeviceSize (const char *devicePath);
 HANDLE DismountDrive (char *devName, char *devicePath);
@@ -420,8 +421,7 @@ BOOL SelectMultipleFiles (HWND hwndDlg, char *stringId, char *lpszFileName, BOOL
 BOOL SelectMultipleFilesNext (char *lpszFileName);
 void OpenOnlineHelp ();
 BOOL GetPartitionInfo (const char *deviceName, PPARTITION_INFORMATION rpartInfo);
-BOOL GetDeviceInfo (const char *deviceName, DISK_PARTITION_INFO_STRUCT *info);
-BOOL GetDriveGeometry (const char *deviceName, PDISK_GEOMETRY diskGeometry);
+//moved to diskutil.h
 //moved to volutil.h
 int CompensateXDPI (int val);
 int CompensateYDPI (int val);

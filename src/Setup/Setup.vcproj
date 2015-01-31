@@ -362,6 +362,10 @@
 					Name="fsutil"
 					>
 					<File
+						RelativePath="..\Common\fsutil\diskutil.cpp"
+						>
+					</File>
+					<File
 						RelativePath="..\Common\fsutil\fsutil.cpp"
 						>
 					</File>
@@ -479,6 +483,10 @@
 				<Filter
 					Name="fsutil"
 					>
+					<File
+						RelativePath="..\Common\fsutil\diskutil.h"
+						>
+					</File>
 					<File
 						RelativePath="..\Common\fsutil\fsutil.h"
 						>

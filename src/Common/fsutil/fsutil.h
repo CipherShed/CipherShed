@@ -8,6 +8,7 @@ extern "C" {
 #endif
 
 BOOL ResolveSymbolicLink (const wchar_t *symLinkName, PWSTR targetName);
+int FileSystemAppearsEmpty (const char *devicePath);
 
 #ifdef __cplusplus
 }
