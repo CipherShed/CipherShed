@@ -33,6 +33,7 @@
 #include "dialog/userperms.h"
 #include "util/csstringutil.h"
 #include "volume/volutil.h"
+#include "fsutil/fsutil.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -352,7 +353,7 @@ BOOL UnmountVolume (HWND hwndDlg , int nDosDriveNo, BOOL forceUnmount);
 BOOL IsPasswordCacheEmpty (void);
 //moved to volutil.h
 //moved to userperms.h
-BOOL ResolveSymbolicLink (const wchar_t *symLinkName, PWSTR targetName);
+//moved to fsutil.h
 int GetDiskDeviceDriveLetter (PWSTR deviceName);
 int FileSystemAppearsEmpty (const char *devicePath);
 __int64 GetStatsFreeSpaceOnPartition (const char *devicePath, float *percent, __int64 *occupiedBytes, BOOL silent);

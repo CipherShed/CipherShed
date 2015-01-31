@@ -429,6 +429,14 @@
 						>
 					</File>
 				</Filter>
+				<Filter
+					Name="fsutil"
+					>
+					<File
+						RelativePath="..\Common\fsutil\fsutil.cpp"
+						>
+					</File>
+				</Filter>
 			</Filter>
 		</Filter>
 		<Filter
@@ -596,6 +604,14 @@
 					>
 					<File
 						RelativePath="..\Common\volume\volutil.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="fsutil"
+					>
+					<File
+						RelativePath="..\Common\fsutil\fsutil.h"
 						>
 					</File>
 				</Filter>
