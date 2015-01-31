@@ -437,6 +437,14 @@
 						>
 					</File>
 				</Filter>
+				<Filter
+					Name="volume"
+					>
+					<File
+						RelativePath="..\Common\volume\volutil.cpp"
+						>
+					</File>
+				</Filter>
 			</Filter>
 		</Filter>
 		<Filter
@@ -533,11 +541,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\Common\Resource.h"
+				RelativePath=".\resource.h"
 				>
 			</File>
 			<File
-				RelativePath=".\resource.h"
+				RelativePath="..\Common\Resource.h"
 				>
 			</File>
 			<File
@@ -611,6 +619,14 @@
 						</File>
 					</Filter>
 				</Filter>
+				<Filter
+					Name="volume"
+					>
+					<File
+						RelativePath="..\Common\volume\volutil.h"
+						>
+					</File>
+				</Filter>
 			</Filter>
 		</Filter>
 		<Filter
@@ -643,10 +659,6 @@
 				Name="Common"
 				>
 				<File
-					RelativePath="..\Boot\Windows\Release\BootLoader.com.gz"
-					>
-				</File>
-				<File
 					RelativePath="..\Boot\Windows\Release_Twofish\BootLoader.com.gz"
 					>
 				</File>
@@ -672,6 +684,10 @@
 				</File>
 				<File
 					RelativePath="..\Boot\Windows\Release_AES\BootLoader.com.gz"
+					>
+				</File>
+				<File
+					RelativePath="..\Boot\Windows\Release\BootLoader.com.gz"
 					>
 				</File>
 				<File

@@ -32,6 +32,7 @@
 #include "dialog/errors.h"
 #include "dialog/userperms.h"
 #include "util/csstringutil.h"
+#include "volume/volutil.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -249,7 +250,7 @@ typedef struct
 
 void cleanup ( void );
 //moved to csstringutil.h
-void CreateFullVolumePath ( char *lpszDiskFile , const char *lpszFileName , BOOL *bDevice );
+//moved to volutil.h
 int FakeDosNameForDevice ( const char *lpszDiskFile , char *lpszDosDevice , char *lpszCFDevice , BOOL bNameOnly );
 int RemoveFakeDosName ( char *lpszDiskFile , char *lpszDosDevice );
 void AbortProcess ( char *stringId );
@@ -349,8 +350,7 @@ void BroadcastDeviceChange (WPARAM message, int nDosDriveNo, DWORD driveMap);
 int MountVolume (HWND hwndDlg, int driveNo, char *volumePath, Password *password, BOOL cachePassword, BOOL sharedAccess,  const MountOptions* const mountOptions, BOOL quiet, BOOL bReportWrongPassword);
 BOOL UnmountVolume (HWND hwndDlg , int nDosDriveNo, BOOL forceUnmount);
 BOOL IsPasswordCacheEmpty (void);
-BOOL IsMountedVolume (const char *volname);
-int GetMountedVolumeDriveNo (char *volname);
+//moved to volutil.h
 //moved to userperms.h
 BOOL ResolveSymbolicLink (const wchar_t *symLinkName, PWSTR targetName);
 int GetDiskDeviceDriveLetter (PWSTR deviceName);
@@ -421,7 +421,7 @@ void OpenOnlineHelp ();
 BOOL GetPartitionInfo (const char *deviceName, PPARTITION_INFORMATION rpartInfo);
 BOOL GetDeviceInfo (const char *deviceName, DISK_PARTITION_INFO_STRUCT *info);
 BOOL GetDriveGeometry (const char *deviceName, PDISK_GEOMETRY diskGeometry);
-BOOL IsVolumeDeviceHosted (const char *lpszDiskFile);
+//moved to volutil.h
 int CompensateXDPI (int val);
 int CompensateYDPI (int val);
 int CompensateDPIFont (int val);
@@ -504,8 +504,7 @@ std::vector <HostDevice> GetAvailableHostDevices (bool noDeviceProperties = fals
 std::string GetWindowsEdition ();
 std::string FitPathInGfxWidth (HWND hwnd, HFONT hFont, LONG width, const std::string &path);
 std::string GetServiceConfigPath (const char *fileName);
-std::string VolumeGuidPathToDevicePath (std::string volumeGuidPath);
-std::string HarddiskVolumePathToPartitionPath (const std::string &harddiskVolumePath);
+//moved to volutil.h
 std::string FindLatestFileOrDirectory (const std::string &directory, const char *namePattern, bool findDirectory, bool findFile);
 std::string GetUserFriendlyVersionString (int version);
 
