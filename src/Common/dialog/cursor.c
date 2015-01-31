@@ -10,6 +10,11 @@
 
 HCURSOR hCursor = NULL;
 
+/**
+set the cursor to the "waiting", loading the cursor from the resources.
+@TODO LoadCursor is depricated per https://msdn.microsoft.com/en-us/library/windows/desktop/ms648391(v=vs.85).aspx
+@TODO why are we using "our" cursor resource, shouldn't the OS provide this detail?
+*/
 void
 WaitCursor ()
 {

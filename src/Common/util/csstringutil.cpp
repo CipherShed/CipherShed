@@ -6,6 +6,9 @@
 
 using namespace CipherShed;
 
+/**
+Why is this being used in a crypto program?
+*/
 void UpperCaseCopy (char *lpszDest, const char *lpszSource)
 {
 	int i = strlen (lpszSource);
@@ -17,6 +20,10 @@ void UpperCaseCopy (char *lpszDest, const char *lpszSource)
 	}
 }
 
+/**
+ @TODO use the unicode library.
+ @TODO check for buffer overflows
+*/
 std::wstring SingleStringToWide (const std::string &singleString)
 {
 	if (singleString.empty())
@@ -30,7 +37,10 @@ std::wstring SingleStringToWide (const std::string &singleString)
 	return wbuf;
 }
 
-
+/**
+ @TODO use the unicode library.
+ @TODO check for buffer overflows
+*/
 std::string WideToSingleString (const std::wstring &wideString)
 {
 	if (wideString.empty())
@@ -44,9 +54,11 @@ std::string WideToSingleString (const std::wstring &wideString)
 	return buf;
 }
 
-/*****************************************************************************
-  ToUNICODE: converts a SBCS string to a UNICODE string.
-  ***************************************************************************/
+/**
+converts a SBCS string to a UNICODE string.
+ @TODO use the unicode library.
+ @TODO check for buffer overflows
+*/
 void ToUNICODE (char *lpszText)
 {
 	int j = strlen (lpszText);
@@ -67,6 +79,10 @@ void ToUNICODE (char *lpszText)
 	}
 }
 
+/**
+ @TODO use the unicode library.
+ @TODO check for buffer overflows
+*/
 std::wstring Utf8StringToWide (const std::string &utf8String)
 {
 	if (utf8String.empty())
@@ -81,6 +97,10 @@ std::wstring Utf8StringToWide (const std::string &utf8String)
 }
 
 
+/**
+ @TODO use the unicode library.
+ @TODO check for buffer overflows
+*/
 std::string WideToUtf8String (const std::wstring &wideString)
 {
 	if (wideString.empty())
@@ -94,6 +114,9 @@ std::string WideToUtf8String (const std::wstring &wideString)
 	return buf;
 }
 
+/**
+Why is this being used in a crypto program?
+*/
 std::string ToUpperCase (const std::string &str)
 {
 	string u;
@@ -105,6 +128,9 @@ std::string ToUpperCase (const std::string &str)
 	return u;
 }
 
+/**
+Why is this being used in a crypto program?
+*/
 void LowerCaseCopy (char *lpszDest, const char *lpszSource)
 {
 	int i = strlen (lpszSource);
@@ -116,7 +142,9 @@ void LowerCaseCopy (char *lpszDest, const char *lpszSource)
 	}
 
 }
-
+/**
+Why is this being used in a crypto program?
+*/
 std::string StringToUpperCase (const std::string &str)
 {
 	string upperCase (str);
@@ -139,9 +167,11 @@ void LeftPadString (char *szTmp, int len, int targetLen, char filler)
 }
 
 
-/*****************************************************************************
-  ToSBCS: converts a unicode string to Single Byte Character String (SBCS).
-  ***************************************************************************/
+/**
+  converts a unicode string to Single Byte Character String (SBCS).
+ @TODO use the unicode library.
+ @TODO check for buffer overflows
+*/
 
 void ToSBCS (LPWSTR lpszText)
 {
