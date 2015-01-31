@@ -313,8 +313,7 @@ void InitApp ( HINSTANCE hInstance, char *lpszCommandLine );
 void InitHelpFileName (void);
 BOOL OpenDevice (const char *lpszPath, OPEN_TEST_STRUCT *driver, BOOL detectFilesystem);
 void NotifyDriverOfPortableMode (void);
-int GetAvailableFixedDisks ( HWND hComboBox , char *lpszRootPath );
-int GetAvailableRemovables ( HWND hComboBox , char *lpszRootPath );
+//removed unused function declarations
 int IsSystemDevicePath (char *path, HWND hwndDlg, BOOL bReliableRequired);
 BOOL CALLBACK RawDevicesDlgProc ( HWND hwndDlg , UINT msg , WPARAM wParam , LPARAM lParam );
 BOOL TextInfoDialogBox (int nID);
