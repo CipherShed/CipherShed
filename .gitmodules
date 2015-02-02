@@ -4,3 +4,7 @@
 [submodule "var/opt/cpptest-code"]
 	path = var/opt/cpptest-code
 	url = https://github.com/pdinc-oss/cpptest.git
+[submodule "var/opt/gcovr"]
+	path = var/opt/gcovr
+	url = https://github.com/pdinc-oss/gcovr.git
+	branch = ciphershed-patch
