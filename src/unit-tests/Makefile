@@ -5,6 +5,8 @@ CommonSDIR = ../Common
 CFLAGS = -DCS_UNITTESTING -fprofile-arcs -ftest-coverage -I . -I ../../var/opt/cpptest-code/cpptest/src/ -pthread -ldl
 CXXFLAGS = $(CFLAGS)
 
+GCOVR = ../../var/opt/gcovr/scripts/gcovr
+
 #sort as "LC_ALL=C sort -u"
 
 SRC_c = \
@@ -135,7 +137,7 @@ coverage.xml: ../../doc/devdocs/generated/reports/coverage.xml
 
 ../../doc/devdocs/generated/reports/coverage.xml: run
 	mkdir -p ../../doc/devdocs/generated/reports/
-	../../var/opt/gcovr/scripts/gcovr --xml -b -k -r ../../ -o ../../doc/devdocs/generated/reports/coverage.xml -v -s \
+	$(GCOVR) --xml -b -k -r ../../ -o ../../doc/devdocs/generated/reports/coverage.xml -v -s \
 	-e '^src/unit-tests/' -e '^var/' -e '^.git/' -e '^doc/' -e '^tmp/' -e '^etc/' -i '.*\.(c|cpp)$$'
 
 run: unittests
