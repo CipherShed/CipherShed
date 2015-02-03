@@ -332,6 +332,30 @@
 						>
 					</File>
 				</Filter>
+				<Filter
+					Name="volume"
+					>
+					<File
+						RelativePath="..\Common\volume\volutil.cpp"
+						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								CompileAsManaged="0"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								CompileAsManaged="0"
+							/>
+						</FileConfiguration>
+					</File>
+				</Filter>
 			</Filter>
 			<Filter
 				Name="unit-tests"
@@ -406,6 +430,10 @@
 					<Filter
 						Name="windows"
 						>
+						<File
+							RelativePath=".\faux\windows\_wcsicmp.cpp"
+							>
+						</File>
 						<File
 							RelativePath=".\faux\windows\CloseHandle.cpp"
 							>
@@ -767,6 +795,14 @@
 							</FileConfiguration>
 						</File>
 						<File
+							RelativePath=".\faux\windows\OutputDebugString.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\QueryDosDevice.cpp"
+							>
+						</File>
+						<File
 							RelativePath=".\faux\windows\RegisterClassEx.c"
 							>
 							<FileConfiguration
@@ -897,6 +933,10 @@
 									CompileAsManaged="0"
 								/>
 							</FileConfiguration>
+						</File>
+						<File
+							RelativePath=".\faux\windows\swprintf_s.cpp"
+							>
 						</File>
 						<File
 							RelativePath=".\faux\windows\UnregisterClass.c"
@@ -1262,6 +1302,10 @@
 						</File>
 						<File
 							RelativePath=".\faux\windows\LPARAM.h"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\LPWSTR.h"
 							>
 						</File>
 						<File

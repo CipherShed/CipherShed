@@ -13,13 +13,13 @@
 
 #ifdef CS_UNITTESTING
 //Dlgcode.c
+HANDLE hDriver = INVALID_HANDLE_VALUE;
 int CurrentOSMajor = 0;
 int CurrentOSMinor = 0;
 int CurrentOSServicePack = 0;
 HINSTANCE hInst = NULL;
 BOOL bPreserveTimestamp = TRUE;
 wchar_t *lpszTitle = NULL;
-void CreateFullVolumePath (char *lpszDiskFile, const char *lpszFileName, BOOL * bDevice){}
 int RemoveFakeDosName (char *lpszDiskFile, char *lpszDosDevice){return 0;}
 BOOL GetPartitionInfo (const char *deviceName, PPARTITION_INFORMATION rpartInfo){return 0;}
 int FakeDosNameForDevice (const char *lpszDiskFile, char *lpszDosDevice, char *lpszCFDevice, BOOL bNameOnly){return 0;}
@@ -56,5 +56,14 @@ uint_32t t_in[4][256];
 uint_32t t_il[4][256];
 uint_32t t_im[4][256];
 uint_32t t_rc[(5 * (16 / 4 - 2))];
+
+//csstrinutil.cpp
+void ToUNICODE (char *lpszText){}
+void UpperCaseCopy (char *lpszDest, const char *lpszSource){}
+std::string WideToSingleString (const std::wstring &wideString){return 0;}
+std::wstring SingleStringToWide (const std::string &singleString){return 0;}
+
+//fsutil.cpp
+BOOL ResolveSymbolicLink (const wchar_t *symLinkName, PWSTR targetName){return 0;}
 
 #endif

@@ -2,7 +2,7 @@
 
 #ifndef _MSC_VER
 
-int strcpy_s(char * s1, int s1max, const char * s2)
+int strcpy_s(char * s1, unsigned int s1max, const char * s2)
 {
 	int res=0;	
 	if (!s1) return -1;

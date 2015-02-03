@@ -3,9 +3,7 @@
 
 #include "CONST.h"
 
-#ifndef __nullterminated 
-#define __nullterminated 
-#endif
+#include "__nullterminated.h"
 
 #ifndef __nullnullterminated
 #define __nullnullterminated

@@ -68,6 +68,7 @@ SRC_cpp = \
 ../Common/SecurityToken.cpp \
 ../Common/dialog/errors.cpp \
 ../Common/dialog/userperms.cpp \
+../Common/volume/volutil.cpp \
 ../Core/CoreBase.cpp \
 ../Core/CoreException.cpp \
 ../Core/FatFormatter.cpp \
@@ -123,9 +124,13 @@ faux/windows/GetFileTime.cpp \
 faux/windows/GetLastError.cpp \
 faux/windows/GetWindowText.cpp \
 faux/windows/GetWindowTextLength.cpp \
+faux/windows/OutputDebugString.cpp \
+faux/windows/QueryDosDevice.cpp \
 faux/windows/SetFilePointer.cpp \
 faux/windows/SetFileTime.cpp \
 faux/windows/SetLastError.cpp \
+faux/windows/_wcsicmp.cpp \
+faux/windows/swprintf_s.cpp \
 unittesting.cpp \
 # end of SRC_cpp
 

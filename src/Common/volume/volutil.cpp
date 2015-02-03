@@ -1,10 +1,19 @@
 #include "volutil.h"
 
-#include "snprintf.h"
+#include "../snprintf.h"
 #include "../util/csstringutil.h"
 #include "../Apidrvr.h"
 #include "../fsutil/fsutil.h"
 #include "../Dlgcode.h"
+
+#ifdef CS_UNITTESTING
+#include "../../unit-tests/faux/windows/ARRAYSIZE.h"
+#include "../../unit-tests/faux/windows/QueryDosDevice.h"
+#include "../../unit-tests/faux/windows/swprintf_s.h"
+#include "../../unit-tests/faux/windows/strcpy_s.h"
+#include "../../unit-tests/faux/windows/_wcsicmp.h"
+#include "../../unit-tests/faux/windows/OutputDebugString.h"
+#endif
 
 using namespace std;
 
@@ -22,9 +31,9 @@ void CreateFullVolumePath (char *lpszDiskFile, const char *lpszFileName, BOOL * 
 	strcpy (lpszDiskFile, lpszFileName);
 
 #if _DEBUG
-	OutputDebugString ("CreateFullVolumePath: ");
-	OutputDebugString (lpszDiskFile);
-	OutputDebugString ("\n");
+	OutputDebugStringA("CreateFullVolumePath: ");
+	OutputDebugStringA(lpszDiskFile);
+	OutputDebugStringA("\n");
 #endif
 
 }
@@ -48,7 +57,7 @@ std::string HarddiskVolumePathToPartitionPath (const std::string &harddiskVolume
 			swprintf_s (partitionPath, ARRAYSIZE (partitionPath), L"\\Device\\Harddisk%d\\Partition%d", driveNumber, partNumber);
 
 			wchar_t resolvedPath[TC_MAX_PATH];
-			if (ResolveSymbolicLink (partitionPath, resolvedPath))
+			if (ResolveSymbolicLink (partitionPath, (PWSTR)resolvedPath))
 			{
 				if (volPath == resolvedPath)
 					return WideToSingleString (partitionPath);
@@ -70,7 +79,7 @@ std::string VolumeGuidPathToDevicePath (std::string volumeGuidPath)
 		return string();
 
 	char volDevPath[TC_MAX_PATH];
-	if (QueryDosDevice (volumeGuidPath.substr (0, volumeGuidPath.size() - 1).c_str(), volDevPath, TC_MAX_PATH) == 0)
+	if (QueryDosDeviceA(volumeGuidPath.substr (0, volumeGuidPath.size() - 1).c_str(), volDevPath, TC_MAX_PATH) == 0)
 		return string();
 
 	string partitionPath = HarddiskVolumePathToPartitionPath (volDevPath);
@@ -102,7 +111,7 @@ BOOL IsMountedVolume (const char *volname)
 		NULL);
 
 	for (i=0 ; i<26; i++)
-		if (0 == _wcsicmp ((wchar_t *) mlist.wszVolume[i], (WCHAR *)volume))
+		if (0 == _wcsicmp ((wchar_t *) mlist.wszVolume[i], (const wchar_t*)volume))
 			return TRUE;
 
 	return FALSE;
@@ -135,7 +144,7 @@ int GetMountedVolumeDriveNo (char *volname)
 		NULL);
 
 	for (i=0 ; i<26; i++)
-		if (0 == _wcsicmp ((wchar_t *) mlist.wszVolume[i], (WCHAR *)volume))
+		if (0 == _wcsicmp ((wchar_t *) mlist.wszVolume[i], (const wchar_t*)volume))
 			return i;
 
 	return -1;
