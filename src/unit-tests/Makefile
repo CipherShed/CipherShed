@@ -2,8 +2,10 @@
 CC = g++
 CommonSDIR = ../Common
 
-CFLAGS = -DCS_UNITTESTING -fprofile-arcs -ftest-coverage -I . -I ../../var/opt/cpptest-code/cpptest/src/ -pthread -ldl
+CFLAGS = -DCS_UNITTESTING -fprofile-arcs -ftest-coverage -I . -I ../../var/opt/cpptest-code/cpptest/src/ -lpthread -ldl
 CXXFLAGS = $(CFLAGS)
+
+CPPFLAGS += -MD -MP
 
 GCOVR = ../../var/opt/gcovr/scripts/gcovr
 
@@ -134,7 +136,7 @@ faux/windows/swprintf_s.cpp \
 unittesting.cpp \
 # end of SRC_cpp
 
-
+SRCS=$(SRC_c) $(SRC_cpp)
 
 .PHONY: clean gcov coverage.xml run unittests
 
@@ -163,3 +165,6 @@ unittesting: $(OBJ)
 
 clean:
 #	rm -rf $(ODIR)/
+
+-include $(SRC_c:%.c=%.d) $(SRC_cpp:%.cpp=%.d)
+
