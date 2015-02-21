@@ -233,10 +233,20 @@ byte GetKeyboardChar ()
 }
 
 
+inline void yield(void)
+{
+	__asm
+	{		
+		hlt //timer interrupt will cause resume after this instruction.
+	}
+
+}
+
+
 byte GetKeyboardChar (byte *scanCode)
 {
 	// Work around potential BIOS bugs (Windows boot manager polls the keystroke buffer)
-	while (!IsKeyboardCharAvailable());
+	while (!IsKeyboardCharAvailable()) yield();
 
 	byte asciiCode;
 	byte scan;
