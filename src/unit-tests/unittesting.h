@@ -41,7 +41,7 @@ using namespace	Microsoft::VisualStudio::TestTools::UnitTesting;
 //debug messages...
 //http://stackoverflow.com/questions/16815804/how-to-get-console-output-in-visual-studio-2012-unit-tests
 #else
-#include <cpptest.h>
+#include "../../var/opt/cpptest-code/cpptest/src/cpptest.h"
 #define TESTCLASS
 #define TESTMETHOD
 #define PUBLIC_REF_CLASS class
