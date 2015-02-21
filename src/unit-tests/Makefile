@@ -2,7 +2,7 @@
 CC = g++
 CommonSDIR = ../Common
 
-CFLAGS = -DCS_UNITTESTING -fprofile-arcs -ftest-coverage -I . -I ../../var/opt/cpptest-code/cpptest/src/ -lpthread -ldl
+CFLAGS = -DCS_UNITTESTING -fprofile-arcs -ftest-coverage -I . -lpthread -ldl
 CXXFLAGS = $(CFLAGS)
 
 CPPFLAGS += -MD -MP
