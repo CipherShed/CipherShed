@@ -388,6 +388,7 @@ namespace CipherShed_Tests_Algo
 		*/
 		EndianTest()
 		{
+			TEST_ADD(EndianTest::testEndianUnion016);
 			TEST_ADD(EndianTest::testEndianUnion032);
 			TEST_ADD(EndianTest::testEndian008BitSizeAssumptions);
 			TEST_ADD(EndianTest::testEndian016BitSizeAssumptions);
