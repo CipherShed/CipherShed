@@ -134,6 +134,6 @@ namespace CipherShed
 
 #define trace_val(VAL) trace_msg (#VAL << '=' << (VAL));
 
-#define array_capacity(arr) (sizeof (arr) / sizeof ((arr)[0]))
+#include "../Common/util/arrays.h"
 
 #endif // TC_HEADER_Platform_PlatformBase

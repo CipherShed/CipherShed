@@ -23,7 +23,7 @@ typedef char bool;
 
 typedef UINT64_STRUCT uint64;
 
-#define array_capacity(arr) (sizeof (arr) / sizeof ((arr)[0]))
+#include "../../Common/util/arrays.h"
 
 #define TC_TO_STRING2(n) #n
 #define TC_TO_STRING(n) TC_TO_STRING2(n)
