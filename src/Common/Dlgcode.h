@@ -35,6 +35,7 @@
 #include "volume/volutil.h"
 #include "fsutil/fsutil.h"
 #include "fsutil/diskutil.h"
+#include "util/process.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -255,8 +256,7 @@ void cleanup ( void );
 //moved to volutil.h
 int FakeDosNameForDevice ( const char *lpszDiskFile , char *lpszDosDevice , char *lpszCFDevice , BOOL bNameOnly );
 int RemoveFakeDosName ( char *lpszDiskFile , char *lpszDosDevice );
-void AbortProcess ( char *stringId );
-void AbortProcessSilent ( void );
+//moved to process.h
 void *err_malloc ( size_t size );
 char *err_strdup ( char *lpszText );
 //moved to errors.h
