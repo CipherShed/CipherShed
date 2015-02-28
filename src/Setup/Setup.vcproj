@@ -349,6 +349,10 @@
 						RelativePath="..\Common\util\csstringutil.cpp"
 						>
 					</File>
+					<File
+						RelativePath="..\Common\util\process.cpp"
+						>
+					</File>
 				</Filter>
 				<Filter
 					Name="volume"
@@ -422,11 +426,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Resource.h"
+				RelativePath="..\Common\Resource.h"
 				>
 			</File>
 			<File
-				RelativePath="..\Common\Resource.h"
+				RelativePath=".\Resource.h"
 				>
 			</File>
 			<File

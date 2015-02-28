@@ -65,6 +65,8 @@ using namespace std;
 #include "Setup/Setup.h"
 #endif
 
+#include "util/process.h"
+
 using namespace CipherShed;
 
 LONG DriverVersion;
@@ -344,20 +346,7 @@ int RemoveFakeDosName (char *lpszDiskFile, char *lpszDosDevice)
 }
 
 
-void AbortProcess (char *stringId)
-{
-	// Note that this function also causes localcleanup() to be called (see atexit())
-	MessageBeep (MB_ICONEXCLAMATION);
-	MessageBoxW (NULL, GetString (stringId), lpszTitle, ICON_HAND);
-	exit (1);
-}
-
-void AbortProcessSilent (void)
-{
-	// Note that this function also causes localcleanup() to be called (see atexit())
-	exit (1);
-}
-
+//moved to process.cpp
 
 #pragma warning(push)
 #pragma warning(disable:4702)
