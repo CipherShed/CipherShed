@@ -40,6 +40,14 @@
 #define MB_ICONEXCLAMATION          0x00000030L
 #define MB_DEFBUTTON2               0x00000100L
 #define IDYES               6
+#ifdef __cplusplus
+extern "C" 
+{
+#endif
+int strlenw(WCHAR* s);
+#ifdef __cplusplus
+}
+#endif
 #endif
 
 // User text input limits

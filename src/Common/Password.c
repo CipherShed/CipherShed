@@ -28,10 +28,12 @@
 #include "util/unicode/ConvertUTF.h"
 #include "util/unicode/strcmpw.h"
 
+#ifndef CS_UNITTESTING
 #ifdef _MSC_VER
 __inline
 #else
 inline 
+#endif
 #endif
 int strlenw(WCHAR* s)
 {

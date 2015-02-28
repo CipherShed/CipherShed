@@ -510,6 +510,14 @@ namespace CipherShed_Tests_Algo
 		}
 
 
+		TESTMETHOD
+		void testPasswordStrlenwNULL()
+		{
+			int res=strlenw(NULL);
+
+			TEST_ASSERT_MSG(res==0,"strlenw(NULL) should be zero");
+		}
+
 
 
 		/**
@@ -533,6 +541,8 @@ namespace CipherShed_Tests_Algo
 			TEST_ADD(PasswordTest::testPasswordstrcmpw);
 
 			TEST_ADD(PasswordTest::testPasswordChangePwdMtPasswords);
+
+			TEST_ADD(PasswordTest::testPasswordStrlenwNULL);
 		}
 	};
 }
