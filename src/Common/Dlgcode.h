@@ -36,6 +36,7 @@
 #include "fsutil/fsutil.h"
 #include "fsutil/diskutil.h"
 #include "util/process.h"
+#include "util/memory.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -257,7 +258,7 @@ void cleanup ( void );
 int FakeDosNameForDevice ( const char *lpszDiskFile , char *lpszDosDevice , char *lpszCFDevice , BOOL bNameOnly );
 int RemoveFakeDosName ( char *lpszDiskFile , char *lpszDosDevice );
 //moved to process.h
-void *err_malloc ( size_t size );
+//moved to memory.h
 char *err_strdup ( char *lpszText );
 //moved to errors.h
 //moved to diskutil.h

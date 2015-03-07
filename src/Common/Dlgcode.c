@@ -348,20 +348,7 @@ int RemoveFakeDosName (char *lpszDiskFile, char *lpszDosDevice)
 
 //moved to process.cpp
 
-#pragma warning(push)
-#pragma warning(disable:4702)
-
-void *err_malloc (size_t size)
-{
-	void *z = (void *) TCalloc (size);
-	if (z)
-		return z;
-	AbortProcess ("OUTOFMEMORY");
-	return 0;
-}
-
-#pragma warning(pop)
-
+//moved to memory.cpp
 
 char *err_strdup (char *lpszText)
 {
