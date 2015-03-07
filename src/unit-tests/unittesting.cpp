@@ -66,6 +66,7 @@ namespace unittesting
 #include "tests/algo/endianTest.cpp"
 #include "tests/algo/passwordTest.cpp"
 #include "tests/lib/unicodeTest.cpp"
+#include "tests/lib/stringUtilTest.cpp"
 #endif
 
 #pragma warning( push )
@@ -78,6 +79,7 @@ int main(int argc, char *argv[], char *envp[])
 	MAINADDTEST(new crc::CrcTest);
 	MAINADDTEST(new CipherShed_Tests_Algo::EndianTest);
 	MAINADDTEST(new CipherShed_Tests_lib::UnicodeTest);
+	MAINADDTEST(new CipherShed_Tests_lib::StringUtilTest);
 	MAINTESTRUN
 
 }
