@@ -89,7 +89,7 @@ static unsigned __int32 GetCrc32Small (unsigned char *data, int length)
 #ifndef CS_UNITTESTING
 static
 #endif
-BOOL __attribute__ ((unused)) crc32_selfTestSmall(void)
+BOOL crc32_selfTestSmall(void)
 {
 	unsigned __int8 testData[32];
 	unsigned __int8 i;
