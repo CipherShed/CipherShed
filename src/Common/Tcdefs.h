@@ -36,6 +36,10 @@
 
 /* GUI/driver errors */
 
+#ifdef CS_UNITTESTING
+#include "../unit-tests/faux/windows/LPWSTR.h"
+#endif
+
 #define WIDE(x) (LPWSTR)L##x
 
 #ifdef _MSC_VER

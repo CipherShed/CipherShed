@@ -419,6 +419,10 @@
 						Name="lib"
 						>
 						<File
+							RelativePath=".\tests\lib\stringUtilTest.cpp"
+							>
+						</File>
+						<File
 							RelativePath=".\tests\lib\unicodeTest.cpp"
 							>
 						</File>
