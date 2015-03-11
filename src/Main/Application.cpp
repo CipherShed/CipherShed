@@ -38,7 +38,6 @@ namespace CipherShed
 
 	FilePath Application::GetConfigFilePath (const wxString &configFileName, bool createConfigDir)
 	{
-		wxStandardPaths stdPaths;
 		DirectoryPath configDir;
 		
 		if (!Core->IsInPortableMode())
@@ -48,6 +47,7 @@ namespace CipherShed
 			configPath.Normalize();
 			configDir = wstring (configPath.GetFullPath());
 #else
+			wxStandardPaths& stdPaths = wxStandardPaths::Get();
 			configDir = wstring (stdPaths.GetUserDataDir());
 #endif
 		}
