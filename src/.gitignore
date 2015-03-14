@@ -51,6 +51,7 @@
 /Driver/obj_driver_debug/
 /Driver/obj_driver_release/
 /Driver/build_*.log
+/Driver/build_*.err
 /Format/FormatCom_h.h
 /Format/CipherShed_Wizard.bmp.h
 /License.txt.h
