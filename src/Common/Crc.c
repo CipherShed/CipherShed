@@ -85,6 +85,7 @@ static unsigned __int32 GetCrc32Small (unsigned char *data, int length)
 	return r ^ 0xFFFFFFFFUL;
 }
 
+/* crc32_selfTestSmall() is used in unit-tests; ignore the gcc warning */
 #ifndef CS_UNITTESTING
 static
 #endif

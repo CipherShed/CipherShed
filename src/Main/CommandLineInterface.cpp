@@ -382,7 +382,7 @@ namespace CipherShed
 		ArgQuick = parser.Found (L"quick");
 
 		if (parser.Found (L"random-source", &str))
-			ArgRandomSourcePath = FilesystemPath (str);
+			ArgRandomSourcePath = FilesystemPath ( str.wc_str() );
 
 		if (parser.Found (L"restore-headers"))
 		{
