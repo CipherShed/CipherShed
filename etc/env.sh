@@ -8,7 +8,17 @@ unset _WINDDK_ROOT
 unset WINDDK_ROOT
 
 # allow local overrides...
-[ -e "$(dirname "$0")/etc/local/env.sh" ] && . "$(dirname "$0")/etc/local/env.sh"
+[ -e "$(dirname "$BASH_SOURCE")/local/env.sh" ] && . "$(dirname "$BASH_SOURCE")/local/env.sh"
+
+VSHOME="${VSHOME-"/cygdrive/c/Program Files/Microsoft Visual Studio 9.0/"}"
+
+DEVENVgui="${DEVENVgui-"$VSHOME/Common7/IDE/devenv.exe"}"
+
+DEVENVcon="${DEVENVcon-"$VSHOME/Common7/IDE/devenv.com"}"
+
+DEVENV="${DEVENV-"$DEVENVgui"}"
+
+MSTEST="${MSTEST-"$VSHOME/Common7/IDE/MSTest.exe"}"
 
 #_MSVC16_ROOT="$(dirname "$0")/../var/opt/microsoft-visual-c-152c/files/iso/MSVC15/"
 #_MSVC16_ROOT="/cygdrive/c/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/MSVC15/" #crash
