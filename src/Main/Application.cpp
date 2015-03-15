@@ -47,7 +47,7 @@ namespace CipherShed
 			configPath.Normalize();
 			configDir = wstring (configPath.GetFullPath());
 #else
-			wxStandardPaths& stdPaths = wxStandardPaths::Get();
+			wxStandardPathsBase& stdPaths = wxStandardPaths::Get();
 			configDir = wstring (stdPaths.GetUserDataDir());
 #endif
 		}
