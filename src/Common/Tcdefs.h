@@ -15,15 +15,15 @@
 #define TC_APP_NAME						"VeraCrypt"
 
 // Version displayed to user 
-#define VERSION_STRING					"1.0f-1"
+#define VERSION_STRING					"1.0f-2"
 
 // Version number to compare against driver
-#define VERSION_NUM						0x0110
+#define VERSION_NUM						0x0111
 
 // Release date
-#define TC_STR_RELEASE_DATE				"January 4, 2015"
+#define TC_STR_RELEASE_DATE				"April 5, 2015"
 #define TC_RELEASE_DATE_YEAR			2015
-#define TC_RELEASE_DATE_MONTH			01
+#define TC_RELEASE_DATE_MONTH			04
 
 #define BYTES_PER_KB                    1024LL
 #define BYTES_PER_MB                    1048576LL
@@ -126,6 +126,11 @@ void ThrowFatalException (int line);
 #	define TC_THROW_FATAL_EXCEPTION KeBugCheckEx (SECURITY_SYSTEM, __LINE__, 0, 0, 'VC')
 #else
 #	define TC_THROW_FATAL_EXCEPTION	*(char *) 0 = 0
+#endif
+
+#ifdef __COVERITY__
+#undef TC_THROW_FATAL_EXCEPTION
+#define TC_THROW_FATAL_EXCEPTION __coverity_panic__()
 #endif
 
 #ifdef TC_WINDOWS_DRIVER
@@ -296,7 +301,9 @@ enum
 	ERR_SYS_HIDVOL_HEAD_REENC_MODE_WRONG	= 31,
 	ERR_NONSYS_INPLACE_ENC_INCOMPLETE		= 32,
 	ERR_USER_ABORT							= 33,
-	ERR_UNSUPPORTED_TRUECRYPT_FORMAT		= 34
+	ERR_UNSUPPORTED_TRUECRYPT_FORMAT		= 34,
+	ERR_RAND_INIT_FAILED					= 35,
+	ERR_CAPI_INIT_FAILED					= 36
 };
 
 #endif 	// #ifndef TCDEFS_H

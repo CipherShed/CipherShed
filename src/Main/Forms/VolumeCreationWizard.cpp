@@ -437,6 +437,8 @@ namespace VeraCrypt
 					mountOptions.Protection = VolumeProtection::None;
 					mountOptions.Password = Password;
 					mountOptions.Keyfiles = Keyfiles;
+					mountOptions.Kdf = Kdf;
+					mountOptions.TrueCryptMode = false;
 
 					shared_ptr <VolumeInfo> volume = Core->MountVolume (mountOptions);
 					finally_do_arg (shared_ptr <VolumeInfo>, volume, { Core->DismountVolume (finally_arg, true); });
@@ -477,6 +479,10 @@ namespace VeraCrypt
 
 					if (SelectedFilesystemType == VolumeCreationOptions::FilesystemType::MacOsExt && VolumeSize >= 10 * BYTES_PER_MB)
 						args.push_back ("-J");
+					
+					// Perform a quick NTFS formatting
+					if (SelectedFilesystemType == VolumeCreationOptions::FilesystemType::NTFS)
+						args.push_back ("-f");
 
 					args.push_back (string (virtualDevice));
 

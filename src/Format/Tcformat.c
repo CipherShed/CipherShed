@@ -266,14 +266,18 @@ static BOOL ElevateWholeWizardProcess (string arguments)
 
 	GetModuleFileName (NULL, modPath, sizeof (modPath));
 
-	if ((int)ShellExecute (MainDlg, "runas", modPath, (string("/q UAC ") + arguments).c_str(), NULL, SW_SHOWNORMAL) > 32)
-	{				
-		exit (0);
-	}
-	else
+	while (true)
 	{
-		Error ("UAC_INIT_ERROR", MainDlg);
-		return FALSE;
+		if ((int)ShellExecute (MainDlg, "runas", modPath, (string("/q UAC ") + arguments).c_str(), NULL, SW_SHOWNORMAL) > 32)
+		{				
+			exit (0);
+		}
+		else
+		{
+			if (IDRETRY == ErrorRetryCancel ("UAC_INIT_ERROR", MainDlg))
+				continue;
+			return FALSE;
+		}
 	}
 }
 
@@ -2533,13 +2537,12 @@ static void __cdecl volTransformThreadFunction (void *hwndDlgArg)
 			if (!bInPlaceEncNonSys)
 				SetTimer (hwndDlg, TIMER_ID_RANDVIEW, TIMER_INTERVAL_RANDVIEW, NULL);
 
-			if (volParams != NULL)
-			{
-				burn ((LPVOID) volParams, sizeof(FORMAT_VOL_PARAMETERS));
-				VirtualUnlock ((LPVOID) volParams, sizeof(FORMAT_VOL_PARAMETERS));
-				free ((LPVOID) volParams);
-				volParams = NULL;
-			}
+
+			// volParams is ensured to be non NULL at this stage
+			burn ((LPVOID) volParams, sizeof(FORMAT_VOL_PARAMETERS));
+			VirtualUnlock ((LPVOID) volParams, sizeof(FORMAT_VOL_PARAMETERS));
+			free ((LPVOID) volParams);
+			volParams = NULL;
 
 			bVolTransformThreadRunning = FALSE;
 			bVolTransformThreadCancel = FALSE;
@@ -6689,9 +6692,8 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 						Error ("UNSUPPORTED_CHARS_IN_PWD", hwndDlg);
 						return 1;
 					}
-					// Check password length (do not check if it's for an outer volume).
-					else if (!bHiddenVolHost
-						&& !CheckPasswordLength (hwndDlg, GetDlgItem (hCurPage, IDC_PASSWORD)))
+					// Check password length (check also done for outer volume which is not the case in TrueCrypt).
+					else if (!CheckPasswordLength (hwndDlg, GetDlgItem (hCurPage, IDC_PASSWORD)))
 					{
 						return 1;
 					}
@@ -8998,7 +9000,15 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpszComm
 	nPbar = IDC_PROGRESS_BAR;
 
 	if (Randinit ())
-		AbortProcess ("INIT_RAND");
+	{
+		DWORD dwLastError = GetLastError ();
+		wchar_t szTmp[4096];		
+		if (CryptoAPILastError == ERROR_SUCCESS)
+			StringCbPrintfW (szTmp, sizeof(szTmp), GetString ("INIT_RAND"), SRC_POS, dwLastError);
+		else
+			StringCbPrintfW (szTmp, sizeof(szTmp), GetString ("CAPI_RAND"), SRC_POS, CryptoAPILastError);
+		AbortProcessDirect (szTmp);
+	}
 
 	RegisterRedTick(hInstance);
 
@@ -9023,6 +9033,7 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpszComm
 	DialogBoxParamW (hInstance, MAKEINTRESOURCEW (IDD_VOL_CREATION_WIZARD_DLG), NULL, (DLGPROC) MainDialogProc, 
 		(LPARAM)lpszCommandLine);
 
+	FinalizeApp ();
 	return 0;
 }
 

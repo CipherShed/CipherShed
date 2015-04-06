@@ -92,6 +92,10 @@ namespace VeraCrypt
 		VC_CONVERT_EXCEPTION (SecurityTokenKeyfileNotFound);
 		VC_CONVERT_EXCEPTION (UnsupportedAlgoInTrueCryptMode);	
 		VC_CONVERT_EXCEPTION (UnsupportedTrueCryptFormat);
+		VC_CONVERT_EXCEPTION (SystemException);
+		VC_CONVERT_EXCEPTION (CipherException);
+		VC_CONVERT_EXCEPTION (VolumeException);
+		VC_CONVERT_EXCEPTION (PasswordException);
 		throw *ex;
 	}
 }

@@ -41,7 +41,7 @@ IDR_MOUNT_TLB           TYPELIB                 "Mount.tlb"
 // Dialog
 //
 
-IDD_PREFERENCES_DLG DIALOGEX 0, 0, 336, 282
+IDD_PREFERENCES_DLG DIALOGEX 0, 0, 336, 291
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "VeraCrypt - Preferences"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
@@ -78,20 +78,22 @@ BEGIN
     CONTROL         "Wipe cached passwords on exit",IDC_PREF_WIPE_CACHE_ON_EXIT,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,162,227,165,11
     CONTROL         "Wipe cached passwords on auto-dismount",IDC_PREF_WIPE_CACHE_ON_AUTODISMOUNT,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,11,239,296,11
-    PUSHBUTTON      "More Settings...",IDC_MORE_SETTINGS,5,262,85,14
-    DEFPUSHBUTTON   "OK",IDOK,225,262,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,281,262,50,14
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,11,254,296,11
+    PUSHBUTTON      "More Settings...",IDC_MORE_SETTINGS,5,275,85,14
+    DEFPUSHBUTTON   "OK",IDOK,225,275,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,281,275,50,14
     GROUPBOX        "Windows",IDT_WINDOWS_RELATED_SETTING,4,160,328,52
     GROUPBOX        "Default Mount Options",IDT_DEFAULT_MOUNT_OPTIONS,4,3,328,26
     GROUPBOX        "VeraCrypt Background Task",IDT_TASKBAR_ICON,4,33,328,26
     GROUPBOX        "Auto-Dismount",IDT_AUTO_DISMOUNT,4,94,328,62
     LTEXT           "minutes",IDT_MINUTES,289,129,39,10
     LTEXT           "Dismount all when:",IDT_AUTO_DISMOUNT_ON,9,110,71,17
-    GROUPBOX        "Password Cache",IDT_PW_CACHE_OPTIONS,4,216,328,39
+    GROUPBOX        "Password Cache",IDT_PW_CACHE_OPTIONS,4,216,328,54
     GROUPBOX        "Actions to perform upon logon to Windows",IDT_LOGON,4,63,328,28
     CONTROL         "User session locked",IDC_PREF_DISMOUNT_SESSION_LOCKED,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,197,105,130,11
+    CONTROL         "Temporary Cache password during ""Mount Favorite Volumes"" operations",IDC_PREF_TEMP_CACHE_ON_MULTIPLE_MOUNT,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,11,241,294,11
 END
 
 IDD_VOLUME_PROPERTIES DIALOGEX 60, 30, 284, 224
@@ -331,6 +333,18 @@ BEGIN
     GROUPBOX        "Global Settings",IDC_FAV_VOL_OPTIONS_GLOBAL_SETTINGS_BOX,7,202,366,49
 END
 
+IDD_DEFAULT_MOUNT_PARAMETERS DIALOGEX 0, 0, 167, 65
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "VeraCrypt - Mount Parameters"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,57,44,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,111,44,50,14
+    COMBOBOX        IDC_PKCS5_PRF_ID,57,24,103,90,CBS_DROPDOWNLIST | WS_TABSTOP
+    LTEXT           "PKCS-5 PRF:",IDT_PKCS5_PRF,8,26,44,11
+    CONTROL         "TrueCrypt Mode",IDC_TRUECRYPT_MODE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,7,76,10
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -345,7 +359,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 329
         TOPMARGIN, 7
-        BOTTOMMARGIN, 280
+        BOTTOMMARGIN, 289
     END
 
     IDD_VOLUME_PROPERTIES, DIALOG
@@ -422,6 +436,14 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 269
     END
+
+    IDD_DEFAULT_MOUNT_PARAMETERS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 160
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 58
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -432,8 +454,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,0,6,2
- PRODUCTVERSION 1,0,6,2
+ FILEVERSION 1,0,6,3
+ PRODUCTVERSION 1,0,6,3
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -450,11 +472,11 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "IDRIX"
             VALUE "FileDescription", "VeraCrypt"
-            VALUE "FileVersion", "1.0f-1"
+            VALUE "FileVersion", "1.0f-2"
             VALUE "LegalTrademarks", "VeraCrypt"
             VALUE "OriginalFilename", "VeraCrypt.exe"
             VALUE "ProductName", "VeraCrypt"
-            VALUE "ProductVersion", "1.0f-1"
+            VALUE "ProductVersion", "1.0f-2"
         END
     END
     BLOCK "VarFileInfo"
@@ -568,6 +590,7 @@ BEGIN
         MENUITEM "Test Vectors...",             IDM_TEST_VECTORS
         MENUITEM SEPARATOR
         MENUITEM "Traveler Disk Setup...",      IDM_TRAVELER
+        MENUITEM "Volume Expander",             IDM_VOLUME_EXPANDER
         MENUITEM "Volume Creation Wizard",      IDM_VOLUME_WIZARD
         MENUITEM SEPARATOR
         MENUITEM "Keyfile Generator",           IDM_KEYFILE_GENERATOR
@@ -593,6 +616,7 @@ BEGIN
         MENUITEM "Performance...",              IDM_PERFORMANCE_SETTINGS
         MENUITEM SEPARATOR
         MENUITEM "Default Keyfiles...",         IDM_DEFAULT_KEYFILES
+        MENUITEM "Default Mount Parameters...", IDM_DEFAULT_MOUNT_PARAMETERS
         MENUITEM "Security Tokens...",          IDM_TOKEN_PREFERENCES
         MENUITEM SEPARATOR
         MENUITEM "Preferences...",              IDM_PREFERENCES

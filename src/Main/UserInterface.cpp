@@ -340,10 +340,9 @@ namespace VeraCrypt
 					message << L"\n\n" << LangString["ERR_HARDWARE_ERROR"];
 #endif
 
-#ifdef DEBUG
 				if (sysEx && sysEx->what())
 					message << L"\n\n" << StringConverter::ToWide (sysEx->what());
-#endif
+
 				return message;
 			}
 		}
@@ -501,10 +500,8 @@ namespace VeraCrypt
 
 		LangString.Init();
 		Core->Init();
-
-		wxCmdLineParser parser;
-		parser.SetCmdLine (argc, argv);
-		CmdLine.reset (new CommandLineInterface (parser, InterfaceType));
+		
+		CmdLine.reset (new CommandLineInterface (argc, argv, InterfaceType));
 		SetPreferences (CmdLine->Preferences);
 
 		Core->SetApplicationExecutablePath (Application::GetExecutablePath());
@@ -832,7 +829,7 @@ namespace VeraCrypt
 		// MIME handler for directory seems to be unavailable through wxWidgets
 		wxString desktop = GetTraits()->GetDesktopEnvironment();
 
-		if (desktop == L"GNOME" || desktop.empty())
+		if (desktop == L"GNOME")
 		{
 			args.push_back ("--no-default-window");
 			args.push_back ("--no-desktop");
@@ -864,6 +861,22 @@ namespace VeraCrypt
 				catch (TimeOut&) { }
 				catch (exception &e) { ShowError (e); }
 			}
+		}
+		else if (wxFileName::IsFileExecutable (wxT("/usr/bin/xdg-open")))
+		{
+			// Fallback on the standard xdg-open command 
+			// which is not always available by default
+			args.push_back (string (path));
+			try
+			{
+				Process::Execute ("xdg-open", args, 2000);
+			}
+			catch (TimeOut&) { }
+			catch (exception &e) { ShowError (e); }
+		}
+		else
+		{
+			ShowWarning (wxT("Unable to find a file manager to open the mounted volume"));
 		}
 #endif
 	}
@@ -1575,9 +1588,12 @@ namespace VeraCrypt
 		VC_CONVERT_EXCEPTION (SecurityTokenLibraryNotInitialized);
 		VC_CONVERT_EXCEPTION (SecurityTokenKeyfileAlreadyExists);
 		VC_CONVERT_EXCEPTION (SecurityTokenKeyfileNotFound);
-		VC_CONVERT_EXCEPTION (SystemException);
-		VC_CONVERT_EXCEPTION (UnsupportedAlgoInTrueCryptMode);
+		VC_CONVERT_EXCEPTION (UnsupportedAlgoInTrueCryptMode);	
 		VC_CONVERT_EXCEPTION (UnsupportedTrueCryptFormat);
+		VC_CONVERT_EXCEPTION (SystemException);
+		VC_CONVERT_EXCEPTION (CipherException);
+		VC_CONVERT_EXCEPTION (VolumeException);
+		VC_CONVERT_EXCEPTION (PasswordException);
 		throw *ex;
 	}
 }

@@ -32,7 +32,7 @@ void VerifyPasswordAndUpdate (HWND hwndDlg, HWND hButton, HWND hPassword,
 	int k = GetWindowTextLength (hPassword);
 	BOOL bEnable = FALSE;
 
-	if (hwndDlg);		/* Remove warning */
+	UNREFERENCED_PARAMETER (hwndDlg);		/* Remove warning */
 
 	GetWindowText (hPassword, szTmp1, sizeof (szTmp1));
 	GetWindowText (hVerify, szTmp2, sizeof (szTmp2));
@@ -230,7 +230,13 @@ int ChangePwd (const char *lpszVolume, Password *oldPassword, int old_pkcs5, BOO
 	}
 
 	if (Randinit ())
+	{
+		if (CryptoAPILastError == ERROR_SUCCESS)
+			nStatus = ERR_RAND_INIT_FAILED;
+		else
+			nStatus = ERR_CAPI_INIT_FAILED;
 		goto error;
+	}
 
 	SetRandomPoolEnrichedByUserStatus (FALSE); /* force the display of the random enriching dialog */
 

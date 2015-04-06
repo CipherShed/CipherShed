@@ -43,12 +43,27 @@ BOOL ComGetInstanceBase (HWND hWnd, REFCLSID clsid, REFIID iid, void **tcServer)
 	BOOL r;
 
 	if (IsUacSupported ())
-		r = CreateElevatedComObject (hWnd, clsid, iid, tcServer) == S_OK;
+	{
+		while (true)
+		{
+			r = CreateElevatedComObject (hWnd, clsid, iid, tcServer) == S_OK;
+			if (r)
+				break;
+			else
+			{
+				if (IDRETRY == ErrorRetryCancel ("UAC_INIT_ERROR", hWnd))
+					continue;
+				else
+					break;
+			}
+		}
+	}
 	else
+	{
 		r = CoCreateInstance (clsid, NULL, CLSCTX_LOCAL_SERVER, iid, tcServer) == S_OK;
-
-	if (!r)
-		Error ("UAC_INIT_ERROR", hWnd);
+		if (!r)
+			Error ("UAC_INIT_ERROR", hWnd);
+	}
 
 	return r;
 }
@@ -119,6 +134,7 @@ DWORD BaseCom::ReadWriteFile (BOOL write, BOOL device, BSTR filePath, BSTR *buff
 	try
 	{
 		auto_ptr <File> file (device ? new Device (string (szFilePathA.m_psz), !write) : new File (string (szFilePathA.m_psz), !write));
+		file->CheckOpened ();
 		file->SeekAt (offset);
 
 		if (write)

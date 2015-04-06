@@ -622,10 +622,20 @@ namespace VeraCrypt
 	}
 
 #ifdef TC_MACOSX
-	void GraphicUserInterface::MacOpenFile (const wxString &fileName)
+	void GraphicUserInterface::MacOpenFiles (const wxArrayString &fileNames)
 	{
-		OpenVolumeSystemRequestEventArgs eventArgs (fileName);
-		OpenVolumeSystemRequestEvent.Raise (eventArgs);
+		if (fileNames.GetCount() > 0)
+		{
+			// we can only put one volume path at a time on the text field
+			// so we take the first on the list
+			OpenVolumeSystemRequestEventArgs eventArgs (fileNames[0]);
+			OpenVolumeSystemRequestEvent.Raise (eventArgs);
+		}
+	}
+
+	void GraphicUserInterface::MacReopenApp ()
+	{
+		SetBackgroundMode (false);
 	}
 #endif
 
@@ -842,8 +852,9 @@ namespace VeraCrypt
 
 			wxLogLevel logLevel = wxLog::GetLogLevel();
 			wxLog::SetLogLevel (wxLOG_Error);
-
-			SingleInstanceChecker.reset (new wxSingleInstanceChecker (wxString (L".") + Application::GetName() + L"-lock-" + wxGetUserId()));
+			
+			const wxString instanceCheckerName = wxString (L".") + Application::GetName() + L"-lock-" + wxGetUserId();
+			SingleInstanceChecker.reset (new wxSingleInstanceChecker (instanceCheckerName));
 
 			wxLog::SetLogLevel (logLevel);
 
@@ -878,6 +889,7 @@ namespace VeraCrypt
 					if (write (showFifo, buf, 1) == 1)
 					{
 						close (showFifo);
+						Gui->ShowInfo (_("VeraCrypt is already running."));
 						Application::SetExitCode (0);
 						return false;
 					}
@@ -890,12 +902,28 @@ namespace VeraCrypt
 					throw;
 #endif
 				}
-#endif
+
+				// This is a false positive as VeraCrypt is not running (pipe not available)
+				// we continue running after cleaning the lock file
+				// and creating a new instance of the checker
+				wxString lockFileName = wxGetHomeDir();
+				if ( lockFileName.Last() != wxT('/') )
+				{
+					lockFileName += wxT('/');
+				}
+				lockFileName << instanceCheckerName;
+
+				if (wxRemoveFile (lockFileName))
+				{
+					SingleInstanceChecker.reset (new wxSingleInstanceChecker (instanceCheckerName));
+				}
+#else
 
 				wxLog::FlushActive();
 				Application::SetExitCode (1);
 				Gui->ShowInfo (_("VeraCrypt is already running."));
 				return false;
+#endif
 			}
 
 #ifdef TC_WINDOWS

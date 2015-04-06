@@ -20,6 +20,7 @@
 #define IDD_TOKEN_PREFERENCES           115
 #define IDD_SYSENC_SETTINGS             116
 #define IDD_FAVORITE_VOLUMES            117
+#define IDD_DEFAULT_MOUNT_PARAMETERS    118
 #define IDC_PREF_MOUNT_READONLY         1000
 #define IDC_PREF_MOUNT_REMOVABLE        1001
 #define IDC_VERIFY                      1002
@@ -161,6 +162,7 @@
 #define IDT_NEW_PKCS5_PRF               1138
 #define IDC_PKCS5_OLD_PRF_ID            1139
 #define IDC_TRUECRYPT_MODE              1140
+#define IDC_PREF_TEMP_CACHE_ON_MULTIPLE_MOUNT 1141
 #define IDM_HELP                        40001
 #define IDM_ABOUT                       40002
 #define IDM_UNMOUNT_VOLUME              40003
@@ -225,15 +227,18 @@
 #define IDM_PERFORMANCE_SETTINGS        40062
 #define IDM_ANALYZE_SYSTEM_CRASH        40063
 #define IDM_DONATE                      40064
+#define IDM_VOLUME_EXPANDER             40065
+#define ID_SETTINGS_DEFAULTMOUNTOPTIONS 40066
+#define IDM_DEFAULT_MOUNT_PARAMETERS    40067
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        118
-#define _APS_NEXT_COMMAND_VALUE         40065
-#define _APS_NEXT_CONTROL_VALUE         1141
+#define _APS_NEXT_RESOURCE_VALUE        119
+#define _APS_NEXT_COMMAND_VALUE         40068
+#define _APS_NEXT_CONTROL_VALUE         1142
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

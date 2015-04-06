@@ -180,6 +180,8 @@ DWORD SystemFileSelectorCallerThreadId;
 #define RANDPOOL_DISPLAY_ROWS 16
 #define RANDPOOL_DISPLAY_COLUMNS 20
 
+HMODULE hRichEditDll = NULL;
+
 /* Windows dialog class */
 #define WINDOWS_DIALOG_CLASS "#32770"
 
@@ -459,16 +461,32 @@ int RemoveFakeDosName (char *lpszDiskFile, char *lpszDosDevice)
 }
 
 
-void AbortProcess (char *stringId)
+void AbortProcessDirect (wchar_t *abortMsg)
 {
 	// Note that this function also causes localcleanup() to be called (see atexit())
 	MessageBeep (MB_ICONEXCLAMATION);
-	MessageBoxW (NULL, GetString (stringId), lpszTitle, ICON_HAND);
+	MessageBoxW (NULL, abortMsg, lpszTitle, ICON_HAND);
+	if (hRichEditDll)
+	{
+		FreeLibrary (hRichEditDll);
+		hRichEditDll = NULL;
+	}
 	exit (1);
+}
+
+void AbortProcess (char *stringId)
+{
+	// Note that this function also causes localcleanup() to be called (see atexit())
+	AbortProcessDirect (GetString (stringId));
 }
 
 void AbortProcessSilent (void)
 {
+	if (hRichEditDll)
+	{
+		FreeLibrary (hRichEditDll);
+		hRichEditDll = NULL;
+	}
 	// Note that this function also causes localcleanup() to be called (see atexit())
 	exit (1);
 }
@@ -2527,7 +2545,7 @@ void InitApp (HINSTANCE hInstance, char *lpszCommandLine)
 	else
 		StringCbCopyA(dllPath, sizeof(dllPath), "c:\\Windows\\System32\\Riched20.dll");
 	// Required for RichEdit text fields to work
-	if (LoadLibrary(dllPath) == NULL)
+	if ((hRichEditDll = LoadLibrary(dllPath)) == NULL)
 	{
 		// This error is fatal e.g. because legal notices could not be displayed
 		handleWin32Error (NULL);
@@ -2544,9 +2562,23 @@ void InitApp (HINSTANCE hInstance, char *lpszCommandLine)
 	if (!EncryptionThreadPoolStart (ReadEncryptionThreadPoolFreeCpuCountLimit()))
 	{
 		handleWin32Error (NULL);
+		if (hRichEditDll)
+		{
+			FreeLibrary (hRichEditDll);
+			hRichEditDll = NULL;
+		}
 		exit (1);
 	}
 #endif
+}
+
+void FinalizeApp (void)
+{
+	if (hRichEditDll)
+	{
+		FreeLibrary (hRichEditDll);
+		hRichEditDll = NULL;
+	}
 }
 
 void InitHelpFileName (void)
@@ -2590,9 +2622,13 @@ BOOL OpenDevice (const char *lpszPath, OPEN_TEST_STRUCT *driver, BOOL detectFile
 {
 	DWORD dwResult;
 	BOOL bResult;
+	wchar_t wszFileName[TC_MAX_PATH];
 
-	StringCbCopyA ((char *) &driver->wszFileName[0], sizeof(driver->wszFileName), lpszPath);
-	ToUNICODE ((char *) &driver->wszFileName[0], sizeof(driver->wszFileName));
+	StringCbCopyA ((char *) &wszFileName[0], sizeof(wszFileName), lpszPath);
+	ToUNICODE ((char *) &wszFileName[0], sizeof(wszFileName));
+
+	memset (driver, 0, sizeof (OPEN_TEST_STRUCT));
+	memcpy (driver->wszFileName, wszFileName, sizeof (wszFileName));
 
 	driver->bDetectTCBootLoader = FALSE;
 	driver->DetectFilesystem = detectFilesystem;
@@ -2601,6 +2637,19 @@ BOOL OpenDevice (const char *lpszPath, OPEN_TEST_STRUCT *driver, BOOL detectFile
 				   driver, sizeof (OPEN_TEST_STRUCT),
 				   driver, sizeof (OPEN_TEST_STRUCT),
 				   &dwResult, NULL);
+
+	// check variable driver
+	if (	bResult 
+		&& ( (driver->bDetectTCBootLoader != TRUE && driver->bDetectTCBootLoader != FALSE) ||
+			  (driver->TCBootLoaderDetected != TRUE && driver->TCBootLoaderDetected != FALSE) ||
+			  (driver->DetectFilesystem != TRUE && driver->DetectFilesystem != FALSE) ||
+			  (driver->FilesystemDetected != TRUE && driver->FilesystemDetected != FALSE) ||
+			  (wcscmp (wszFileName, driver->wszFileName))
+			)
+		)
+	{
+		return FALSE;
+	}
 
 	if (bResult == FALSE)
 	{
@@ -3935,7 +3984,7 @@ void handleError (HWND hwndDlg, int code)
 
 	if (Silent) return;
 
-	switch (code)
+	switch (code & 0x0000FFFF)
 	{
 	case ERR_OS_ERROR:
 		handleWin32Error (hwndDlg);
@@ -4029,8 +4078,21 @@ void handleError (HWND hwndDlg, int code)
 		break;
 
 	case ERR_UNSUPPORTED_TRUECRYPT_FORMAT:
-		MessageBoxW (hwndDlg, GetString ("UNSUPPORTED_TRUECRYPT_FORMAT"), lpszTitle, ICON_HAND);
+		StringCbPrintfW (szTmp, sizeof(szTmp), GetString ("UNSUPPORTED_TRUECRYPT_FORMAT"), (code >> 24), (code >> 16) & 0x000000FF);
+		MessageBoxW (hwndDlg, szTmp, lpszTitle, ICON_HAND);
 		break;
+
+#ifndef SETUP
+	case ERR_RAND_INIT_FAILED:
+		StringCbPrintfW (szTmp, sizeof(szTmp), GetString ("INIT_RAND"), SRC_POS, GetLastError ());
+		MessageBoxW (hwndDlg, szTmp, lpszTitle, MB_ICONERROR);
+		break;
+
+	case ERR_CAPI_INIT_FAILED:
+		StringCbPrintfW (szTmp, sizeof(szTmp), GetString ("CAPI_RAND"), SRC_POS, CryptoAPILastError);
+		MessageBoxW (hwndDlg, szTmp, lpszTitle, MB_ICONERROR);
+		break;
+#endif
 
 	default:
 		StringCbPrintfW (szTmp, sizeof(szTmp), GetString ("ERR_UNKNOWN"), code);
@@ -4550,10 +4612,12 @@ static BOOL PerformBenchmark(HWND hBenchDlg, HWND hwndDlg)
 		if (!EAIsFormatEnabled (ci->ea))
 			continue;
 
-		EAInit (ci->ea, ci->master_keydata, ci->ks);
+		if (ERR_CIPHER_INIT_FAILURE == EAInit (ci->ea, ci->master_keydata, ci->ks))
+			goto counter_error;
 
 		ci->mode = FIRST_MODE_OF_OPERATION_ID;
-		EAInitMode (ci);
+		if (!EAInitMode (ci))
+			goto counter_error;
 
 		if (QueryPerformanceCounter (&performanceCountStart) == 0)
 			goto counter_error;
@@ -4963,12 +5027,13 @@ exit:
 	return 0;
 }
 
-
+/* Randinit is always called before UserEnrichRandomPool, so we don't need
+ * the extra Randinit call here since it will always succeed but we keep it
+ * for clarity purposes
+ */
 void UserEnrichRandomPool (HWND hwndDlg)
 {
-	Randinit();
-
-	if (!IsRandomPoolEnrichedByUser())
+	if ((0 == Randinit()) && !IsRandomPoolEnrichedByUser())
 	{
 		INT_PTR result = DialogBoxParamW (hInst, MAKEINTRESOURCEW (IDD_RANDOM_POOL_ENRICHMENT), hwndDlg ? hwndDlg : MainDlg, (DLGPROC) RandomPoolEnrichementDlgProc, (LPARAM) 0);
 		SetRandomPoolEnrichedByUserStatus (result == IDOK);
@@ -5016,7 +5081,7 @@ BOOL CALLBACK KeyfileGeneratorDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LP
 #ifndef VOLFORMAT			
 			if (Randinit ()) 
 			{
-				Error ("INIT_RAND", hwndDlg);
+				handleError (hwndDlg, (CryptoAPILastError == ERROR_SUCCESS)? ERR_RAND_INIT_FAILED : ERR_CAPI_INIT_FAILED);
 				EndDialog (hwndDlg, IDCLOSE);
 			}
 #endif
@@ -5583,12 +5648,16 @@ CipherTestDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					if ((tmpRetVal = EAInit (ci->ea, (unsigned char *) key, ci->ks)) != ERR_SUCCESS)
 					{
 						handleError (hwndDlg, tmpRetVal);
+						crypto_close (ci);
 						return 1;
 					}
 
 					memcpy (&ci->k2, secondaryKey, sizeof (secondaryKey));
 					if (!EAInitMode (ci))
+					{
+						crypto_close (ci);
 						return 1;
+					}
 
 					structDataUnitNo.Value = BE64(((unsigned __int64 *)dataUnitNo)[0]);
 
@@ -6228,6 +6297,8 @@ BOOL CALLBACK WaitDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam)
 
 		if (lw == IDOK || lw == IDCANCEL)
 			return 1;
+		else
+			return 0;
 
 	default:
 		if (msg == g_wmWaitDlg)
@@ -6267,6 +6338,7 @@ typedef struct
 	MOUNT_STRUCT* pmount;
 	BOOL* pbResult;
 	DWORD* pdwResult;
+	DWORD dwLastError;
 } MountThreadParam;
 
 void CALLBACK MountWaitThreadProc(void* pArg, HWND )
@@ -6275,6 +6347,8 @@ void CALLBACK MountWaitThreadProc(void* pArg, HWND )
 
 	*(pThreadParam->pbResult) = DeviceIoControl (hDriver, TC_IOCTL_MOUNT_VOLUME, pThreadParam->pmount,
 		sizeof (MOUNT_STRUCT),pThreadParam->pmount, sizeof (MOUNT_STRUCT), pThreadParam->pdwResult, NULL);
+
+	pThreadParam->dwLastError = GetLastError ();
 }
 
 /************************************************************************/
@@ -6303,7 +6377,7 @@ int MountVolume (HWND hwndDlg,
 				 BOOL bReportWrongPassword)
 {
 	MOUNT_STRUCT mount;
-	DWORD dwResult;
+	DWORD dwResult, dwLastError = ERROR_SUCCESS;
 	BOOL bResult, bDevice;
 	char root[MAX_PATH];
 	int favoriteMountOnArrivalRetryCount = 0;
@@ -6434,13 +6508,17 @@ retry:
 		mountThreadParam.pmount = &mount;
 		mountThreadParam.pbResult = &bResult;
 		mountThreadParam.pdwResult = &dwResult;
+		mountThreadParam.dwLastError = ERROR_SUCCESS;
 
 		ShowWaitDialog (hwndDlg, FALSE, MountWaitThreadProc, &mountThreadParam);
+
+		dwLastError  = mountThreadParam.dwLastError;
 	}
 	else
 	{
 		bResult = DeviceIoControl (hDriver, TC_IOCTL_MOUNT_VOLUME, &mount,
 				sizeof (mount), &mount, sizeof (mount), &dwResult, NULL);
+		dwLastError = GetLastError ();
 	}
 
 	burn (&mount.VolumePassword, sizeof (mount.VolumePassword));
@@ -6449,6 +6527,7 @@ retry:
 	burn (&mount.bTrueCryptMode, sizeof (mount.bTrueCryptMode));
 	burn (&mount.ProtectedHidVolPkcs5Prf, sizeof (mount.ProtectedHidVolPkcs5Prf));
 
+	SetLastError (dwLastError);
 	if (bResult == FALSE)
 	{
 		// Volume already open by another process
@@ -6849,8 +6928,13 @@ BOOL GetDriveGeometry (const char *deviceName, PDISK_GEOMETRY diskGeometry)
 	bResult = DeviceIoControl (hDriver, TC_IOCTL_GET_DRIVE_GEOMETRY, &dg,
 		sizeof (dg), &dg, sizeof (dg), &dwResult, NULL);
 
-	memcpy (diskGeometry, &dg.diskGeometry, sizeof (DISK_GEOMETRY));
-	return bResult;
+	if (bResult && (dwResult == sizeof (dg)) && dg.diskGeometry.BytesPerSector)
+	{
+		memcpy (diskGeometry, &dg.diskGeometry, sizeof (DISK_GEOMETRY));
+		return TRUE;
+	}
+	else
+		return FALSE;
 }
 
 
@@ -7202,8 +7286,8 @@ BOOL TCCopyFile (char *sourceFileName, char *destinationFile)
 		}
 	}
 
-	GetFileTime (src, NULL, NULL, &fileTime);
-	SetFileTime (dst, NULL, NULL, &fileTime);
+	if (GetFileTime (src, NULL, NULL, &fileTime))
+		SetFileTime (dst, NULL, NULL, &fileTime);
 
 	CloseHandle (src);
 	CloseHandle (dst);
@@ -7819,6 +7903,7 @@ char *LoadFileBlock (char *fileName, __int64 fileOffset, size_t count)
 	char *buf;
 	DWORD bytesRead = 0;
 	LARGE_INTEGER seekOffset, seekOffsetNew;
+	BOOL bStatus;
 
 	HANDLE h = CreateFile (fileName, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
 	if (h == INVALID_HANDLE_VALUE)
@@ -7840,11 +7925,11 @@ char *LoadFileBlock (char *fileName, __int64 fileOffset, size_t count)
 		return NULL;
 	}
 
-	ReadFile (h, buf, count, &bytesRead, NULL);
+	bStatus = ReadFile (h, buf, count, &bytesRead, NULL);
 
 	CloseHandle (h);
 
-	if (bytesRead != count)
+	if (!bStatus || (bytesRead != count))
 	{
 		free (buf);
 		return NULL;
@@ -8089,6 +8174,11 @@ int Error (char *stringId, HWND hwnd)
 	return MessageBoxW (hwnd, GetString (stringId), lpszTitle, MB_ICONERROR);
 }
 
+int ErrorRetryCancel (char *stringId, HWND hwnd)
+{
+	if (Silent) return 0;
+	return MessageBoxW (hwnd, GetString (stringId), lpszTitle, MB_ICONERROR | MB_RETRYCANCEL);
+}
 
 int ErrorTopMost (char *stringId, HWND hwnd)
 {
@@ -9167,7 +9257,12 @@ int ReEncryptVolumeHeader (HWND hwndDlg, char *buffer, BOOL bBoot, CRYPTO_INFO *
 	RandSetHashFunction (cryptoInfo->pkcs5);
 
 	if (Randinit() != ERR_SUCCESS)
-		return ERR_PARAMETER_INCORRECT;
+	{
+		if (CryptoAPILastError == ERROR_SUCCESS)
+			return ERR_RAND_INIT_FAILED;
+		else
+			return ERR_CAPI_INIT_FAILED;
+	}
 
 	UserEnrichRandomPool (NULL);
 
@@ -9290,7 +9385,10 @@ std::wstring SingleStringToWide (const std::string &singleString)
 
 	WCHAR wbuf[65536];
 	int wideLen = MultiByteToWideChar (CP_ACP, 0, singleString.c_str(), -1, wbuf, array_capacity (wbuf) - 1);
-	throw_sys_if (wideLen == 0);
+	
+   // We don't throw exception here and only return empty string.
+	// All calls to this function use valid strings.
+	// throw_sys_if (wideLen == 0);
 
 	wbuf[wideLen] = 0;
 	return wbuf;
@@ -9801,7 +9899,10 @@ BOOL InitSecurityTokenLibrary (HWND hwndDlg)
 		PinRequestHandler(HWND hwnd) : m_hwnd(hwnd) {}
 		virtual void operator() (string &str)
 		{
-			if (DialogBoxParamW (hInst, MAKEINTRESOURCEW (IDD_TOKEN_PASSWORD), m_hwnd, (DLGPROC) SecurityTokenPasswordDlgProc, (LPARAM) &str) == IDCANCEL)
+			HWND hParent = IsWindow (m_hwnd)? m_hwnd : GetActiveWindow();
+			if (!hParent)
+				hParent = GetForegroundWindow ();
+			if (DialogBoxParamW (hInst, MAKEINTRESOURCEW (IDD_TOKEN_PASSWORD), hParent, (DLGPROC) SecurityTokenPasswordDlgProc, (LPARAM) &str) == IDCANCEL)
 				throw UserAbort (SRC_POS);
 
 			if (hCursor != NULL)
@@ -9815,7 +9916,10 @@ BOOL InitSecurityTokenLibrary (HWND hwndDlg)
 		WarningHandler(HWND hwnd) : m_hwnd(hwnd) {}
 		virtual void operator() (const Exception &e)
 		{
-			e.Show (m_hwnd);
+			HWND hParent = IsWindow (m_hwnd)? m_hwnd : GetActiveWindow();
+			if (!hParent)
+				hParent = GetForegroundWindow ();
+			e.Show (hParent);
 		}
 	};
 
@@ -9849,7 +9953,7 @@ std::vector <HostDevice> GetAvailableHostDevices (bool noDeviceProperties, bool 
 			string devPathStr (strm.str());
 			const char *devPath = devPathStr.c_str();
 
-			OPEN_TEST_STRUCT openTest;
+			OPEN_TEST_STRUCT openTest = {0};
 			if (!OpenDevice (devPath, &openTest, detectUnencryptedFilesystems && partNumber != 0))
 			{
 				if (partNumber == 0)
@@ -9944,7 +10048,7 @@ std::vector <HostDevice> GetAvailableHostDevices (bool noDeviceProperties, bool 
 			string devPathStr (strm.str());
 			const char *devPath = devPathStr.c_str();
 
-			OPEN_TEST_STRUCT openTest;
+			OPEN_TEST_STRUCT openTest = {0};
 			if (!OpenDevice (devPath, &openTest, detectUnencryptedFilesystems))
 				continue;
 
@@ -10184,7 +10288,7 @@ BOOL DisableFileCompression (HANDLE file)
 
 BOOL VolumePathExists (const char *volumePath)
 {
-	OPEN_TEST_STRUCT openTest;
+	OPEN_TEST_STRUCT openTest = {0};
 	char upperCasePath[TC_MAX_PATH + 1];
 
 	UpperCaseCopy (upperCasePath, sizeof(upperCasePath), volumePath);
@@ -10200,7 +10304,16 @@ BOOL VolumePathExists (const char *volumePath)
 			return TRUE;
 	}
 
-	return _access (volumePath, 0) == 0;
+	if (_access (volumePath, 0) == 0)
+		return TRUE;
+	else
+	{
+		DWORD dwResult = GetLastError ();
+		if (dwResult == ERROR_SHARING_VIOLATION)
+			return TRUE;
+		else
+			return FALSE;
+	}
 }
 
 
