@@ -54,6 +54,7 @@ CPPFLAGS+=$(shell dpkg-buildflags --get CPPFLAGS)
 CFLAGS+=$(shell dpkg-buildflags --get CFLAGS) $(CPPFLAGS) -Wno-sequence-point
 CXXFLAGS+=$(shell dpkg-buildflags --get CXXFLAGS) $(CPPFLAGS) -Wno-narrowing
 LFLAGS+=$(shell dpkg-buildflags --get LDFLAGS)
+C_CXX_FLAGS += $(shell pkg-config --cflags appindicator-0.1)
 
 export TC_BUILD_CONFIG := Release
 
