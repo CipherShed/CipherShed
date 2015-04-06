@@ -50,6 +50,10 @@ export WXCONFIG_CFLAGS :=
 export WXCONFIG_CXXFLAGS :=
 WX_ROOT ?= ..
 
+CPPFLAGS+=$(shell dpkg-buildflags --get CPPFLAGS)
+CFLAGS+=$(shell dpkg-buildflags --get CFLAGS) $(CPPFLAGS) -Wno-sequence-point
+CXXFLAGS+=$(shell dpkg-buildflags --get CXXFLAGS) $(CPPFLAGS) -Wno-narrowing
+LFLAGS+=$(shell dpkg-buildflags --get LDFLAGS)
 
 export TC_BUILD_CONFIG := Release
 
