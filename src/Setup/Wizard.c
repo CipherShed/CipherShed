@@ -190,7 +190,7 @@ static int GetDonVal (int minVal, int maxVal)
 
 	if (!prngInitialized)
 	{
-		if (!CryptAcquireContext (&hCryptProv, NULL, NULL, PROV_RSA_FULL, 0)
+		if (!CryptAcquireContext (&hCryptProv, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT)
 			&& !CryptAcquireContext (&hCryptProv, NULL, NULL, PROV_RSA_FULL, CRYPT_NEWKEYSET))
 			OsPrngAvailable = FALSE;
 		else

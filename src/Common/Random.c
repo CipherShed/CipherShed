@@ -99,7 +99,7 @@ int Randinit ()
 		goto error;
 	}
 
-	if (!CryptAcquireContext (&hCryptProv, NULL, NULL, PROV_RSA_FULL, 0)
+	if (!CryptAcquireContext (&hCryptProv, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT)
 		&& !CryptAcquireContext (&hCryptProv, NULL, NULL, PROV_RSA_FULL, CRYPT_NEWKEYSET))
 		CryptoAPIAvailable = FALSE;
 	else
