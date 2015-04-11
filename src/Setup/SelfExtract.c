@@ -19,7 +19,7 @@
 #include "../Common/Language.h"
 #include "Resource.h"
 
-#define OutputPackageFile "CipherShed Setup " VERSION_STRING ".exe"
+#define OutputPackageFile "CipherShed-Setup-" VERSION_STRING ".exe"
 
 #define MAG_START_MARKER	"TCINSTRT"
 #define MAG_END_MARKER_OBFUSCATED	"T/C/I/N/S/C/R/C"
@@ -236,12 +236,12 @@ BOOL MakeSelfExtractingPackage (HWND hwndDlg, char *szDestDir, BOOL quiet)
 	strcpy (outputFile, szDestDir);
 	strncat (outputFile, OutputPackageFile, sizeof (outputFile) - strlen (outputFile) - 1);
 
-	// Clone 'CipherShed Setup.exe' to create the base of the new self-extracting archive
+	// Clone 'CipherShed-Setup.exe' to create the base of the new self-extracting archive
 
 	if (!TCCopyFile (inputFile, outputFile))
 	{
 		handleWin32Error (hwndDlg);
-		PkgError ("Cannot copy 'CipherShed Setup.exe' to the package");
+		PkgError ("Cannot copy 'CipherShed-Setup.exe' to the package");
 		goto err;
 	}
 

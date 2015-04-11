@@ -326,7 +326,7 @@ BOOL DoFilesInstall (HWND hwndDlg, char *szDestDir)
 		BOOL bResult;
 		char szDir[TC_MAX_PATH];
 
-		if (strstr (szFiles[i], "CipherShed Setup") != 0)
+		if (strstr (szFiles[i], "CipherShed-Setup") != 0)
 		{
 			if (bUninstall)
 				continue;	// Prevent 'access denied' error
@@ -364,9 +364,9 @@ BOOL DoFilesInstall (HWND hwndDlg, char *szDestDir)
 		{
 			SetCurrentDirectory (SetupFilesDir);
 
-			if (strstr (szFiles[i], "CipherShed Setup") != 0)
+			if (strstr (szFiles[i], "CipherShed-Setup") != 0)
 			{
-				// Copy ourselves (the distribution package) to the destination location as 'CipherShed Setup.exe'
+				// Copy ourselves (the distribution package) to the destination location as 'CipherShed-Setup.exe'
 
 				char mp[MAX_PATH];
 
@@ -758,15 +758,15 @@ BOOL DoRegInstall (HWND hwndDlg, char *szDestDir, BOOL bInstallType)
 		goto error;
 
 	/* IMPORTANT: IF YOU CHANGE THIS IN ANY WAY, REVISE AND UPDATE SetInstallationPath() ACCORDINGLY! */ 
-	snprintf (szTmp, sizeof(szTmp), "\"%sCipherShed Setup.exe\" /u", szDir);
+	snprintf (szTmp, sizeof(szTmp), "\"%sCipherShed-Setup.exe\" /u", szDir);
 	if (RegSetValueEx (hkey, "UninstallString", 0, REG_SZ, (BYTE *) szTmp, strlen (szTmp) + 1) != ERROR_SUCCESS)
 		goto error;
 
-	snprintf (szTmp, sizeof(szTmp), "\"%sCipherShed Setup.exe\" /c", szDir);
+	snprintf (szTmp, sizeof(szTmp), "\"%sCipherShed-Setup.exe\" /c", szDir);
 	if (RegSetValueEx (hkey, "ModifyPath", 0, REG_SZ, (BYTE *) szTmp, strlen (szTmp) + 1) != ERROR_SUCCESS)
 		goto error;
 
-	snprintf (szTmp, sizeof(szTmp), "\"%sCipherShed Setup.exe\"", szDir);
+	snprintf (szTmp, sizeof(szTmp), "\"%sCipherShed-Setup.exe\"", szDir);
 	if (RegSetValueEx (hkey, "DisplayIcon", 0, REG_SZ, (BYTE *) szTmp, strlen (szTmp) + 1) != ERROR_SUCCESS)
 		goto error;
 
@@ -1544,7 +1544,7 @@ BOOL DoShortcutsInstall (HWND hwndDlg, char *szDestDir, BOOL bProgGroup, BOOL bD
 		else
 			goto error;
 
-		snprintf (szTmp, sizeof(szTmp), "%s%s", szDir, "CipherShed Setup.exe");
+		snprintf (szTmp, sizeof(szTmp), "%s%s", szDir, "CipherShed-Setup.exe");
 		snprintf (szTmp2, sizeof(szTmp2), "%s%s", szLinkDir, "\\Uninstall CipherShed.lnk");
 		strcpy (szTmp3, "/u");
 
@@ -1763,8 +1763,8 @@ void DoUninstall (void *arg)
 					"if exist \"%s%s\" goto loop\n"
 					"rmdir \"%s\"\n"
 					"del \"%s\"",
-					UninstallationPath, "CipherShed Setup.exe",
-					UninstallationPath, "CipherShed Setup.exe",
+					UninstallationPath, "CipherShed-Setup.exe",
+					UninstallationPath, "CipherShed-Setup.exe",
 					UninstallationPath,
 					UninstallBatch
 					);
@@ -2460,7 +2460,7 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpszComm
 			}
 			else if (!bDevm)
 			{
-				MessageBox (NULL, "Error: This installer file does not contain any compressed files.\n\nTo create a self-extracting installation package (with embedded compressed files), run:\n\"CipherShed Setup.exe\" /p", "CipherShed", MB_ICONERROR | MB_SETFOREGROUND | MB_TOPMOST);
+				MessageBox (NULL, "Error: This installer file does not contain any compressed files.\n\nTo create a self-extracting installation package (with embedded compressed files), run:\n\"CipherShed-Setup.exe\" /p", "CipherShed", MB_ICONERROR | MB_SETFOREGROUND | MB_TOPMOST);
 				exit (1);
 			}
 

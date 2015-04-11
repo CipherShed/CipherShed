@@ -46,11 +46,11 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "CipherShed Organization"
             VALUE "FileDescription", "CipherShed Setup"
-            VALUE "FileVersion", "0.7.3"
+            VALUE "FileVersion", "0.7.3.0"
             VALUE "LegalTrademarks", "CipherShed"
-            VALUE "OriginalFilename", "CipherShed Setup.exe"
+            VALUE "OriginalFilename", "CipherShed-Setup.exe"
             VALUE "ProductName", "CipherShed"
-            VALUE "ProductVersion", "0.7.3"
+            VALUE "ProductVersion", "0.7.3.0"
         END
     END
     BLOCK "VarFileInfo"

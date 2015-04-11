@@ -42,17 +42,17 @@ do
 			BUILDINSTALLER=1
 		fi
 	done
-	if [ BUILDINSTALLER == 1 -o ! -f CipherShed\ Setup\ 0.7.3.exe ]
+	if [ BUILDINSTALLER == 1 -o ! -f CipherShed-Setup-0.7.3.exe ]
 	then
 		# remove the installer files first
-		for i in CipherShed\ Setup\ 0.7.3.exe*
+		for i in CipherShed-Setup-0.7.3.exe*
 		do
 			rm -f "$i"
 		done
 		# build the installer
-		./CipherShed\ Setup.exe /pq
+		./CipherShed-Setup.exe /pq
 	fi
-	for i in CipherShed\ Setup\ 0.7.3.exe
+	for i in CipherShed-Setup-0.7.3.exe
 	do
 		if [ ! -e "$i".presignbak ];
 		then

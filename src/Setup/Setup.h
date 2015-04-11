@@ -26,7 +26,7 @@ static char *szFiles[]=
 	"Atruecrypt.sys",
 	"Atruecrypt-x64.sys",
 	"Dtruecrypt.sys",
-	"ACipherShed Setup.exe"
+	"ACipherShed-Setup.exe"
 };
 
 // Specifies what files are included in self-extracting packages (no other files will be packaged or extracted).
