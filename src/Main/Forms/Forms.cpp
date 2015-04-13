@@ -1582,7 +1582,7 @@ NewSecurityTokenKeyfileDialogBase::~NewSecurityTokenKeyfileDialogBase()
 	KeyfileNameTextCtrl->Disconnect( wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler( NewSecurityTokenKeyfileDialogBase::OnKeyfileNameChanged ), NULL, this );
 }
 
-PreferencesDialogBase::PreferencesDialogBase( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
+PreferencesDialogBase::PreferencesDialogBase( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style & (~wxCLOSE_BOX) )
 {
 	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
 	this->SetExtraStyle( wxWS_EX_VALIDATE_RECURSIVELY );
@@ -1738,23 +1738,6 @@ PreferencesDialogBase::PreferencesDialogBase( wxWindow* parent, wxWindowID id, c
 	
 	sbSizer18->Add( CloseBackgroundTaskOnNoVolumesCheckBox, 0, wxALL, 5 );
 	
-	wxStaticBoxSizer* sbSizer26;
-	sbSizer26 = new wxStaticBoxSizer( new wxStaticBox( BackgroundTaskPanel, wxID_ANY, _("Task Icon Menu Items") ), wxVERTICAL );
-	
-	BackgroundTaskMenuMountItemsEnabledCheckBox = new wxCheckBox( BackgroundTaskPanel, wxID_ANY, _("Mount Favorite Volumes"), wxDefaultPosition, wxDefaultSize, 0 );
-	
-	sbSizer26->Add( BackgroundTaskMenuMountItemsEnabledCheckBox, 0, wxALL, 5 );
-	
-	BackgroundTaskMenuOpenItemsEnabledCheckBox = new wxCheckBox( BackgroundTaskPanel, wxID_ANY, _("Open Mounted Volumes"), wxDefaultPosition, wxDefaultSize, 0 );
-	
-	sbSizer26->Add( BackgroundTaskMenuOpenItemsEnabledCheckBox, 0, wxALL, 5 );
-	
-	BackgroundTaskMenuDismountItemsEnabledCheckBox = new wxCheckBox( BackgroundTaskPanel, wxID_ANY, _("Dismount Mounted Volumes"), wxDefaultPosition, wxDefaultSize, 0 );
-	
-	sbSizer26->Add( BackgroundTaskMenuDismountItemsEnabledCheckBox, 0, wxALL, 5 );
-	
-	sbSizer18->Add( sbSizer26, 1, wxEXPAND|wxALL, 5 );
-	
 	bSizer62->Add( sbSizer18, 0, wxEXPAND|wxALL, 5 );
 	
 	bSizer61->Add( bSizer62, 1, wxEXPAND|wxALL, 5 );
@@ -1771,6 +1754,9 @@ PreferencesDialogBase::PreferencesDialogBase( wxWindow* parent, wxWindowID id, c
 	bSizer37 = new wxBoxSizer( wxVERTICAL );
 	
 	LogOnSizer = new wxStaticBoxSizer( new wxStaticBox( SystemIntegrationPage, wxID_ANY, _("Actions to Perform when User Logs On") ), wxVERTICAL );
+	
+	ConfigureAutostartButton = new wxButton( SystemIntegrationPage, wxID_ANY, _("Configure &Autostart..."), wxDefaultPosition, wxDefaultSize, 0 );
+	LogOnSizer->Add( ConfigureAutostartButton, 0, wxALL, 5 );
 	
 	StartOnLogonCheckBox = new wxCheckBox( SystemIntegrationPage, wxID_ANY, _("Start TrueCrypt Background Task"), wxDefaultPosition, wxDefaultSize, 0 );
 	
@@ -2023,6 +2009,7 @@ PreferencesDialogBase::PreferencesDialogBase( wxWindow* parent, wxWindowID id, c
 	ForceAutoDismountCheckBox->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( PreferencesDialogBase::OnForceAutoDismountCheckBoxClick ), NULL, this );
 	PreserveTimestampsCheckBox->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( PreferencesDialogBase::OnPreserveTimestampsCheckBoxClick ), NULL, this );
 	BackgroundTaskEnabledCheckBox->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( PreferencesDialogBase::OnBackgroundTaskEnabledCheckBoxClick ), NULL, this );
+	ConfigureAutostartButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( PreferencesDialogBase::OnConfigureAutostartButtonClick ), NULL, this );
 	NoKernelCryptoCheckBox->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( PreferencesDialogBase::OnNoKernelCryptoCheckBoxClick ), NULL, this );
 	NoHardwareCryptoCheckBox->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( PreferencesDialogBase::OnNoHardwareCryptoCheckBoxClick ), NULL, this );
 	SelectPkcs11ModuleButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( PreferencesDialogBase::OnSelectPkcs11ModuleButtonClick ), NULL, this );

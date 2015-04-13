@@ -26,6 +26,7 @@ namespace TrueCrypt
 	protected:
 		void OnAssignHotkeyButtonClick (wxCommandEvent& event);
 		void OnBackgroundTaskEnabledCheckBoxClick (wxCommandEvent& event);
+		void OnConfigureAutostartButtonClick (wxCommandEvent& event);
 		void OnCancelButtonClick (wxCommandEvent& event) { Close(); }
 		void OnClose (wxCloseEvent& event);
 		void OnDismountOnPowerSavingCheckBoxClick (wxCommandEvent& event);

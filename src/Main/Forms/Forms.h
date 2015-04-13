@@ -551,11 +551,9 @@ namespace TrueCrypt
 			wxPanel* BackgroundTaskPanel;
 			wxCheckBox* BackgroundTaskEnabledCheckBox;
 			wxCheckBox* CloseBackgroundTaskOnNoVolumesCheckBox;
-			wxCheckBox* BackgroundTaskMenuMountItemsEnabledCheckBox;
-			wxCheckBox* BackgroundTaskMenuOpenItemsEnabledCheckBox;
-			wxCheckBox* BackgroundTaskMenuDismountItemsEnabledCheckBox;
 			wxPanel* SystemIntegrationPage;
 			wxStaticBoxSizer* LogOnSizer;
+			wxButton* ConfigureAutostartButton;
 			wxCheckBox* StartOnLogonCheckBox;
 			wxCheckBox* MountFavoritesOnLogonCheckBox;
 			wxCheckBox* MountDevicesOnLogonCheckBox;
@@ -595,6 +593,7 @@ namespace TrueCrypt
 			virtual void OnForceAutoDismountCheckBoxClick( wxCommandEvent& event ){ event.Skip(); }
 			virtual void OnPreserveTimestampsCheckBoxClick( wxCommandEvent& event ){ event.Skip(); }
 			virtual void OnBackgroundTaskEnabledCheckBoxClick( wxCommandEvent& event ){ event.Skip(); }
+			virtual void OnConfigureAutostartButtonClick( wxCommandEvent& event ){ event.Skip(); }
 			virtual void OnNoKernelCryptoCheckBoxClick( wxCommandEvent& event ){ event.Skip(); }
 			virtual void OnNoHardwareCryptoCheckBoxClick( wxCommandEvent& event ){ event.Skip(); }
 			virtual void OnSelectPkcs11ModuleButtonClick( wxCommandEvent& event ){ event.Skip(); }

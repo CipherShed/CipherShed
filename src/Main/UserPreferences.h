@@ -20,11 +20,8 @@ namespace TrueCrypt
 		UserPreferences ()
 			:
 			BackgroundTaskEnabled (true),
-			BackgroundTaskMenuDismountItemsEnabled (true),
-			BackgroundTaskMenuMountItemsEnabled (true),
-			BackgroundTaskMenuOpenItemsEnabled (true),
 			BeepAfterHotkeyMountDismount (false),
-			CloseBackgroundTaskOnNoVolumes (true),
+			CloseBackgroundTaskOnNoVolumes (false),
 			CloseExplorerWindowsOnDismount (true),
 			CloseSecurityTokenSessionsAfterMount (false),
 			DisableKernelEncryptionModeWarning (false),
@@ -60,9 +57,6 @@ namespace TrueCrypt
 		MountOptions DefaultMountOptions;
 
 		bool BackgroundTaskEnabled;
-		bool BackgroundTaskMenuDismountItemsEnabled;
-		bool BackgroundTaskMenuMountItemsEnabled;
-		bool BackgroundTaskMenuOpenItemsEnabled;
 		bool BeepAfterHotkeyMountDismount;
 		bool CloseBackgroundTaskOnNoVolumes;
 		bool CloseExplorerWindowsOnDismount;

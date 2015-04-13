@@ -11,6 +11,7 @@
 #ifdef TC_WINDOWS
 #include <wx/msw/registry.h>
 #endif
+#include "Platform/Unix/Process.h"
 #include "Common/SecurityToken.h"
 #include "Main/Main.h"
 #include "Main/Application.h"
@@ -59,9 +60,6 @@ namespace TrueCrypt
 		TC_CHECK_BOX_VALIDATOR (BackgroundTaskEnabled);
 		TC_CHECK_BOX_VALIDATOR (CloseBackgroundTaskOnNoVolumes);
 		CloseBackgroundTaskOnNoVolumesCheckBox->Show (!Core->IsInPortableMode());
-		TC_CHECK_BOX_VALIDATOR (BackgroundTaskMenuDismountItemsEnabled);
-		TC_CHECK_BOX_VALIDATOR (BackgroundTaskMenuMountItemsEnabled);
-		TC_CHECK_BOX_VALIDATOR (BackgroundTaskMenuOpenItemsEnabled);
 
 		// Encryption
 		AesHwCpuSupportedStaticText->SetLabel (
@@ -103,7 +101,10 @@ namespace TrueCrypt
 #endif
 
 #ifndef TC_WINDOWS
-		LogOnSizer->Show (false);
+		// LogOnSizer->Show (false);
+		StartOnLogonCheckBox->Show (false);
+		MountFavoritesOnLogonCheckBox->Show (false);
+		MountDevicesOnLogonCheckBox->Show (false);
 		MountRemovableCheckBox->Show (false);
 		CloseExplorerWindowsOnDismountCheckBox->Show (false);
 #endif
@@ -270,6 +271,18 @@ namespace TrueCrypt
 	{
 		if (!event.IsChecked())
 			BackgroundTaskEnabledCheckBox->SetValue (!Gui->AskYesNo (LangString["CONFIRM_BACKGROUND_TASK_DISABLED"], false, true));
+	}
+
+	void PreferencesDialog::OnConfigureAutostartButtonClick (wxCommandEvent& event)
+	{
+		// Launch "Startup Applications"
+		try
+		{
+			list <string> args;
+			Process::Execute ("gnome-session-properties", args);
+		}
+		// catch (TimeOut&) { }
+		catch (exception &e) { Gui->ShowError (e); }
 	}
 
 	void PreferencesDialog::OnNoHardwareCryptoCheckBoxClick (wxCommandEvent& event)
