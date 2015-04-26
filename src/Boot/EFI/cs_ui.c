@@ -1,4 +1,5 @@
-/*
+/*  cs_ui.c - CipherShed EFI boot loader
+ *  implementation of the user interface of the EFI loader
  *
  *
  *

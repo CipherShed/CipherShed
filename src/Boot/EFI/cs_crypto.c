@@ -1,4 +1,5 @@
-/*
+/*  cs_crypto.c - CipherShed EFI boot loader
+ *  collection of relevant crypto functions used by the EFI loader and the driver
  *
  *
  *
@@ -12,8 +13,8 @@
 #include "cs_debug.h"
 #include "cs_crypto.h"
 #include "cs_controller.h"
-#include "Common/Tcdefs.h"
-#include "Common/Password.h"
+#include "../../Common/Tcdefs.h"
+#include "../../Common/Password.h"
 
 // Cipher configuration
 static Cipher Ciphers[] =
@@ -541,7 +542,7 @@ int cs_read_volume_header(IN BOOL bBoot, IN char *header, IN Password *password,
 			continue;
 		}
 
-#if 0
+#if 1
 		Print(L"## header decrypted (ea = 0x%x)!! \n", cryptoInfo->ea);
 		DumpHex(2, 0, 128, header);
 #endif

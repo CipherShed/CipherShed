@@ -1,4 +1,5 @@
-/*
+/*  cs_options.c - CipherShed EFI boot loader
+ *  implementation of features related to the options file handling (option parser)
  *
  *
  *

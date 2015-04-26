@@ -76,7 +76,9 @@
 #define UNROLL_SHA2     /* for SHA2 loop unroll     */
 #endif
 
+#ifndef EFI
 #include <string.h>     /* for memcpy() etc.        */
+#endif
 
 #include "Sha2.h"
 

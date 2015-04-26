@@ -1,4 +1,5 @@
-/*
+/*  cs_driver.c - CipherShed EFI boot loader
+ *  main file for the CipherShed EFI driver providing access to the encrypted partition
  *
  *
  *
@@ -8,6 +9,8 @@
 #include <efi.h>
 #include <efilib.h>
 #include <efibind.h>
+/* The following header files are needed to define protocols that are not defined
+ * in the GNU-EFI package. They are taken from the EDK2 project */
 #include <edk2/DriverBinding.h>
 #include <edk2/ComponentName.h>
 #include <edk2/ComponentName2.h>

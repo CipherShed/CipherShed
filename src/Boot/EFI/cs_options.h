@@ -1,4 +1,4 @@
-/*
+/*  cs_options.h - CipherShed EFI boot loader
  *
  *
  *

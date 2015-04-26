@@ -39,7 +39,11 @@
 #define EXIT_SUCCESS    0
 #define EXIT_FAILURE    1
 #endif
+#ifdef EFI
+#define INT_RETURN   INT32
+#else
 #define INT_RETURN   int
+#endif
 
 #if defined(__cplusplus)
 extern "C"

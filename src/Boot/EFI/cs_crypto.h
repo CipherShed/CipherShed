@@ -1,4 +1,4 @@
-/*
+/*  cs_crypto.h - CipherShed EFI boot loader
  *
  *
  *
@@ -7,17 +7,17 @@
 #ifndef _CS_CRYPTO_H_
 #define _CS_CRYPTO_H_
 
-#include "Common/Tcdefs.h"
-#include "Common/Endian.h"
-#include "Common/GfMul.h"
-#include "Common/Xts.h"
-#include "Common/Pkcs5.h"
-#include "Common/Crc.h"
-#include "Common/Password.h"
-#include "crypto/Twofish.h"
-#include "crypto/Aes.h"
-#include "crypto/Serpent.h"
-#include "crypto/Rmd160.h"
+#include "../../Common/Tcdefs.h"
+#include "../../Common/Endian.h"
+#include "../../Common/GfMul.h"
+#include "../../Common/Xts.h"
+#include "../../Common/Pkcs5.h"
+#include "../../Common/Crc.h"
+#include "../../Common/Password.h"
+#include "../../Crypto/Twofish.h"
+#include "../../Crypto/Aes.h"
+#include "../../Crypto/Serpent.h"
+#include "../../Crypto/Rmd160.h"
 
 #define TC_NO_COMPILER_INT64 //??
 

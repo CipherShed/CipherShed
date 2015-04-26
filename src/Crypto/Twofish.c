@@ -32,7 +32,7 @@
 /* Adapted for CipherShed */
 
 
-#ifdef TC_WINDOWS_BOOT
+#if defined(TC_WINDOWS_BOOT) && !defined(EFI)
 #pragma optimize ("tl", on)
 #endif
 

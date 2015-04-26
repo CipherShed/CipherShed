@@ -11,6 +11,16 @@
 
 #include "Tcdefs.h"
 
+#ifdef EFI
+#include <efi.h>
+#include <efilib.h>
+#include <efibind.h>
+#include "../Boot/EFI/cs_crypto.h"
+#define memcpy CopyMem
+#define memcmp CompareMem
+#define memset(a,b,c)  SetMem((a), (c) ,(b))
+#else
+
 #include <memory.h>
 #include "../Crypto/Rmd160.h"
 #ifndef TC_WINDOWS_BOOT
@@ -20,6 +30,7 @@
 #endif
 #include "Pkcs5.h"
 #include "Crypto.h"
+#endif	// EFI
 
 void hmac_truncate
   (
@@ -445,7 +456,6 @@ void derive_key_ripemd160 (char *pwd, int pwd_len, char *salt, int salt_len, int
 	/* last block */
 	derive_u_ripemd160 (pwd, pwd_len, salt, salt_len, iterations, u, b);
 	memcpy (dk, u, r);
-
 
 	/* Prevent possible leaks. */
 	burn (u, sizeof(u));

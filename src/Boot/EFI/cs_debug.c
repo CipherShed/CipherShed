@@ -1,4 +1,5 @@
-/*
+/*  cs_debug.c - CipherShed EFI boot loader
+ *  implementation of the debug features of the application and the driver
  *
  *
  *

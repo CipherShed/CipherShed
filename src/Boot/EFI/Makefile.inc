@@ -1,5 +1,6 @@
 ARCH            = $(shell uname -m | sed s,i[3456789]86,ia32,)
-ARCH		= x86_64
+# ARCH is either "ia32" or "x86_64"
+#ARCH		= x86_64
 
 ifeq ($(ARCH),x86_64)
   LIB             = /usr/lib64
@@ -17,7 +18,7 @@ EFI_CRT_OBJS    = $(EFILIB)/crt0-efi-$(ARCH).o
 EFI_LDS         = $(EFILIB)/elf_$(ARCH)_efi.lds
 
 CFLAGS          = $(EFIINCS) -fno-stack-protector -fpic \
-		  -fshort-wchar -mno-red-zone -Wall -DEFI_DEBUG
+		  -fshort-wchar -mno-red-zone -Wall -DEFI -DEFI_DEBUG
 
 LDFLAGS         = -nostdlib -znocombreloc -T $(EFI_LDS) -shared \
 		  -Bsymbolic -L $(EFILIB) -L $(LIB) $(EFI_CRT_OBJS) 

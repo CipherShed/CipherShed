@@ -1,4 +1,4 @@
-/*
+/*  cs_debug.h - CipherShed EFI boot loader
  *
  *
  *

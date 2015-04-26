@@ -1,4 +1,4 @@
-/*
+/*  cs_ui.h - CipherShed EFI boot loader
  *
  *
  *
@@ -14,7 +14,7 @@
 #include "cs_common.h"
 #include "cs_options.h"
 #include "cs_debug.h"
-#include "Common/Password.h"
+#include "../../Common/Password.h"
 
 #define outId(c,s)	if (!pOptions->flags.silent) { \
 					error = uefi_call_wrapper(c->OutputString,2,c,get_string(s));\

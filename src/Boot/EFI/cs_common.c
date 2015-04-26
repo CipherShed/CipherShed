@@ -1,4 +1,5 @@
-/*
+/*  cs_common.c - CipherShed EFI boot loader
+ *  common code fragments for all parts of the EFI loader and the driver
  *
  *
  *

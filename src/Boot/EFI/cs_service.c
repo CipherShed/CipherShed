@@ -1,4 +1,5 @@
-/*
+/*  cs_service.c - CipherShed EFI boot loader
+ *  implementation of the service menu of the user interface
  *
  *
  *

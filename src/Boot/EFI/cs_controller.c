@@ -1,15 +1,18 @@
-/*
- *
+/*  cs_controller.c - CipherShed EFI boot loader
+ *  main file for the CipherShed controller application
  *
  *
  */
+
+#include <efi.h>
+#include <efilib.h>
+#include <efibind.h>
 
 #include "cs_controller.h"
 #include "cs_options.h"
 #include "cs_crypto.h"
 #include "cs_debug.h"
 #include "cs_ui.h"
-
 
 #define CS_VOLUME_HEADER_DIRECTORY	L"volume"	/* directory name containing the volume header files */
 #define CS_CRYPTO_DRIVER_NAME		L"CSDriver.efi"	/* filename of the crypto driver */

@@ -1,4 +1,4 @@
-/*
+/*  cs_common.h - CipherShed EFI boot loader
  *
  *
  *

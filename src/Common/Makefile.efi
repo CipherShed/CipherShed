@@ -1,9 +1,9 @@
 
-include 	../Makefile.inc
+include 	../Boot/EFI/Makefile.inc
 
-LOCALINC        = ../include
+LOCALINC        = ../Boot/EFI/include
 EFIINCS         = -I$(LOCALINC) -I$(EFIINC) $(OTHERINCS)
-CFLAGS += -I.. -DTC_WINDOWS_BOOT
+CFLAGS += -DTC_WINDOWS_BOOT
 
 OBJS            = Crc.o Xts.o GfMul.o Pkcs5.o Endian.o
 

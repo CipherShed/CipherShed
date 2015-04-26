@@ -1,0 +1,12 @@
+CipherShed EFI boot loader
+--------------------------
+
+- The source code is based on the GNU EFI package, see http://sourceforge.net/projects/gnu-efi/
+- The development was done at a debian system with version 3.0v-5 of GNU EFI.
+- GNU EFI does not support all required EFI protocol interfaces. Hence, some header files are taken
+  from the EDK2 project. These files are located in the "include/edk2" directory.
+- To build the CipherShed EFI loader, type "make" in the "Boot/EFI" directory.
+- The destination architecture is detected by the make process, see Makefile.inc. Only "ia32" 
+  and "x86_64" are supported. The architecture can be set using the ARCH variable.
+- To install the loader, see the paper "doc/cs_efi_loader.odt".
+  

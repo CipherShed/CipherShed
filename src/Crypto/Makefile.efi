@@ -1,9 +1,9 @@
 
-include 	../Makefile.inc
+include 	../Boot/EFI/Makefile.inc
 
-LOCALINC        = ../include
+LOCALINC        = ../Boot/EFI/include
 EFIINCS         = -I$(LOCALINC) -I$(EFIINC) $(OTHERINCS)
-CFLAGS += -I.. -DTC_WINDOWS_BOOT
+CFLAGS += -DTC_WINDOWS_BOOT
 
 OBJS            = Aescrypt.o  Aeskey.o  Aestab.o  Blowfish.o  Cast.o  Rmd160.o  Serpent.o  Sha1.o  Sha2.o  Twofish.o
 
@@ -15,4 +15,4 @@ all: $(OBJS)
 PHONY: clean
 
 clean:
-	rm -f *.efi *.so *.o *~
+	rm -f *.so *.o *~
