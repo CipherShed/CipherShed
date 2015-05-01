@@ -1,0 +1,67 @@
+From: Jason Pyeron [jpyeron@ciphershed.org]
+Sent: Thursday, April 30, 2015 6:33 AM
+To: CipherShed Developers List
+Subject: RE: [CipherShed Devs] [Vote] [Result] Adopt Apache 2.0 license
+for new commits
+
+Importance: High
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+The vote has passed.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQEcBAEBAgAGBQJVQgRpAAoJEI1rWYTaCEitq3IH/1uPoHXvD+EeN6GQCbEpqRX8
+zuCg6akhYjSnBJEatUXFA0KM7IdS6LSs2YHMZRxU/h+FKYpwBvt7DTt/EUbp+Tkw
++ft+I7tq83+Kj0qP1MlKwQVVfixZHbEeEz35r8uX5Gux148N3B00PLOGwkOLYJXX
+VmRGe1ysAB9p2stHqfTlBPyhIvYbRzTDeW/jLt6vxxEKbZv+R5CDpXpf0PkKDvDu
+Qt7qI1NnEqTIfE5UCoPp53kyc9MnQYp1EnRm7Gc1fgDwoi2KohjgHvrP3SaG7QO5
+D56mZaDb0ZZgMJF0HVU0r0dP9mSZITbin6NuGY5nCWiWMezxPeXLtrLiE4jBDcw=
+=D7kh
+-----END PGP SIGNATURE-----
+
+> -----Original Message-----
+> From: jpyeron at ciphershed
+> Sent: Saturday, April 25, 2015 8:59
+> 
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> Re: Vote: Adopt Apache 2.0 license for new commits
+> 
+> This vote will remain open until 1700 29-Apr-2015 GMT-7.
+> 
+> We are making slow, but very steady, progress to being able to 
+> relicense away from the non-FOSS TrueCrypt license. We are going to 
+> pass the point of no return very soon with significant contributions 
+> pending.
+> 
+> In a perfect world, or in a world without patents, BSD would suffice. 
+> But as the GNU folks say, if you are not going to use the GPL then use 
+> Apache 2.0. The Apache license is the child of the BSD license and 
+> corporate lawyers; it represents the spirit of the freedom of choice 
+> and has the language to back it up.
+> 
+> With the Apache license our user and contributors have the ultimate 
+> freedom while preserving the social responsibility for their 
+> contributions as FOSS. Of course we will have to remain dual licensed 
+> until the old obstructions are removed.
+> 
+> Please cast your votes, PMC member votes are binding (that is non-PMC 
+> votes are informative/non-binding): -1 against, +1 for, [+/-]0 
+> abstention. Since this was socialized on the PMC list without 
+> objection earlier we are going to use a lazy consensus approach, if 
+> there are no objections it will pass otherwise a majority passes.
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1
+> 
+> iQEcBAEBAgAGBQJVO47rAAoJEI1rWYTaCEityl4H/3w7MmjYsJzl7no5OcSi20I8
+> utf+oKj5WifFg27DQWMpG7yv90S3Jnp8UGilBQiZTxIPkV0YOUYvWgI+Rr9MOsHm
+> AhyDSVQLQClx7c7iDeBzQRf/5YsOFGZCS6f2Iw/Wu9ZlVgMAoETO8qHnDm2To4fU
+> pz7aEbzvLWI/Gl9EcwkMGQVuLPMdF15idElihk3icFMjLPfNGiF+cm5p9Q0YOw8u
+> APOtvTAKmINy8wZZ44izHKLSo/4KW/pYA8YRBaF1riQ2EUPm6o+LSpcFEwHf8tlr
+> 5YSf7vUwUfQaMLjpeOliTlE7b9H87JXxBoeu2jViaFcuT9hy/Q2LnaIaImdYM9A=
+> =dRWs
+> -----END PGP SIGNATURE-----
