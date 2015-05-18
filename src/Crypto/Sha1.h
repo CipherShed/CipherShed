@@ -28,7 +28,15 @@
 #ifndef _SHA1_H
 #define _SHA1_H
 
+#ifdef EFI
+#include <efi.h>
+#include <efilib.h>
+#include <efibind.h>
+#define memcpy CopyMem
+#else
 #include <limits.h>
+#endif
+
 #include "../Common/Tcdefs.h"
 
 #define SHA1_BLOCK_SIZE  64
@@ -48,7 +56,11 @@ extern "C"
 #elif defined(UINT_MAX) && UINT_MAX == 0xffffffff
   typedef   unsigned int     sha1_32t;
 #else
+#ifdef EFI
+  typedef   UINT32     sha1_32t;
+#else
 #  error Please define sha1_32t as an unsigned 32 bit type in sha1.h
+#endif
 #endif
 
 /* type to hold the SHA256 context  */

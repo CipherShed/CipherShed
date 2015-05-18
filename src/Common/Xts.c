@@ -19,14 +19,21 @@ For big-endian platforms define BYTE_ORDER as BIG_ENDIAN. */
 #	pragma optimize ("tl", on)
 #endif
 
+#ifdef EFI
+#include <efi.h>
+#include <efilib.h>
+#include <efibind.h>
+#include "../Boot/EFI/cs_crypto.h"
+#define memcpy CopyMem
+#else
 #ifdef TC_NO_COMPILER_INT64
 #	include <memory.h>
+#endif
 #endif
 
 #include "Xts.h"
 
-
-#ifndef TC_NO_COMPILER_INT64
+#if !defined(TC_NO_COMPILER_INT64) && !defined(EFI)
 
 // length: number of bytes to encrypt; may be larger than one data unit and must be divisible by the cipher block size
 // ks: the primary key schedule

@@ -3,15 +3,23 @@
 /* Adapted for CipherShed */
 
 #ifdef TC_WINDOWS_BOOT
+#ifndef EFI
 #pragma optimize ("t", on)
+#endif
 #endif
 
 #include "Serpent.h"
 #include "../Common/Endian.h"
 
+#ifdef EFI
+#include <efi.h>
+#include <efilib.h>
+#include <efibind.h>
+#else
 #include <memory.h>
+#endif
 
-#if defined(_WIN32) && !defined(_DEBUG)
+#if defined(_WIN32) && !defined(_DEBUG) && !defined(EFI)
 #include <stdlib.h>
 #define rotlFixed _rotl
 #define rotrFixed _rotr

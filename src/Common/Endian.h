@@ -35,6 +35,15 @@ extern "C"
 #		define BYTE_ORDER LITTLE_ENDIAN
 #	endif
 
+#elif defined(EFI)
+
+#	ifndef LITTLE_ENDIAN
+#		define LITTLE_ENDIAN 1234
+#	endif
+#	ifndef BYTE_ORDER
+#		define BYTE_ORDER LITTLE_ENDIAN
+#	endif
+
 #elif !defined(BYTE_ORDER)
 
 #	ifdef TC_MACOSX

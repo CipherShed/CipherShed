@@ -1,1 +1,4 @@
 tmp/
+.cproject
+.project
+.settings
