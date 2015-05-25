@@ -15,7 +15,11 @@
 #include "cs_ui.h"
 
 #define CS_VOLUME_HEADER_DIRECTORY	L"volume"	/* directory name containing the volume header files */
-#define CS_CRYPTO_DRIVER_NAME		L"CSDriver.efi"	/* filename of the crypto driver */
+#ifdef X86_64
+#define CS_CRYPTO_DRIVER_NAME		L"CsDrv_64.efi"	/* filename of the crypto driver (64 bit version) */
+#else
+#define CS_CRYPTO_DRIVER_NAME		L"CsDrv_32.efi"	/* filename of the crypto driver (32 bit version) */
+#endif
 #define CS_MAX_PASSWORD_LENGTH		64			/* taken from TrueCrypt for compatibility reason */
 #define CS_BOOT_LOADER_ARGS_OFFSET  0x10		/* taken from TrueCrypt for compatibility reason */
 #define CS_MAX_LOAD_OPTIONS			32			/* maximum number of command line arguments */

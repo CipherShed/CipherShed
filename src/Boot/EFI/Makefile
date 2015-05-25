@@ -1,4 +1,3 @@
-
 include 	Makefile.inc
 
 CFLAGS += -I.
@@ -27,12 +26,22 @@ CSController.efi: CSController.so
 	objcopy -j .text -j .sdata -j .data -j .dynamic \
 	        -j .dynsym  -j .rel -j .rela -j .reloc \
 	        --target=efi-app-$(ARCH) $< $@
+	@if [ "$(ARCH)" = "x86_64" ]; then \
+		mv CSController.efi CsCtr_64.efi; \
+	else \
+		mv CSController.efi CsCtr_32.efi; \
+	fi
 
 CSDriver.efi: CSDriver.so
 	@echo [OBJ] $@
 	objcopy -j .text -j .sdata -j .data -j .dynamic \
 	        -j .dynsym  -j .rel -j .rela -j .reloc \
 	        --target=efi-bsdrv-$(ARCH) $< $@
+	@if [ "$(ARCH)" = "x86_64" ]; then \
+		mv CSDriver.efi CsDrv_64.efi; \
+	else \
+		mv CSDriver.efi CsDrv_32.efi; \
+	fi
 
 crypt:
 	$(MAKE) -C ../../Crypto -f Makefile.efi 
