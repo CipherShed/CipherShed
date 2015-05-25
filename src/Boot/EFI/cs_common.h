@@ -21,6 +21,9 @@
 #define CS_CONTROLLER_NAME	CS_LOADER_NAME
 #define CS_DRIVER_VERSION	CS_LOADER_VERSION
 
+/* only for test purposes: allow to build arbitrary volume header */
+#define CS_TEST_CREATE_VOLUME_HEADER
+
 #ifndef ARRAYSIZE
 #define ARRAYSIZE(A)	(sizeof(A)/sizeof((A)[0]))
 #endif

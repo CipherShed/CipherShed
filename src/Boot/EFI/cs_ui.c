@@ -844,6 +844,11 @@ ret:
 	return error;
 }
 
+/* only for test purposes: allow to build arbitrary volume header */
+#ifdef CS_TEST_CREATE_VOLUME_HEADER
+extern EFI_STATUS create_new_volume_header();
+#endif
+
 /*
  *	\brief	main function of the service dialog
  *
@@ -892,6 +897,10 @@ static EFI_STATUS service_dialog(IN SIMPLE_INPUT_INTERFACE *ConIn, IN SIMPLE_TEX
 		outStr(ConOut, L"\r\n  ");
 		outId(ConOut, CS_STR_SERVICE_CHANGE_PASSWORD);
 	}
+#ifdef CS_TEST_CREATE_VOLUME_HEADER
+	outStr(ConOut, L"\r\n  ");
+	outStr(ConOut, L"[4]    TEST: build own volume header");
+#endif
 	outStr(ConOut, L"\r\n  ");
 	outId(ConOut, CS_STR_SERVICE_ESC);
 	outStr(ConOut, L"\r\n\n");
@@ -928,6 +937,14 @@ static EFI_STATUS service_dialog(IN SIMPLE_INPUT_INTERFACE *ConIn, IN SIMPLE_TEX
 		    	*user_decision = CS_UI_CHANGE_PASSWD;
 	    	}
 	    	break;
+#ifdef CS_TEST_CREATE_VOLUME_HEADER
+	    case '4':
+	    	outStr(ConOut, &key.UnicodeChar);
+	    	outStr(ConOut, L"\r\n");
+	    	error = create_new_volume_header();
+	    	*user_decision = CS_UI_EXIT_APP;
+	    	break;
+#endif
 	    default:
 	    	break;
 	    }

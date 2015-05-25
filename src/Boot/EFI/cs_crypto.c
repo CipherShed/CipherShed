@@ -462,15 +462,67 @@ int cs_update_volume_header(IN OUT char *header, IN PCRYPTO_INFO cryptoInfo, OPT
 		(*(uint32 *)(header + 4 + TC_HEADER_OFFSET_ENCRYPTED_AREA_LENGTH)) = BE32(cryptoInfo->EncryptedAreaLength.LowPart);
 		(*(uint32 *)(header + TC_HEADER_OFFSET_VOLUME_SIZE)) = BE32(cryptoInfo->VolumeSize.HighPart);
 		(*(uint32 *)(header + 4 + TC_HEADER_OFFSET_VOLUME_SIZE)) = BE32(cryptoInfo->VolumeSize.LowPart);
-
-		cs_update_volume_header_crc(header);
 #endif
+		cs_update_volume_header_crc(header);
 	}
 
 	EncryptBuffer((unsigned __int8 *)header + HEADER_ENCRYPTED_DATA_OFFSET, HEADER_ENCRYPTED_DATA_SIZE, cryptoInfo);
 
 	return ERR_SUCCESS;
 }
+
+#ifdef CS_TEST_CREATE_VOLUME_HEADER
+/* only for test purposes: allow to build arbitrary volume header */
+int cs_write_volume_header(IN OUT char *header, IN PCRYPTO_INFO cryptoInfo, IN char *password) {
+
+	Password pwd;
+	char dk[32 * 2 * 3];
+	int status;
+
+	ASSERT(header != NULL);
+	ASSERT(cryptoInfo != NULL);
+	ASSERT(password != NULL);
+	ASSERT(strlena(password) != MAX_PASSWORD);
+
+	SetMem(header, 512, 0);	/* clean entire header */
+	SetMem(&pwd, sizeof(pwd), 0);
+	CopyMem(&pwd.Text[0], password, strlena(password));
+	pwd.Length = strlena(password);
+
+	(*(uint32 *)(header + TC_HEADER_OFFSET_MAGIC)) = BE32(0x54525545);
+	(*(uint16 *)(header + TC_HEADER_OFFSET_VERSION)) = BE16(VERSION_NUM);
+
+#ifndef TC_NO_COMPILER_INT64
+	(*(uint64 *)(header + TC_HEADER_OFFSET_ENCRYPTED_AREA_START)) = BE64(cryptoInfo->EncryptedAreaStart.Value);
+	(*(uint64 *)(header + TC_HEADER_OFFSET_ENCRYPTED_AREA_LENGTH)) = BE64(cryptoInfo->EncryptedAreaLength.Value);
+	(*(uint64 *)(header + TC_HEADER_OFFSET_VOLUME_SIZE)) = BE64(cryptoInfo->VolumeSize.Value);
+#else
+	(*(uint32 *)(header + TC_HEADER_OFFSET_ENCRYPTED_AREA_START)) = BE32(cryptoInfo->EncryptedAreaStart.HighPart);
+	(*(uint32 *)(header + 4 + TC_HEADER_OFFSET_ENCRYPTED_AREA_START)) = BE32(cryptoInfo->EncryptedAreaStart.LowPart);
+	(*(uint32 *)(header + TC_HEADER_OFFSET_ENCRYPTED_AREA_LENGTH)) = BE32(cryptoInfo->EncryptedAreaLength.HighPart);
+	(*(uint32 *)(header + 4 + TC_HEADER_OFFSET_ENCRYPTED_AREA_LENGTH)) = BE32(cryptoInfo->EncryptedAreaLength.LowPart);
+	(*(uint32 *)(header + TC_HEADER_OFFSET_VOLUME_SIZE)) = BE32(cryptoInfo->VolumeSize.HighPart);
+	(*(uint32 *)(header + 4 + TC_HEADER_OFFSET_VOLUME_SIZE)) = BE32(cryptoInfo->VolumeSize.LowPart);
+#endif
+
+	cs_update_volume_header_crc(header);
+
+	derive_key_ripemd160((char *)pwd.Text, (int) pwd.Length, header + HEADER_SALT_OFFSET,
+		PKCS5_SALT_SIZE, 1000, dk, sizeof (dk));
+
+	status = EAInit(cryptoInfo->ea, (unsigned char *)dk, cryptoInfo->ks);
+	if (status == ERR_CIPHER_INIT_FAILURE) {
+		SetMem(&dk, 0, sizeof(dk));
+		EncryptBuffer((unsigned __int8 *)header + HEADER_ENCRYPTED_DATA_OFFSET, HEADER_ENCRYPTED_DATA_SIZE, cryptoInfo);
+		return status;
+	}
+	EAInit(cryptoInfo->ea, (unsigned char *)dk + EAGetKeySize (cryptoInfo->ea), cryptoInfo->ks2);
+
+	EncryptBuffer((unsigned __int8 *)header + HEADER_ENCRYPTED_DATA_OFFSET, HEADER_ENCRYPTED_DATA_SIZE, cryptoInfo);
+
+	return ERR_SUCCESS;
+}
+#endif
 
 /*
  * 	\brief	decrypt the volume header with the given user password

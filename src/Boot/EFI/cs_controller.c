@@ -313,7 +313,11 @@ static EFI_STATUS write_file(IN EFI_FILE_HANDLE root_handle, IN CHAR16 *filename
     ASSERT(content != NULL);
 
     error = uefi_call_wrapper(root_handle->Open, 5, root_handle, &handle, filename,
+#ifdef CS_TEST_CREATE_VOLUME_HEADER
+    		EFI_FILE_MODE_READ | EFI_FILE_MODE_WRITE | EFI_FILE_MODE_CREATE, 0);
+#else
     		EFI_FILE_MODE_READ | EFI_FILE_MODE_WRITE, 0);
+#endif
     if (EFI_ERROR(error)) {
 			CS_DEBUG((D_ERROR, L"Unable to open file \"%s\" (%r)\n", filename, error));
             goto out;
@@ -1122,6 +1126,51 @@ EFI_STATUS change_password(IN Password *password) {
 
 	return _update_volume_header(&vh_cipher_data, password);
 }
+
+#ifdef CS_TEST_CREATE_VOLUME_HEADER
+/* only for test purposes: allow to build arbitrary volume header */
+extern int cs_write_volume_header(IN OUT char *header, IN PCRYPTO_INFO cryptoInfo, IN char *password);
+EFI_STATUS create_new_volume_header() {
+	CRYPTO_INFO vh_cipher_data;
+	EFI_STATUS error;
+
+	/********************************************************************************/
+	/* fill the content fields of the volume header here... */
+	char password[] = "bla";
+	vh_cipher_data.VolumeSize.Value = (uint64)0;
+	vh_cipher_data.EncryptedAreaStart.Value = (uint64)0;
+	vh_cipher_data.EncryptedAreaLength.Value = (uint64)0;
+	vh_cipher_data.HeaderFlags = 1;
+	vh_cipher_data.hiddenVolume = 0;
+	vh_cipher_data.ea = 1; 		/* AES */
+	vh_cipher_data.mode = XTS;	/* the only valid mode */
+	/********************************************************************************/
+
+	error = cs_write_volume_header((char *)&context.os_driver_data.volume_header[0],
+			&vh_cipher_data, password);
+
+	if (!EFI_ERROR (error)) {
+		CHAR16 new_vh_path[CS_MAX_DRIVER_PATH_SIZE];
+		int i;
+		StrCpy(new_vh_path, context.vh_path);
+
+		/* set filename of volume header to "xxx...x" */
+		for (i = StrLen(new_vh_path) - 1; (i > 0) && (new_vh_path[i] != L'\\'); i--) {
+			new_vh_path[i] = 'x';
+		}
+		CS_DEBUG((D_INFO, L"filename of new volume header: \"%s\"\n", new_vh_path));
+
+		error = write_file(context.root_dir, new_vh_path,
+				context.os_driver_data.volume_header, sizeof(context.os_driver_data.volume_header));
+		if (EFI_ERROR (error)) {
+			CS_DEBUG((D_INFO, L"write_file() failed (%r)\n", error));
+		}
+	} else {
+		CS_DEBUG((D_INFO, L"cs_write_volume_header() returned 0x%x (%r)\n", error, error));
+	}
+	return error;
+}
+#endif
 
 /*
  * \brief	decrypt the loaded volume header with the given user password
