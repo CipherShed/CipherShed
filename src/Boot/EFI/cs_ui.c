@@ -899,7 +899,7 @@ static EFI_STATUS service_dialog(IN SIMPLE_INPUT_INTERFACE *ConIn, IN SIMPLE_TEX
 	}
 #ifdef CS_TEST_CREATE_VOLUME_HEADER
 	outStr(ConOut, L"\r\n  ");
-	outStr(ConOut, L"[4]    TEST: build own volume header");
+	outStr(ConOut, L"[4]    *** build own volume header ***");
 #endif
 	outStr(ConOut, L"\r\n  ");
 	outId(ConOut, CS_STR_SERVICE_ESC);

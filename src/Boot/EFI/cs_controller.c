@@ -20,6 +20,9 @@
 #else
 #define CS_CRYPTO_DRIVER_NAME		L"CsDrv_32.efi"	/* filename of the crypto driver (32 bit version) */
 #endif
+#ifdef CS_FAT_SHORT_NAMES
+#define CS_VH_INDEX_FILE			L"index"	/* filename for index for volume header file(s) */
+#endif
 #define CS_MAX_PASSWORD_LENGTH		64			/* taken from TrueCrypt for compatibility reason */
 #define CS_BOOT_LOADER_ARGS_OFFSET  0x10		/* taken from TrueCrypt for compatibility reason */
 #define CS_MAX_LOAD_OPTIONS			32			/* maximum number of command line arguments */
@@ -314,10 +317,11 @@ static EFI_STATUS write_file(IN EFI_FILE_HANDLE root_handle, IN CHAR16 *filename
 
     error = uefi_call_wrapper(root_handle->Open, 5, root_handle, &handle, filename,
 #ifdef CS_TEST_CREATE_VOLUME_HEADER
-    		EFI_FILE_MODE_READ | EFI_FILE_MODE_WRITE | EFI_FILE_MODE_CREATE, 0);
+    		EFI_FILE_MODE_READ | EFI_FILE_MODE_WRITE | EFI_FILE_MODE_CREATE,
 #else
-    		EFI_FILE_MODE_READ | EFI_FILE_MODE_WRITE, 0);
+    		EFI_FILE_MODE_READ | EFI_FILE_MODE_WRITE,
 #endif
+    		 0);
     if (EFI_ERROR(error)) {
 			CS_DEBUG((D_ERROR, L"Unable to open file \"%s\" (%r)\n", filename, error));
             goto out;
@@ -397,6 +401,229 @@ static EFI_STATUS get_current_directory(IN EFI_LOADED_IMAGE *loaded_image, OUT C
 	return error;
 }
 
+/*
+ *	\brief	initialize context.boot_partition
+ *
+ *	The function initializes the global variable context.boot_partition with default values. The only
+ *	precondition is that context.dest_uuid is set.
+ *
+ *	\return		the success state of the function
+ */
+static EFI_STATUS init_boot_partition() {
+	EFI_STATUS error;
+
+	/* here only GPT partitions are supported (yet)... */
+	context.boot_partition.mbr_type = MBR_TYPE_EFI_PARTITION_TABLE_HEADER; /* not sure whether this is correct */
+	context.boot_partition.signature_type = SIGNATURE_TYPE_GUID;
+	error = StringToGuid(context.dest_uuid, StrLen(context.dest_uuid),
+			&context.boot_partition.signature.guid);
+	if (EFI_ERROR(error))  {
+		CS_DEBUG((D_ERROR, L"Unable to convert the string %s to a GUID: %r", context.dest_uuid, error));
+		return error;
+	}
+	CS_DEBUG((D_INFO, L"BOOT PARTITION: %s\n", context.dest_uuid));
+
+	return EFI_SUCCESS;
+}
+
+#ifdef CS_FAT_SHORT_NAMES
+/*
+ *	\brief	write the complete volume header path to context.vh_path
+ *
+ *
+ *	\param	buffer	buffer containing the content of the index file
+ *	\param	start_filename	position in buffer with the volume header filename
+ *	\param	pathname	pathname to the file where the volume header is stored
+ *
+ *	\return		the success state of the function
+ */
+static EFI_STATUS _write_vh_path(IN CHAR8 *buffer, IN UINTN start_filename, IN CHAR16 *pathname) {
+	EFI_STATUS error;
+	UINTN needed_pathlen;
+
+	needed_pathlen = StrLen(pathname) + StrLen((const CHAR16 *)L"\\") +
+			strlena(&buffer[start_filename]) + 1;
+	if ((needed_pathlen * sizeof(CHAR16)) <= sizeof(context.vh_path)) {
+		int j, k;
+		StrCpy(&context.vh_path[0], pathname);
+		StrCat(&context.vh_path[0], (const CHAR16 *)L"\\");
+		k = StrLen(&context.vh_path[0]);
+		for (j = 0; j < strlena(&buffer[start_filename]); j++) {
+			context.vh_path[k + j] = (CHAR16)buffer[start_filename + j];
+		}
+		context.vh_path[k + j] = (CHAR16)0;
+
+		CS_DEBUG((D_INFO, L"pathname is: %s\n", pathname));
+		CS_DEBUG((D_INFO, L"Volume Header Filename is: %s\n", &context.vh_path[0]));
+
+		error = EFI_SUCCESS;
+	} else {
+		CS_DEBUG((D_ERROR, L"buffer too small for volume header path (0x%x/0x%x byte)\n",
+				needed_pathlen * sizeof(CHAR16), sizeof(context.vh_path)));
+		error = EFI_BUFFER_TOO_SMALL;
+	}
+
+	return error;
+}
+
+/*
+ *	\brief	parse the content of the index file
+ *
+ *  The function parses the content of the file containing the assignment between
+ *  the UUID of the encrypted partition and the filename of the volume header file.
+ *  This index file content is given in the buffer with the given size.
+ *  In case that context.dest_uuid is defined, the buffer is scanned for that given
+ *  UUID, otherwise the first entry will be taken and the UUID of this entry will
+ *  be written to context.dest_uuid. In case of success, the value context.vh_path
+ *  will be filled with the full path to the file with the volume header.
+ *
+ *	\param	buffer	buffer containing the content of the index file
+ *	\param	size	size of the buffer
+ *	\param	pathname	pathname to the file where the volume header is stored
+ *
+ *	\return		the success state of the function
+ */
+static EFI_STATUS _parse_index_file(IN CHAR8 *buffer, IN UINTN size, IN CHAR16 *pathname) {
+    EFI_STATUS error = EFI_NOT_READY;
+
+	if (size) {
+		UINTN next, index = 0;
+		UINTN line_size;
+
+		do {
+			next = _get_next_line(&buffer[index], size, &line_size);
+			line_size = _strip_line(&buffer[index], line_size);
+			if (line_size) {
+				if (context.dest_uuid != NULL) {
+					if (StrLen(context.dest_uuid) < line_size) {
+						int i;
+						for (i = 0; i < StrLen(context.dest_uuid); i++) {
+							if (context.dest_uuid[i] != buffer[index + i]) {
+								break;
+							}
+						}
+						if ((i >= StrLen(context.dest_uuid)) &&
+								((buffer[index + i] == ' ') || (buffer[index + i] == '\t'))) {
+							/* matching UUID found */
+							int remaining_characters = line_size - i;
+							CS_DEBUG((D_INFO, L"found line with matching UUID: \"%a\"\n", &buffer[index]));
+
+							while ((remaining_characters > 0) &&
+									((buffer[index + i] == ' ') || (buffer[index + i] == '\t'))) {
+								i++;
+								remaining_characters--;
+							}
+							CS_DEBUG((D_INFO, L"corresponding filename: \"%a\"\n", &buffer[index + i]));
+
+							error = init_boot_partition();
+							if (!EFI_ERROR(error))  {
+								error = _write_vh_path(&buffer[index], i, pathname);
+							}
+							break;
+						}
+					}
+				} else {
+					/* no UUID given, so take the first entry from the file */
+					int remaining_characters = line_size, i = 0;
+					int end_uuid, start_filename;
+
+					/* find the end of the UUID */
+					while ((remaining_characters > 0) &&
+							(buffer[index + i] != ' ') && (buffer[index + i] != '\t')) {
+						i++;
+						remaining_characters--;
+					}
+					end_uuid = i;
+					/* find the begin of the filename */
+					while ((remaining_characters > 0) &&
+							((buffer[index + i] == ' ') || (buffer[index + i] == '\t'))) {
+						i++;
+						remaining_characters--;
+					}
+					start_filename = i;
+					if (((end_uuid * sizeof(CHAR16)) <= sizeof(context.uuid_buffer)) &&
+							(start_filename > end_uuid) &&
+							(strlena(&buffer[index + start_filename]) > 0)) {
+
+						for (i = 0; i < end_uuid; i++) {
+							context.uuid_buffer[i] = (CHAR16)buffer[index + i];
+						}
+						context.uuid_buffer[i] = (CHAR16)0;
+						context.dest_uuid = &context.uuid_buffer[0];
+						CS_DEBUG((D_INFO, L"partition UUID: \"%s\"\n", context.dest_uuid));
+						CS_DEBUG((D_INFO, L"vh filename: \"%a\"\n", &buffer[index + start_filename]));
+
+						error = init_boot_partition();
+						if (!EFI_ERROR(error))  {
+							error = _write_vh_path(&buffer[index], start_filename, pathname);
+						}
+						break;
+					}
+				}
+			}
+			index += next;
+			size -= next;
+		} while (next > 0);
+
+		FreePool(buffer);
+	} else {
+		/* this situation might be no error since the index file is not compulsory,
+		 * in this case the volume header might be stored in the other way */
+		CS_DEBUG((D_INFO, L"unable to read from index file \"%s\"\n", pathname));
+		error = EFI_NO_MEDIA;
+	}
+
+    return error;
+}
+
+/*
+ *	\brief	detect the name of the file containing the volume header using an index file
+ *
+ *	The function checks whether an index file is in the current directory. If not, the
+ *	function returns with an error (EFI_NO_MEDIA), otherwise the file is opened
+ *	and parsed. The file shall contain an assignment between an UUID
+ *	(for the encrypted partition) and a filename (in the same directory as
+ *	the index file) for the file containing the volume header.
+ *	The structure of this assignment is: <UUID> <filename>
+ *	Lines starting with "#" are ignored. The filename shall NOT contain a pathname.
+ *	When a valid UUID is found, the corresponding filename will be stored
+ *	together with its full path to context.vh_path.
+ *
+ *	\param	root_dir	opened handle to the file system root
+ *	\param	current_dir	string containing the directory name of the volume header files
+ *
+ *	\return		the success state of the function
+ */
+static EFI_STATUS get_volume_header_file_short(IN EFI_FILE *root_dir, IN CHAR16 *current_dir) {
+    EFI_STATUS error = EFI_NOT_READY;
+    CHAR16 *indexfile_path;
+    UINTN indexfile_path_length, len;
+    CHAR8 *content_index_file;
+
+    ASSERT(root_dir != NULL);
+    ASSERT(current_dir != NULL);
+
+    indexfile_path_length = StrLen(current_dir) + StrLen((const CHAR16 *)L"\\") +
+    		StrLen((const CHAR16 *)CS_VH_INDEX_FILE) + 1;
+    indexfile_path = AllocatePool(indexfile_path_length);
+
+    if (indexfile_path == NULL) {
+		CS_DEBUG((D_ERROR, L"Unable to allocate index path name buffer (0x%x byte)\n", indexfile_path_length));
+		return EFI_BUFFER_TOO_SMALL;
+    }
+	StrCpy(indexfile_path, current_dir);
+	StrCat(indexfile_path, (const CHAR16 *)L"\\");
+	StrCat(indexfile_path, (const CHAR16 *)CS_VH_INDEX_FILE);
+
+	len = read_file(root_dir, indexfile_path, &content_index_file);
+
+    FreePool(indexfile_path);
+
+    error = _parse_index_file(content_index_file, len, current_dir);
+
+    return error;
+}
+#endif /* CS_FAT_SHORT_NAMES */
 
 /*
  *	\brief	detect the name of the file containing the volume header
@@ -408,7 +635,6 @@ static EFI_STATUS get_current_directory(IN EFI_LOADED_IMAGE *loaded_image, OUT C
  *
  *	\param	root_dir	opened handle to the file system root
  *	\param	current_dir	string containing the directory name of the executed application
- *	\param	filename_volume_header	pointer to the resulting buffer for the filename
  *
  *	\return		the success state of the function
  */
@@ -431,6 +657,16 @@ static EFI_STATUS get_volume_header_file(IN EFI_FILE *root_dir, IN CHAR16 *curre
 
 	StrCpy(directory_name, current_dir);
 	StrCat(directory_name, (const CHAR16 *)CS_VOLUME_HEADER_DIRECTORY);
+
+#ifdef CS_FAT_SHORT_NAMES
+	/* try alternative method to get the volume header file... */
+	error = get_volume_header_file_short(root_dir, directory_name);
+	if (EFI_ERROR(error) == EFI_SUCCESS) {
+		/* header file found... */
+	    FreePool(directory_name);
+		return error;
+	}
+#endif
 
     error = uefi_call_wrapper(root_dir->Open, 5, root_dir, &entries_dir, directory_name, EFI_FILE_MODE_READ, 0);
     if (EFI_ERROR(error) == EFI_SUCCESS) {
@@ -495,16 +731,10 @@ static EFI_STATUS get_volume_header_file(IN EFI_FILE *root_dir, IN CHAR16 *curre
 					context.dest_uuid = &context.uuid_buffer[0];
 				}
 
-				/* here only GPT partitions are supported (yet)... */
-				context.boot_partition.mbr_type = MBR_TYPE_EFI_PARTITION_TABLE_HEADER; /* not sure whether this is correct */
-				context.boot_partition.signature_type = SIGNATURE_TYPE_GUID;
-				error = StringToGuid(context.dest_uuid, StrLen(context.dest_uuid),
-						&context.boot_partition.signature.guid);
-				if (EFI_ERROR(error))  {
-					CS_DEBUG((D_ERROR, L"Unable to convert the string %s to a GUID: %r", context.dest_uuid, error));
+				error = init_boot_partition();
+				if (EFI_ERROR(error)) {
 					break;
 				}
-				CS_DEBUG((D_INFO, L"BOOT PARTITION: %s\n", context.dest_uuid));
 
 				len = StrLen(directory_name) + StrLen((const CHAR16 *)L"\\") + StrLen((const CHAR16 *)f->FileName) + 1;
 				if ((len * sizeof(CHAR16)) <= sizeof(context.vh_path)) {
@@ -572,7 +802,6 @@ static EFI_STATUS load_volume_header(IN EFI_FILE *root_dir, IN CHAR16 *current_d
 
 			error = EFI_END_OF_FILE;
 		}
-		//FreePool(filename_volume_header);
     }
 
     return error;
@@ -923,7 +1152,6 @@ static EFI_STATUS load_start_image(IN EFI_HANDLE ImageHandle, IN EFI_HANDLE hand
     ASSERT(ImageHandle != NULL);
     ASSERT(handle_to_load != NULL);
     ASSERT(file_to_load != NULL);
-    ASSERT(load_options != NULL);
     ASSERT(loaded_handle != NULL);
 
 	path_to_load = FileDevicePath(handle_to_load, file_to_load);
@@ -931,6 +1159,7 @@ static EFI_STATUS load_start_image(IN EFI_HANDLE ImageHandle, IN EFI_HANDLE hand
 	if (path_to_load) {
 		error = uefi_call_wrapper(BS->LoadImage, 6,	FALSE, ImageHandle, path_to_load,
 				NULL, 0, loaded_handle);
+
 		if (!EFI_ERROR (error)) {
 			EFI_LOADED_IMAGE *ImageInfo;
 
@@ -953,7 +1182,6 @@ static EFI_STATUS load_start_image(IN EFI_HANDLE ImageHandle, IN EFI_HANDLE hand
 
 				/* now start the image... */
 				error = uefi_call_wrapper(BS->StartImage, 3, *loaded_handle, NULL, NULL);
-
 				if (EFI_ERROR (error)) {
 					uefi_call_wrapper(BS->UnloadImage, 1, *loaded_handle);
 					CS_DEBUG((D_ERROR, L"StartImage(%s) failed: %r\n", file_to_load, error));
@@ -1137,7 +1365,7 @@ EFI_STATUS create_new_volume_header() {
 	/********************************************************************************/
 	/* fill the content fields of the volume header here... */
 	char password[] = "bla";
-	vh_cipher_data.VolumeSize.Value = (uint64)0;
+	vh_cipher_data.VolumeSize.Value = (uint64)103774208;
 	vh_cipher_data.EncryptedAreaStart.Value = (uint64)0;
 	vh_cipher_data.EncryptedAreaLength.Value = (uint64)0;
 	vh_cipher_data.HeaderFlags = 1;
@@ -1406,6 +1634,10 @@ static EFI_STATUS init_runtime_service() {
 	error = uefi_call_wrapper(RT->SetVariable, 5, CS_HANDOVER_VARIABLE_NAME, &variable_guid,
 			EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS,
 			sizeof(context.os_driver_data), &context.os_driver_data);
+	if (EFI_ERROR(error)) {
+		CS_DEBUG((D_ERROR, L"unable to set EFI variable %s: %r\n", CS_HANDOVER_VARIABLE_NAME, error));
+	}
+
 	/* the sensitive data in the system context are no longer needed... */
 	SetMem(&context.os_driver_data, sizeof(context.os_driver_data), 0);
 
@@ -1595,7 +1827,7 @@ EFI_STATUS efi_main (IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE *SystemTable
 	    goto exit;
 	}
 #endif
-#if 0
+#if 1
 	/* start the boot loader of the OS */
 	error = boot_os(ImageHandle);
 	if (EFI_ERROR(error)) {

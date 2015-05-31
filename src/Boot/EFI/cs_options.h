@@ -35,6 +35,7 @@ struct cs_option_data {
 
 
 EFI_STATUS load_settings(IN EFI_FILE *root_dir, IN CHAR16 *current_dir, IN struct cs_option_data *options);
-
+UINTN _get_next_line(IN CHAR8 *buffer, IN UINTN buffer_size, OUT UINTN *line_size);
+UINTN _strip_line(IN OUT CHAR8 *line, IN UINTN remaining_characters);
 
 #endif /* _CS_OPTIONS_H_ */

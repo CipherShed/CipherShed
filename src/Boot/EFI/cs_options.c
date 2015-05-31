@@ -38,7 +38,7 @@ static struct cs_language_name lang_strings[] =
  *
  *	\return		position in buffer of the begin of the next line (0 in case of EOF)
  */
-static UINTN _get_next_line(IN CHAR8 *buffer, IN UINTN buffer_size, OUT UINTN *line_size) {
+UINTN _get_next_line(IN CHAR8 *buffer, IN UINTN buffer_size, OUT UINTN *line_size) {
 	UINTN i = 0;
 	UINTN next;
 	int success = 0;
@@ -84,7 +84,7 @@ static UINTN _get_next_line(IN CHAR8 *buffer, IN UINTN buffer_size, OUT UINTN *l
  *
  * 	\return		resulting line size
  */
-static int _strip_line(IN OUT CHAR8 *line, IN UINTN remaining_characters) {
+UINTN _strip_line(IN OUT CHAR8 *line, IN UINTN remaining_characters) {
 
 	UINTN i, index = 0;
 

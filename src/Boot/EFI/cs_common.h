@@ -15,14 +15,19 @@
 #include "cs_debug.h"
 
 #define CS_LOADER_NAME		WIDEN("CipherShed")
-#define CS_LOADER_VERSION	0.1
+#define CS_LOADER_VERSION	0.2
 
 #define CS_DRIVER_NAME		CS_LOADER_NAME
 #define CS_CONTROLLER_NAME	CS_LOADER_NAME
 #define CS_DRIVER_VERSION	CS_LOADER_VERSION
 
 /* only for test purposes: allow to build arbitrary volume header */
-#define CS_TEST_CREATE_VOLUME_HEADER
+#undef CS_TEST_CREATE_VOLUME_HEADER
+
+/* in case that the EFI FAT32 system cannot handle filenames with length > 8
+ * (this is the case for VMware player EFI emulation) -> use an alternative
+ * method to store the volume header */
+#define CS_FAT_SHORT_NAMES
 
 #ifndef ARRAYSIZE
 #define ARRAYSIZE(A)	(sizeof(A)/sizeof((A)[0]))

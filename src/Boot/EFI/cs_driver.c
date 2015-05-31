@@ -545,6 +545,10 @@ static EFI_STATUS add_new_child_handle(IN EFI_HANDLE ControllerHandle) {
 				}
 			}
 			CS_DEBUG((D_INFO, L"media block size is 0x%x\n", CsBlockIo.Media->BlockSize));
+			CS_DEBUG((D_INFO, L"removable media/logical partition: %x/%x\n",
+					CsBlockIo.Media->RemovableMedia, CsBlockIo.Media->LogicalPartition));
+			CS_DEBUG((D_INFO, L"first/last LBA 0x%lx/0x%lx\n",
+					CsBlockIo.Media->LowestAlignedLba, CsBlockIo.Media->LastBlock));
 			ASSERT(CsBlockIo.Media->BlockSize >= ENCRYPTION_DATA_UNIT_SIZE);
 			ASSERT(CsBlockIo.Media->BlockSize % ENCRYPTION_DATA_UNIT_SIZE == 0);
 			context.factorMediaBlock = CsBlockIo.Media->BlockSize / ENCRYPTION_DATA_UNIT_SIZE;

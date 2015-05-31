@@ -53,4 +53,4 @@ clean:
 	$(MAKE) -C ../../Common -f Makefile.efi clean
 
 stick:	all
-	if test -d /media/fn/6529-E05D; then cp *.efi  /media/fn/6529-E05D/copy/; fi; sync
+	if test -d /media/fn/6529-E05D; then cp CsDrv_64.efi CsCtr_64.efi /media/fn/6529-E05D/copy/; fi; sync
