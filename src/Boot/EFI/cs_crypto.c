@@ -595,7 +595,7 @@ int cs_read_volume_header(IN BOOL bBoot, IN char *header, IN Password *password,
 		}
 
 #if 1
-		Print(L"## header decrypted (ea = 0x%x)!! \n", cryptoInfo->ea);
+		Print(L"\n## header decrypted (ea = 0x%x)\n", cryptoInfo->ea);
 		DumpHex(2, 0, 128, header);
 #endif
 

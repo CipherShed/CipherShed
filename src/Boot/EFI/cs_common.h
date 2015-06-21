@@ -15,7 +15,7 @@
 #include "cs_debug.h"
 
 #define CS_LOADER_NAME		WIDEN("CipherShed")
-#define CS_LOADER_VERSION	0.2
+#define CS_LOADER_VERSION	0.3
 
 #define CS_DRIVER_NAME		CS_LOADER_NAME
 #define CS_CONTROLLER_NAME	CS_LOADER_NAME
@@ -80,9 +80,8 @@ struct cs_cipher_data {
 
 /* structure of data that are handed over from loader to EFI driver */
 struct cs_efi_option_data {
-	uint64 StartSector;				/* TC: PartitionFollowingActive.StartSector */
-	uint64 EndSector;				/* TC: PartitionFollowingActive.EndSector */
-	uint64 SectorCount;				/* TC: PartitionFollowingActive.SectorCount */
+	uint64 StartSector;				/* start of encrypted area (equal to start of partition) */
+	uint64 SectorCount;				/* size of encrypted area */
 	BOOLEAN isHiddenVolume;			/* TC: BootCryptoInfo->hiddenVolume */
 	uint64 HiddenVolumeStartSector;
 	uint64 HiddenVolumeStartUnitNo;

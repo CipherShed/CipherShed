@@ -98,6 +98,7 @@ static struct cs_driver_context {
 	UINT64 hiddenSectorOffset;		/* only used for hidden volume */
 	UINT64 hiddenUnitOffset;		/* only used for hidden volume */
 	struct cs_efi_option_data options;
+	UINT64 EndSector;				/* options.StartSector + options.SectorCount */
 } context;
 
 #if 0
@@ -184,7 +185,8 @@ EFI_STATUS EFIAPI encryptBlocks(IN EFI_LBA lba, IN UINTN BufferSize, OUT VOID *B
 	}
 
 	while (blockCount-- > 0) {
-		if ((lba >= context.options.StartSector) && (lba <= context.options.EndSector)) {
+
+		if ((lba >= context.options.StartSector) && (lba < context.EndSector)) {
 
 			CS_DEBUG((D_INFO, L"encrypt block (0x%x)\n", lba));
 
@@ -226,7 +228,7 @@ EFI_STATUS EFIAPI decryptBlocks(IN EFI_LBA lba, IN UINTN BufferSize, OUT VOID *B
 	while (blockCount-- > 0) {
 
 		if ((context.options.isHiddenVolume) ||
-			((lba >= context.options.StartSector) && (lba <= context.options.EndSector))) {
+			((lba >= context.options.StartSector) && (lba < context.EndSector))) {
 
 			CS_DEBUG((D_INFO, L"decrypt block (0x%x)\n", lba));
 
@@ -1489,6 +1491,7 @@ static EFI_STATUS cs_init_crypto_options(EFI_LOADED_IMAGE *LoadedImage) {
 		return EFI_INVALID_PARAMETER;
 	}
 	EFIDebug = context.options.debug;
+	context.EndSector = context.options.StartSector + context.options.SectorCount;
 
 	CS_DEBUG((D_INFO, L"driver init: StartSector 0x%x, SectorCount 0x%x\n",
 			context.options.StartSector, context.options.SectorCount));

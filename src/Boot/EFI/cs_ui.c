@@ -255,14 +255,18 @@ BOOLEAN check_for_ESC(IN SIMPLE_INPUT_INTERFACE *ConIn) {
 void dump_per_cent(IN SIMPLE_TEXT_OUTPUT_INTERFACE *ConOut, IN INTN value) {
 
 	struct cs_output_context context = store_output_context(ConOut);
-	//CHAR16 string[100];
+#if 0
+	CHAR16 string[100];
+#endif
 	const UINTN len = 40;	/* length of the progress line */
 	INTN i, v = (INTN)(value * len / 1000);
 
 	if (pOptions->flags.silent)
 		return;
 
-	uefi_call_wrapper(ConOut->OutputString, 2, ConOut, L"]");
+	uefi_call_wrapper(ConOut->EnableCursor, 2, ConOut, FALSE); /* ignore return code this is not always supported */
+
+	uefi_call_wrapper(ConOut->OutputString, 2, ConOut, L"[");
 	for (i = 0; i < len; i++) {
 		if (i < v) {
 			uefi_call_wrapper(ConOut->OutputString, 2, ConOut, L"=");
@@ -272,8 +276,10 @@ void dump_per_cent(IN SIMPLE_TEXT_OUTPUT_INTERFACE *ConOut, IN INTN value) {
 	}
 	uefi_call_wrapper(ConOut->OutputString, 2, ConOut, L"]");
 
-	//SPrint(string, 100, L"%2.1d %%", value / 10);
-	//uefi_call_wrapper(ConOut->OutputString, 2, ConOut, string);
+#if 0
+	SPrint(string, 100, L"  %2.1d %%", value / 10); // this format does not work...
+	uefi_call_wrapper(ConOut->OutputString, 2, ConOut, string);
+#endif
 
 	restore_output_context(ConOut, &context, FALSE);
 }
@@ -1010,7 +1016,7 @@ EFI_STATUS user_dialog(IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE *SystemTab
 		break;
 
 		case CS_UI_ENCRYPT_SYSTEM:
-			error = encrypt_decrypt_media(ImageHandle, SystemTable, options, TRUE /* decrypt */,
+			error = encrypt_decrypt_media(ImageHandle, SystemTable, options, TRUE /* encrypt */,
 					user_decision, passwd);
 		break;
 

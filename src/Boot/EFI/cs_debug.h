@@ -12,9 +12,11 @@
 
 void cs_debug(INTN mask, CHAR16 *format, ...);
 #define CS_DEBUG(a)	cs_debug a
+#define CS_DEBUG_SLEEP(a)	cs_sleep(a)
 
 #else
 #define CS_DEBUG(a)
+#define CS_DEBUG_SLEEP(a)
 #endif /* EFI_DEBUG */
 
 

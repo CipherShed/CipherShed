@@ -12,7 +12,7 @@
 #include "cs_controller.h"
 #include <edk2/ComponentName.h>
 
-#define CS_SERVICE_NUMBER_SECTORS	8	/* number sectors to encrypt/decrypt at once while encryption/decryption
+#define CS_SERVICE_NUMBER_SECTORS	80	/* number sectors to encrypt/decrypt at once while encryption/decryption
  	 	 	 	 	 	 	 	 	 	   of the media using the service menu */
 
 EFI_GUID ComponentNameProtocol = EFI_COMPONENT_NAME_PROTOCOL_GUID;
@@ -360,14 +360,8 @@ static EFI_STATUS do_encrypt_decrypt_media(IN EFI_SYSTEM_TABLE *SystemTable,
     	UINTN bytesToRead = bufferSectors << TC_LB_SIZE_BIT_SHIFT_DIVISOR;
 
     	while (numberSectors > 0) {
-        	if (numberSectors < bufferSectors) {
-        		if (!encrypt) {
-        			lba += bufferSectors - numberSectors;
-        		}
-        		bufferSectors = numberSectors;
-        		bytesToRead = bufferSectors << TC_LB_SIZE_BIT_SHIFT_DIVISOR;
-        	}
 
+    		/* read from source */
         	error = uefi_call_wrapper(source->ReadBlocks, 5,
         			source, source->Media->MediaId, lba, bytesToRead, buffer);
         	if (EFI_ERROR(error)) {
@@ -376,6 +370,7 @@ static EFI_STATUS do_encrypt_decrypt_media(IN EFI_SYSTEM_TABLE *SystemTable,
             	break;
         	}
 #if 1
+        	/* write to destination */
         	error = uefi_call_wrapper(dest->WriteBlocks, 5,
         			dest, dest->Media->MediaId, lba, bytesToRead, buffer);
         	if (EFI_ERROR(error)) {
@@ -385,14 +380,21 @@ static EFI_STATUS do_encrypt_decrypt_media(IN EFI_SYSTEM_TABLE *SystemTable,
         	}
 #endif
 
-        	CS_DEBUG((D_INFO, L"crypted 0x%x byte at LBA 0x%lx\n", bytesToRead, lba));
+        	// CS_DEBUG((D_INFO, L"crypted 0x%x byte at LBA 0x%lx\n", bytesToRead, lba));
 
         	if (encrypt) {
             	lba += bufferSectors;
-        	} else {
+        	}
+
+        	numberSectors -= bufferSectors;
+    		if (numberSectors < bufferSectors) {
+        		bufferSectors = numberSectors;
+        		bytesToRead = bufferSectors << TC_LB_SIZE_BIT_SHIFT_DIVISOR;
+    		}
+
+        	if (encrypt == FALSE) {
             	lba -= bufferSectors;
         	}
-        	numberSectors -= bufferSectors;
 
         	if (sectorsInVolume > 0) {
         		if (encrypt) {
@@ -407,13 +409,13 @@ static EFI_STATUS do_encrypt_decrypt_media(IN EFI_SYSTEM_TABLE *SystemTable,
         	}
 
         	if (check_for_ESC(SystemTable->ConIn)) {
-            	CS_DEBUG((D_INFO, L"ESC key detected... stopping...\n", lba));
+            	CS_DEBUG((D_INFO, L"ESC key detected... stopping...\n", lba)); CS_DEBUG_SLEEP(3);
         		break;
         	}
     	}
         FreePool(buffer);
     } else {
-    	CS_DEBUG((D_ERROR, L"unable to allocate memory for cipher buffer\n"));
+    	CS_DEBUG((D_ERROR, L"unable to allocate memory for cipher buffer\n")); CS_DEBUG_SLEEP(3);
     	error = EFI_OUT_OF_RESOURCES;
     }
 
@@ -472,7 +474,7 @@ EFI_STATUS encrypt_decrypt_media(IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE 
 		return EFI_SUCCESS;	/* user refused */
 	}
 
-	error = start_connect_crypto_driver(ImageHandle);
+	error = start_connect_fake_crypto_driver(ImageHandle);
 	if (EFI_ERROR(error)) {
 		CS_DEBUG((D_ERROR, L"Unable to start the crypto driver: %r\n", error));
 	    return error;

@@ -1445,8 +1445,6 @@ EFI_STATUS decrypt_volume_header() {
 			context.os_driver_data.crypto_info.EncryptedAreaStart.Value  >> TC_LB_SIZE_BIT_SHIFT_DIVISOR;
 	context.efi_driver_data.SectorCount =
 			context.os_driver_data.crypto_info.EncryptedAreaLength.Value >> TC_LB_SIZE_BIT_SHIFT_DIVISOR;
-	context.efi_driver_data.EndSector = context.efi_driver_data.SectorCount - 1;
-	context.efi_driver_data.EndSector += context.efi_driver_data.StartSector;
 
 	/* now extract some information regarding hidden volume... */
 	context.efi_driver_data.isHiddenVolume = context.os_driver_data.crypto_info.hiddenVolume;
@@ -1540,7 +1538,7 @@ static EFI_STATUS connect_crypto_driver(IN EFI_HANDLE CryptoDriverHandle) {
  *
  *	\return		the success state of the function
  */
-EFI_STATUS start_connect_crypto_driver(IN EFI_HANDLE ImageHandle) {
+static EFI_STATUS start_connect_crypto_driver(IN EFI_HANDLE ImageHandle) {
 
 	EFI_STATUS error;
 	EFI_HANDLE CryptoDriverHandle;
@@ -1556,6 +1554,32 @@ EFI_STATUS start_connect_crypto_driver(IN EFI_HANDLE ImageHandle) {
 
 	return error;
 }
+
+/*
+ *	\brief	load and start the crypto driver and connect it with the intended block device
+ *
+ *	This function fakes the driver start options in a way that the entire disk is supposed
+ *	to be encrypted. With this settings, the function start_connect_fake_crypto_driver()
+ *	is called.
+ *	This is only used in case that the device shall be encrypted or decrypted by the EFI
+ *	loader (via service menu).
+ *
+ *	\param	ImageHandle
+ *
+ *	\return		the success state of the function
+ */
+EFI_STATUS start_connect_fake_crypto_driver(IN EFI_HANDLE ImageHandle) {
+
+	EFI_STATUS error;
+	uint64 encryptedSectorCount = context.efi_driver_data.SectorCount;
+
+	context.efi_driver_data.SectorCount = context.os_driver_data.crypto_info.VolumeSize.Value;
+	error = start_connect_crypto_driver(ImageHandle);
+	context.efi_driver_data.SectorCount = encryptedSectorCount;
+
+	return error;
+}
+
 
 #if 0
 /*
@@ -1771,6 +1795,8 @@ EFI_STATUS efi_main (IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE *SystemTable
 	}
 
 	FreePool(current_directory); /* no more file system access needed from here... */
+
+	CS_DEBUG_SLEEP(2);
 
 	do {
 		/* call user dialog to get the password or any other decision */
