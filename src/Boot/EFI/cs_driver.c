@@ -44,7 +44,7 @@ EFI_DRIVER_BINDING_PROTOCOL gCsDriverBinding = {
 		.Supported = CsDriverBindingSupported,
 		.Start = CsDriverBindingStart,
 		.Stop = CsDriverBindingStop,
-		.Version = CS_DRIVER_VERSION,
+		.Version = CS_DRIVER_BIND_VERSION,
 		.ImageHandle = NULL,
 		.DriverBindingHandle = NULL
 };
@@ -87,6 +87,8 @@ static struct cs_driver_context {
 	 	 	 	 	 	 	 	   this shall support media block sizes bigger than
 	 	 	 	 	 	 	 	   ENCRYPTION_DATA_UNIT_SIZE */
 	struct {
+		UINT32 connected:1;		/* only one instance of this driver is accepted, since only one
+		 	 	 	 	 	 	   OS partition can be started; this state is stored in this flag */
 		UINT32 blockIoInstalled:1;
 		UINT32 blockIo2Installed:1;
 	} status;
@@ -431,38 +433,14 @@ EFI_STATUS EFIAPI CsDriverBindingSupported (
 		CS_DEBUG((D_WARN, L"CloseProtocol(BlockIoProtocol) returned: %r\n", error));
 	}
 
-	/* to prevent multiple bindings of this driver, check for own identity using component name protocol */
-	error = uefi_call_wrapper(BS->OpenProtocol, 6, Controller, &ComponentNameProtocol, (VOID **)&ComponentName,
-			This->DriverBindingHandle, Controller, EFI_OPEN_PROTOCOL_GET_PROTOCOL);
-	if (!EFI_ERROR(error)) {
+	/* in contrast to usual device drivers, this driver supports only one single instance,
+	 * since only one encrypted OS can be booted up,
+	 * hence further calls of DriverBindingSupported() are blocked when the driver is already connected: */
 
-		EFI_STATUS error2;
-		error = uefi_call_wrapper(ComponentName->GetDriverName, 3, ComponentName, (CHAR8 *)"eng", &DriverName);
-		if (!EFI_ERROR(error)) {
-			/* compare only the first part of the name (version number is intentionally ignored),
-			 * this allows to leave this function untouched in case of another suffix of the name
-			 * (e.g. for a special version for media encryption/decryption on user request) */
-			if (StrnCmp(DriverName, CS_DRIVER_NAME, StrLen(CS_DRIVER_NAME)) == 0) {
-				CS_DEBUG((D_WARN, L"The driver is already connected.\n", error));
-				error = EFI_ALREADY_STARTED;
-			}
-			else {
-				CS_DEBUG((D_INFO, L"CsDriverBindingSupported (driver name: %s)\n", DriverName));
-			}
-		}
-		else
-		{
-			error = EFI_SUCCESS;
-		}
-
-		error2 = uefi_call_wrapper(BS->CloseProtocol, 4, Controller, &ComponentNameProtocol,
-				This->DriverBindingHandle, Controller);
-		if (EFI_ERROR(error2)) {
-			CS_DEBUG((D_WARN, L"CloseProtocol(ComponentNameProtocol) returned: %r\n", error2));
-		}
-	}
-	else
-	{
+	if (context.status.connected) {
+		CS_DEBUG((D_WARN, L"The driver is already connected.\n", error));
+		error = EFI_ALREADY_STARTED;
+	} else {
 		error = EFI_SUCCESS;
 	}
 
@@ -706,6 +684,13 @@ EFI_STATUS EFIAPI CsDriverBindingStart (
 	InitializeListHead(&context.TaskListReadEx);
 	InitializeLock(&context.TaskListReadExLock, TPL_NOTIFY);
 
+	if (context.status.connected) {
+		CS_DEBUG((D_ERROR, L"CsDriverBindingStart() inconsistent status: already connected\n"));
+		error = EFI_DEVICE_ERROR;
+		goto fail;
+	}
+
+	context.status.connected = 1;
 	CS_DEBUG((D_INFO, L"CsDriverBindingStart() succeeded.\n", ControllerHandle));
 
 	return EFI_SUCCESS;
@@ -762,9 +747,11 @@ EFI_STATUS EFIAPI CsDriverBindingStop (
 				NULL);
 		context.status.blockIo2Installed = 0;
 	}
+	// what about the ComponentNameProtocol/ComponentName2Protocol/DevicePathProtocol ?
 
 	/* release buffers of the driver, if applicable, erase sensitive data */
 	csDestroyAllSubtasks();
+	context.status.connected = 0;
 
 	return error;
 }
@@ -1452,8 +1439,10 @@ EFI_STATUS EFIAPI CsDriverUninstall(IN EFI_HANDLE ImageHandle) {
 	}
 	LibUninstallProtocolInterfaces(ImageHandle,
 			&DriverBindingProtocol, &gCsDriverBinding,
+#if 0
 			&ComponentNameProtocol, &CsComponentName,
 			&ComponentName2Protocol, &CsComponentName2,
+#endif
 			NULL);
 
 	SetMem(&context, sizeof(context), 0);	/* destroy sensitive data */
@@ -1528,8 +1517,6 @@ EFI_STATUS EFIAPI CsDriverInstall(IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE
 	ASSERT(ImageHandle != NULL);
 	ASSERT(SystemTable != NULL);
 
-//	EFIDebug = D_ERROR | D_WARN | D_LOAD | D_BLKIO | D_INIT | D_INFO; // remove this later...
-
     InitializeLib(ImageHandle, SystemTable);
     //InitializeUnicodeSupport((CHAR8 *)"eng");
     SetMem(&context, sizeof(context), 0);
@@ -1558,8 +1545,10 @@ EFI_STATUS EFIAPI CsDriverInstall(IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE
 	/* Install driver */
 	error = LibInstallProtocolInterfaces(&gCsDriverBinding.DriverBindingHandle,
 			&DriverBindingProtocol, &gCsDriverBinding,
+#if 0
 			&ComponentNameProtocol, &CsComponentName,
 			&ComponentName2Protocol, &CsComponentName2,
+#endif
 			NULL);
 	if (EFI_ERROR(error)) {
 		cs_print_msg(L"Could not install driver (%r)", error);

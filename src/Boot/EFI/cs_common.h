@@ -20,6 +20,7 @@
 #define CS_DRIVER_NAME		CS_LOADER_NAME
 #define CS_CONTROLLER_NAME	CS_LOADER_NAME
 #define CS_DRIVER_VERSION	CS_LOADER_VERSION
+#define CS_DRIVER_BIND_VERSION	0x10	/* must be of type UINT32 */
 
 /* only for test purposes: allow to build arbitrary volume header */
 #undef CS_TEST_CREATE_VOLUME_HEADER
