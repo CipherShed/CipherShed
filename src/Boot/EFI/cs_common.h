@@ -91,11 +91,6 @@ struct cs_efi_option_data {
 	UINTN debug;					/* the debug level of the driver */
 };
 
-struct _cs_device_path {
-	FILEPATH_DEVICE_PATH value;
-	CHAR8 __cs_path[CS_MAX_DRIVER_PATH_SIZE];	/* used to allocate memory, don't access this directly! */
-};
-
 #pragma pack(1)
 /* taken from TrueCrypt: needed for hand over of data to OS driver in RAM */
 typedef struct

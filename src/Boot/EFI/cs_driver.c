@@ -31,6 +31,11 @@ typedef struct {
 	EFI_BLOCK_IO2_TOKEN Token;
 } CS_READ_BLOCKS_SUBTASK; /* task to non-blocking read */
 
+struct _cs_device_path {
+	FILEPATH_DEVICE_PATH value;
+	CHAR8 __cs_path[CS_MAX_DRIVER_PATH_SIZE];	/* used to allocate memory, don't access this directly! */
+};
+
 EFI_DRIVER_ENTRY_POINT(CsDriverInstall)
 
 /* These ones are not defined in gnu-efi yet */
@@ -405,11 +410,8 @@ EFI_STATUS EFIAPI CsDriverBindingSupported (
 		IN EFI_HANDLE                   Controller,
 		IN EFI_DEVICE_PATH_PROTOCOL     *RemainingDevicePath   OPTIONAL
 	) {
-
 	EFI_STATUS error;
 	EFI_BLOCK_IO *BlockIo;
-	EFI_COMPONENT_NAME_PROTOCOL *ComponentName;
-	CHAR16 *DriverName;
 
     ASSERT(This != NULL);
 
@@ -448,93 +450,95 @@ EFI_STATUS EFIAPI CsDriverBindingSupported (
 }
 
 /**
-  \brief	create a new child device handle and install BlockIO/BlockIO2 protocol at it.
+  \brief	uninstall the provided protocol interfaces to the given controller handle
 
-  This function takes the given device handle and creates a child handle of it.
-  The device path of the given handle is extended by the string CS_CHILD_PATH_EXTENSION
-  which becomes the device path of the new child handle. The child handle is
-  stored in the system context.
+  This function tries to uninstall the BLOCK_IO protocol and the BLOCK_IO2 protocol
+  (if this protocol is provided) from the given controller handle.
 
-  \param  ControllerHandle		parent controller handle
+  \param  ControllerHandle		controller handle
+**/
+static void uninstall_provided_protocols(IN EFI_HANDLE ControllerHandle) {
+
+	ASSERT(ControllerHandle != NULL);
+
+	/* uninstall the provided protocol interfaces */
+	if (context.status.blockIoInstalled) {
+		LibUninstallProtocolInterfaces(ControllerHandle,
+				&BlockIoProtocol, &CsBlockIo,
+				NULL);
+		context.status.blockIoInstalled = 0;
+	}
+	if (context.status.blockIo2Installed) {
+		LibUninstallProtocolInterfaces(ControllerHandle,
+				&BlockIo2Protocol, &CsBlockIo2,
+				NULL);
+		context.status.blockIo2Installed = 0;
+	}
+#if 0
+	LibUninstallProtocolInterfaces(ControllerHandle,
+			&ComponentNameProtocol, &CsComponentName,
+			&ComponentName2Protocol, &CsComponentName2,
+			NULL);
+#endif
+}
+
+/**
+  \brief	install the provided protocol interfaces to the given controller handle
+
+  This function tries to install the BLOCK_IO protocol and the BLOCK_IO2 protocol
+  (if this protocol is consumed) to the given controller handle.
+
+  \param  ControllerHandle		controller handle
 
   \return	the success state of the function
 **/
-static EFI_STATUS add_new_child_handle(IN EFI_HANDLE ControllerHandle) {
+static EFI_STATUS install_provided_protocols(IN EFI_HANDLE *pControllerHandle) {
 	EFI_STATUS error;
-	EFI_DEVICE_PATH *ParentDevicePath;
-	EFI_DEVICE_PATH *ChildDevicePath;
-	struct _cs_device_path path;
 
-	ASSERT(StrLen(CS_CHILD_PATH_EXTENSION) * sizeof(CHAR16) < sizeof(path.__cs_path));
-
-	ZeroMem (&path, sizeof(path));
-	path.value.Header.Type = MEDIA_DEVICE_PATH;
-	path.value.Header.SubType = MEDIA_FILEPATH_DP;
-	StrCpy(&path.value.PathName[0], CS_CHILD_PATH_EXTENSION);
-	SetDevicePathNodeLength(&path.value.Header, sizeof(path.value) +
-			(sizeof (CHAR16) * StrLen(CS_CHILD_PATH_EXTENSION)));
-
-	/* get ParentDevicePath */
-	error = uefi_call_wrapper(BS->HandleProtocol, 3, ControllerHandle, &DevicePathProtocol,
-			  (VOID **) &ParentDevicePath);
-	if (!EFI_ERROR(error)) {
-
-#if 0	// seems not to work in QEMU environment
-		CS_DEBUG((D_INFO, L"ParentDevicePath: %s\n", DevicePathToStr(ParentDevicePath)));
+	CsBlockIo.Media = context.ConsumedBlockIo->Media;
+	if (context.ConsumedBlockIo2) {
+		CsBlockIo2.Media = context.ConsumedBlockIo2->Media;
+		error = LibInstallProtocolInterfaces(pControllerHandle,
+				&BlockIoProtocol, &CsBlockIo,
+				&BlockIo2Protocol, &CsBlockIo2,
+#if 0
+				/* bind Component Name Protocol to be able to identify the device
+				 * by subsequent DriverBindingSupported() calls */
+				&ComponentNameProtocol, &CsComponentName,
+				&ComponentName2Protocol, &CsComponentName2,
 #endif
-
-		ChildDevicePath = AppendDevicePathNode (ParentDevicePath, (EFI_DEVICE_PATH *) &path.value);
-		if (ChildDevicePath == NULL) {
-		    error = EFI_OUT_OF_RESOURCES;
-		}
-#if 0	// seems not to work in QEMU environment
-		CS_DEBUG((D_INFO, L"ChildDevicePath: %s\n", DevicePathToStr(ChildDevicePath)));
-#endif
+				NULL);
 		if (!EFI_ERROR(error)) {
-			/* Add Device Path Protocol and Block I/O Protocol to a new handle */
-			context.ChildHandle = NULL;
-			if (context.ConsumedBlockIo2) {
-				CsBlockIo.Media = context.ConsumedBlockIo->Media;
-				CsBlockIo2.Media = context.ConsumedBlockIo2->Media;
-				error = LibInstallProtocolInterfaces(&context.ChildHandle,
-						&DevicePathProtocol, ChildDevicePath,
-						&BlockIoProtocol, &CsBlockIo,
-						&BlockIo2Protocol, &CsBlockIo2,
-						/* bind Component Name Protocol to be able to identify the device
-						 * by subsequent DriverBindingSupported() calls */
-						&ComponentNameProtocol, &CsComponentName,
-						&ComponentName2Protocol, &CsComponentName2,
-						NULL);
-				if (!EFI_ERROR(error)) {
-					context.status.blockIoInstalled = 1;
-					context.status.blockIo2Installed = 1;
-				}
-			} else {
-				CsBlockIo.Media = context.ConsumedBlockIo->Media;
-				error = LibInstallProtocolInterfaces(&context.ChildHandle,
-						&DevicePathProtocol, ChildDevicePath,
-						&BlockIoProtocol, &CsBlockIo,
-						/* bind Component Name Protocol to be able to identify the device
-						 * by subsequent DriverBindingSupported() calls */
-						&ComponentNameProtocol, &CsComponentName,
-						&ComponentName2Protocol, &CsComponentName2,
-						NULL);
-				if (!EFI_ERROR(error)) {
-					context.status.blockIoInstalled = 1;
-					context.status.blockIo2Installed = 0;
-				}
-			}
-			CS_DEBUG((D_INFO, L"media block size is 0x%x\n", CsBlockIo.Media->BlockSize));
-			CS_DEBUG((D_INFO, L"removable media/logical partition: %x/%x\n",
-					CsBlockIo.Media->RemovableMedia, CsBlockIo.Media->LogicalPartition));
-			CS_DEBUG((D_INFO, L"first/last LBA 0x%lx/0x%lx\n",
-					CsBlockIo.Media->LowestAlignedLba, CsBlockIo.Media->LastBlock));
-			ASSERT(CsBlockIo.Media->BlockSize >= ENCRYPTION_DATA_UNIT_SIZE);
-			ASSERT(CsBlockIo.Media->BlockSize % ENCRYPTION_DATA_UNIT_SIZE == 0);
-			context.factorMediaBlock = CsBlockIo.Media->BlockSize / ENCRYPTION_DATA_UNIT_SIZE;
+			context.status.blockIoInstalled = 1;
+			context.status.blockIo2Installed = 1;
 		}
 	} else {
-		CS_DEBUG((D_ERROR, L"Unable to create the child handle: %r\n", error));
+		error = LibInstallProtocolInterfaces(pControllerHandle,
+				&BlockIoProtocol, &CsBlockIo,
+#if 0
+				/* bind Component Name Protocol to be able to identify the device
+				 * by subsequent DriverBindingSupported() calls */
+				&ComponentNameProtocol, &CsComponentName,
+				&ComponentName2Protocol, &CsComponentName2,
+#endif
+				NULL);
+		if (!EFI_ERROR(error)) {
+			context.status.blockIoInstalled = 1;
+			context.status.blockIo2Installed = 0;
+		}
+	}
+	if (EFI_ERROR(error)) {
+		CS_DEBUG((D_ERROR, L"error while installation of provided protocols: %r\n", error));
+	} else {
+		context.factorMediaBlock = CsBlockIo.Media->BlockSize / ENCRYPTION_DATA_UNIT_SIZE;
+
+		CS_DEBUG((D_INFO, L"media block size is 0x%x\n", CsBlockIo.Media->BlockSize));
+		CS_DEBUG((D_INFO, L"removable media/logical partition: %x/%x\n",
+				CsBlockIo.Media->RemovableMedia, CsBlockIo.Media->LogicalPartition));
+		CS_DEBUG((D_INFO, L"first/last LBA 0x%lx/0x%lx\n",
+				CsBlockIo.Media->LowestAlignedLba, CsBlockIo.Media->LastBlock));
+		ASSERT(CsBlockIo.Media->BlockSize >= ENCRYPTION_DATA_UNIT_SIZE);
+		ASSERT(CsBlockIo.Media->BlockSize % ENCRYPTION_DATA_UNIT_SIZE == 0);
 	}
 
 	return error;
@@ -634,6 +638,63 @@ static EFI_STATUS open_consumed_protocols(IN EFI_DRIVER_BINDING_PROTOCOL *This,
 }
 
 /**
+  \brief	create a new child device handle and install BlockIO/BlockIO2 protocol at it.
+  This function takes the given device handle and creates a child handle of it.
+  The device path of the given handle is extended by the string CS_CHILD_PATH_EXTENSION
+  which becomes the device path of the new child handle. The child handle is
+  stored in the system context.
+
+  \param  ControllerHandle		parent controller handle
+
+  \return	the success state of the function
+**/
+static EFI_STATUS add_new_child_handle(IN EFI_HANDLE ControllerHandle) {
+	EFI_STATUS error;
+	EFI_DEVICE_PATH *ParentDevicePath;
+	EFI_DEVICE_PATH *ChildDevicePath;
+	struct _cs_device_path path;
+
+	ASSERT(StrLen(CS_CHILD_PATH_EXTENSION) * sizeof(CHAR16) < sizeof(path.__cs_path));
+
+	ZeroMem (&path, sizeof(path));
+	path.value.Header.Type = MEDIA_DEVICE_PATH;
+	path.value.Header.SubType = MEDIA_FILEPATH_DP;
+	StrCpy(&path.value.PathName[0], CS_CHILD_PATH_EXTENSION);
+	SetDevicePathNodeLength(&path.value.Header, sizeof(path.value) +
+			(sizeof (CHAR16) * StrLen(CS_CHILD_PATH_EXTENSION)));
+
+	/* get ParentDevicePath */
+	error = uefi_call_wrapper(BS->HandleProtocol, 3, ControllerHandle, &DevicePathProtocol,
+			  (VOID **) &ParentDevicePath);
+	if (!EFI_ERROR(error)) {
+
+#if 0	// seems not to work in QEMU environment
+		CS_DEBUG((D_INFO, L"ParentDevicePath: %s\n", DevicePathToStr(ParentDevicePath)));
+#endif
+
+		ChildDevicePath = AppendDevicePathNode (ParentDevicePath, (EFI_DEVICE_PATH *) &path.value);
+		if (ChildDevicePath == NULL) {
+		    error = EFI_OUT_OF_RESOURCES;
+		}
+#if 0	// seems not to work in QEMU environment
+		CS_DEBUG((D_INFO, L"ChildDevicePath: %s\n", DevicePathToStr(ChildDevicePath)));
+#endif
+		if (!EFI_ERROR(error)) {
+			/* Add Device Path Protocol and Block I/O Protocol to a new handle */
+			context.ChildHandle = NULL;
+			install_provided_protocols(&context.ChildHandle);
+			error = LibInstallProtocolInterfaces(&context.ChildHandle,
+					&DevicePathProtocol, ChildDevicePath,
+					NULL);
+		}
+	} else {
+		CS_DEBUG((D_ERROR, L"Unable to create the child handle: %r\n", error));
+	}
+
+	return error;
+}
+
+/**
   \brief	Start this driver on ControllerHandle.
 
   This service is called by the EFI boot service ConnectController(). In order
@@ -668,6 +729,20 @@ EFI_STATUS EFIAPI CsDriverBindingStart (
 		return EFI_DEVICE_ERROR;
 	}
 
+	if (context.status.connected) {
+		CS_DEBUG((D_ERROR, L"CsDriverBindingStart() inconsistent status: already connected\n"));
+		error = EFI_DEVICE_ERROR;
+		goto fail;
+	}
+	context.status.connected = 1;
+
+#if 0
+	/* setup the filter driver functionality: provide the same protocols as consumed on the same controller */
+	error = install_provided_protocols(&ControllerHandle);
+	if (EFI_ERROR(error)) {
+		goto fail;
+	}
+#else
 	/* see Driver Writers Guide, example 31 */
 	error = add_new_child_handle(ControllerHandle);
 	if (EFI_ERROR(error)) {
@@ -679,24 +754,20 @@ EFI_STATUS EFIAPI CsDriverBindingStart (
 	if (EFI_ERROR(error)) {
 		goto fail;
 	}
+#endif
 
 	/* initialize driver data, in case of error: return EFI_OUT_OF_RESOURCES */
 	InitializeListHead(&context.TaskListReadEx);
 	InitializeLock(&context.TaskListReadExLock, TPL_NOTIFY);
 
-	if (context.status.connected) {
-		CS_DEBUG((D_ERROR, L"CsDriverBindingStart() inconsistent status: already connected\n"));
-		error = EFI_DEVICE_ERROR;
-		goto fail;
-	}
-
-	context.status.connected = 1;
 	CS_DEBUG((D_INFO, L"CsDriverBindingStart() succeeded.\n", ControllerHandle));
 
 	return EFI_SUCCESS;
 
 fail:
+	uninstall_provided_protocols(ControllerHandle);
 	close_consumed_protocols(This, ControllerHandle);
+	context.status.connected = 0;
 
 	return EFI_DEVICE_ERROR;
 }
@@ -731,23 +802,11 @@ EFI_STATUS EFIAPI CsDriverBindingStop (
 
 	CS_DEBUG((D_INFO, L"CsDriverBindingStop() started.\n"));
 
+	/* uninstall the provided protocol interfaces */
+	uninstall_provided_protocols(ControllerHandle);
+
 	/* close the opened BlockIO/BlockIO2 protocols */
 	close_consumed_protocols(This, ControllerHandle);
-
-	/* uninstall the provided protocol interfaces */
-	if (context.status.blockIoInstalled) {
-		LibUninstallProtocolInterfaces(gCsDriverBinding.DriverBindingHandle,
-				&BlockIoProtocol, &CsBlockIo,
-				NULL);
-		context.status.blockIoInstalled = 0;
-	}
-	if (context.status.blockIo2Installed) {
-		LibUninstallProtocolInterfaces(gCsDriverBinding.DriverBindingHandle,
-				&BlockIo2Protocol, &CsBlockIo2,
-				NULL);
-		context.status.blockIo2Installed = 0;
-	}
-	// what about the ComponentNameProtocol/ComponentName2Protocol/DevicePathProtocol ?
 
 	/* release buffers of the driver, if applicable, erase sensitive data */
 	csDestroyAllSubtasks();
@@ -843,6 +902,7 @@ EFI_STATUS EFIAPI CsGetControllerName(
 
 	CS_DEBUG((D_INFO, L"CsGetControllerName(0x%x, 0x%x, 0x%x) started.\n", This, Language, ControllerName));
 
+#if 0
 	if (ControllerName) {
 		*ControllerName = ControllerNameString;
 	}
@@ -850,6 +910,9 @@ EFI_STATUS EFIAPI CsGetControllerName(
 		return EFI_INVALID_PARAMETER;
 
 	return EFI_SUCCESS;
+#else
+	return EFI_UNSUPPORTED;
+#endif
 }
 
 
@@ -975,6 +1038,7 @@ EFI_STATUS EFIAPI CsGetControllerName2(
 
 	CS_DEBUG((D_INFO, L"CsGetControllerName2(0x%x, 0x%x, 0x%x) started.\n", This, Language, ControllerName));
 
+#if 0
 	if (ControllerName) {
 		*ControllerName = ControllerNameString;
 	}
@@ -982,6 +1046,9 @@ EFI_STATUS EFIAPI CsGetControllerName2(
 		return EFI_INVALID_PARAMETER;
 
 	return EFI_SUCCESS;
+#else
+	return EFI_UNSUPPORTED;
+#endif
 }
 
 /**
@@ -1425,21 +1492,9 @@ EFI_STATUS EFIAPI CsDriverUninstall(IN EFI_HANDLE ImageHandle) {
 	uefi_call_wrapper(BS->FreePool, 1, Handles);
 
 	/* Now that all controllers are disconnected, we can safely remove our protocols */
-	if (context.status.blockIoInstalled) {
-		LibUninstallProtocolInterfaces(ImageHandle,
-				&BlockIoProtocol, &CsBlockIo,
-				NULL);
-		context.status.blockIoInstalled = 0;
-	}
-	if (context.status.blockIo2Installed) {
-		LibUninstallProtocolInterfaces(ImageHandle,
-				&BlockIo2Protocol, &CsBlockIo2,
-				NULL);
-		context.status.blockIo2Installed = 0;
-	}
 	LibUninstallProtocolInterfaces(ImageHandle,
 			&DriverBindingProtocol, &gCsDriverBinding,
-#if 0
+#if 1
 			&ComponentNameProtocol, &CsComponentName,
 			&ComponentName2Protocol, &CsComponentName2,
 #endif
@@ -1545,13 +1600,13 @@ EFI_STATUS EFIAPI CsDriverInstall(IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE
 	/* Install driver */
 	error = LibInstallProtocolInterfaces(&gCsDriverBinding.DriverBindingHandle,
 			&DriverBindingProtocol, &gCsDriverBinding,
-#if 0
+#if 1
 			&ComponentNameProtocol, &CsComponentName,
 			&ComponentName2Protocol, &CsComponentName2,
 #endif
 			NULL);
 	if (EFI_ERROR(error)) {
-		cs_print_msg(L"Could not install driver (%r)", error);
+		cs_print_msg(L"Could not install driver (%r)\n", error);
 		return error;
 	}
 
@@ -1562,4 +1617,3 @@ EFI_STATUS EFIAPI CsDriverInstall(IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE
 
 	return EFI_SUCCESS;
 }
-
