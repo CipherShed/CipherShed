@@ -1,4 +1,4 @@
 #!/bin/bash -x
 . "$(dirname "$0")/../etc/env.sh"
-cd src
+cd "$(dirname "$0")/../src"
 make -j $(nproc)
