@@ -15,10 +15,10 @@
 #include "cs_debug.h"
 
 #define CS_LOADER_NAME		WIDEN("CipherShed")
-#define CS_LOADER_VERSION	0.3
+#define CS_LOADER_VERSION	0.4
 
 #define CS_DRIVER_NAME		CS_LOADER_NAME
-#define CS_CONTROLLER_NAME	CS_LOADER_NAME
+#define CS_CONTROLLER_NAME	WIDEN("CipherShed Crypto Device")
 #define CS_DRIVER_VERSION	CS_LOADER_VERSION
 #define CS_DRIVER_BIND_VERSION	0x10	/* must be of type UINT32 */
 
@@ -54,6 +54,9 @@
 /* the following GUID is needed to access the EFI variable, see SetVariable/GetVariable */
 #define CS_HANDOVER_VARIABLE_GUID     \
     { 0x16ca79bf, 0x55b8, 0x478a, {0xb8, 0xf1, 0xfe, 0x39, 0x3b, 0xdd, 0xa1, 0x06} }
+/* the following GUID is needed identify whether the CS driver is already connected to a controller */
+#define CS_CALLER_ID_GUID     \
+    { 0xa21c7a17, 0xa138, 0x40cf, {0x86, 0xb7, 0x24, 0xbc, 0x19, 0xb8, 0x9b, 0x5e} }
 
 /* taken (and modified) from TC BootDiskIo.h: struct Partition
  * -> this might be adjusted since in TC it's based on MBR based partitions */
@@ -141,5 +144,6 @@ void cs_print_msg(IN CHAR16 *format, ...);
 void cs_exception(IN CHAR16 *format, ...);
 void cs_sleep(IN UINTN n);
 UINT32 __div64_32(UINT64 *n, UINT32 base);
+BOOL is_cs_child_device(IN EFI_HANDLE ParentHandle, IN EFI_HANDLE ControllerHandle);
 
 #endif /* _CS_COMMON_H_ */

@@ -1027,6 +1027,7 @@ EFI_STATUS user_dialog(IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE *SystemTab
 		default:
 			break;
 		}
+		CS_DEBUG_SLEEP(3);
 	}
 
 	return error;

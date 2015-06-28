@@ -11,6 +11,9 @@
 
 #include "cs_common.h"
 
+/* this is a self generated GUID to identify that the CS driver is already connected */
+EFI_GUID CsCallerIdGuid = CS_CALLER_ID_GUID;
+
 /*
  * \brief	write a line to STDOUT, then sleeps for 3 seconds
  *
@@ -91,4 +94,25 @@ UINT32 __div64_32(UINT64 *n, UINT32 base)
 
 	*n = res;
 	return rem;
+}
+
+/*
+ * \brief	check whether the given ControllerHandle is the child device handle
+ * 			as produced by the CipherShed driver
+ *
+ */
+BOOL is_cs_child_device(IN EFI_HANDLE ParentHandle, IN EFI_HANDLE ControllerHandle) {
+	EFI_STATUS error;
+	void *privateData;	/* dummy pointer, data not used */
+
+	/* now double check if the child is really the CipherShed device... */
+	error = uefi_call_wrapper(BS->OpenProtocol, 6, ControllerHandle, &CsCallerIdGuid,
+			(VOID **) &privateData, ParentHandle, NULL, EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL);
+	uefi_call_wrapper(BS->CloseProtocol, 4, ControllerHandle, &CsCallerIdGuid, ParentHandle, ControllerHandle);
+
+	if (EFI_ERROR(error)) {
+		return FALSE;
+	} else {
+		return TRUE;
+	}
 }
