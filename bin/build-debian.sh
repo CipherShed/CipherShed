@@ -1,6 +1,6 @@
 #!/bin/bash -x
 
-ODIR="$(PWD)"
+ODIR="$(pwd)"
 cd "$(dirname "$0")/../"
 BDIR="$(pwd)"
 
