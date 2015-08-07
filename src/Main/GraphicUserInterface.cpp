@@ -1388,19 +1388,19 @@ namespace VeraCrypt
 			File backupFile;
 			backupFile.Open (*files.front(), File::OpenRead);
 
-			//uint64 headerSize;
+			uint64 headerSize;
 			bool legacyBackup;
 
 			// Determine the format of the backup file
 			switch (backupFile.Length())
 			{
 			case TC_VOLUME_HEADER_GROUP_SIZE:
-				//headerSize = TC_VOLUME_HEADER_SIZE;
+				headerSize = TC_VOLUME_HEADER_SIZE;
 				legacyBackup = false;
 				break;
 
 			case TC_VOLUME_HEADER_SIZE_LEGACY * 2:
-				//headerSize = TC_VOLUME_HEADER_SIZE_LEGACY;
+				headerSize = TC_VOLUME_HEADER_SIZE_LEGACY;
 				legacyBackup = true;
 				break;
 
