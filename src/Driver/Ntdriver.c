@@ -2509,6 +2509,21 @@ NTSTATUS MountManagerUnmount (int nDosDriveNo)
 	return ntStatus;
 }
 
+PACCESS_TOKEN getToken(SECURITY_SUBJECT_CONTEXT* psubContext)
+{
+	if (!psubContext) 
+	{
+		return NULL;
+	}
+	else if (psubContext->ClientToken && psubContext->ImpersonationLevel >= SecurityImpersonation)
+	{
+		return psubContext->ClientToken;
+	}
+	else
+	{
+		return psubContext->PrimaryToken;
+	}
+}
 
 NTSTATUS MountDevice (PDEVICE_OBJECT DeviceObject, MOUNT_STRUCT *mount)
 {
@@ -2547,7 +2562,8 @@ NTSTATUS MountDevice (PDEVICE_OBJECT DeviceObject, MOUNT_STRUCT *mount)
 		PACCESS_TOKEN accessToken;
 
 		SeCaptureSubjectContext (&subContext);
-		accessToken = SeQuerySubjectContextToken (&subContext);
+		SeLockSubjectContext(&subContext);
+		accessToken=getToken(&subContext);
 
 		if (!accessToken)
 		{
@@ -2572,6 +2588,7 @@ NTSTATUS MountDevice (PDEVICE_OBJECT DeviceObject, MOUNT_STRUCT *mount)
 			}
 		}
 
+		SeUnlockSubjectContext(&subContext);
 		SeReleaseSubjectContext (&subContext);
 
 		if (NT_SUCCESS (ntStatus))
@@ -3234,7 +3251,8 @@ BOOL IsVolumeAccessibleByCurrentUser (PEXTENSION volumeDeviceExtension)
 	}
 
 	SeCaptureSubjectContext (&subContext);
-	accessToken = SeQuerySubjectContextToken (&subContext);
+	SeLockSubjectContext(&subContext);
+	accessToken = getToken(&subContext);
 
 	if (!accessToken)
 		goto ret;
@@ -3252,6 +3270,7 @@ BOOL IsVolumeAccessibleByCurrentUser (PEXTENSION volumeDeviceExtension)
 	ExFreePool (tokenUser);		// Documented in newer versions of WDK
 
 ret:
+	SeUnlockSubjectContext(&subContext);
 	SeReleaseSubjectContext (&subContext);
 	return result;
 }
