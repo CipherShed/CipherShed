@@ -1858,6 +1858,7 @@ void TCGetDosNameFromNumber (LPWSTR dosname, int nDriveNo)
 	int j = nDriveNo + (WCHAR) 'A';
 
 	tmp[0] = (short) j;
+	//This is a risk point from CVE-2015-7358, there are global and per user mounts, need more logic here.
 	wcscpy (dosname, (LPWSTR) DOS_MOUNT_PREFIX);
 	wcscat (dosname, tmp);
 }
@@ -2896,25 +2897,37 @@ BOOL UserCanAccessDriveDevice ()
 	return IsAccessibleByUser (&name, FALSE);
 }
 
+/**
+Cehck if a drive leter is available. 
 
+CVE-2015-7358: Need to add a parameter to this function global/private drives.
+*/
 BOOL IsDriveLetterAvailable (int nDosDriveNo)
 {
 	OBJECT_ATTRIBUTES objectAttributes;
 	UNICODE_STRING objectName;
 	WCHAR link[128];
 	HANDLE handle;
+	NTSTATUS ntStatus;
 
 	TCGetDosNameFromNumber (link, nDosDriveNo);
 	RtlInitUnicodeString (&objectName, link);
 	InitializeObjectAttributes (&objectAttributes, &objectName, OBJ_KERNEL_HANDLE | OBJ_CASE_INSENSITIVE, NULL, NULL);
 
-	if (NT_SUCCESS (ZwOpenSymbolicLinkObject (&handle, GENERIC_READ, &objectAttributes)))
+	ntStatus=ZwOpenSymbolicLinkObject (&handle, GENERIC_READ, &objectAttributes);
+	if (NT_SUCCESS (ntStatus))
 	{
 		ZwClose (handle);
 		return FALSE;
 	}
-
-	return TRUE;
+	else if (ntStatus == STATUS_OBJECT_NAME_NOT_FOUND)
+	{
+		return TRUE;
+	}
+	else
+	{
+		return FALSE;
+	}
 }
 
 
