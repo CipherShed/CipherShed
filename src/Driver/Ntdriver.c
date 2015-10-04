@@ -2509,7 +2509,12 @@ NTSTATUS MountManagerUnmount (int nDosDriveNo)
 
 	return ntStatus;
 }
+/**
+This properly obtains the token from the security subject context. 
 
+@see https://code.google.com/p/google-security-research/issues/detail?id=537
+
+*/
 PACCESS_TOKEN getToken(SECURITY_SUBJECT_CONTEXT* psubContext)
 {
 	if (!psubContext) 
@@ -2901,6 +2906,8 @@ BOOL UserCanAccessDriveDevice ()
 Cehck if a drive leter is available. 
 
 CVE-2015-7358: Need to add a parameter to this function global/private drives.
+
+@see https://code.google.com/p/google-security-research/issues/detail?id=538
 */
 BOOL IsDriveLetterAvailable (int nDosDriveNo)
 {
