@@ -13,11 +13,11 @@ GCOVR = ../../var/opt/gcovr/scripts/gcovr
 
 SRC_c = \
 ../Common/Crc.c \
+../Common/dialog/cursor.c \
 ../Common/Endian.c \
 ../Common/GfMul.c \
 ../Common/Password.c \
 ../Common/Pkcs5.c \
-../Common/dialog/cursor.c \
 ../Common/strcpys.c \
 ../Common/util/unicode/ConvertUTF.c \
 ../Common/util/unicode/strcmpw.c \
@@ -32,6 +32,8 @@ SRC_c = \
 ../Crypto/Sha2.c \
 ../Crypto/Twofish.c \
 ../Crypto/Whirlpool.c \
+../Format/FormatCom_i.c \
+../Mount/MainCom_i.c \
 faux/windows/CreateWindowEx.c \
 faux/windows/DefWindowProc.c \
 faux/windows/DestroyWindow.c \
@@ -77,6 +79,7 @@ SRC_cpp = \
 ../Core/HostDevice.cpp \
 ../Core/MountOptions.cpp \
 ../Core/RandomNumberGenerator.cpp \
+../Core/Unix/CoreServiceResponse.cpp \
 ../Main/System.cpp \
 ../Platform/Buffer.cpp \
 ../Platform/Exception.cpp \
@@ -87,6 +90,7 @@ SRC_cpp = \
 ../Platform/Serializer.cpp \
 ../Platform/SerializerFactory.cpp \
 ../Platform/StringConverter.cpp \
+../Platform/TextReader.cpp \
 ../Platform/Unix/Directory.cpp \
 ../Platform/Unix/File.cpp \
 ../Platform/Unix/FilesystemPath.cpp \
