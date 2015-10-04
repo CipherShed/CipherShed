@@ -14,6 +14,8 @@
 #include "../../Platform/Unix/Pipe.h"
 #include "../Core.h"
 
+#include <memory>
+
 namespace CipherShed
 {
 	// This service facilitates process forking and elevation of user privileges
@@ -35,17 +37,17 @@ namespace CipherShed
 		static void Stop ();
 
 	protected:
-		template <class T> static auto_ptr <T> GetResponse ();
-		template <class T> static auto_ptr <T> SendRequest (CoreServiceRequest &request);
+		template <class T> static std::auto_ptr <T> GetResponse ();
+		template <class T> static std::auto_ptr <T> SendRequest (CoreServiceRequest &request);
 		static void StartElevated (const CoreServiceRequest &request);
 
 		static shared_ptr <GetStringFunctor> AdminPasswordCallback;
 
-		static auto_ptr <Pipe> AdminInputPipe;
-		static auto_ptr <Pipe> AdminOutputPipe;
+		static std::auto_ptr <Pipe> AdminInputPipe;
+		static std::auto_ptr <Pipe> AdminOutputPipe;
 
-		static auto_ptr <Pipe> InputPipe;
-		static auto_ptr <Pipe> OutputPipe;
+		static std::auto_ptr <Pipe> InputPipe;
+		static std::auto_ptr <Pipe> OutputPipe;
 		static shared_ptr <Stream> ServiceInputStream;
 		static shared_ptr <Stream> ServiceOutputStream;
 

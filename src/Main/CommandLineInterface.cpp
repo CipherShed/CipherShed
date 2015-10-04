@@ -581,5 +581,5 @@ namespace CipherShed
 		return filteredVolumes;
 	}
 
-	auto_ptr <CommandLineInterface> CmdLine;
+	std::auto_ptr <CommandLineInterface> CmdLine;
 }

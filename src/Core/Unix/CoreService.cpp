@@ -20,12 +20,14 @@
 #include "CoreServiceRequest.h"
 #include "CoreServiceResponse.h"
 
+#include <memory>
+
 namespace CipherShed
 {
 	template <class T>
-	auto_ptr <T> CoreService::GetResponse ()
+	std::auto_ptr <T> CoreService::GetResponse ()
 	{
-		auto_ptr <Serializable> deserializedObject (Serializable::DeserializeNew (ServiceOutputStream));
+		std::auto_ptr <Serializable> deserializedObject (Serializable::DeserializeNew (ServiceOutputStream));
 		
 		Exception *deserializedException = dynamic_cast <Exception*> (deserializedObject.get());
 		if (deserializedException)
@@ -34,7 +36,7 @@ namespace CipherShed
 		if (dynamic_cast <T *> (deserializedObject.get()) == nullptr)
 			throw ParameterIncorrect (SRC_POS);
 
-		return auto_ptr <T> (dynamic_cast <T *> (deserializedObject.release()));
+		return std::auto_ptr <T> (dynamic_cast <T *> (deserializedObject.release()));
 	}
 
 	void CoreService::ProcessElevatedRequests ()
@@ -273,7 +275,7 @@ namespace CipherShed
 	}
 
 	template <class T>
-	auto_ptr <T> CoreService::SendRequest (CoreServiceRequest &request)
+	std::auto_ptr <T> CoreService::SendRequest (CoreServiceRequest &request)
 	{
 		static Mutex mutex;
 		ScopeLock lock (mutex);
@@ -289,7 +291,7 @@ namespace CipherShed
 				try
 				{
 					request.Serialize (ServiceInputStream);
-					auto_ptr <T> response (GetResponse <T>());
+					std::auto_ptr <T> response (GetResponse <T>());
 					ElevatedServiceAvailable = true;
 					return response;
 				}
@@ -338,8 +340,8 @@ namespace CipherShed
 
 	void CoreService::StartElevated (const CoreServiceRequest &request)
 	{
-		auto_ptr <Pipe> inPipe (new Pipe());
-		auto_ptr <Pipe> outPipe (new Pipe());
+		std::auto_ptr <Pipe> inPipe (new Pipe());
+		std::auto_ptr <Pipe> outPipe (new Pipe());
 		Pipe errPipe;
 
 		int forkedPid = fork();
@@ -479,7 +481,7 @@ namespace CipherShed
 
 		if (!errOutput.empty())
 		{
-			auto_ptr <Serializable> deserializedObject;
+			std::auto_ptr <Serializable> deserializedObject;
 			Exception *deserializedException = nullptr;
 
 			try
@@ -531,11 +533,11 @@ namespace CipherShed
 	
 	shared_ptr <GetStringFunctor> CoreService::AdminPasswordCallback;
 
-	auto_ptr <Pipe> CoreService::AdminInputPipe;
-	auto_ptr <Pipe> CoreService::AdminOutputPipe;
+	std::auto_ptr <Pipe> CoreService::AdminInputPipe;
+	std::auto_ptr <Pipe> CoreService::AdminOutputPipe;
 
-	auto_ptr <Pipe> CoreService::InputPipe;
-	auto_ptr <Pipe> CoreService::OutputPipe;
+	std::auto_ptr <Pipe> CoreService::InputPipe;
+	std::auto_ptr <Pipe> CoreService::OutputPipe;
 	shared_ptr <Stream> CoreService::ServiceInputStream;
 	shared_ptr <Stream> CoreService::ServiceOutputStream;
 

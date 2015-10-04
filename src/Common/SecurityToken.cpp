@@ -35,6 +35,8 @@ using namespace std;
 #include <dlfcn.h>
 #endif
 
+#include <memory>
+
 using namespace std;
 
 namespace CipherShed
@@ -513,7 +515,7 @@ namespace CipherShed
 		}
 	}
 
-	void SecurityToken::InitLibrary (const string &pkcs11LibraryPath, auto_ptr <GetPinFunctor> pinCallback, auto_ptr <SendExceptionFunctor> warningCallback)
+	void SecurityToken::InitLibrary (const string &pkcs11LibraryPath, std::auto_ptr <GetPinFunctor> pinCallback, std::auto_ptr <SendExceptionFunctor> warningCallback)
 	{
 		if (Initialized)
 			CloseLibrary();
@@ -723,8 +725,8 @@ namespace CipherShed
 	}
 #endif // TC_HEADER_Common_Exception
 
-	auto_ptr <GetPinFunctor> SecurityToken::PinCallback;
-	auto_ptr <SendExceptionFunctor> SecurityToken::WarningCallback;
+	std::auto_ptr <GetPinFunctor> SecurityToken::PinCallback;
+	std::auto_ptr <SendExceptionFunctor> SecurityToken::WarningCallback;
 
 	bool SecurityToken::Initialized;
 	CK_FUNCTION_LIST_PTR SecurityToken::Pkcs11Functions;

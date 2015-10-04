@@ -32,6 +32,8 @@ using namespace std;
 #include "Forms/RandomPoolEnrichmentDialog.h"
 #include "Forms/SecurityTokenKeyfilesDialog.h"
 
+#include <memory>
+
 namespace CipherShed
 {
 	GraphicUserInterface::GraphicUserInterface () :
@@ -285,7 +287,7 @@ namespace CipherShed
 
 	void GraphicUserInterface::BeginInteractiveBusyState (wxWindow *window)
 	{
-		static auto_ptr <wxCursor> arrowWaitCursor;
+		static std::auto_ptr <wxCursor> arrowWaitCursor;
 
 		if (arrowWaitCursor.get() == nullptr)
 			arrowWaitCursor.reset (new wxCursor (wxCURSOR_ARROWWAIT));
@@ -350,7 +352,7 @@ namespace CipherShed
 	
 	void GraphicUserInterface::EndInteractiveBusyState (wxWindow *window) const
 	{
-		static auto_ptr <wxCursor> arrowCursor;
+		static std::auto_ptr <wxCursor> arrowCursor;
 
 		if (arrowCursor.get() == nullptr)
 			arrowCursor.reset (new wxCursor (wxCURSOR_ARROW));
@@ -536,7 +538,7 @@ namespace CipherShed
 
 		try
 		{
-			SecurityToken::InitLibrary (Preferences.SecurityTokenModule, auto_ptr <GetPinFunctor> (new PinRequestHandler), auto_ptr <SendExceptionFunctor> (new WarningHandler));
+			SecurityToken::InitLibrary (Preferences.SecurityTokenModule, std::auto_ptr <GetPinFunctor> (new PinRequestHandler), std::auto_ptr <SendExceptionFunctor> (new WarningHandler));
 		}
 		catch (Exception &e)
 		{
@@ -824,8 +826,8 @@ namespace CipherShed
 					wxConnectionBase *OnMakeConnection () { return new Connection; }
 				};
 
-				auto_ptr <wxDDEClient> client (new Client);
-				auto_ptr <wxConnectionBase> connection (client->MakeConnection (L"localhost", serverName, L"raise"));
+				std::auto_ptr <wxDDEClient> client (new Client);
+				std::auto_ptr <wxConnectionBase> connection (client->MakeConnection (L"localhost", serverName, L"raise"));
 
 				if (connection.get() && connection->Execute (nullptr))
 				{

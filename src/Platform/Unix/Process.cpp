@@ -21,6 +21,8 @@
 #include "../Unix/Pipe.h"
 #include "../Unix/Poller.h"
 
+#include <memory>
+
 namespace CipherShed
 {
 	string Process::Execute (const string &processName, const list <string> &arguments, int timeOut, ProcessExecFunctor *execFunctor, const Buffer *inputData)
@@ -166,7 +168,7 @@ namespace CipherShed
 
 		if (!exOutput.empty())
 		{
-			auto_ptr <Serializable> deserializedObject;
+			std::auto_ptr <Serializable> deserializedObject;
 			Exception *deserializedException = nullptr;
 
 			try

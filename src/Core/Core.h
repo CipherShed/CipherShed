@@ -11,10 +11,12 @@
 
 #include "CoreBase.h"
 
+#include <memory>
+
 namespace CipherShed
 {
-	extern auto_ptr <CoreBase> Core;
-	extern auto_ptr <CoreBase> CoreDirect;
+	extern std::auto_ptr <CoreBase> Core;
+	extern std::auto_ptr <CoreBase> CoreDirect;
 }
 
 #endif // TC_HEADER_Core_Core

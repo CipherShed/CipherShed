@@ -17,6 +17,8 @@
 #include "CoreSolaris.h"
 #include "../CoreServiceProxy.h"
 
+#include <memory>
+
 namespace CipherShed
 {
 	CoreSolaris::CoreSolaris ()
@@ -171,6 +173,6 @@ namespace CipherShed
 		}
 	}
 
-	auto_ptr <CoreBase> Core (new CoreServiceProxy <CoreSolaris>);
-	auto_ptr <CoreBase> CoreDirect (new CoreSolaris);
+	std::auto_ptr <CoreBase> Core (new CoreServiceProxy <CoreSolaris>);
+	std::auto_ptr <CoreBase> CoreDirect (new CoreSolaris);
 }

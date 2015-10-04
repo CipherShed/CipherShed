@@ -67,6 +67,8 @@ using namespace std;
 
 #include "util/process.h"
 
+#include <memory>
+
 using namespace CipherShed;
 
 LONG DriverVersion;
@@ -8379,7 +8381,7 @@ BOOL InitSecurityTokenLibrary ()
 
 	try
 	{
-		SecurityToken::InitLibrary (SecurityTokenLibraryPath, auto_ptr <GetPinFunctor> (new PinRequestHandler), auto_ptr <SendExceptionFunctor> (new WarningHandler));
+		SecurityToken::InitLibrary (SecurityTokenLibraryPath, std::auto_ptr <GetPinFunctor> (new PinRequestHandler), std::auto_ptr <SendExceptionFunctor> (new WarningHandler));
 	}
 	catch (Exception &e)
 	{

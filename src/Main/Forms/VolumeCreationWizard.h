@@ -12,6 +12,8 @@
 #include "WizardFrame.h"
 #include "../../Core/VolumeCreator.h"
 
+#include <memory>
+
 namespace CipherShed
 {
 	class VolumeCreationWizard : public WizardFrame
@@ -54,12 +56,12 @@ namespace CipherShed
 		volatile bool AbortConfirmationPending;
 		volatile bool AbortRequested;
 		volatile bool CreationAborted;
-		auto_ptr <VolumeCreator> Creator;
+		std::auto_ptr <VolumeCreator> Creator;
 		bool CrossPlatformSupport;
 		static bool DeviceWarningConfirmed;
 		bool DisplayKeyInfo;
-		auto_ptr <wxTimer> ProgressTimer;
-		auto_ptr <wxTimer> RandomPoolUpdateTimer;
+		std::auto_ptr <wxTimer> ProgressTimer;
+		std::auto_ptr <wxTimer> RandomPoolUpdateTimer;
 		shared_ptr <KeyfileList> Keyfiles;
 		bool LargeFilesSupport;
 		uint64 MaxHiddenVolumeSize;
