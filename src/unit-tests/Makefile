@@ -23,6 +23,7 @@ SRC_c = \
 ../Common/util/unicode/strcmpw.c \
 ../Crypto/Aescrypt.c \
 ../Crypto/Aeskey.c \
+../Crypto/Aestab.c \
 ../Crypto/Blowfish.c \
 ../Crypto/Cast.c \
 ../Crypto/Des.c \
@@ -32,8 +33,6 @@ SRC_c = \
 ../Crypto/Sha2.c \
 ../Crypto/Twofish.c \
 ../Crypto/Whirlpool.c \
-../Format/FormatCom_i.c \
-../Mount/MainCom_i.c \
 faux/windows/CreateWindowEx.c \
 faux/windows/DefWindowProc.c \
 faux/windows/DestroyWindow.c \

@@ -50,12 +50,14 @@ void RandStop (BOOL freePool){}
 void crypto_close (PCRYPTO_INFO cryptoInfo){}
 
 //Aescrypt.c
+/*
 uint_32t t_fn[4][256];
 uint_32t t_fl[4][256];
 uint_32t t_in[4][256];
 uint_32t t_il[4][256];
 uint_32t t_im[4][256];
 uint_32t t_rc[(5 * (16 / 4 - 2))];
+*/
 
 //csstrinutil.cpp
 void ToUNICODE (char *lpszText){}
