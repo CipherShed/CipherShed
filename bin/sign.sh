@@ -11,6 +11,11 @@ clean=0;
 . "$DIR"/etc/sign.conf
 [ -e "$DIR"/etc/local/sign.conf ] && . "$DIR"/etc/local/sign.conf
 
+iCRT=CRT$mode
+eval mCRT=\$$iCRT
+
+[ "x${mCRT}" != "x" ] && CRT=$mCRT
+
 for d in "$DIR"/src/{Release,Debug}/Setup\ Files
 do
 	# quick test to see if there is anything to do
