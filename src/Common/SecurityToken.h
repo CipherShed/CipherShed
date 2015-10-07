@@ -10,7 +10,7 @@
 #define TC_HEADER_Common_SecurityToken
 
 #include "../Platform/PlatformBase.h"
-#if defined (TC_WINDOWS) && !defined (TC_PROTOTYPE)
+#if defined (TC_WINDOWS)
 #	include "Exception.h"
 #else
 #	include "../Platform/Exception.h"

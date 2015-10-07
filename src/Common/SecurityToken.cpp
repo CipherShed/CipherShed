@@ -9,7 +9,7 @@
 #include "../Platform/Finally.h"
 #include "../Platform/ForEach.h"
 
-#if !defined (TC_WINDOWS) || defined (TC_PROTOTYPE)
+#if !defined (TC_WINDOWS)
 #	include "../Platform/SerializerFactory.h"
 using namespace std;
 #	include "../Platform/StringConverter.h"
@@ -236,7 +236,7 @@ namespace CipherShed
 
 				keyfile.IdUtf8 = (char *) &label.front();
 
-#if defined (TC_WINDOWS) && !defined (TC_PROTOTYPE)
+#if defined (TC_WINDOWS)
 				keyfile.Id = Utf8StringToWide ((const char *) &label.front());
 #else
 				keyfile.Id = StringConverter::ToWide ((const char *) &label.front());
@@ -309,7 +309,7 @@ namespace CipherShed
 		else
 			token.LabelUtf8 = token.LabelUtf8.substr (0, lastSpace + 1);
 
-#if defined (TC_WINDOWS) && !defined (TC_PROTOTYPE)
+#if defined (TC_WINDOWS)
 		token.Label = Utf8StringToWide (token.LabelUtf8);
 #else
 		token.Label = StringConverter::ToWide (token.LabelUtf8);

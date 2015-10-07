@@ -90,11 +90,7 @@ namespace CipherShed
 
 	protected:
 		wxString GetDefaultKeyfilesFileName () const { return L"Default Keyfiles.xml"; }
-#ifdef TC_PROTOTYPE
-		wxString GetPreferencesFileName () const { return L"Configuration_Debug.xml"; }
-#else
 		wxString GetPreferencesFileName () const { return L"Configuration.xml"; }
-#endif
 		void SetValue (const wxString &cfgText, bool &cfgVar);
 		void SetValue (const wxString &cfgText, int &cfgVar);
 		void SetValue (const wxString &cfgText, uint64 &cfgVar);
