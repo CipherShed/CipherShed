@@ -12,7 +12,7 @@
 #define GSocket GlibGSocket
 #include <libappindicator/app-indicator.h>
 #undef GSocket
- 
+
 #include "Forms.h"
 #include "ChangePasswordDialog.h"
 

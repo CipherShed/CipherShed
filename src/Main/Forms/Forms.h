@@ -554,6 +554,7 @@ namespace TrueCrypt
 			wxPanel* SystemIntegrationPage;
 			wxStaticBoxSizer* LogOnSizer;
 			wxButton* ConfigureAutostartButton;
+			wxCheckBox* BackgroundTaskMenuDismountItemsEnabledCheckBox;
 			wxCheckBox* StartOnLogonCheckBox;
 			wxCheckBox* MountFavoritesOnLogonCheckBox;
 			wxCheckBox* MountDevicesOnLogonCheckBox;

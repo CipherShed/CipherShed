@@ -59,6 +59,8 @@ ifndef DISABLE_PRECOMPILED_HEADERS
 PCH := SystemPrecompiled.h.gch
 endif
 
+LIBS += $(shell pkg-config --libs appindicator-0.1)
+
 RESOURCES :=
 RESOURCES += ../License.txt.h
 RESOURCES += ../Common/Language.xml.h
@@ -105,7 +107,7 @@ TC_VERSION = $(shell grep VERSION_STRING ../Common/Tcdefs.h | head -n 1 | cut -d
 
 $(APPNAME): $(LIBS) $(OBJS)
 	@echo Linking $@
-	$(CXX) -o $(APPNAME) $(LFLAGS) $(OBJS) $(LIBS) $(FUSE_LIBS) $(WX_LIBS) -ldl $(shell pkg-config --libs appindicator-0.1)
+	$(CXX) -o $(APPNAME) $(LFLAGS) $(OBJS) $(LIBS) $(FUSE_LIBS) $(WX_LIBS)
 
 ifeq "$(TC_BUILD_CONFIG)" "Release"
 ifndef NOSTRIP

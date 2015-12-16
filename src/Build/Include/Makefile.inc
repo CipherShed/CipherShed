@@ -10,7 +10,7 @@ $(NAME): $(NAME).a
 
 clean:
 	@echo Cleaning $(NAME)
-	rm -f $(APPNAME) $(NAME).a $(OBJS) $(OBJS:.o=.d) *.gch $(RESOURCES) SystemPrecompiled.d
+	rm -f $(APPNAME) $(NAME).a $(OBJS) $(OBJS:.o=.d) *.gch
 
 %.o: %.c
 	@echo Compiling $(<F)

@@ -35,11 +35,13 @@ export CXX ?= g++
 export AS := nasm
 export RANLIB ?= ranlib
 
-export CFLAGS := -Wall -Wno-sequence-point
-export CXXFLAGS := -Wall -Wno-unused-parameter -Wno-narrowing
+export CFLAGS := -Wall
+export CXXFLAGS := -Wall -Wno-unused-parameter
 C_CXX_FLAGS := -MMD -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_LARGE_FILES -I$(BASE_DIR) -I$(BASE_DIR)/Crypto
 export ASFLAGS := -Ox -D __GNUC__
 export LFLAGS :=
+
+C_CXX_FLAGS += $(shell pkg-config --cflags appindicator-0.1)
 
 export PKG_CONFIG_PATH ?= /usr/local/lib/pkgconfig
 
@@ -50,9 +52,6 @@ export WXCONFIG_CFLAGS :=
 export WXCONFIG_CXXFLAGS :=
 WX_ROOT ?= ..
 
-# export PKCS11_INC := $(BASE_DIR)/pkcs11
-
-C_CXX_FLAGS += $(shell pkg-config --cflags appindicator-0.1)
 
 export TC_BUILD_CONFIG := Release
 
