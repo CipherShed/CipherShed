@@ -928,7 +928,18 @@ NTSTATUS ProcessMainDeviceControlIrp (PDEVICE_OBJECT DeviceObject, PEXTENSION Ex
 
 							if (opentest->bDetectTCBootLoader && IoStatus.Information >= TC_SECTOR_SIZE_BIOS)
 							{
+								// Search for the string "CipherShed"
+								for (i = 0; i < TC_SECTOR_SIZE_BIOS - strlen (TC_APP_NAME); ++i)
+								{
+									if (memcmp (readBuffer + i, TC_APP_NAME, strlen (TC_APP_NAME)) == 0)
+									{
+										opentest->TCBootLoaderDetected = TRUE;
+										break;
+									}
+								}
+
 								// Search for the string "TrueCrypt"
+								if (!(opentest->TCBootLoaderDetected))
 								for (i = 0; i < TC_SECTOR_SIZE_BIOS - strlen (TC_APP_NAME_LEGACY); ++i)
 								{
 									if (memcmp (readBuffer + i, TC_APP_NAME_LEGACY, strlen (TC_APP_NAME_LEGACY)) == 0)
@@ -1035,7 +1046,25 @@ NTSTATUS ProcessMainDeviceControlIrp (PDEVICE_OBJECT DeviceObject, PEXTENSION Ex
 					request->UserConfiguration = 0;
 					request->CustomUserMessage[0] = 0;
 
+					// Search for the string "CipherShed"
+					for (i = 0; i < sizeof (readBuffer) - strlen (TC_APP_NAME); ++i)
+					{
+						if (memcmp (readBuffer + i, TC_APP_NAME, strlen (TC_APP_NAME)) == 0)
+						{
+							request->BootLoaderVersion = BE16 (*(uint16 *) (readBuffer + TC_BOOT_SECTOR_VERSION_OFFSET));
+							request->Configuration = readBuffer[TC_BOOT_SECTOR_CONFIG_OFFSET];
+
+							if (request->BootLoaderVersion != 0 && request->BootLoaderVersion <= VERSION_NUM)
+							{
+								request->UserConfiguration = readBuffer[TC_BOOT_SECTOR_USER_CONFIG_OFFSET];
+								memcpy (request->CustomUserMessage, readBuffer + TC_BOOT_SECTOR_USER_MESSAGE_OFFSET, TC_BOOT_SECTOR_USER_MESSAGE_MAX_LENGTH);
+							}
+							break;
+						}
+					}
+
 					// Search for the string "TrueCrypt"
+					if (!request->BootLoaderVersion) //CipherShed not found
 					for (i = 0; i < sizeof (readBuffer) - strlen (TC_APP_NAME_LEGACY); ++i)
 					{
 						if (memcmp (readBuffer + i, TC_APP_NAME_LEGACY, strlen (TC_APP_NAME_LEGACY)) == 0)
