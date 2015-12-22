@@ -1157,8 +1157,10 @@ namespace CipherShed
 		device.SeekAt (0);
 		device.Read (mbr, sizeof (mbr));
 
-		if (!BufferContainsString (mbr, sizeof (mbr), TC_APP_NAME_LEGACY)
-			|| BE16 (*(uint16 *) (mbr + TC_BOOT_SECTOR_VERSION_OFFSET)) != VERSION_NUM)
+
+		int found=BufferContainsString(mbr, sizeof (mbr), TC_APP_NAME_LEGACY) || BufferContainsString(mbr, sizeof (mbr), TC_APP_NAME);
+		int versionMismatch=BE16 (*(uint16 *) (mbr + TC_BOOT_SECTOR_VERSION_OFFSET)) != VERSION_NUM;
+		if ( !found || versionMismatch)
 		{
 			return;
 		}
@@ -1329,7 +1331,8 @@ namespace CipherShed
 		device.SeekAt (0);
 		device.Read (mbr, sizeof (mbr));
 
-		if (preserveUserConfig && BufferContainsString (mbr, sizeof (mbr), TC_APP_NAME_LEGACY))
+		int found=BufferContainsString (mbr, sizeof (mbr), TC_APP_NAME_LEGACY) || BufferContainsString (mbr, sizeof (mbr), TC_APP_NAME);
+		if (preserveUserConfig && found)
 		{
 			uint16 version = BE16 (*(uint16 *) (mbr + TC_BOOT_SECTOR_VERSION_OFFSET));
 			if (version != 0)
