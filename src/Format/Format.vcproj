@@ -787,7 +787,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\Resources\Texts\License.rtf"
+					RelativePath="..\License.txt"
 					>
 				</File>
 				<File
