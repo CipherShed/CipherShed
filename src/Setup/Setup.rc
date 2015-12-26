@@ -105,7 +105,8 @@ BEGIN
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,113,232,11
     CONTROL         "Add CipherShed to &Start menu",IDC_PROG_GROUP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,89,168,11
     CONTROL         "Create System &Restore point",IDC_SYSTEM_RESTORE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,125,194,11
-    CONTROL         "Add CipherShed icon to &desktop",IDC_DESKTOP_ICON,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,101,168,11
+    CONTROL         "Add CipherShed icon to &desktop",IDC_DESKTOP_ICON,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,101,168,11
     LTEXT           "Please select or type the location where you want to install the CipherShed program files. If the specified folder does not exist, it will be automatically created.",IDT_INSTALL_DESTINATION,11,14,319,25
 END
 
@@ -182,7 +183,6 @@ STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
 EXSTYLE WS_EX_TRANSPARENT
 FONT 8, "MS Shell Dlg", 0, 0, 0x0
 BEGIN
-    PUSHBUTTON      "Donate now...",IDC_DONATE,124,94,96,14
 END
 
 

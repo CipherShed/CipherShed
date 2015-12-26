@@ -13,7 +13,6 @@
     <control lang="en" key="IDC_ALL_USERS">Install &amp;for all users</control>
     <control lang="en" key="IDC_BROWSE">Bro&amp;wse...</control>
     <control lang="en" key="IDC_DESKTOP_ICON">Add CipherShed icon to &amp;desktop</control>
-    <control lang="en" key="IDC_DONATE">Donate now...</control>
     <control lang="en" key="IDC_FILE_TYPE">Associate the .tc file &amp;extension with CipherShed</control>
     <control lang="en" key="IDC_OPEN_CONTAINING_FOLDER">&amp;Open the destination location when finished</control>
     <control lang="en" key="IDC_PROG_GROUP">Add CipherShed to &amp;Start menu</control>
