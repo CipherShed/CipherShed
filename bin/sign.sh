@@ -1,20 +1,145 @@
-#!/bin/bash -x
+#!/bin/bash
 
-#!/bin/bash -x
 DIR="$(dirname "$0")/../"
+DIR="$(cd "$DIR"; pwd)"
 
-timestamp=0
-clean=0;
+[[ $(uname -s) == CYGWIN* ]] && CYGWIN=1 || CYGWIN=0
 
-[ "x$1" == "x" ] && mode=sha256 || mode=$1
+[ $CYGWIN ] && PCV="cygpath -w" || PCV="echo"
+
+exitmsg()
+{
+ code=$1
+ shift
+ 1>&2 echo "$*"
+ exit $code
+}
+
+warn()
+{
+ 1>&2 echo "$*"
+}
+
+[ "x$1" == "x" ] && p=sha1,sha256 || p=$1
+
+modes=()
+
+while IFS=',' read -ra ADDR; do
+	for i in "${ADDR[@]}"; do
+		modes+=("$i")
+		echo $i
+		# process "$i"
+	done
+done <<< "$p"
+
+if [ ! ${#modes[@]} -gt 0 ]; then
+	exitmsg 1 'no mode(s) set'
+fi
 
 . "$DIR"/etc/sign.conf
 [ -e "$DIR"/etc/local/sign.conf ] && . "$DIR"/etc/local/sign.conf
 
-iCRT=CRT$mode
-eval mCRT=\$$iCRT
+crts=()
+xcrts=()
+for mode in "${modes[@]}"; do
+	echo $mode
+	case "$mode" in
+		*\ * )
+		exitmsg 1 "invalid mode: $mode"
+		;;
+	esac
 
-[ "x${mCRT}" != "x" ] && CRT=$mCRT
+	#######################################
+	# CRTs
+	#######################################
+
+	iCRT=CRT$mode
+	eval mCRT=\"\$$iCRT\"
+	if [ "x${mCRT}" == "x" ]; then
+		if [ "x${CRT}" == "x" ]; then
+			exitmsg 1 "blank CRT entry and no default for mode $mode"
+		else
+			warn "WARNING: for mode: $mode using default CRT: $CRT"
+			mCRT="$CRT"
+		fi
+	fi
+
+	if [ ! "${mCRT:0:1}" = "/" ]; then
+		mCRT="$DIR"/"$mCRT"
+	fi
+
+	if [ ! -f "$mCRT" ]; then
+		exitmsg 1 "CRT file not found: $mCRT"
+	fi
+
+	crts+=( "$($PCV "$mCRT")" )
+
+	#######################################
+	# X CRTs
+	#######################################
+
+	iCRT=XCRT$mode
+	eval mCRT=\"\$$iCRT\"
+	if [ "x${mCRT}" == "x" ]; then
+		if [ "x${XCRT}" == "x" ]; then
+			exitmsg 1 "blank X-CRT entry and no default for mode $mode"
+		else
+			warn "WARNING: for mode: $mode using default X-CRT: $XCRT"
+			mCRT="$XCRT"
+		fi
+	fi
+
+	if [ ! "${mCRT:0:1}" = "/" ]; then
+		mCRT="$DIR"/"$mCRT"
+	fi
+
+	if [ ! -f "$mCRT" ]; then
+		exitmsg 1 "X-CRT file not found: $mCRT"
+	fi
+
+	xcrts+=( "$($PCV "$mCRT")" )
+
+done
+
+if [ ! ${#crts[@]} -gt 0 ]; then
+	exitmsg 1 'no CRT(s) set'
+fi
+
+if [ ! ${#xcrts[@]} -gt 0 ]; then
+	exitmsg 1 'no X-CRT(s) set'
+fi
+
+
+
+timestamp=0
+clean=0;
+
+
+
+sign()
+{
+ for ((i=0;i<${#crts[@]};++i)); do
+#	if [ $i -eq 0 ]; then
+#		"$SIGNTOOL" sign /fd "${modes[i]}" /v /f "${crts[i]}" "$*" || exit $?
+#	else
+		"$SIGNTOOL" sign /fd "${modes[i]}" /v /f "${crts[i]}" /as "$*" || exit $?
+#	fi
+ done
+}
+
+
+xsign()
+{
+ for ((i=0;i<${#crts[@]};++i)); do
+#	if [ $i -eq 0 ]; then
+#		"$SIGNTOOL" sign /fd "${modes[i]}" /ph /v /ac "${xcrts[i]}" /f "${crts[i]}" "$*" || exit $?
+#	else
+		"$SIGNTOOL" sign /fd "${modes[i]}" /ph /v /ac "${xcrts[i]}" /f "${crts[i]}" /as "$*" || exit $?
+#	fi
+ done
+}
+
+
 
 for d in "$DIR"/src/{Release,Debug}/Setup\ Files
 do
@@ -36,7 +161,7 @@ do
 	do
 		if [ ! -e "$i".presignbak ];
 		then
-			cp "$i" "$i".presignbak && "$SIGNTOOL" sign /fd $mode /v /f "$CRT" "$i" || exit $?
+			cp "$i" "$i".presignbak && sign "$i" || exit $?
 			BUILDINSTALLER=1
 		fi
 	done
@@ -45,7 +170,7 @@ do
 	do
 		if [ ! -e "$i".presignbak ];
 		then
-			cp "$i" "$i".presignbak && "$SIGNTOOL" sign /fd $mode /ph /v /ac "$MSXCRT" /f "$CRT" "$i" || exit $?
+			cp "$i" "$i".presignbak && xsign "$i" || exit $?
 			BUILDINSTALLER=1
 		fi
 	done
@@ -63,7 +188,7 @@ do
 	do
 		if [ ! -e "$i".presignbak ];
 		then
-			cp "$i" "$i".presignbak && "$SIGNTOOL" sign /fd $mode /v /f "$CRT" "$i"
+			cp "$i" "$i".presignbak && sign "$i" || exit $?
 		fi
 	done
 	popd
