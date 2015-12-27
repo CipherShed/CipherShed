@@ -97,7 +97,9 @@
 #define _AESOPT_H
 
 #ifdef TC_WINDOWS_BOOT
+#ifndef EFI
 #define ASM_X86_V2
+#endif
 #endif
 
 #if defined( __cplusplus )
@@ -308,8 +310,9 @@
     If this section is included, tables are used to provide faster finite
     field arithmetic (this has no effect if FIXED_TABLES is defined).
 */
-#if !defined (TC_WINDOWS_BOOT)
+#if !defined (TC_WINDOWS_BOOT) || defined (EFI)
 #define FF_TABLES
+#else
 #endif
 
 /*  7. INTERNAL STATE VARIABLE FORMAT
@@ -331,6 +334,10 @@
 */
 #if !defined (TC_WINDOWS_BOOT) && !(defined( _MSC_VER ) && ( _MSC_VER <= 800 ))
 #define FIXED_TABLES
+#else
+#ifdef EFI
+#define FIXED_TABLES
+#endif
 #endif
 
 /*  9. TABLE ALIGNMENT

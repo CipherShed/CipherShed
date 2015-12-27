@@ -32,8 +32,10 @@
 
 /* Adapted for CipherShed */
 
+#ifndef EFI
 #include <string.h>     /* for memcpy() etc.        */
 #include <stdlib.h>     /* for _lrotl with VC++     */
+#endif
 
 #include "Sha1.h"
 

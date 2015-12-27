@@ -9,7 +9,16 @@
 
 /* Adapted for CipherShed */
 
+#ifdef EFI
+#include <efi.h>
+#include <efilib.h>
+#include <efibind.h>
+#define memcpy CopyMem
+#define memset(a,b,c)  SetMem((a), (c) ,(b))
+typedef UINTN size_t;
+#else
 #include <memory.h>
+#endif
 #include "../Common/Tcdefs.h"
 #include "../Common/Endian.h"
 #include "Rmd160.h"

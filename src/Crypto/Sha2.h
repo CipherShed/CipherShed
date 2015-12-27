@@ -28,6 +28,13 @@
 #ifndef _SHA2_H
 #define _SHA2_H
 
+#ifdef EFI
+#include <efi.h>
+#include <efilib.h>
+#include <efibind.h>
+#define memcpy CopyMem
+#endif
+
 #include "../Common/Tcdefs.h"
 #include "../Common/Endian.h"
 

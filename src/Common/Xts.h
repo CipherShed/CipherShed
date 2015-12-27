@@ -13,10 +13,22 @@
 
 #include "Tcdefs.h"
 #include "Endian.h" // we are in Common ... #include "Common/Endian.h"
+#ifndef EFI
 #include "Crypto.h"
+#endif
 
 #ifdef __cplusplus
 extern "C" {
+#endif
+
+#ifdef EFI
+// taken from Crypto.h:
+// Encryption data unit size, which may differ from the sector size and must always be 512
+#define ENCRYPTION_DATA_UNIT_SIZE	512
+// Ciphertext/plaintext block size for XTS mode (in bytes)
+#define BYTES_PER_XTS_BLOCK			16
+// Number of ciphertext/plaintext blocks per XTS data unit
+#define BLOCKS_PER_XTS_DATA_UNIT	(ENCRYPTION_DATA_UNIT_SIZE / BYTES_PER_XTS_BLOCK)
 #endif
 
 // Macros
@@ -45,7 +57,11 @@ extern "C" {
 #	ifdef TC_NO_COMPILER_INT64
 		typedef unsigned __int32	TC_LARGEST_COMPILER_UINT;
 #	else
+#ifdef EFI
+		typedef uint64	TC_LARGEST_COMPILER_UINT;
+#else
 		typedef unsigned __int64	TC_LARGEST_COMPILER_UINT;
+#endif
 #	endif
 #endif
 
@@ -67,11 +83,13 @@ typedef union
 // Public function prototypes
 
 void EncryptBufferXTS (unsigned __int8 *buffer, TC_LARGEST_COMPILER_UINT length, const UINT64_STRUCT *startDataUnitNo, unsigned int startCipherBlockNo, unsigned __int8 *ks, unsigned __int8 *ks2, int cipher);
+void DecryptBufferXTS (unsigned __int8 *buffer, TC_LARGEST_COMPILER_UINT length, const UINT64_STRUCT *startDataUnitNo, unsigned int startCipherBlockNo, unsigned __int8 *ks, unsigned __int8 *ks2, int cipher);
+#ifndef EFI
 static void EncryptBufferXTSParallel (unsigned __int8 *buffer, TC_LARGEST_COMPILER_UINT length, const UINT64_STRUCT *startDataUnitNo, unsigned int startCipherBlockNo, unsigned __int8 *ks, unsigned __int8 *ks2, int cipher);
 static void EncryptBufferXTSNonParallel (unsigned __int8 *buffer, TC_LARGEST_COMPILER_UINT length, const UINT64_STRUCT *startDataUnitNo, unsigned int startCipherBlockNo, unsigned __int8 *ks, unsigned __int8 *ks2, int cipher);
-void DecryptBufferXTS (unsigned __int8 *buffer, TC_LARGEST_COMPILER_UINT length, const UINT64_STRUCT *startDataUnitNo, unsigned int startCipherBlockNo, unsigned __int8 *ks, unsigned __int8 *ks2, int cipher);
 static void DecryptBufferXTSParallel (unsigned __int8 *buffer, TC_LARGEST_COMPILER_UINT length, const UINT64_STRUCT *startDataUnitNo, unsigned int startCipherBlockNo, unsigned __int8 *ks, unsigned __int8 *ks2, int cipher);
 static void DecryptBufferXTSNonParallel (unsigned __int8 *buffer, TC_LARGEST_COMPILER_UINT length, const UINT64_STRUCT *startDataUnitNo, unsigned int startCipherBlockNo, unsigned __int8 *ks, unsigned __int8 *ks2, int cipher);
+#endif
 
 #ifdef __cplusplus
 }

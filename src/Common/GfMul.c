@@ -47,8 +47,18 @@
  ---------------------------------------------------------------------------
 */
 
+#ifdef EFI
+#include <efi.h>
+#include <efilib.h>
+#include <efibind.h>
+#define memcpy CopyMem
+#define memcmp CompareMem
+#define memset(a,b,c)  SetMem((a), (c) ,(b))
+#else
 #include <memory.h>
 #include <stdlib.h>
+#endif
+
 #include "GfMul.h"
 #include "Tcdefs.h"
 #include "Endian.h"

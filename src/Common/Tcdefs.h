@@ -61,8 +61,12 @@ typedef unsigned __int64 uint64;
 
 #else // !_MSC_VER
 
+#ifdef EFI
+#include <efibind.h>
+#else
 #include <inttypes.h>
 #include <limits.h>
+#endif // EFI
 
 typedef int8_t int8;
 typedef int16_t int16;
@@ -73,18 +77,24 @@ typedef uint16_t uint16;
 typedef uint32_t uint32;
 typedef uint64_t uint64;
 
+#ifndef EFI
 #if UCHAR_MAX != 0xffU
 #error UCHAR_MAX != 0xff
 #endif
+#endif
 #define __int8 char
 
+#ifndef EFI
 #if USHRT_MAX != 0xffffU
 #error USHRT_MAX != 0xffff
 #endif
+#endif
 #define __int16 short
 
+#ifndef EFI
 #if UINT_MAX != 0xffffffffU
 #error UINT_MAX != 0xffffffff
+#endif
 #endif
 #define __int32 int
 
@@ -158,8 +168,13 @@ typedef int BOOL;
 
 #else				/* !TC_WINDOWS_DRIVER */
 
+#ifdef EFI
+#define TCalloc AllocatePool
+#define TCfree FreePool
+#else
 #define TCalloc malloc
 #define TCfree free
+#endif
 
 #ifdef _WIN32
 
@@ -226,7 +241,11 @@ typedef int BOOL;
 #if defined(_WIN32) && !defined(CS_UNITTESTING)
 #define burn(mem,size) do { volatile char *burnm = (volatile char *)(mem); int burnc = size; RtlSecureZeroMemory (mem, size); while (burnc--) *burnm++ = 0; } while (0)
 #else
+#ifdef EFI
+#define burn(mem,size)	SetMem(mem,size,0)
+#else
 #define burn(mem,size) do { volatile char *burnm = (volatile char *)(mem); int burnc = size; while (burnc--) *burnm++ = 0; } while (0)
+#endif
 #endif
 
 // The size of the memory area to wipe is in bytes amd it must be a multiple of 8.
@@ -244,10 +263,12 @@ typedef int BOOL;
 #	ifdef  __cplusplus
 extern "C"
 #	endif
+#ifndef EFI
 void EraseMemory (void *memory, int size);
 
 #	undef burn
 #	define burn EraseMemory
+#endif
 #endif
 
 #ifdef MAX_PATH

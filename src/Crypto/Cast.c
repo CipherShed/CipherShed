@@ -6,7 +6,13 @@
 
 /* Adapted for CipherShed */
 
+#ifdef EFI
+#include <efi.h>
+#include <efilib.h>
+#include <efibind.h>
+#else
 #include <memory.h>
+#endif
 #include "../Common/Tcdefs.h"
 #include "../Common/Endian.h"
 #include "Cast.h"
