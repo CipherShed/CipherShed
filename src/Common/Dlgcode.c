@@ -6580,7 +6580,7 @@ void ManageStartupSeqWiz (BOOL bRemove, const char *arg)
 				char *tmp = NULL;
 
 				if (tmp = strrchr (exe, '\\'))
-					strcpy (++tmp, "CipherShed Format.exe");
+					strcpy (++tmp, "CipherShed-Format.exe");
 			}
 #endif
 
@@ -6590,10 +6590,10 @@ void ManageStartupSeqWiz (BOOL bRemove, const char *arg)
 			strcat (exe, arg);
 		}
 
-		WriteRegistryString (regk, "CipherShed Format", exe);
+		WriteRegistryString (regk, "CipherShed-Format", exe);
 	}
 	else
-		DeleteRegistryValue (regk, "CipherShed Format");
+		DeleteRegistryValue (regk, "CipherShed-Format");
 }
 
 

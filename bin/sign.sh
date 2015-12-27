@@ -151,13 +151,13 @@ do
 	if [ $clean == 1 ]; 
 	then
 		[ -e CipherShed.exe.presignbak ]         && rm CipherShed.exe                && mv CipherShed.exe.presignbak         CipherShed.exe
-		[ -e CipherShed\ Format.exe.presignbak ] && rm CipherShed\ Format.exe        && mv CipherShed\ Format.exe.presignbak CipherShed\ Format.exe 
+		[ -e CipherShed-Format.exe.presignbak ]  && rm CipherShed-Format.exe         && mv CipherShed-Format.exe.presignbak CipherShed-Format.exe 
 		[ -e truecrypt.sys.presignbak ]          && rm truecrypt.sys                 && mv truecrypt.sys.presignbak          truecrypt.sys
 		[ -e truecrypt-x64.sys.presignbak ]      && rm truecrypt-x64.sys             && mv truecrypt-x64.sys.presignbak      truecrypt-x64.sys 
 		BUILDINSTALLER=1
 	fi
 	# sign all the non-driver files
-	for i in CipherShed.exe CipherShed\ Format.exe
+	for i in CipherShed.exe CipherShed-Format.exe
 	do
 		if [ ! -e "$i".presignbak ];
 		then

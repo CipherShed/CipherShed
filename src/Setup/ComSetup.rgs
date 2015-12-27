@@ -92,7 +92,8 @@ HKCR
 		}
 
 		Delete 'TrueCrypt Format.exe'
-		ForceRemove 'CipherShed Format.exe'
+		Delete 'CipherShed Format.exe'
+		ForceRemove 'CipherShed-Format.exe'
 		{
 			val AppId = s '{777DCDFD-C330-480B-B582-B02B57580CC9}'
 		}

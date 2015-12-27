@@ -48,7 +48,7 @@ BEGIN
             VALUE "FileDescription", "CipherShed Format"
             VALUE "FileVersion", "0.7.3"
             VALUE "LegalTrademarks", "CipherShed"
-            VALUE "OriginalFilename", "CipherShed Format.exe"
+            VALUE "OriginalFilename", "CipherShed-Format.exe"
             VALUE "ProductName", "CipherShed"
             VALUE "ProductVersion", "0.7.3"
         END
