@@ -1201,8 +1201,16 @@ EFI_STATUS EFIAPI CsWriteBlocks(
 		Lba += context.hiddenSectorOffset;
 	}
 
-	return uefi_call_wrapper(context.ConsumedBlockIo->WriteBlocks, 5,
+	error = uefi_call_wrapper(context.ConsumedBlockIo->WriteBlocks, 5,
 			context.ConsumedBlockIo, MediaId, Lba, BufferSize, Buffer);
+
+	/* to recover the original buffer content: */
+	error = decryptBlocks(block, BufferSize, Buffer);
+	if (EFI_ERROR(error)) {
+		CS_DEBUG((D_ERROR, L"decryptBlocks() failed (%r)\n", error));
+	}
+
+	return error;
 }
 
 /**
@@ -1393,9 +1401,11 @@ EFI_STATUS EFIAPI CsReadBlocksEx(
   \brief	Write BufferSize bytes from Lba into Buffer.
 
   This function writes the requested number of blocks to the device. All blocks
-  are written, or an error is returned.If EFI_DEVICE_ERROR, EFI_NO_MEDIA,
+  are written, or an error is returned. If EFI_DEVICE_ERROR, EFI_NO_MEDIA,
   EFI_WRITE_PROTECTED or EFI_MEDIA_CHANGED is returned and non-blocking I/O is
   being used, the Event associated with this request will not be signaled.
+  Attention: this function does not recover the buffer content: it will be overwritten
+  with the encrypted content!
 
   \param[in]       This       Indicates a pointer to the calling context.
   \param[in]       MediaId    The media ID that the write request is for.
@@ -1404,7 +1414,7 @@ EFI_STATUS EFIAPI CsReadBlocksEx(
                               locations.
   \param[in, out]  Token      A pointer to the token associated with the transaction.
   \param[in]       BufferSize Size of Buffer, must be a multiple of device block size.
-  \param[in]       Buffer     A pointer to the source buffer for the data.
+  \param[in]       Buffer     A pointer to the source buffer for the data (content may be modified!).
 
   \return EFI_SUCCESS           The write request was queued if Event is not NULL.
                                 The data was written correctly to the device if
@@ -1426,13 +1436,12 @@ EFI_STATUS EFIAPI CsWriteBlocksEx(
 		IN     EFI_LBA                Lba,
 		IN OUT EFI_BLOCK_IO2_TOKEN    *Token,
 		IN     UINTN                  BufferSize,
-		IN     VOID                   *Buffer
+		IN OUT VOID                   *Buffer /* attention: buffer content is changed to encrypted content! */
 	) {
 
 	EFI_STATUS error;
 	EFI_LBA block = Lba * context.factorMediaBlock;	/* block regards to the encryption/decryption unit,
 													   Lba regards to the media unit */
-
 	ASSERT(Buffer != NULL);
 
 	CS_DEBUG((D_INFO, L"CsWriteBlocksEx() started (LBA 0x%lx).\n", Lba));
