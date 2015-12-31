@@ -27,7 +27,6 @@ modes=()
 while IFS=',' read -ra ADDR; do
 	for i in "${ADDR[@]}"; do
 		modes+=("$i")
-		echo $i
 		# process "$i"
 	done
 done <<< "$p"
@@ -44,7 +43,6 @@ fi
 crts=()
 xcrts=()
 for mode in "${modes[@]}"; do
-	echo $mode
 	case "$mode" in
 		*\ * )
 		exitmsg 1 "invalid mode: $mode"
@@ -121,11 +119,7 @@ clean=0;
 sign()
 {
  for ((i=0;i<${#crts[@]};++i)); do
-#	if [ $i -eq 0 ]; then
-#		"$SIGNTOOL" sign /fd "${modes[i]}" /v /f "${crts[i]}" "$*" || exit $?
-#	else
 		"$SIGNTOOL" sign /fd "${modes[i]}" /v /f "${crts[i]}" /as "$*" || exit $?
-#	fi
  done
 }
 
@@ -133,11 +127,7 @@ sign()
 xsign()
 {
  for ((i=0;i<${#crts[@]};++i)); do
-#	if [ $i -eq 0 ]; then
-#		"$SIGNTOOL" sign /fd "${modes[i]}" /ph /v /ac "${xcrts[i]}" /f "${crts[i]}" "$*" || exit $?
-#	else
 		"$SIGNTOOL" sign /fd "${modes[i]}" /ph /v /ac "${xcrts[i]}" /f "${crts[i]}" /as "$*" || exit $?
-#	fi
  done
 }
 
