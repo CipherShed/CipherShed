@@ -118,17 +118,21 @@ clean=0;
 
 sign()
 {
+ trap 'previous_command=$this_command; this_command=$BASH_COMMAND' DEBUG
  for ((i=0;i<${#crts[@]};++i)); do
-		"$SIGNTOOL" sign /fd "${modes[i]}" /v /f "${crts[i]}" /as "$*" || exit $?
+	"$SIGNTOOL" sign /fd "${modes[i]}" /v /f "${crts[i]}" /as $TIMESTAMPOPT $TIMESTAMPURL "$*" || exitmsg $? failed: $previous_command $(eval "echo as: $previous_command")
  done
+ trap - DEBUG
 }
 
 
 xsign()
 {
+ trap 'previous_command=$this_command; this_command=$BASH_COMMAND' DEBUG
  for ((i=0;i<${#crts[@]};++i)); do
-		"$SIGNTOOL" sign /fd "${modes[i]}" /ph /v /ac "${xcrts[i]}" /f "${crts[i]}" /as "$*" || exit $?
+	"$SIGNTOOL" sign /fd "${modes[i]}" /ph /v /ac "${xcrts[i]}" /f "${crts[i]}" /as $TIMESTAMPOPT $TIMESTAMPURL "$*" || exitmsg $? failed: $previous_command $(eval "echo as: $previous_command")
  done
+ trap - DEBUG
 }
 
 
