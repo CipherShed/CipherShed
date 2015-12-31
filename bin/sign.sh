@@ -36,6 +36,8 @@ if [ ! ${#modes[@]} -gt 0 ]; then
 	exitmsg 1 'no mode(s) set'
 fi
 
+. "$DIR"/etc/version.conf
+
 . "$DIR"/etc/sign.conf
 [ -e "$DIR"/etc/local/sign.conf ] && . "$DIR"/etc/local/sign.conf
 
@@ -174,17 +176,17 @@ do
 			BUILDINSTALLER=1
 		fi
 	done
-	if [ BUILDINSTALLER == 1 -o ! -f CipherShed-Setup-0.7.3.exe ]
+	if [ BUILDINSTALLER == 1 -o ! -f CipherShed-Setup-$VERSION.exe ]
 	then
 		# remove the installer files first
-		for i in CipherShed-Setup-0.7.3.exe*
+		for i in CipherShed-Setup-$VERSION.exe*
 		do
 			rm -f "$i"
 		done
 		# build the installer
 		./CipherShed-Setup.exe /pq
 	fi
-	for i in CipherShed-Setup-0.7.3.exe
+	for i in CipherShed-Setup-$VERSION.exe
 	do
 		if [ ! -e "$i".presignbak ];
 		then

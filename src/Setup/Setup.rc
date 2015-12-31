@@ -9,6 +9,7 @@
 //
 #include "afxres.h"
 #include "..\\common\\resource.h"
+#include "../version.h"
 
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
@@ -28,8 +29,8 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,7,3,0
- PRODUCTVERSION 0,7,3,0
+ FILEVERSION _RC_INC_FILEVERSION_VALUE
+ PRODUCTVERSION _RC_INC_PRODUCTVERSION_VALUE
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -46,11 +47,11 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "CipherShed Organization"
             VALUE "FileDescription", "CipherShed Setup"
-            VALUE "FileVersion", "0.7.3.0"
+            VALUE "FileVersion", _RC_INC_FILEVERSION_VALUE_STR
             VALUE "LegalTrademarks", "CipherShed"
             VALUE "OriginalFilename", "CipherShed-Setup.exe"
             VALUE "ProductName", "CipherShed"
-            VALUE "ProductVersion", "0.7.3.0"
+            VALUE "ProductVersion", _RC_INC_PRODUCTVERSION_VALUE_STR
         END
     END
     BLOCK "VarFileInfo"
@@ -210,6 +211,7 @@ END
 BEGIN
     "#include ""afxres.h""\r\n"
     "#include ""..\\\\common\\\\resource.h""\r\n"
+    "#include ""../version.h""\r\n"
     "\0"
 END
 
