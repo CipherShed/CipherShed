@@ -13,12 +13,13 @@
 #define TCDEFS_H
 
 #include "constants.h"
+#include "../include/version.h"
 
 #define TC_APP_NAME						"CipherShed"
 #define TC_APP_NAME_LEGACY				"TrueCrypt"
 
 // Version displayed to user 
-#define VERSION_STRING					"0.7.4.0"
+#define VERSION_STRING					_CS_VERSION_DOTTED_5STR
 
 // Version number to compare against driver
 #define VERSION_NUM						0x0740

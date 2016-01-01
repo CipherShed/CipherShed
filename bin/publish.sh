@@ -33,7 +33,7 @@ cd "$(dirname "$0")/../"
 
 HASH="$(git rev-parse --verify HEAD)"
 
-VERSION="$(sed -n "s/^#define _RC_INC_FILEVERSION_VALUE_STR \"\(.*\)\"/\1/p" src/version.h)"
+VERSION=$(echo '_CS_VERSION_DOTTED_5STR' | cpp -P -x c -include "src/include/version.h")
 
 DATE=$(date +%s)
 
