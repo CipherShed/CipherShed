@@ -309,7 +309,7 @@ EFI_STATUS EFIAPI CsGetControllerName2(
                                 or the buffer is not on proper alignment.
 
 **/
-EFI_STATUS EFIAPI CsReadBlocks(
+EFI_STATUS EFIAPI CsChildReadBlocks(
   IN EFI_BLOCK_IO		            *This,
   IN UINT32                         MediaId,
   IN EFI_LBA                        Lba,
@@ -337,7 +337,7 @@ EFI_STATUS EFIAPI CsReadBlocks(
                                 or the buffer is not on proper alignment.
 
 **/
-EFI_STATUS EFIAPI CsWriteBlocks(
+EFI_STATUS EFIAPI CsChildWriteBlocks(
   IN EFI_BLOCK_IO		            *This,
   IN UINT32                         MediaId,
   IN EFI_LBA                        Lba,
@@ -355,7 +355,7 @@ EFI_STATUS EFIAPI CsWriteBlocks(
   \return EFI_NO_MEDIA      There is no media in the device.
 
 **/
-EFI_STATUS EFIAPI CsFlushBlocks(
+EFI_STATUS EFIAPI CsChildFlushBlocks(
   IN EFI_BLOCK_IO		*This
   );
 
@@ -388,121 +388,5 @@ EFI_STATUS EFIAPI CsReset(
                                not be reset.
 
 **/
-EFI_STATUS EFIAPI CsResetEx(
-  IN EFI_BLOCK_IO2_PROTOCOL  *This,
-  IN BOOLEAN                 ExtendedVerification
-  );
-
-/**
-  \brief	Read BufferSize bytes from Lba into Buffer.
-
-  This function reads the requested number of blocks from the device. All the
-  blocks are read, or an error is returned.
-  If EFI_DEVICE_ERROR, EFI_NO_MEDIA,_or EFI_MEDIA_CHANGED is returned and
-  non-blocking I/O is being used, the Event associated with this request will
-  not be signaled.
-
-  \param[in]       This       Indicates a pointer to the calling context.
-  \param[in]       MediaId    Id of the media, changes every time the media is
-                              replaced.
-  \param[in]       Lba        The starting Logical Block Address to read from.
-  \param[in, out]  Token            A pointer to the token associated with the transaction.
-  \param[in]       BufferSize Size of Buffer, must be a multiple of device block size.
-  \param[out]      Buffer     A pointer to the destination buffer for the data. The
-                              caller is responsible for either having implicit or
-                              explicit ownership of the buffer.
-
-  \return EFI_SUCCESS           The read request was queued if Token->Event is
-                                not NULL.The data was read correctly from the
-                                device if the Token->Event is NULL.
-  \return EFI_DEVICE_ERROR      The device reported an error while performing
-                                the read.
-  \return EFI_NO_MEDIA          There is no media in the device.
-  \return EFI_MEDIA_CHANGED     The MediaId is not for the current media.
-  \return EFI_BAD_BUFFER_SIZE   The BufferSize parameter is not a multiple of the
-                                intrinsic block size of the device.
-  \return EFI_INVALID_PARAMETER The read request contains LBAs that are not valid,
-                                or the buffer is not on proper alignment.
-  \return EFI_OUT_OF_RESOURCES  The request could not be completed due to a lack
-                                of resources.
-**/
-EFI_STATUS EFIAPI CsReadBlocksEx(
-  IN     EFI_BLOCK_IO2_PROTOCOL *This,
-  IN     UINT32                 MediaId,
-  IN     EFI_LBA                LBA,
-  IN OUT EFI_BLOCK_IO2_TOKEN    *Token,
-  IN     UINTN                  BufferSize,
-     OUT VOID                  *Buffer
-  );
-
-/**
-  \brief	Write BufferSize bytes from Lba into Buffer.
-
-  This function writes the requested number of blocks to the device. All blocks
-  are written, or an error is returned.If EFI_DEVICE_ERROR, EFI_NO_MEDIA,
-  EFI_WRITE_PROTECTED or EFI_MEDIA_CHANGED is returned and non-blocking I/O is
-  being used, the Event associated with this request will not be signaled.
-
-  \param[in]       This       Indicates a pointer to the calling context.
-  \param[in]       MediaId    The media ID that the write request is for.
-  \param[in]       Lba        The starting logical block address to be written. The
-                              caller is responsible for writing to only legitimate
-                              locations.
-  \param[in, out]  Token      A pointer to the token associated with the transaction.
-  \param[in]       BufferSize Size of Buffer, must be a multiple of device block size.
-  \param[in]       Buffer     A pointer to the source buffer for the data.
-
-  \return EFI_SUCCESS           The write request was queued if Event is not NULL.
-                                The data was written correctly to the device if
-                                the Event is NULL.
-  \return EFI_WRITE_PROTECTED   The device can not be written to.
-  \return EFI_NO_MEDIA          There is no media in the device.
-  \return EFI_MEDIA_CHNAGED     The MediaId does not matched the current device.
-  \return EFI_DEVICE_ERROR      The device reported an error while performing the write.
-  \return EFI_BAD_BUFFER_SIZE   The Buffer was not a multiple of the block size of the device.
-  \return EFI_INVALID_PARAMETER The write request contains LBAs that are not valid,
-                                or the buffer is not on proper alignment.
-  \return EFI_OUT_OF_RESOURCES  The request could not be completed due to a lack
-                                of resources.
-
-**/
-EFI_STATUS EFIAPI CsWriteBlocksEx(
-  IN     EFI_BLOCK_IO2_PROTOCOL  *This,
-  IN     UINT32                 MediaId,
-  IN     EFI_LBA                LBA,
-  IN OUT EFI_BLOCK_IO2_TOKEN    *Token,
-  IN     UINTN                  BufferSize,
-  IN     VOID                   *Buffer
-  );
-
-/**
-  \brief	Flush the Block Device.
-
-  If EFI_DEVICE_ERROR, EFI_NO_MEDIA,_EFI_WRITE_PROTECTED or EFI_MEDIA_CHANGED
-  is returned and non-blocking I/O is being used, the Event associated with
-  this request will not be signaled.
-
-  \param[in]      This     Indicates a pointer to the calling context.
-  \param[in,out]  Token    A pointer to the token associated with the transaction
-
-  \return EFI_SUCCESS          The flush request was queued if Event is not NULL.
-                               All outstanding data was written correctly to the
-                               device if the Event is NULL.
-  \return EFI_DEVICE_ERROR     The device reported an error while writting back
-                               the data.
-  \return EFI_WRITE_PROTECTED  The device cannot be written to.
-  \return EFI_NO_MEDIA         There is no media in the device.
-  \return EFI_MEDIA_CHANGED    The MediaId is not for the current media.
-  \return EFI_OUT_OF_RESOURCES The request could not be completed due to a lack
-                               of resources.
-
-**/
-EFI_STATUS EFIAPI CsFlushBlocksEx(
-  IN     EFI_BLOCK_IO2_PROTOCOL   *This,
-  IN OUT EFI_BLOCK_IO2_TOKEN      *Token
-  );
-
-
-
 
 #endif /* _CS_DRIVER_H_ */

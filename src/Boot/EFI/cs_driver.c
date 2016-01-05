@@ -21,16 +21,6 @@
 #include "cs_crypto.h"
 #include "cs_debug.h"
 
-typedef struct {
-	LIST_ENTRY List;
-	UINT32 MediaId;
-	UINTN BufferSize;
-	VOID *Buffer;
-	EFI_LBA Lba;
-	EFI_EVENT CallerEvent;
-	EFI_BLOCK_IO2_TOKEN Token;
-} CS_READ_BLOCKS_SUBTASK; /* task to non-blocking read */
-
 struct _cs_device_path {
 	FILEPATH_DEVICE_PATH value;
 	CHAR8 __cs_path[CS_MAX_DRIVER_PATH_SIZE];	/* used to allocate memory, don't access this directly! */
@@ -68,25 +58,36 @@ EFI_COMPONENT_NAME2_PROTOCOL CsComponentName2 = {
 		.SupportedLanguages = (CHAR8 *) "en"
 };
 
-EFI_BLOCK_IO CsBlockIo = {
+/* the block IO protocol provided at the child device */
+EFI_BLOCK_IO CsChildBlockIo = {
 		.Revision = EFI_BLOCK_IO_INTERFACE_REVISION3,
 		.Media = NULL,
 		.Reset = CsReset,
-		.ReadBlocks = CsReadBlocks,
-		.WriteBlocks = CsWriteBlocks,
-		.FlushBlocks = CsFlushBlocks
-};
-
-EFI_BLOCK_IO2_PROTOCOL CsBlockIo2 = {
-		.Media = NULL,
-		.Reset = CsResetEx,
-		.ReadBlocksEx = CsReadBlocksEx,
-		.WriteBlocksEx = CsWriteBlocksEx,
-		.FlushBlocksEx = CsFlushBlocksEx
+		.ReadBlocks = CsChildReadBlocks,
+		.WriteBlocks = CsChildWriteBlocks,
+		.FlushBlocks = CsChildFlushBlocks
 };
 
 CHAR16 *DriverNameString = CS_DRIVER_NAME L" Version " WIDEN(STRINGIFY(CS_DRIVER_VERSION));
 CHAR16 *ControllerNameString = CS_CONTROLLER_NAME L" Version " WIDEN(STRINGIFY(CS_DRIVER_VERSION));
+
+/* identifiers to define a dedicated function of the BLOCK IO or BLOCK IO2 protocol */
+enum cs_io_access_mode {
+	CS_BLOCK_IO_READ,
+	CS_BLOCK_IO_WRITE,
+	CS_BLOCK_IO2_READ,
+	CS_BLOCK_IO2_WRITE,
+	CS_BLOCK_IO_LAST		/* only denotes the end of the enumeration */
+};
+
+/* 32-bit relative jump */
+#pragma pack(push, 1)
+struct JMP_REL
+{
+    UINT8  opcode;      /* E9 xxxxxxxx: JMP +5+xxxxxxxx */
+    UINT32 operand;     /* relative destination address */
+};
+#pragma pack(pop)
 
 static struct cs_driver_context {
 	UINT16 factorMediaBlock;	/* ratio between media block size and crypto unit size
@@ -95,12 +96,14 @@ static struct cs_driver_context {
 	 	 	 	 	 	 	 	   ENCRYPTION_DATA_UNIT_SIZE */
 	struct {
 		UINT32 blockIoInstalled:1;
-		UINT32 blockIo2Installed:1;
+		UINT32 createChildDevice:1;
 	} status;
 	EFI_BLOCK_IO *ConsumedBlockIo;
 	EFI_BLOCK_IO2 *ConsumedBlockIo2;
-	LIST_ENTRY TaskListReadEx;
-	FLOCK TaskListReadExLock;
+	struct JMP_REL patchedBytes[CS_BLOCK_IO_LAST];
+									/* original bytes of patched function before patching */
+	struct JMP_REL patchBytes[CS_BLOCK_IO_LAST];
+									/* modified bytes of patched function after patching */
 	EFI_HANDLE ChildHandle;
 	EFI_DEVICE_PATH *ChildDevicePath;
 	UINT64 hiddenSectorOffset;		/* only used for hidden volume */
@@ -109,64 +112,33 @@ static struct cs_driver_context {
 	UINT64 EndSector;				/* options.StartSector + options.SectorCount */
 } context;
 
-#if 0
-/*
- *
- * \brief	Convert one Null-terminated ASCII string to a Null-terminated
- * 	  	  	Unicode string and returns the Unicode string.
- *
- * This function converts the contents of the ASCII string Source to the Unicode
- * string Destination, and returns Destination.  The function terminates the
- * Unicode string Destination by appending a Null-terminator character at the end.
- * The caller is responsible to make sure Destination points to a buffer with size
- * equal or greater than ((AsciiStrLen (Source) + 1) * sizeof (CHAR16)) in bytes.
- *
- *  \param  Source        A pointer to a Null-terminated ASCII string.
- *  \param  Destination   A pointer to a Null-terminated Unicode string.
- *
- *  \return Destination.
- */
-static CHAR16 EFIAPI *AsciiStrToUnicodeStr (
-  IN      CONST CHAR8               *Source,
-  OUT     CHAR16                    *Destination  ) {
+EFI_STATUS EFIAPI CsReadBlocks(
+		IN EFI_BLOCK_IO		              *This,
+		IN UINT32                         MediaId,
+		IN EFI_LBA                        Lba,
+		IN UINTN                          BufferSize,
+		OUT VOID                          *Buffer);
+EFI_STATUS EFIAPI CsWriteBlocks(
+		IN EFI_BLOCK_IO		              *This,
+		IN UINT32                         MediaId,
+		IN EFI_LBA                        Lba,
+		IN UINTN                          BufferSize,
+		IN VOID                           *Buffer);
+EFI_STATUS EFIAPI CsReadBlocksEx(
+		IN     EFI_BLOCK_IO2_PROTOCOL *This,
+		IN     UINT32                 MediaId,
+		IN     EFI_LBA                Lba,
+		IN OUT EFI_BLOCK_IO2_TOKEN    *Token,
+		IN     UINTN                  BufferSize,
+		OUT    VOID                   *Buffer);
+EFI_STATUS EFIAPI CsWriteBlocksEx(
+		IN     EFI_BLOCK_IO2_PROTOCOL  *This,
+		IN     UINT32                 MediaId,
+		IN     EFI_LBA                Lba,
+		IN OUT EFI_BLOCK_IO2_TOKEN    *Token,
+		IN     UINTN                  BufferSize,
+		IN     VOID                   *Buffer);
 
-  CHAR16                            *ReturnValue;
-
-  ASSERT (Destination != NULL);
-
-  //
-  // ASSERT Source is less long than PcdMaximumAsciiStringLength
-  //
-  ASSERT (strlena (Source) != 0);
-
-  //
-  // Source and Destination should not overlap
-  //
-  ASSERT ((UINTN) ((CHAR8 *) Destination - Source) > strlena (Source));
-  ASSERT ((UINTN) (Source - (CHAR8 *) Destination) > (strlena (Source) * sizeof (CHAR16)));
-
-
-  ReturnValue = Destination;
-
-//  *(Destination++) = 0xfeff;
-  while (*Source != '\0') {
-//	  CHAR16 tmp = (CHAR16) *(Source++);
-//	    *(Destination++) = tmp<<8;
-    *(Destination++) = (CHAR16) *(Source++);
-  }
-  //
-  // End the Destination with a NULL.
-  //
-  *Destination = '\0';
-
-  //
-  // ASSERT Original Destination is less long than PcdMaximumUnicodeStringLength
-  //
-  ASSERT (StrSize (ReturnValue) != 0);
-
-  return ReturnValue;
-}
-#endif
 
 /*
  * \brief	encrypt a buffer (in-place)
@@ -251,141 +223,579 @@ EFI_STATUS EFIAPI decryptBlocks(IN EFI_LBA lba, IN UINTN BufferSize, OUT VOID *B
 	return EFI_SUCCESS;
 }
 
-/*
- * \brief	destroy single subtask to read blocks (non-blocking)
- *
- * The function removes the given subtask from the list, removes the corresponding event,
- * and signals the event of the caller of ReadBlocksEx() to inform about the result.
- * Then the memory of subtask is unallocated.
- *
- * \param	Subtask		pointer to the subtask to destroy
- */
-static VOID EFIAPI _csDestroySubtask(IN CS_READ_BLOCKS_SUBTASK *Subtask) {
+/**
+  \brief	Patch the code of the indicated BLOCK IO or BLOCK IO2 function.
 
-    ASSERT(Subtask != NULL);
+  This function replaces the first few bytes of the indicated function with new values
+  taken from the system context (as defined using CsPatchCodeInit()).
 
-	if (Subtask == NULL) {
-		CS_DEBUG((D_ERROR, L"csDestroySubtask(): invalid parameter\n"));
-		return;
-	}
-	AcquireLock(&context.TaskListReadExLock);
-	RemoveEntryList(&Subtask->List);
-	ReleaseLock(&context.TaskListReadExLock);
+  \param[in]       mode				indicates which function to prepare and backup
 
-	if (Subtask->Token.Event != NULL) {
-		uefi_call_wrapper(BS->CloseEvent, 1, Subtask->Token.Event);
-	}
+**/
+static VOID CsPatchCode(
+		IN enum cs_io_access_mode	mode
+		) {
 
-	/* signal the event provided by the caller of ReadBlocksEx()
-	 * together with the status of the performed action: */
-    Subtask->Token.Event = Subtask->CallerEvent;
-    uefi_call_wrapper(BS->SignalEvent, 1, Subtask->Token.Event);
-
-	FreePool(Subtask);
-}
-
-/*
- * \brief	destroy all subtasks known by the driver for non-blocking read requests
- *
- * The function removes all subtasks from the linked list of the driver
- *
- */
-static VOID EFIAPI csDestroyAllSubtasks(VOID) /* attention: untested! */ {
-
-	while (!IsListEmpty(&context.TaskListReadEx)) {
-		CS_READ_BLOCKS_SUBTASK *Subtask = _CR(&context.TaskListReadEx, CS_READ_BLOCKS_SUBTASK, List);
-		_csDestroySubtask(Subtask);
+	switch (mode) {
+	case CS_BLOCK_IO_READ:
+		ASSERT(context.ConsumedBlockIo != NULL);
+		CopyMem(context.ConsumedBlockIo->ReadBlocks, &context.patchBytes[CS_BLOCK_IO_READ],
+				sizeof(context.patchBytes[CS_BLOCK_IO_READ]));
+		break;
+	case CS_BLOCK_IO_WRITE:
+		ASSERT(context.ConsumedBlockIo != NULL);
+		CopyMem(context.ConsumedBlockIo->WriteBlocks, &context.patchBytes[CS_BLOCK_IO_WRITE],
+				sizeof(context.patchBytes[CS_BLOCK_IO_WRITE]));
+		break;
+	case CS_BLOCK_IO2_READ:
+		ASSERT(context.ConsumedBlockIo2 != NULL);
+		CopyMem(context.ConsumedBlockIo2->ReadBlocksEx, &context.patchBytes[CS_BLOCK_IO2_READ],
+				sizeof(context.patchBytes[CS_BLOCK_IO2_READ]));
+		break;
+	case CS_BLOCK_IO2_WRITE:
+		ASSERT(context.ConsumedBlockIo2 != NULL);
+		CopyMem(context.ConsumedBlockIo2->WriteBlocksEx, &context.patchBytes[CS_BLOCK_IO2_WRITE],
+				sizeof(context.patchBytes[CS_BLOCK_IO2_WRITE]));
+		break;
+	default:
+		break;
 	}
 }
 
-/*
- * \brief	callback function for the non-blocking read function
- *
- * This callback function will be called when a non-blocking disk read (called
- * by ReadBlocksEx) is finished. In case of successful disk read, the buffer
- * is decrypted and the caller is signaled about the result.
- *
- * \param	Event	Event whose notification function is being invoked.
- * \param	Context		The pointer to the notification function's context,
- *                      which points to the CS_READ_BLOCKS_SUBTASK instance.
- */
-VOID EFIAPI csCallbackReadComplete(IN EFI_EVENT Event, IN VOID *Context) {
+/**
+  \brief	Backup the original bytes of the given function.
 
+  This function saves the first bytes of the given functionToPatch to the system context.
+  This is done to be able to restore them later. After this backup, these first bytes
+  can be replaced by a patch.
+  Also, the new bytes (the patch) are prepared in the context, but the replacement (patch)
+  of the BLOCK IO or BLOCK IO2 function is not performed by this function. The patch
+  implements a relative jump to the address of the given newFunction.
+  The function acts as a helper function for CsPatchCodeInit().
+
+  \param[in]       mode				indicates which function to prepare and backup
+  \param[in]       functionToPatch	pointer to the (original) function to be patched
+  \param[in]       newFunction		pointer to the replacement of the original function
+
+**/
+static inline VOID _CsPatchCodeInit(
+		IN enum cs_io_access_mode	mode,
+		IN VOID *functionToPatch,
+		IN VOID *newFunction
+		) {
+	ASSERT(functionToPatch != NULL);
+	ASSERT(newFunction != NULL);
+
+	CS_DEBUG((D_INFO, L"init patch code: mode: %x, function to patch: 0x%x, new address: 0x%x\n",
+			mode, functionToPatch, newFunction));
+
+	CopyMem(&context.patchedBytes[mode], functionToPatch, sizeof(context.patchedBytes[mode]));
+	context.patchBytes[mode].opcode = 0xE9;	/* JMP */
+	context.patchBytes[mode].operand = (UINT32)((UINT8 *)newFunction -
+			((UINT8 *)functionToPatch + sizeof(struct JMP_REL)));
+}
+
+/**
+  \brief	Backup the original bytes of the indicated BLOCK IO or BLOCK IO2 function.
+
+  This function saves the first bytes of the indicated BLOCK IO or BLOCK IO2 function
+  to the system context. This is done to be able to restore them later. After this backup,
+  these first bytes can be replaced by a patch.
+  Also, the new bytes (the patch) are prepared in the context, but the replacement (patch)
+  of the BLOCK IO or BLOCK IO2 function is not performed by this function.
+
+  \param[in]       mode			indicates which function to prepare and backup
+
+**/
+static VOID CsPatchCodeInit(
+		IN enum cs_io_access_mode	mode
+		) {
+
+	switch (mode) {
+	case CS_BLOCK_IO_READ:
+		ASSERT(context.ConsumedBlockIo != NULL);
+		_CsPatchCodeInit(CS_BLOCK_IO_READ, context.ConsumedBlockIo->ReadBlocks, CsReadBlocks);
+		break;
+	case CS_BLOCK_IO_WRITE:
+		ASSERT(context.ConsumedBlockIo != NULL);
+		_CsPatchCodeInit(CS_BLOCK_IO_WRITE, context.ConsumedBlockIo->WriteBlocks, CsWriteBlocks);
+		break;
+	case CS_BLOCK_IO2_READ:
+		ASSERT(context.ConsumedBlockIo2 != NULL);
+		_CsPatchCodeInit(CS_BLOCK_IO2_READ, context.ConsumedBlockIo2->ReadBlocksEx, CsReadBlocksEx);
+		break;
+	case CS_BLOCK_IO2_WRITE:
+		ASSERT(context.ConsumedBlockIo2 != NULL);
+		_CsPatchCodeInit(CS_BLOCK_IO2_WRITE, context.ConsumedBlockIo2->WriteBlocksEx, CsWriteBlocksEx);
+		break;
+	default:
+		break;
+	}
+}
+
+/**
+  \brief	Reverse the patch of the indicated BLOCK IO or BLOCK IO2 function.
+
+  This function replaces the patched bytes in the indicated BLOCK IO or BLOCK IO2
+  function with the original bytes in order to restore the original behavior of the
+  function.
+
+  \param[in]       mode			indicates which function to restore
+
+**/
+static VOID CsUnpatchCode(
+		IN enum cs_io_access_mode	mode
+		) {
+
+	switch (mode) {
+	case CS_BLOCK_IO_READ:
+		ASSERT(context.ConsumedBlockIo != NULL);
+		CopyMem(context.ConsumedBlockIo->ReadBlocks, &context.patchedBytes[CS_BLOCK_IO_READ],
+				sizeof(context.patchedBytes[CS_BLOCK_IO_READ]));
+		break;
+	case CS_BLOCK_IO_WRITE:
+		ASSERT(context.ConsumedBlockIo != NULL);
+		CopyMem(context.ConsumedBlockIo->WriteBlocks, &context.patchedBytes[CS_BLOCK_IO_WRITE],
+				sizeof(context.patchedBytes[CS_BLOCK_IO_WRITE]));
+		break;
+	case CS_BLOCK_IO2_READ:
+		ASSERT(context.ConsumedBlockIo2 != NULL);
+		CopyMem(context.ConsumedBlockIo2->ReadBlocksEx, &context.patchedBytes[CS_BLOCK_IO2_READ],
+				sizeof(context.patchedBytes[CS_BLOCK_IO2_READ]));
+		break;
+	case CS_BLOCK_IO2_WRITE:
+		ASSERT(context.ConsumedBlockIo2 != NULL);
+		CopyMem(context.ConsumedBlockIo2->WriteBlocksEx, &context.patchedBytes[CS_BLOCK_IO2_WRITE],
+				sizeof(context.patchedBytes[CS_BLOCK_IO2_WRITE]));
+		break;
+	default:
+		break;
+	}
+}
+
+/**
+  \brief	Decide whether the media need to be handled by the crypto driver.
+
+  This function decides based on the given parameters whether the defined media
+  needs to be handled by the crypto driver or the original driver must be used.
+
+  \param[in]       Media	pointer to the BLOCK IO media structure
+  \param[in]       MediaId	value of the given media ID as passed to the BLOCK IO
+  	  	  	  	  	  	  	  protocol interface
+
+  \return TRUE				indicates that the device has to be handled by the
+  	  	  	  	  	  	  	  crypto driver because it might be encrypted
+  \return FALSE				indicates that the device is not encrypted and
+  	  	  	  	  	  	  	  does not need to be handled by the crypto driver
+**/
+static BOOLEAN CsCheckForCorrectDevice(
+		IN EFI_BLOCK_IO_MEDIA			*Media,
+		IN UINT32						MediaId
+	) {
+
+	CS_DEBUG((D_INFO, L"check device: logical partition: %x, removable media: %x, present: %x, ID: %x",
+			Media->LogicalPartition, Media->RemovableMedia, Media->MediaPresent, MediaId));
+
+	if (Media->LogicalPartition == TRUE &&
+		Media->RemovableMedia == FALSE &&
+		Media->MediaPresent == TRUE &&
+		MediaId == context.ConsumedBlockIo->Media->MediaId &&
+		Media->LastBlock == context.ConsumedBlockIo->Media->LastBlock) {
+
+		CS_DEBUG((D_INFO, L", Ok.\n"));
+		return TRUE;
+	}
+
+	CS_DEBUG((D_INFO, L", skip\n"));
+
+	return FALSE;
+}
+
+/**
+  \brief	Read or write bytes to disk (without any encryption/decryption).
+
+  This function calls the original (unpatched) functions of the BLOCK IO or
+  BLOCK IO2 protocol in order to read or write data from or to the given device.
+  This is implemented by reversing the patch of the disk access function, then
+  calling the function, then patching it again.
+
+  \param[in]       mode			indicates which function to call (read or write)
+  \param[in]       _BlockIo		pointer to the BLOCK IO or BLOCK IO2 protocol
+  \param[in]       MediaId		Id of the media, changes every time the media is
+                              	replaced.
+  \param[in]       Lba			The starting Logical Block Address to access
+  \param[in, out]  Token		A pointer to the token associated with the transaction.
+  \param[in]       BufferSize	Size of Buffer, must be a multiple of device block size.
+  \param[out]      Buffer		A pointer to the destination buffer for the data. The
+                              	caller is responsible for either having implicit or
+                              	explicit ownership of the buffer.
+
+  \return EFI_SUCCESS           The read request was queued if Token->Event is
+                                not NULL.The data was read correctly from the
+                                device if the Token->Event is NULL.
+  \return EFI_DEVICE_ERROR      The device reported an error while performing
+                                the read.
+  \return EFI_NO_MEDIA          There is no media in the device.
+  \return EFI_MEDIA_CHANGED     The MediaId is not for the current media.
+  \return EFI_BAD_BUFFER_SIZE   The BufferSize parameter is not a multiple of the
+                                intrinsic block size of the device.
+  \return EFI_INVALID_PARAMETER The read request contains LBAs that are not valid,
+                                or the buffer is not on proper alignment.
+  \return EFI_OUT_OF_RESOURCES  The request could not be completed due to a lack
+                                of resources.
+**/
+static EFI_STATUS CsParentReadWriteBlocks(
+		IN enum cs_io_access_mode		mode,
+		IN VOID				            *_BlockIo,
+		IN UINT32						MediaId,
+		IN EFI_LBA						Lba,
+		IN OUT EFI_BLOCK_IO2_TOKEN		*Token,
+		IN UINTN						BufferSize,
+		IN OUT VOID						*Buffer
+	) {
+
+	EFI_STATUS error = EFI_SUCCESS;
+	EFI_BLOCK_IO *BlockIo = (EFI_BLOCK_IO *)_BlockIo;
+	EFI_BLOCK_IO2 *BlockIo2 = (EFI_BLOCK_IO2 *)_BlockIo;
+
+	ASSERT(_BlockIo != NULL);
+
+	CsUnpatchCode(mode);
+
+	switch (mode) {
+	case CS_BLOCK_IO_READ:
+		error = uefi_call_wrapper(BlockIo->ReadBlocks, 5, BlockIo, MediaId, Lba, BufferSize, Buffer);
+		break;
+	case CS_BLOCK_IO_WRITE:
+		error = uefi_call_wrapper(BlockIo->WriteBlocks, 5, BlockIo, MediaId, Lba, BufferSize, Buffer);
+		break;
+	case CS_BLOCK_IO2_READ:
+		error = uefi_call_wrapper(BlockIo2->ReadBlocksEx, 6, BlockIo2, MediaId, Lba, Token, BufferSize, Buffer);
+		break;
+	case CS_BLOCK_IO2_WRITE:
+		error = uefi_call_wrapper(BlockIo2->WriteBlocksEx, 6, BlockIo2, MediaId, Lba, Token, BufferSize, Buffer);
+		break;
+	default:
+		error = EFI_INVALID_PARAMETER;
+		break;
+	}
+	if (EFI_ERROR(error)) {
+		CS_DEBUG((D_ERROR, L"CsParentReadWriteBlocks(): access to disk failed: %r\n", error));
+	}
+
+	CsPatchCode(mode);
+
+	return error;
+}
+
+/**
+  \brief	Read BufferSize bytes from Lba into Buffer.
+
+  This function is the patched version of the corresponding BLOCK IO protocol function.
+  It handles all requests of the original BLOCK IO driver and has to distinguish between
+  accesses to the encrypted device and accesses to other devices. For the accesses to
+  other devices, the original (unpatched) version of this function is called, otherwise
+  the content is encrypted/decrypted.
+
+  \param  This       Indicates a pointer to the calling context.
+  \param  MediaId    Id of the media, changes every time the media is replaced.
+  \param  Lba        The starting Logical Block Address to read from
+  \param  BufferSize Size of Buffer, must be a multiple of device block size.
+  \param  Buffer     A pointer to the destination buffer for the data. The caller is
+                     responsible for either having implicit or explicit ownership of the buffer.
+
+  \return EFI_SUCCESS           The data was read correctly from the device.
+  \return EFI_DEVICE_ERROR      The device reported an error while performing the read.
+  \return EFI_NO_MEDIA          There is no media in the device.
+  \return EFI_MEDIA_CHANGED     The MediaId does not matched the current device.
+  \return EFI_BAD_BUFFER_SIZE   The Buffer was not a multiple of the block size of the device.
+  \return EFI_INVALID_PARAMETER The read request contains LBAs that are not valid,
+                                or the buffer is not on proper alignment.
+
+**/
+EFI_STATUS EFIAPI CsReadBlocks(
+		IN EFI_BLOCK_IO		              *This,
+		IN UINT32                         MediaId,
+		IN EFI_LBA                        Lba,
+		IN UINTN                          BufferSize,
+		OUT VOID                          *Buffer
+	) {
 	EFI_STATUS error;
-	CS_READ_BLOCKS_SUBTASK *Subtask = (CS_READ_BLOCKS_SUBTASK *)Context;
+	EFI_LBA block;
+	BOOLEAN needEncryption = CsCheckForCorrectDevice(This->Media, MediaId);
 
-	if (Subtask == NULL) {
-		CS_DEBUG((D_ERROR, L"csCallbackReadComplete() with invalid parameter\n"));
-		return;
-	}
+	CS_DEBUG((D_INFO, L"CsReadBlocks(ID=0x%x, ", MediaId));
+	CS_DEBUG((D_INFO, L"LBA=0x%x, ", Lba));
+	CS_DEBUG((D_INFO, L"Size=0x%x, ", BufferSize));
+	CS_DEBUG((D_INFO, L"Enc=%x) called.\n", needEncryption));
 
-	CS_DEBUG((D_INFO, L"csCallbackReadComplete(ID=0x%x, LBA=0x%x, Size=0x%x, Status=%r) called.\n",
-			Subtask->MediaId, Subtask->Lba, Subtask->BufferSize, Subtask->Token.TransactionStatus));
-
-	if (EFI_ERROR(Subtask->Token.TransactionStatus)) {
-		CS_DEBUG((D_ERROR, L"ReadBlocksEx() failed (%r)\n", Subtask->Token.TransactionStatus));
-	} else {
-		error = decryptBlocks(Subtask->Lba, Subtask->BufferSize, Subtask->Buffer);
-		if (EFI_ERROR(error)) {
-			CS_DEBUG((D_ERROR, L"csCallbackReadComplete() failed (%r)\n", error));
-			Subtask->Token.TransactionStatus = error; /* used in _csDestroySubtask() */
+	if (needEncryption) {
+		block = Lba * context.factorMediaBlock;	/* block regards to the encryption/decryption unit,
+													Lba regards to the media unit */
+		if (context.options.isHiddenVolume) {
+			Lba += context.hiddenSectorOffset;
 		}
 	}
 
-	_csDestroySubtask(Subtask);	/* contains the signaling to the caller */
-
-	FreePool(Subtask);
-}
-
-/*
- * \brief	creates a subtask for non-blocking read
- *
- * The function defines and initializes a subtask which is used to asynchronously read from
- * a block device. A callback function is defined that is called when the read operation
- * is finished.
- *
- * \param	BufferSize	Size of Buffer, must be a multiple of device block size.
- * \param	Buffer		A pointer to the destination buffer for the data. The caller is
- *						responsible for either having implicit or explicit ownership of the buffer.
- * \param 	MediaId  	Id of the media, changes every time the media is replaced.
- * \param 	Lba         The starting Logical Block Address to read from
- * \param	CallerEvent	The event of the caller of ReadBlocksEx()
- *
- * \return	pointer to the creates subtask structure or NULL on error
- */
-static CS_READ_BLOCKS_SUBTASK EFIAPI *csCreateSubtask(UINTN BufferSize, VOID *Buffer,
-		UINT32 MediaId, EFI_LBA Lba, EFI_EVENT CallerEvent) /* attention: untested! */ {
-
-	CS_READ_BLOCKS_SUBTASK *Subtask;
-	EFI_STATUS error;
-
-    ASSERT(Buffer != NULL);
-
-	Subtask = AllocateZeroPool(sizeof(CS_READ_BLOCKS_SUBTASK));
-	if (Subtask == NULL) {
-		CS_DEBUG((D_ERROR, L"unable to allocate subtask\n"));
-		return NULL;
-	}
-	Subtask->BufferSize = BufferSize;
-	Subtask->Buffer = Buffer;
-	Subtask->MediaId = MediaId;
-	Subtask->Lba = Lba;
-	Subtask->CallerEvent = CallerEvent;
-
-	error = uefi_call_wrapper(BS->CreateEvent, 5, EVT_NOTIFY_SIGNAL, TPL_NOTIFY, csCallbackReadComplete,
-             Subtask, &Subtask->Token.Event);
+	/* read data from disk */
+	error = CsParentReadWriteBlocks(CS_BLOCK_IO_READ, This, MediaId, Lba, NULL, BufferSize, Buffer);
 	if (EFI_ERROR(error)) {
-		FreePool (Subtask);
-		CS_DEBUG((D_ERROR, L"CreateEvent() returned %r\n", error));
-		return NULL;
+		return error;
 	}
 
-	AcquireLock(&context.TaskListReadExLock);
-	InsertTailList(&context.TaskListReadEx, &Subtask->List);
-	ReleaseLock(&context.TaskListReadExLock);
+	if (needEncryption == FALSE) {
+		return EFI_SUCCESS;	/* finished: no decryption needed */
+	}
 
-	return Subtask;
+	error = decryptBlocks(block, BufferSize, Buffer);
+	if (EFI_ERROR(error)) {
+		CS_DEBUG((D_ERROR, L"decryptBlocks() failed (%r)\n", error));
+	}
+
+	return EFI_SUCCESS;
 }
+
+/**
+  \brief	Write BufferSize bytes from Lba into Buffer.
+
+  This function is the patched version of the corresponding BLOCK IO protocol function.
+  It handles all requests of the original BLOCK IO driver and has to distinguish between
+  accesses to the encrypted device and accesses to other devices. For the accesses to
+  other devices, the original (unpatched) version of this function is called, otherwise
+  the content is encrypted/decrypted.
+
+  \param  This       Indicates a pointer to the calling context.
+  \param  MediaId    The media ID that the write request is for.
+  \param  Lba        The starting logical block address to be written. The caller is
+                     responsible for writing to only legitimate locations.
+  \param  BufferSize Size of Buffer, must be a multiple of device block size.
+  \param  Buffer     A pointer to the source buffer for the data.
+
+  \return EFI_SUCCESS           The data was written correctly to the device.
+  \return EFI_WRITE_PROTECTED   The device can not be written to.
+  \return EFI_DEVICE_ERROR      The device reported an error while performing the write.
+  \return EFI_NO_MEDIA          There is no media in the device.
+  \return EFI_MEDIA_CHNAGED     The MediaId does not matched the current device.
+  \return EFI_BAD_BUFFER_SIZE   The Buffer was not a multiple of the block size of the device.
+  \return EFI_INVALID_PARAMETER The write request contains LBAs that are not valid,
+                                or the buffer is not on proper alignment.
+
+**/
+EFI_STATUS EFIAPI CsWriteBlocks(
+		IN EFI_BLOCK_IO		              *This,
+		IN UINT32                         MediaId,
+		IN EFI_LBA                        Lba,
+		IN UINTN                          BufferSize,
+		IN VOID                           *Buffer
+	) {
+
+	EFI_STATUS error;
+	EFI_LBA block;
+	BOOLEAN needEncryption = CsCheckForCorrectDevice(This->Media, MediaId);
+
+	CS_DEBUG((D_INFO, L"CsWriteBlocks(ID=0x%x, ", MediaId));
+	CS_DEBUG((D_INFO, L"LBA=0x%x, ", Lba));
+	CS_DEBUG((D_INFO, L"Size=0x%x, ", BufferSize));
+	CS_DEBUG((D_INFO, L"Enc=%x) called.\n", needEncryption));
+
+	if (needEncryption) {
+
+		block = Lba * context.factorMediaBlock;	/* block regards to the encryption/decryption unit,
+															   Lba regards to the media unit */
+		error = encryptBlocks(block, BufferSize, Buffer);
+		if (EFI_ERROR(error)) {
+			CS_DEBUG((D_ERROR, L"encryptBlocks() failed (%r)\n", error));
+			return error;
+		}
+		if (context.options.isHiddenVolume) {
+			Lba += context.hiddenSectorOffset;
+		}
+	}
+
+	error = CsParentReadWriteBlocks(CS_BLOCK_IO_WRITE, This, MediaId, Lba, NULL, BufferSize, Buffer);
+
+	if (needEncryption) {
+		/* to recover the original buffer content: */
+		error = decryptBlocks(block, BufferSize, Buffer);
+		if (EFI_ERROR(error)) {
+			CS_DEBUG((D_ERROR, L"decryptBlocks() failed (%r)\n", error));
+		}
+	}
+
+	return error;
+}
+
+/**
+  \brief	Read BufferSize bytes from Lba into Buffer.
+
+  This function reads the requested number of blocks from the device. All the
+  blocks are read, or an error is returned.
+  If EFI_DEVICE_ERROR, EFI_NO_MEDIA,_or EFI_MEDIA_CHANGED is returned and
+  non-blocking I/O is being used, the Event associated with this request will
+  not be signaled.
+
+  This function is the patched version of the corresponding BLOCK IO2 protocol function.
+  It handles all requests of the original BLOCK IO2 driver and has to distinguish between
+  accesses to the encrypted device and accesses to other devices. For the accesses to
+  other devices, the original (unpatched) version of this function is called, otherwise
+  the content is encrypted/decrypted.
+
+  \param[in]       This       Indicates a pointer to the calling context.
+  \param[in]       MediaId    Id of the media, changes every time the media is
+                              replaced.
+  \param[in]       Lba        The starting Logical Block Address to read from.
+  \param[in, out]  Token            A pointer to the token associated with the transaction.
+  \param[in]       BufferSize Size of Buffer, must be a multiple of device block size.
+  \param[out]      Buffer     A pointer to the destination buffer for the data. The
+                              caller is responsible for either having implicit or
+                              explicit ownership of the buffer.
+
+  \return EFI_SUCCESS           The read request was queued if Token->Event is
+                                not NULL.The data was read correctly from the
+                                device if the Token->Event is NULL.
+  \return EFI_DEVICE_ERROR      The device reported an error while performing
+                                the read.
+  \return EFI_NO_MEDIA          There is no media in the device.
+  \return EFI_MEDIA_CHANGED     The MediaId is not for the current media.
+  \return EFI_BAD_BUFFER_SIZE   The BufferSize parameter is not a multiple of the
+                                intrinsic block size of the device.
+  \return EFI_INVALID_PARAMETER The read request contains LBAs that are not valid,
+                                or the buffer is not on proper alignment.
+  \return EFI_OUT_OF_RESOURCES  The request could not be completed due to a lack
+                                of resources.
+**/
+EFI_STATUS EFIAPI CsReadBlocksEx(
+		IN     EFI_BLOCK_IO2_PROTOCOL *This,
+		IN     UINT32                 MediaId,
+		IN     EFI_LBA                Lba,
+		IN OUT EFI_BLOCK_IO2_TOKEN    *Token,
+		IN     UINTN                  BufferSize,
+		OUT    VOID                   *Buffer
+	) {
+	EFI_STATUS error;
+	EFI_LBA block;
+	BOOLEAN needEncryption = CsCheckForCorrectDevice(This->Media, MediaId);
+
+	CS_DEBUG((D_INFO, L"CsReadBlocksEx(ID=0x%x, ", MediaId));
+	CS_DEBUG((D_INFO, L"LBA=0x%x, ", Lba));
+	CS_DEBUG((D_INFO, L"Size=0x%x, ", BufferSize));
+	CS_DEBUG((D_INFO, L"Enc=%x) called.\n", needEncryption));
+
+	if (needEncryption == FALSE) {
+		return CsParentReadWriteBlocks(CS_BLOCK_IO2_READ, This, MediaId, Lba, Token, BufferSize, Buffer);
+	}
+
+	/* blocking access!! */
+	block = Lba * context.factorMediaBlock;	/* block regards to the encryption/decryption unit,
+													Lba regards to the media unit */
+	if (context.options.isHiddenVolume) {
+		Lba += context.hiddenSectorOffset;
+	}
+
+	/* read data from disk */
+	error = CsParentReadWriteBlocks(CS_BLOCK_IO_READ, This, MediaId, Lba, NULL, BufferSize, Buffer);
+	if (!EFI_ERROR(error)) {
+		error = decryptBlocks(block, BufferSize, Buffer);
+		if (EFI_ERROR(error)) {
+			CS_DEBUG((D_ERROR, L"decryptBlocks() failed (%r)\n", error));
+		}
+	}
+
+	if (Token) {
+		if (Token->Event) {
+			Token->TransactionStatus = error;
+			BS->SignalEvent(Token->Event);
+		}
+	}
+
+	return error;
+}
+
+/**
+  \brief	Write BufferSize bytes from Lba into Buffer.
+
+  This function writes the requested number of blocks to the device. All blocks
+  are written, or an error is returned.If EFI_DEVICE_ERROR, EFI_NO_MEDIA,
+  EFI_WRITE_PROTECTED or EFI_MEDIA_CHANGED is returned and non-blocking I/O is
+  being used, the Event associated with this request will not be signaled.
+
+  This function is the patched version of the corresponding BLOCK IO2 protocol function.
+  It handles all requests of the original BLOCK IO2 driver and has to distinguish between
+  accesses to the encrypted device and accesses to other devices. For the accesses to
+  other devices, the original (unpatched) version of this function is called, otherwise
+  the content is encrypted/decrypted.
+
+  \param[in]       This       Indicates a pointer to the calling context.
+  \param[in]       MediaId    The media ID that the write request is for.
+  \param[in]       Lba        The starting logical block address to be written. The
+                              caller is responsible for writing to only legitimate
+                              locations.
+  \param[in, out]  Token      A pointer to the token associated with the transaction.
+  \param[in]       BufferSize Size of Buffer, must be a multiple of device block size.
+  \param[in]       Buffer     A pointer to the source buffer for the data.
+
+  \return EFI_SUCCESS           The write request was queued if Event is not NULL.
+                                The data was written correctly to the device if
+                                the Event is NULL.
+  \return EFI_WRITE_PROTECTED   The device can not be written to.
+  \return EFI_NO_MEDIA          There is no media in the device.
+  \return EFI_MEDIA_CHNAGED     The MediaId does not matched the current device.
+  \return EFI_DEVICE_ERROR      The device reported an error while performing the write.
+  \return EFI_BAD_BUFFER_SIZE   The Buffer was not a multiple of the block size of the device.
+  \return EFI_INVALID_PARAMETER The write request contains LBAs that are not valid,
+                                or the buffer is not on proper alignment.
+  \return EFI_OUT_OF_RESOURCES  The request could not be completed due to a lack
+                                of resources.
+**/
+EFI_STATUS EFIAPI CsWriteBlocksEx(
+		IN     EFI_BLOCK_IO2_PROTOCOL  *This,
+		IN     UINT32                 MediaId,
+		IN     EFI_LBA                Lba,
+		IN OUT EFI_BLOCK_IO2_TOKEN    *Token,
+		IN     UINTN                  BufferSize,
+		IN     VOID                   *Buffer
+	) {
+	EFI_STATUS error;
+	EFI_LBA block;
+	BOOLEAN needEncryption = CsCheckForCorrectDevice(This->Media, MediaId);
+
+	CS_DEBUG((D_INFO, L"CsWriteBlocksEx(ID=0x%x, ", MediaId));
+	CS_DEBUG((D_INFO, L"LBA=0x%x, ", Lba));
+	CS_DEBUG((D_INFO, L"Size=0x%x, ", BufferSize));
+	CS_DEBUG((D_INFO, L"Enc=%x) called.\n", needEncryption));
+
+	if (needEncryption == FALSE) {
+		return CsParentReadWriteBlocks(CS_BLOCK_IO2_WRITE, This, MediaId, Lba, Token, BufferSize, Buffer);
+	}
+
+	/* blocking access!! */
+	block = Lba * context.factorMediaBlock;	/* block regards to the encryption/decryption unit,
+														   Lba regards to the media unit */
+	error = encryptBlocks(block, BufferSize, Buffer);
+	if (!EFI_ERROR(error)) {
+		if (context.options.isHiddenVolume) {
+			Lba += context.hiddenSectorOffset;
+		}
+		error = CsParentReadWriteBlocks(CS_BLOCK_IO_WRITE, This, MediaId, Lba, NULL, BufferSize, Buffer);
+		if (!EFI_ERROR(error)) {
+			/* to recover the original buffer content: */
+			error = decryptBlocks(block, BufferSize, Buffer);
+			if (EFI_ERROR(error)) {
+				CS_DEBUG((D_ERROR, L"decryptBlocks() failed (%r)\n", error));
+			}
+		}
+	}
+
+	if (Token) {
+		if (Token->Event) {
+			Token->TransactionStatus = error;
+			BS->SignalEvent(Token->Event);
+		}
+	}
+
+	return error;
+}
+
 
 /**
   \brief	Test to see if this driver supports ControllerHandle.
@@ -447,13 +857,24 @@ EFI_STATUS EFIAPI CsDriverBindingSupported (
 		}
 	}
 
+	if (!EFI_ERROR(error)) {
+		/* check whether the driver is already connected to another controller by checking the patch,
+		 * if this succeeds, then the start() function exits */
+		if (context.patchBytes[CS_BLOCK_IO_READ].opcode != 0) {
+			CS_DEBUG((D_INFO, L"driver is already connected to another device, exiting...\n"));
+			error = EFI_ALREADY_STARTED;
+		} else {
+			error = EFI_SUCCESS;
+		}
+	}
+
 	return error;
 }
 
 /**
   \brief	uninstall the provided protocol interfaces to the given controller handle
 
-  This function tries to uninstall the BLOCK_IO protocol and the BLOCK_IO2 protocol
+  This function tries to uninstall the BLOCK_IO protocol
   (if this protocol is provided) from the given controller handle.
 
   \param  ControllerHandle		controller handle
@@ -465,17 +886,10 @@ static void uninstall_provided_protocols(IN EFI_HANDLE ControllerHandle) {
 	/* uninstall the provided protocol interfaces */
 	if (context.status.blockIoInstalled) {
 		LibUninstallProtocolInterfaces(ControllerHandle,
-				&BlockIoProtocol, &CsBlockIo,
+				&BlockIoProtocol, &CsChildBlockIo,
 				&CsCallerIdGuid, NULL /* no data required */,
 				NULL);
 		context.status.blockIoInstalled = 0;
-	}
-	if (context.status.blockIo2Installed) {
-		LibUninstallProtocolInterfaces(ControllerHandle,
-				&BlockIo2Protocol, &CsBlockIo2,
-				&CsCallerIdGuid, NULL /* no data required */,
-				NULL);
-		context.status.blockIo2Installed = 0;
 	}
 	if (context.ChildDevicePath) {
 		LibUninstallProtocolInterfaces(ControllerHandle,
@@ -493,7 +907,7 @@ static void uninstall_provided_protocols(IN EFI_HANDLE ControllerHandle) {
 /**
   \brief	install the provided protocol interfaces to the given controller handle
 
-  This function tries to install the BLOCK_IO protocol and the BLOCK_IO2 protocol
+  This function tries to install the BLOCK_IO protocol
   (if this protocol is consumed) to the given controller handle. Also, the function
   installs the devicePathProtocol interface, if DevicePath is not NULL.
 
@@ -505,53 +919,37 @@ static void uninstall_provided_protocols(IN EFI_HANDLE ControllerHandle) {
 static EFI_STATUS install_provided_protocols(IN EFI_HANDLE *pControllerHandle, IN EFI_DEVICE_PATH *DevicePath) {
 	EFI_STATUS error;
 
-	CsBlockIo.Media = context.ConsumedBlockIo->Media;
-	if (context.ConsumedBlockIo2) {
-		CsBlockIo2.Media = context.ConsumedBlockIo2->Media;
-		error = LibInstallProtocolInterfaces(pControllerHandle,
-				&BlockIoProtocol, &CsBlockIo,
-				&BlockIo2Protocol, &CsBlockIo2,
-				&ComponentNameProtocol, &CsComponentName,
-				&ComponentName2Protocol, &CsComponentName2,
-				&CsCallerIdGuid, NULL /* no data required */,
-				(DevicePath ? &DevicePathProtocol : NULL), DevicePath,
-				NULL);
-		if (!EFI_ERROR(error)) {
-			context.status.blockIoInstalled = 1;
-			context.status.blockIo2Installed = 1;
-		}
-	} else {
-		error = LibInstallProtocolInterfaces(pControllerHandle,
-				&BlockIoProtocol, &CsBlockIo,
-				&ComponentNameProtocol, &CsComponentName,
-				&ComponentName2Protocol, &CsComponentName2,
-				&CsCallerIdGuid, NULL /* no data required */,
-				(DevicePath ? &DevicePathProtocol : NULL), DevicePath,
-				NULL);
-		if (!EFI_ERROR(error)) {
-			context.status.blockIoInstalled = 1;
-			context.status.blockIo2Installed = 0;
-		}
+	CsChildBlockIo.Media = context.ConsumedBlockIo->Media;
+	error = LibInstallProtocolInterfaces(pControllerHandle,
+			&BlockIoProtocol, &CsChildBlockIo,
+			&ComponentNameProtocol, &CsComponentName,
+			&ComponentName2Protocol, &CsComponentName2,
+			&CsCallerIdGuid, NULL /* no data required */,
+			(DevicePath ? &DevicePathProtocol : NULL), DevicePath,
+			NULL);
+	if (!EFI_ERROR(error)) {
+		context.status.blockIoInstalled = 1;
 	}
 	if (EFI_ERROR(error)) {
 		CS_DEBUG((D_ERROR, L"error while installation of provided protocols: %r\n", error));
 	} else {
-		context.factorMediaBlock = CsBlockIo.Media->BlockSize / ENCRYPTION_DATA_UNIT_SIZE;
+		context.factorMediaBlock = CsChildBlockIo.Media->BlockSize / ENCRYPTION_DATA_UNIT_SIZE;
 
-		CS_DEBUG((D_INFO, L"media block size is 0x%x\n", CsBlockIo.Media->BlockSize));
-		CS_DEBUG((D_INFO, L"removable media/logical partition: %x/%x\n",
-				CsBlockIo.Media->RemovableMedia, CsBlockIo.Media->LogicalPartition));
+		CS_DEBUG((D_INFO, L"media block size is 0x%x\n", CsChildBlockIo.Media->BlockSize));
+		CS_DEBUG((D_INFO, L"removable media/logical partition/ID: %x/%x/%x\n",
+				CsChildBlockIo.Media->RemovableMedia, CsChildBlockIo.Media->LogicalPartition,
+				CsChildBlockIo.Media->MediaId));
 		CS_DEBUG((D_INFO, L"first/last LBA 0x%lx/0x%lx\n",
-				CsBlockIo.Media->LowestAlignedLba, CsBlockIo.Media->LastBlock));
-		ASSERT(CsBlockIo.Media->BlockSize >= ENCRYPTION_DATA_UNIT_SIZE);
-		ASSERT(CsBlockIo.Media->BlockSize % ENCRYPTION_DATA_UNIT_SIZE == 0);
+				CsChildBlockIo.Media->LowestAlignedLba, CsChildBlockIo.Media->LastBlock));
+		ASSERT(CsChildBlockIo.Media->BlockSize >= ENCRYPTION_DATA_UNIT_SIZE);
+		ASSERT(CsChildBlockIo.Media->BlockSize % ENCRYPTION_DATA_UNIT_SIZE == 0);
 	}
 
 	return error;
 }
 
 /**
-  \brief	close the consumed protocols (BlockIO and BlockIO2) at the given controller
+  \brief	close the consumed protocols (BlockIO/BlockIO2) at the given controller
 
   This function close the protocols that are consumed by the driver at the given controller.
 
@@ -587,7 +985,7 @@ static EFI_STATUS close_consumed_protocols(IN EFI_DRIVER_BINDING_PROTOCOL *This,
 }
 
 /**
-  \brief	open the consumed protocols (BlockIO and BlockIO2) at the given controller
+  \brief	open the consumed protocols (BlockIO/BlockIO2) at the given controller
 
   This function opens the protocols that are consumed by the driver at the given controller.
   Depending on the given flag, the open mode changes: when by_child is set, then the protocols
@@ -622,29 +1020,28 @@ static EFI_STATUS open_consumed_protocols(IN EFI_DRIVER_BINDING_PROTOCOL *This,
 		}
 		return error;
 	}
-
 	if ((!by_child) || (context.ConsumedBlockIo2))
-	{
-		EFI_STATUS error2;
-		/* BlockIo2Protocol is optional, no error if not available... */
-		error2 = uefi_call_wrapper(BS->OpenProtocol, 6, ControllerHandle, &BlockIo2Protocol,
-				(VOID **) &context.ConsumedBlockIo2, This->DriverBindingHandle, handle, mode);
-		if (EFI_ERROR(error2)) {
-			CS_DEBUG((D_WARN, L"Unable to open BlockIO2 Protocol (%s): %r\n",
-					(by_child ? L"by child" : L"parent"), error2));
-			if (!by_child) {
-				context.ConsumedBlockIo2 = NULL;
-			} else {
-				error = error2;
+		{
+			EFI_STATUS error2;
+			/* BlockIo2Protocol is optional, no error if not available... */
+			error2 = uefi_call_wrapper(BS->OpenProtocol, 6, ControllerHandle, &BlockIo2Protocol,
+					(VOID **) &context.ConsumedBlockIo2, This->DriverBindingHandle, handle, mode);
+			if (EFI_ERROR(error2)) {
+				CS_DEBUG((D_WARN, L"Unable to open BlockIO2 Protocol (%s): %r\n",
+						(by_child ? L"by child" : L"parent"), error2));
+				if (!by_child) {
+					context.ConsumedBlockIo2 = NULL;
+				} else {
+					error = error2;
+				}
 			}
 		}
-	}
 
 	return error;
 }
 
 /**
-  \brief	create a new child device handle and install BlockIO/BlockIO2 protocol at it.
+  \brief	create a new child device handle and install BlockIO protocol at it.
 
   This function takes the given device handle and creates a child handle of it.
   The device path of the given handle is extended by the string CS_CHILD_PATH_EXTENSION
@@ -655,7 +1052,6 @@ static EFI_STATUS open_consumed_protocols(IN EFI_DRIVER_BINDING_PROTOCOL *This,
 
   \return	the success state of the function
 **/
-#if 1
 static EFI_STATUS add_new_child_handle(IN EFI_HANDLE ControllerHandle) {
 	EFI_STATUS error;
 	EFI_DEVICE_PATH *ParentDevicePath;
@@ -699,45 +1095,6 @@ static EFI_STATUS add_new_child_handle(IN EFI_HANDLE ControllerHandle) {
 
 	return error;
 }
-#else
-static EFI_STATUS add_new_child_handle(IN EFI_HANDLE ControllerHandle) {
-	EFI_STATUS error;
-	EFI_DEVICE_PATH *ParentDevicePath;
-	VENDOR_DEVICE_PATH path;
-	const EFI_GUID tmp_GUID = CS_CALLER_ID_GUID;
-
-	ZeroMem (&path, sizeof(path));
-	path.Header.Type = HARDWARE_DEVICE_PATH;
-	path.Header.SubType = HW_VENDOR_DP;
-	path.Guid = tmp_GUID;
-	SetDevicePathNodeLength(&path.Header, sizeof(path) + sizeof(path.Guid));
-
-	/* get ParentDevicePath */
-	error = uefi_call_wrapper(BS->HandleProtocol, 3, ControllerHandle, &DevicePathProtocol,
-					  (VOID **) &ParentDevicePath);
-	if (!EFI_ERROR(error)) {
-
-		CS_DEBUG((D_INFO, L"ParentDevicePath type/subtype 0x%x/0x%x\n",
-							ParentDevicePath->Type, ParentDevicePath->SubType));
-
-		context.ChildDevicePath = AppendDevicePathNode (ParentDevicePath, (EFI_DEVICE_PATH *) &path);
-		if (context.ChildDevicePath == NULL) {
-			error = EFI_OUT_OF_RESOURCES;
-		}
-		if (!EFI_ERROR(error)) {
-			/* Add Device Path Protocol and Block I/O Protocol to a new handle */
-			context.ChildHandle = NULL;
-			/*******************************************************************/
-			error = install_provided_protocols(&context.ChildHandle, context.ChildDevicePath);
-			/*******************************************************************/
-		}
-	} else {
-		CS_DEBUG((D_ERROR, L"Unable to create the child handle: %r\n", error));
-	}
-
-	return error;
-}
-#endif
 
 /**
   \brief	destroy the child handle that was created by add_new_child_handle().
@@ -783,34 +1140,51 @@ EFI_STATUS EFIAPI CsDriverBindingStart (
 
 	CS_DEBUG((D_INFO, L"CsDriverBindingStart(0x%x) started.\n", ControllerHandle));
 
-	/* exclusively open the protocols that are consumed by the driver: BlockIoProtocol and BlockIo2Protocol */
+	/* exclusively open the protocols that are consumed by the driver: BlockIo Protocol */
 	error = open_consumed_protocols(This, ControllerHandle, FALSE);
 	if (EFI_ERROR(error)) {
 		return error;
 	}
 
-	/* see Driver Writers Guide, example 31 */
-	error = add_new_child_handle(ControllerHandle);
-	if (EFI_ERROR(error)) {
-		goto fail;
-	}
+	if (context.options.createChildDevice) {
 
-	/* and now open again for the client handle to record the parent-child relationship */
-	error = open_consumed_protocols(This, ControllerHandle, TRUE);
-	if (EFI_ERROR(error)) {
-		goto fail;
+		/* see Driver Writers Guide, example 31 */
+		error = add_new_child_handle(ControllerHandle);
+		if (EFI_ERROR(error)) {
+			goto fail;
+		}
+
+		/* and now open again for the client handle to record the parent-child relationship */
+		error = open_consumed_protocols(This, ControllerHandle, TRUE);
+		if (EFI_ERROR(error)) {
+			goto fail;
+		}
 	}
 
 	/* initialize driver data, in case of error: return EFI_OUT_OF_RESOURCES */
-	InitializeListHead(&context.TaskListReadEx);
-	InitializeLock(&context.TaskListReadExLock, TPL_NOTIFY);
+	if (context.ConsumedBlockIo) {
+		CsPatchCodeInit(CS_BLOCK_IO_READ);
+		CsPatchCodeInit(CS_BLOCK_IO_WRITE);
+		CsPatchCode(CS_BLOCK_IO_READ);
+		CsPatchCode(CS_BLOCK_IO_WRITE);
+		CS_DEBUG((D_INFO, L"CsDriverBindingStart() patch of BLOCK_IO code succeeded.\n"));
+	}
+	if (context.ConsumedBlockIo2) {
+		CsPatchCodeInit(CS_BLOCK_IO2_READ);
+		CsPatchCodeInit(CS_BLOCK_IO2_WRITE);
+		CsPatchCode(CS_BLOCK_IO2_READ);
+		CsPatchCode(CS_BLOCK_IO2_WRITE);
+		CS_DEBUG((D_INFO, L"CsDriverBindingStart() patch of BLOCK_IO2 code succeeded.\n"));
+	}
 
-	CS_DEBUG((D_INFO, L"CsDriverBindingStart() succeeded.\n", ControllerHandle));
+	CS_DEBUG((D_INFO, L"CsDriverBindingStart() succeeded.\n"));
 
 	return EFI_SUCCESS;
 
 fail:
-	delete_child_handle();
+	if (context.options.createChildDevice) {
+		delete_child_handle();
+	}
 	close_consumed_protocols(This, ControllerHandle);
 
 	return EFI_DEVICE_ERROR;
@@ -846,14 +1220,25 @@ EFI_STATUS EFIAPI CsDriverBindingStop (
 
 	CS_DEBUG((D_INFO, L"CsDriverBindingStop() started.\n"));
 
-	/* uninstall the provided protocol interfaces from child handle */
-	delete_child_handle();
+	if (context.options.createChildDevice) {
+		/* uninstall the provided protocol interfaces from child handle */
+		delete_child_handle();
+	}
 
-	/* close the opened BlockIO/BlockIO2 protocols */
+	/* unpatch all patched code */
+	if (context.ConsumedBlockIo) {
+		CsUnpatchCode(CS_BLOCK_IO_READ);
+		CsUnpatchCode(CS_BLOCK_IO_WRITE);
+	}
+	if (context.ConsumedBlockIo2) {
+		CsUnpatchCode(CS_BLOCK_IO2_READ);
+		CsUnpatchCode(CS_BLOCK_IO2_WRITE);
+	}
+	SetMem(&context.patchBytes, sizeof(context.patchBytes), 0);
+	SetMem(&context.patchedBytes, sizeof(context.patchedBytes), 0);
+
+	/* close the opened BlockIO protocols */
 	close_consumed_protocols(This, ControllerHandle);
-
-	/* release buffers of the driver, if applicable, erase sensitive data */
-	csDestroyAllSubtasks();
 
 	return error;
 }
@@ -1112,7 +1497,7 @@ EFI_STATUS EFIAPI CsGetControllerName2(
                                 or the buffer is not on proper alignment.
 
 **/
-EFI_STATUS EFIAPI CsReadBlocks(
+EFI_STATUS EFIAPI CsChildReadBlocks(
 		IN EFI_BLOCK_IO		              *This,
 		IN UINT32                         MediaId,
 		IN EFI_LBA                        Lba,
@@ -1120,37 +1505,9 @@ EFI_STATUS EFIAPI CsReadBlocks(
 		OUT VOID                          *Buffer
 	) {
 
-	EFI_STATUS error = EFI_SUCCESS;
-	EFI_LBA block = Lba * context.factorMediaBlock;	/* block regards to the encryption/decryption unit,
-													   Lba regards to the media unit */
+	CS_DEBUG((D_INFO, L"CsChildReadBlocks() started (LBA 0x%lx).\n", Lba));
 
-	CS_DEBUG((D_INFO, L"CsReadBlocks() started (LBA 0x%lx).\n", Lba));
-
-	if (context.ConsumedBlockIo == NULL) {
-		CS_DEBUG((D_ERROR, L"CsReadBlocks() called, but no consumed BlockIo interface exists.\n"));
-		return EFI_NOT_FOUND;
-	}
-	if (context.options.isHiddenVolume) {
-		Lba += context.hiddenSectorOffset;
-	}
-
-	error = uefi_call_wrapper(context.ConsumedBlockIo->ReadBlocks, 5,
-			context.ConsumedBlockIo, MediaId, Lba, BufferSize, Buffer);
-	if (EFI_ERROR(error)) {
-		CS_DEBUG((D_ERROR, L"ConsumedBlockIo->ReadBlocks() failed (%r)\n", error));
-		CS_DEBUG((D_ERROR, L"#Media %x, LBA %lx, buffersize %x, buffer %lx\n", MediaId, Lba, BufferSize, Buffer));
-		return error;
-	} else {
-
-		CS_DEBUG((D_INFO, L"CsReadBlocks(ID=0x%x, LBA=0x%x, Size=0x%x) called.\n", MediaId, Lba, BufferSize));
-
-		error = decryptBlocks(block, BufferSize, Buffer);
-		if (EFI_ERROR(error)) {
-			CS_DEBUG((D_ERROR, L"decryptBlocks() failed (%r)\n", error));
-		}
-	}
-
-	return error;
+	return CsParentReadWriteBlocks(CS_BLOCK_IO_READ, context.ConsumedBlockIo, MediaId, Lba, NULL, BufferSize, Buffer);
 }
 
 /**
@@ -1173,7 +1530,7 @@ EFI_STATUS EFIAPI CsReadBlocks(
                                 or the buffer is not on proper alignment.
 
 **/
-EFI_STATUS EFIAPI CsWriteBlocks(
+EFI_STATUS EFIAPI CsChildWriteBlocks(
 		IN EFI_BLOCK_IO		              *This,
 		IN UINT32                         MediaId,
 		IN EFI_LBA                        Lba,
@@ -1181,36 +1538,9 @@ EFI_STATUS EFIAPI CsWriteBlocks(
 		IN VOID                           *Buffer
 	) {
 
-	EFI_STATUS error;
-	EFI_LBA block = Lba * context.factorMediaBlock;	/* block regards to the encryption/decryption unit,
-													   Lba regards to the media unit */
+	CS_DEBUG((D_INFO, L"CsChildWriteBlocks(ID=0x%x, LBA=0x%lx, Size=0x%x) called.\n", MediaId, Lba, BufferSize));
 
-	CS_DEBUG((D_INFO, L"CsWriteBlocks(ID=0x%x, LBA=0x%lx, Size=0x%x) called.\n", MediaId, Lba, BufferSize));
-
-	if (context.ConsumedBlockIo == NULL) {
-		CS_DEBUG((D_ERROR, L"CsWriteBlocks() called, but no consumed BlockIo interface exists.\n"));
-		return EFI_NOT_FOUND;
-	}
-
-	error = encryptBlocks(block, BufferSize, Buffer);
-	if (EFI_ERROR(error)) {
-		CS_DEBUG((D_ERROR, L"encryptBlocks() failed (%r)\n", error));
-		return error;
-	}
-	if (context.options.isHiddenVolume) {
-		Lba += context.hiddenSectorOffset;
-	}
-
-	error = uefi_call_wrapper(context.ConsumedBlockIo->WriteBlocks, 5,
-			context.ConsumedBlockIo, MediaId, Lba, BufferSize, Buffer);
-
-	/* to recover the original buffer content: */
-	error = decryptBlocks(block, BufferSize, Buffer);
-	if (EFI_ERROR(error)) {
-		CS_DEBUG((D_ERROR, L"decryptBlocks() failed (%r)\n", error));
-	}
-
-	return error;
+	return CsParentReadWriteBlocks(CS_BLOCK_IO_WRITE, context.ConsumedBlockIo, MediaId, Lba, NULL, BufferSize, Buffer);
 }
 
 /**
@@ -1223,7 +1553,7 @@ EFI_STATUS EFIAPI CsWriteBlocks(
   \return EFI_NO_MEDIA      There is no media in the device.
 
 **/
-EFI_STATUS EFIAPI CsFlushBlocks(
+EFI_STATUS EFIAPI CsChildFlushBlocks(
 		IN EFI_BLOCK_IO		*This
 	) {
 
@@ -1251,254 +1581,12 @@ EFI_STATUS EFIAPI CsReset(
 		IN BOOLEAN                        ExtendedVerification
 	) {
 
-
 	if (context.ConsumedBlockIo == NULL) {
 		CS_DEBUG((D_ERROR, L"CsReset() called, but no consumed BlockIo interface exists.\n"));
 		return EFI_NOT_FOUND;
 	}
 
 	return uefi_call_wrapper(context.ConsumedBlockIo->Reset, 2, context.ConsumedBlockIo, ExtendedVerification);
-}
-
-/**
-  \brief	Reset the block device hardware.
-
-  \param[in]  This                 Indicates a pointer to the calling context.
-  \param[in]  ExtendedVerification Indicates that the driver may perform a more
-                                   exhausive verfication operation of the device
-                                   during reset.
-
-  \return EFI_SUCCESS          The device was reset.
-  \return EFI_DEVICE_ERROR     The device is not functioning properly and could
-                               not be reset.
-
-**/
-EFI_STATUS EFIAPI CsResetEx(
-		IN EFI_BLOCK_IO2_PROTOCOL  *This,
-		IN BOOLEAN                 ExtendedVerification
-	) {
-
-	if (context.ConsumedBlockIo2 == NULL) {
-		CS_DEBUG((D_ERROR, L"CsResetEx() called, but no consumed BlockIo2 interface exists.\n"));
-		return EFI_NOT_FOUND;
-	}
-
-	return uefi_call_wrapper(context.ConsumedBlockIo2->Reset, 2, context.ConsumedBlockIo2, ExtendedVerification);
-}
-
-
-/**
-  \brief	Read BufferSize bytes from Lba into Buffer.
-
-  This function reads the requested number of blocks from the device. All the
-  blocks are read, or an error is returned.
-  If EFI_DEVICE_ERROR, EFI_NO_MEDIA,_or EFI_MEDIA_CHANGED is returned and
-  non-blocking I/O is being used, the Event associated with this request will
-  not be signaled.
-
-  \param[in]       This       Indicates a pointer to the calling context.
-  \param[in]       MediaId    Id of the media, changes every time the media is
-                              replaced.
-  \param[in]       Lba        The starting Logical Block Address to read from.
-  \param[in, out]  Token            A pointer to the token associated with the transaction.
-  \param[in]       BufferSize Size of Buffer, must be a multiple of device block size.
-  \param[out]      Buffer     A pointer to the destination buffer for the data. The
-                              caller is responsible for either having implicit or
-                              explicit ownership of the buffer.
-
-  \return EFI_SUCCESS           The read request was queued if Token->Event is
-                                not NULL.The data was read correctly from the
-                                device if the Token->Event is NULL.
-  \return EFI_DEVICE_ERROR      The device reported an error while performing
-                                the read.
-  \return EFI_NO_MEDIA          There is no media in the device.
-  \return EFI_MEDIA_CHANGED     The MediaId is not for the current media.
-  \return EFI_BAD_BUFFER_SIZE   The BufferSize parameter is not a multiple of the
-                                intrinsic block size of the device.
-  \return EFI_INVALID_PARAMETER The read request contains LBAs that are not valid,
-                                or the buffer is not on proper alignment.
-  \return EFI_OUT_OF_RESOURCES  The request could not be completed due to a lack
-                                of resources.
-**/
-EFI_STATUS EFIAPI CsReadBlocksEx(
-		IN     EFI_BLOCK_IO2_PROTOCOL *This,
-		IN     UINT32                 MediaId,
-		IN     EFI_LBA                Lba,
-		IN OUT EFI_BLOCK_IO2_TOKEN    *Token,
-		IN     UINTN                  BufferSize,
-		OUT VOID                      *Buffer
-	) {
-
-	EFI_STATUS error;
-	EFI_LBA block = Lba * context.factorMediaBlock;	/* block regards to the encryption/decryption unit,
-													   Lba regards to the media unit */
-
-    ASSERT(Buffer != NULL);
-
-	CS_DEBUG((D_INFO, L"CsReadBlocksEx() started (LBA 0x%lx).\n", Lba));
-
-	if (context.ConsumedBlockIo2 == NULL) {
-		CS_DEBUG((D_ERROR, L"CsReadBlocksEx() called, but no consumed BlockIo2 interface exists.\n"));
-		return EFI_NOT_FOUND;
-	}
-
-	if ((Token == NULL) || (Token->Event == NULL)) /* Blocking */ {
-
-		if (context.options.isHiddenVolume) {
-			Lba += context.hiddenSectorOffset;
-		}
-
-		error = uefi_call_wrapper(context.ConsumedBlockIo2->ReadBlocksEx, 6,
-				context.ConsumedBlockIo2, MediaId, Lba, Token, BufferSize, Buffer);
-		if (EFI_ERROR(error)) {
-			CS_DEBUG((D_ERROR, L"ConsumedBlockIo2->ReadBlocksEx() failed (%r)\n", error));
-			return error;
-		} else {
-			CS_DEBUG((D_INFO, L"CsReadBlocksEx(ID=0x%x, Lba=0x%x, Size=0x%x, Blocking) called.\n",
-					MediaId, Lba, BufferSize));
-
-			error = decryptBlocks(block, BufferSize, Buffer);
-			if (EFI_ERROR(error)) {
-				CS_DEBUG((D_ERROR, L"decryptBlocks() failed (%r)\n", error));
-			}
-		}
-	} else /* Non-Blocking */ {
-		CS_READ_BLOCKS_SUBTASK *Subtask;
-
-		Subtask = csCreateSubtask(BufferSize, Buffer, MediaId, block, Token->Event);
-		if (Subtask == NULL) {
-			return EFI_OUT_OF_RESOURCES;
-		}
-
-		if (context.options.isHiddenVolume) {
-			Lba = Subtask->Lba + context.hiddenSectorOffset;
-		}
-
-		error = uefi_call_wrapper(context.ConsumedBlockIo2->ReadBlocksEx, 6,
-				context.ConsumedBlockIo2, MediaId, Lba, &Subtask->Token, Subtask->BufferSize, Subtask->Buffer);
-		if (EFI_ERROR(error)) {
-			CS_DEBUG((D_ERROR, L"ReadBlocksEx(non-blocking) failed (%r)\n", error));
-			_csDestroySubtask(Subtask);
-			return error;
-		}
-		/*
-		 * das ist nicht so trivial:
-		 * - subtask definieren
-		 * - event vom Aufrufer merken
-		 * - subtask in quere hängen
-		 * - neues event definieren, callback funktion setzen, parameter der callback definieren
-		 * - in callback: subtask aus liste löschen, puffer entschlüsseln, callback löschen
-		 *   -> und alten callback/event signalisieren
-		 * - beim stop des Treibers: löschen/freigeben aller noch laufenden subtasks
-		 * - beispiel-implementierung siehe MdeModulePkg/Universal/Disk/DiskIoDxe/DiskIo.c
-		 */
-	}
-
-	return error;
-}
-
-/**
-  \brief	Write BufferSize bytes from Lba into Buffer.
-
-  This function writes the requested number of blocks to the device. All blocks
-  are written, or an error is returned. If EFI_DEVICE_ERROR, EFI_NO_MEDIA,
-  EFI_WRITE_PROTECTED or EFI_MEDIA_CHANGED is returned and non-blocking I/O is
-  being used, the Event associated with this request will not be signaled.
-  Attention: this function does not recover the buffer content: it will be overwritten
-  with the encrypted content!
-
-  \param[in]       This       Indicates a pointer to the calling context.
-  \param[in]       MediaId    The media ID that the write request is for.
-  \param[in]       Lba        The starting logical block address to be written. The
-                              caller is responsible for writing to only legitimate
-                              locations.
-  \param[in, out]  Token      A pointer to the token associated with the transaction.
-  \param[in]       BufferSize Size of Buffer, must be a multiple of device block size.
-  \param[in]       Buffer     A pointer to the source buffer for the data (content may be modified!).
-
-  \return EFI_SUCCESS           The write request was queued if Event is not NULL.
-                                The data was written correctly to the device if
-                                the Event is NULL.
-  \return EFI_WRITE_PROTECTED   The device can not be written to.
-  \return EFI_NO_MEDIA          There is no media in the device.
-  \return EFI_MEDIA_CHNAGED     The MediaId does not matched the current device.
-  \return EFI_DEVICE_ERROR      The device reported an error while performing the write.
-  \return EFI_BAD_BUFFER_SIZE   The Buffer was not a multiple of the block size of the device.
-  \return EFI_INVALID_PARAMETER The write request contains LBAs that are not valid,
-                                or the buffer is not on proper alignment.
-  \return EFI_OUT_OF_RESOURCES  The request could not be completed due to a lack
-                                of resources.
-
-**/
-EFI_STATUS EFIAPI CsWriteBlocksEx(
-		IN     EFI_BLOCK_IO2_PROTOCOL  *This,
-		IN     UINT32                 MediaId,
-		IN     EFI_LBA                Lba,
-		IN OUT EFI_BLOCK_IO2_TOKEN    *Token,
-		IN     UINTN                  BufferSize,
-		IN OUT VOID                   *Buffer /* attention: buffer content is changed to encrypted content! */
-	) {
-
-	EFI_STATUS error;
-	EFI_LBA block = Lba * context.factorMediaBlock;	/* block regards to the encryption/decryption unit,
-													   Lba regards to the media unit */
-	ASSERT(Buffer != NULL);
-
-	CS_DEBUG((D_INFO, L"CsWriteBlocksEx() started (LBA 0x%lx).\n", Lba));
-
-	if (context.ConsumedBlockIo2 == NULL) {
-		CS_DEBUG((D_ERROR, L"CsWriteBlocksEx() called, but no consumed BlockIo2 interface exists.\n"));
-		return EFI_NOT_FOUND;
-	}
-	/* EFI does not support multithreading, hence the encryption cannot be sent to the background... */
-
-	error = encryptBlocks(block, BufferSize, Buffer);
-	if (EFI_ERROR(error)) {
-		CS_DEBUG((D_ERROR, L"encryptBlocks() failed (%r)\n", error));
-		return error;
-	}
-
-	if (context.options.isHiddenVolume) {
-		Lba += context.hiddenSectorOffset;
-	}
-
-	return uefi_call_wrapper(context.ConsumedBlockIo2->WriteBlocksEx, 6,
-			context.ConsumedBlockIo2, MediaId, Lba, Token, BufferSize, Buffer);
-}
-
-/**
-  \brief	Flush the Block Device.
-
-  If EFI_DEVICE_ERROR, EFI_NO_MEDIA,_EFI_WRITE_PROTECTED or EFI_MEDIA_CHANGED
-  is returned and non-blocking I/O is being used, the Event associated with
-  this request will not be signaled.
-
-  \param[in]      This     Indicates a pointer to the calling context.
-  \param[in,out]  Token    A pointer to the token associated with the transaction
-
-  \return EFI_SUCCESS          The flush request was queued if Event is not NULL.
-                               All outstanding data was written correctly to the
-                               device if the Event is NULL.
-  \return EFI_DEVICE_ERROR     The device reported an error while writting back
-                               the data.
-  \return EFI_WRITE_PROTECTED  The device cannot be written to.
-  \return EFI_NO_MEDIA         There is no media in the device.
-  \return EFI_MEDIA_CHANGED    The MediaId is not for the current media.
-  \return EFI_OUT_OF_RESOURCES The request could not be completed due to a lack
-                               of resources.
-
-**/
-EFI_STATUS EFIAPI CsFlushBlocksEx(
-		IN     EFI_BLOCK_IO2_PROTOCOL   *This,
-		IN OUT EFI_BLOCK_IO2_TOKEN      *Token
-	) {
-
-	if (context.ConsumedBlockIo2 == NULL) {
-		CS_DEBUG((D_ERROR, L"CsFlushBlocksEx() called, but no consumed BlockIo2 interface exists.\n"));
-		return EFI_NOT_FOUND;
-	}
-
-	return uefi_call_wrapper(context.ConsumedBlockIo2->FlushBlocksEx, 2, context.ConsumedBlockIo2, Token);
 }
 
 /**
@@ -1568,21 +1656,21 @@ static EFI_STATUS cs_init_crypto_options(EFI_LOADED_IMAGE *LoadedImage) {
 
 	if (LoadedImage->LoadOptionsSize == sizeof(context.options)) {
 		CopyMem(&context.options, LoadedImage->LoadOptions, sizeof(context.options));
-	} else if (LoadedImage->LoadOptionsSize < sizeof(context.options)) {
-	    CS_DEBUG((D_WARN, L"Attention: Option size of provided data too small.\n"));
-		CopyMem(&context.options, LoadedImage->LoadOptions, LoadedImage->LoadOptionsSize);
+		EFIDebug = context.options.debug;
 	} else {
-		cs_print_msg(L"Attention: option size of provided data too big (got 0x%x, max 0x%x)!\n",
-				LoadedImage->LoadOptionsSize, sizeof(context.options));
-		return EFI_INVALID_PARAMETER;
+	    CS_DEBUG((D_WARN, L"Attention: unexpected Option size of provided data (0x%x/0x%x) -> ignoring.\n",
+	    		LoadedImage->LoadOptionsSize, sizeof(context.options)));
+		EFIDebug = D_ERROR | D_WARN | D_LOAD | D_BLKIO | D_INIT | D_INFO;
+	    context.options.createChildDevice = TRUE;	/* enabled for test purposes */
 	}
-	EFIDebug = context.options.debug;
-	context.EndSector = context.options.StartSector + context.options.SectorCount;
 
+	context.EndSector = context.options.StartSector + context.options.SectorCount;
 	CS_DEBUG((D_INFO, L"driver init: StartSector 0x%x, SectorCount 0x%x\n",
 			context.options.StartSector, context.options.SectorCount));
 	CS_DEBUG((D_INFO, L"driver init: hiddenVolumePresent %x, Encryption Algorithm ID/mode: 0x%x/0x%x\n",
 			context.options.isHiddenVolume, context.options.cipher.algo, context.options.cipher.mode));
+	CS_DEBUG((D_INFO, L"driver init: need to build child device: %x\n",
+			context.options.createChildDevice));
 
 	if (context.options.isHiddenVolume) {
 		/* see TC: BootEncryptedio.cpp ReadEncryptedSectors(), WriteEncryptedSectors() */
@@ -1615,11 +1703,10 @@ EFI_STATUS EFIAPI CsDriverInstall(IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE
 	ASSERT(SystemTable != NULL);
 
     InitializeLib(ImageHandle, SystemTable);
-    //InitializeUnicodeSupport((CHAR8 *)"eng");
     SetMem(&context, sizeof(context), 0);
     context.factorMediaBlock = 1;
 
-	//EFIDebug = D_ERROR | D_WARN | D_LOAD | D_BLKIO | D_INIT | D_INFO;
+	EFIDebug = D_INFO;
 
     CS_DEBUG((D_INFO, L"CS driver install started.\n"));
 

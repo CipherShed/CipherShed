@@ -378,8 +378,9 @@ static EFI_STATUS get_current_directory(IN EFI_LOADED_IMAGE *loaded_image, OUT C
 	CS_DEBUG((D_INFO, L"Path to current Application: %s\n", current_file));
 
 	for (i = StrLen(current_file); i >= 0; i--) {
-		if (current_file[i] == '\\') {
+		if ((current_file[i] == '\\') || (current_file[i] == '/')) {
 
+			current_file[i] = '\\';	/* fix: DevicePathToStr() sometimes appends "/" instead of "\" */
 			*current_dir = AllocatePool(i + 2);
 			if (*current_dir) {
 				UINTN j;
@@ -886,8 +887,10 @@ static EFI_STATUS get_disk_handle(IN EFI_HANDLE device_handle, OUT UINT8 *mbr_ty
          */
         for (;;) {
 
-//			CS_DEBUG((D_INFO, L"device path type/subtype: 0x%x/0x%x\n",
-//					DevicePathType(DevPath), DevicePathSubType(DevPath)));
+#if 0
+			CS_DEBUG((D_INFO, L"device path type/subtype: 0x%x/0x%x\n",
+					DevicePathType(DevPath), DevicePathSubType(DevPath)));
+#endif
 
             if ((DevicePathType(DevPath) == MEDIA_DEVICE_PATH) &&
             		(DevicePathSubType(DevPath) == MEDIA_HARDDRIVE_DP)) {
@@ -1543,6 +1546,10 @@ static EFI_STATUS start_connect_crypto_driver(IN EFI_HANDLE ImageHandle) {
 	EFI_STATUS error;
 	EFI_HANDLE CryptoDriverHandle;
 
+#if 0
+	context.efi_driver_data.createChildDevice = TRUE; /* only used for test purposes */
+#endif
+
 	error = start_crypto_driver(ImageHandle, &CryptoDriverHandle);
 
 	/* now the decrypted volume header data is not longer needed... */
@@ -1572,6 +1579,8 @@ EFI_STATUS start_connect_fake_crypto_driver(IN EFI_HANDLE ImageHandle) {
 
 	EFI_STATUS error;
 	uint64 encryptedSectorCount = context.efi_driver_data.SectorCount;
+
+	context.efi_driver_data.createChildDevice = TRUE;
 
 	context.efi_driver_data.SectorCount = context.os_driver_data.crypto_info.VolumeSize.Value;
 	error = start_connect_crypto_driver(ImageHandle);

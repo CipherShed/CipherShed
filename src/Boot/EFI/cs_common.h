@@ -15,7 +15,7 @@
 #include "cs_debug.h"
 
 #define CS_LOADER_NAME		WIDEN("CipherShed")
-#define CS_LOADER_VERSION	0.4
+#define CS_LOADER_VERSION	0.5
 
 #define CS_DRIVER_NAME		CS_LOADER_NAME
 #define CS_CONTROLLER_NAME	WIDEN("CipherShed Crypto Device")
@@ -91,6 +91,8 @@ struct cs_efi_option_data {
 	uint64 HiddenVolumeStartUnitNo;
 
 	struct cs_cipher_data cipher;	/* cipher parameters and key data */
+	BOOLEAN createChildDevice;		/* whether the driver needs to define a child device
+										for access to the disk without the filter driver */
 	UINTN debug;					/* the debug level of the driver */
 };
 

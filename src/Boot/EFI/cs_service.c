@@ -308,15 +308,15 @@ static EFI_STATUS do_encrypt_decrypt_media(IN EFI_SYSTEM_TABLE *SystemTable,
     	return EFI_VOLUME_CORRUPTED;
     }
     if (encrypt) {
-    	source = parentBlockIo;
-    	dest = childBlockIo;
+    	source = childBlockIo;
+    	dest = parentBlockIo;
     	lba = endEncryptedArea;
         numberSectors = sectorsInVolume - numberEncryptedSectors;
     	CS_DEBUG((D_INFO, L"need to encrypt 0x%x sectors starting at LBA 0x%x\n",
     			numberSectors, lba));
     } else {
-    	source = childBlockIo;
-    	dest = parentBlockIo;
+    	source = parentBlockIo;
+    	dest = childBlockIo;
     	if (numberEncryptedSectors < bufferSectors) {
     		bufferSectors = numberEncryptedSectors;
     	}
