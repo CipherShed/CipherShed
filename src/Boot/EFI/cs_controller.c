@@ -685,8 +685,8 @@ static EFI_STATUS get_volume_header_file(IN EFI_FILE *root_dir, IN CHAR16 *curre
 					break;
 				}
 				if (bufsize == 0) {
-					CS_DEBUG((D_ERROR, L"Unable to Read Volume Directory %s\n", directory_name));
-					error = EFI_OUT_OF_RESOURCES;
+					CS_DEBUG((D_ERROR, L"No more files in directory %s\n", directory_name));
+					error = EFI_NOT_FOUND;
 					break;
 				}
 
