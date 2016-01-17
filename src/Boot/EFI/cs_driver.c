@@ -1706,7 +1706,7 @@ EFI_STATUS EFIAPI CsDriverInstall(IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE
     SetMem(&context, sizeof(context), 0);
     context.factorMediaBlock = 1;
 
-	EFIDebug = D_INFO;
+	// EFIDebug = D_INFO;
 
     CS_DEBUG((D_INFO, L"CS driver install started.\n"));
     CS_DEBUG((D_INFO, L"EFI system table revision 0x%x.\n", SystemTable->Hdr.Revision));

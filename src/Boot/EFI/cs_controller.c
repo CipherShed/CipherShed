@@ -905,7 +905,7 @@ static EFI_STATUS get_disk_handle(IN EFI_HANDLE device_handle, OUT UINT8 *mbr_ty
 						*mbr_type = HardDriveDevicePath->MBRType;
 						*signature_type = HardDriveDevicePath->SignatureType;
 
-						CS_DEBUG((D_INFO, L"found storage media, MBR type 0x%x, signature type 0x%x, ",
+						CS_DEBUG((D_INFO, L"found media, MBR type 0x%x, signature type 0x%x, ",
 								*mbr_type, *signature_type));
 
 						switch (*signature_type) {
@@ -1114,19 +1114,38 @@ static void get_cmdline_args(IN EFI_LOADED_IMAGE *loaded_image) {
 
 	if (context.argc > 1) {
 		context.dest_uuid = context.argv[1];
-		CS_DEBUG((D_INFO, L"argc: 0x%x\nargument 1: %s\n", context.argc, context.argv[1]));
 	}
 	if (context.argc > 2) {
 		context.os_loader_uuid = context.argv[2];
-		CS_DEBUG((D_INFO, L"argument 2: %s\n", context.argv[2]));
 	}
 	if (context.argc > 3) {
 		context.os_loader = context.argv[3];
-		CS_DEBUG((D_INFO, L"argument 3: %s\n", context.argv[3]));
 	}
 	if (context.argc > 4) {
 		context.os_loader_option_number = context.argc - 4;
 		context.os_loader_options = &context.argv[4];
+	}
+}
+
+/*
+ * \brief	provide debug output of the command line arguments
+ *
+ * This function is separated from the get_cmdline_args() since at call time of get_cmdline_args()
+ * the debug level was not yet read from the configuration file...
+ *
+ */
+static void debug_cmdline_args(VOID) {
+
+	if (context.argc > 1) {
+		CS_DEBUG((D_INFO, L"argc: 0x%x\nargument 1: %s\n", context.argc, context.argv[1]));
+	}
+	if (context.argc > 2) {
+		CS_DEBUG((D_INFO, L"argument 2: %s\n", context.argv[2]));
+	}
+	if (context.argc > 3) {
+		CS_DEBUG((D_INFO, L"argument 3: %s\n", context.argv[3]));
+	}
+	if (context.argc > 4) {
 		CS_DEBUG((D_INFO, L"argument 4: %s\n", context.argv[4]));
 	}
 }
@@ -1232,7 +1251,7 @@ static EFI_STATUS initialize(IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE *Sys
 
     InitializeLib(ImageHandle, SystemTable);
 
-    EFIDebug = D_ERROR | D_WARN | D_LOAD | D_BLKIO | D_INIT | D_INFO; // remove this later...
+    // EFIDebug = D_ERROR | D_WARN | D_LOAD | D_BLKIO | D_INIT | D_INFO; // remove this later...
 
     error = uefi_call_wrapper(BS->OpenProtocol, 6, ImageHandle, &LoadedImageProtocol, (void **)&loaded_image,
 		   ImageHandle, NULL, EFI_OPEN_PROTOCOL_GET_PROTOCOL);
@@ -1784,6 +1803,8 @@ EFI_STATUS efi_main (IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE *SystemTable
 		CS_DEBUG((D_WARN, L"Unable to load options from file: %r\n", error));
 	    FreePool(current_directory);
 	}
+
+	debug_cmdline_args();	/* only for debug output */
 
 	/* load the volume header from the corresponding file */
 	error = load_volume_header(context.root_dir, current_directory);

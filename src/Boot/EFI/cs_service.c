@@ -467,6 +467,11 @@ EFI_STATUS encrypt_decrypt_media(IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE 
 	if (!EFI_ERROR(error)) {
 	    EFI_STATUS error2;
 
+	    /* output line feed(s) before the progress bar */
+	    if (!options->flags.silent) {
+	        error = uefi_call_wrapper(SystemTable->ConOut->OutputString, 2, SystemTable->ConOut, L"\r\n\n");
+	    }
+
 	    /* the loop to encrypt/decrypt the entire media (until user interrupt) */
 	    error = do_encrypt_decrypt_media(SystemTable, parentBlockIo, childBlockIo, encrypt);
 

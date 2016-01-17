@@ -538,11 +538,11 @@ BOOLEAN check_really_do(IN SIMPLE_INPUT_INTERFACE *ConIn, IN SIMPLE_TEXT_OUTPUT_
 	    error = get_single_char(ConIn, &key);
 		if (EFI_ERROR (error)) continue;
 
-		/* ESCAPE (means (No) */
+		/* ESCAPE (means No) */
 	    if (key.ScanCode == 0x17) {
 	      break;
 	    }
-		/* ENTER (means (No) */
+		/* ENTER (means No) */
 	    if ((key.UnicodeChar == 0x0a) || (key.UnicodeChar == 0x0d)) {
 	       break;
 	    }
@@ -565,6 +565,8 @@ BOOLEAN check_really_do(IN SIMPLE_INPUT_INTERFACE *ConIn, IN SIMPLE_TEXT_OUTPUT_
 	    	break;
 	    }
 	    if (done) {
+	    	outStr(ConOut, L" ");
+	    	outStr(ConOut, &key.UnicodeChar);
 	    	break;
 	    }
 	}

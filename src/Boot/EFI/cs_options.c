@@ -218,9 +218,9 @@ static void parse_line(IN CHAR8 *line, IN UINTN size) {
 			word2 = &line[i + 1];
 			size2 = size - i - 1;
 		}
-
+#if 0
 	CS_DEBUG((D_INFO, L"Option line: %a, word1: %a (%x), word2: %a (%x)\n", line, word1, size1, word2, size2));
-
+#endif
 	if (entry_check("DEBUG")) {
 		EFIDebug = _ascii_to_number(word2, size2);
 		CS_DEBUG((D_INFO, L"Option: Debug -> 0x%x\n", EFIDebug));
