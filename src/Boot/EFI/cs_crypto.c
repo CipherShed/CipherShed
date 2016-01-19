@@ -1,8 +1,13 @@
 /*  cs_crypto.c - CipherShed EFI boot loader
  *  collection of relevant crypto functions used by the EFI loader and the driver
  *
+ *	Copyright (c) 2015-2016  Falk Nedwal
  *
+ *	Some parts of the code are taken from file Common/Crypto.c
  *
+ *	Governed by the Apache 2.0 License the full text of which is contained in
+ *	the file License.txt included in CipherShed binary and source code distribution
+ *	packages.
  */
 
 #include <efi.h>

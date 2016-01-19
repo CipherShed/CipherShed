@@ -1,8 +1,11 @@
 /*  cs_ui.c - CipherShed EFI boot loader
  *  implementation of the user interface of the EFI loader
  *
+ *	Copyright (c) 2015-2016  Falk Nedwal
  *
- *
+ *	Governed by the Apache 2.0 License the full text of which is contained in
+ *	the file License.txt included in CipherShed binary and source code distribution
+ *	packages.
  */
 
 #include "cs_common.h"

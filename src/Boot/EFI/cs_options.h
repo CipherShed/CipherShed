@@ -1,7 +1,10 @@
 /*  cs_options.h - CipherShed EFI boot loader
  *
+ *	Copyright (c) 2015-2016  Falk Nedwal
  *
- *
+ *	Governed by the Apache 2.0 License the full text of which is contained in
+ *	the file License.txt included in CipherShed binary and source code distribution
+ *	packages.
  */
 
 #ifndef _CS_OPTIONS_H_
