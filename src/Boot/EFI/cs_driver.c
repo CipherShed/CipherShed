@@ -159,7 +159,7 @@ EFI_STATUS EFIAPI encryptBlocks(IN EFI_LBA lba, IN UINTN BufferSize, OUT VOID *B
 
 	ASSERT(Buffer != NULL);
 
-	CS_DEBUG((D_INFO, L"encrypt data (0x%x byte)\n", BufferSize));
+	CS_DEBUG((D_BLKIO_ULTRA, L"encrypt data (0x%x byte)\n", BufferSize));
 
 	ASSERT(BufferSize % ENCRYPTION_DATA_UNIT_SIZE == 0);
 
@@ -171,7 +171,7 @@ EFI_STATUS EFIAPI encryptBlocks(IN EFI_LBA lba, IN UINTN BufferSize, OUT VOID *B
 
 		if ((lba >= context.options.StartSector) && (lba < context.EndSector)) {
 
-			CS_DEBUG((D_INFO, L"encrypt block (0x%x)\n", lba));
+			CS_DEBUG((D_BLKIO_ULTRA, L"encrypt block (0x%x)\n", lba));
 
 			EncryptDataUnits(Buffer, &lba, 1 /* one block */,
 					context.options.cipher.algo, context.options.cipher.mode,
@@ -200,7 +200,7 @@ EFI_STATUS EFIAPI decryptBlocks(IN EFI_LBA lba, IN UINTN BufferSize, OUT VOID *B
 
     ASSERT(Buffer != NULL);
 
-	CS_DEBUG((D_INFO, L"decrypt data (0x%x byte)\n", BufferSize));
+	CS_DEBUG((D_BLKIO_ULTRA, L"decrypt data (0x%x byte)\n", BufferSize));
 
 	ASSERT(BufferSize % ENCRYPTION_DATA_UNIT_SIZE == 0);
 
@@ -213,7 +213,7 @@ EFI_STATUS EFIAPI decryptBlocks(IN EFI_LBA lba, IN UINTN BufferSize, OUT VOID *B
 		if ((context.options.isHiddenVolume) ||
 			((lba >= context.options.StartSector) && (lba < context.EndSector))) {
 
-			CS_DEBUG((D_INFO, L"decrypt block (0x%x)\n", lba));
+			CS_DEBUG((D_BLKIO_ULTRA, L"decrypt block (0x%x)\n", lba));
 
 			DecryptDataUnits (Buffer, &lba, 1 /* one block */,
 					context.options.cipher.algo, context.options.cipher.mode,
@@ -392,7 +392,7 @@ static BOOLEAN CsCheckForCorrectDevice(
 		IN UINT32						MediaId
 	) {
 
-	CS_DEBUG((D_INFO, L"check device: logical partition: %x, removable media: %x, present: %x, ID: %x",
+	CS_DEBUG((D_BLKIO, L"check device: logical partition: %x, removable media: %x, present: %x, ID: %x",
 			Media->LogicalPartition, Media->RemovableMedia, Media->MediaPresent, MediaId));
 
 	if (Media->LogicalPartition == TRUE &&
@@ -401,11 +401,11 @@ static BOOLEAN CsCheckForCorrectDevice(
 		MediaId == context.ConsumedBlockIo->Media->MediaId &&
 		Media->LastBlock == context.ConsumedBlockIo->Media->LastBlock) {
 
-		CS_DEBUG((D_INFO, L", Ok.\n"));
+		CS_DEBUG((D_BLKIO, L", Ok.\n"));
 		return TRUE;
 	}
 
-	CS_DEBUG((D_INFO, L", skip\n"));
+	CS_DEBUG((D_BLKIO, L", skip\n"));
 
 	return FALSE;
 }
@@ -522,10 +522,10 @@ EFI_STATUS EFIAPI CsReadBlocks(
 	EFI_LBA block;
 	BOOLEAN needEncryption = CsCheckForCorrectDevice(This->Media, MediaId);
 
-	CS_DEBUG((D_INFO, L"CsReadBlocks(ID=0x%x, ", MediaId));
-	CS_DEBUG((D_INFO, L"LBA=0x%x, ", Lba));
-	CS_DEBUG((D_INFO, L"Size=0x%x, ", BufferSize));
-	CS_DEBUG((D_INFO, L"Enc=%x) called.\n", needEncryption));
+	CS_DEBUG((D_BLKIO, L"CsReadBlocks(ID=0x%x, ", MediaId));
+	CS_DEBUG((D_BLKIO, L"LBA=0x%x, ", Lba));
+	CS_DEBUG((D_BLKIO, L"Size=0x%x, ", BufferSize));
+	CS_DEBUG((D_BLKIO, L"Enc=%x) called.\n", needEncryption));
 
 	if (needEncryption) {
 		block = Lba * context.factorMediaBlock;	/* block regards to the encryption/decryption unit,
@@ -590,10 +590,10 @@ EFI_STATUS EFIAPI CsWriteBlocks(
 	EFI_LBA block;
 	BOOLEAN needEncryption = CsCheckForCorrectDevice(This->Media, MediaId);
 
-	CS_DEBUG((D_INFO, L"CsWriteBlocks(ID=0x%x, ", MediaId));
-	CS_DEBUG((D_INFO, L"LBA=0x%x, ", Lba));
-	CS_DEBUG((D_INFO, L"Size=0x%x, ", BufferSize));
-	CS_DEBUG((D_INFO, L"Enc=%x) called.\n", needEncryption));
+	CS_DEBUG((D_BLKIO, L"CsWriteBlocks(ID=0x%x, ", MediaId));
+	CS_DEBUG((D_BLKIO, L"LBA=0x%x, ", Lba));
+	CS_DEBUG((D_BLKIO, L"Size=0x%x, ", BufferSize));
+	CS_DEBUG((D_BLKIO, L"Enc=%x) called.\n", needEncryption));
 
 	if (needEncryption) {
 
@@ -673,10 +673,10 @@ EFI_STATUS EFIAPI CsReadBlocksEx(
 	EFI_LBA block;
 	BOOLEAN needEncryption = CsCheckForCorrectDevice(This->Media, MediaId);
 
-	CS_DEBUG((D_INFO, L"CsReadBlocksEx(ID=0x%x, ", MediaId));
-	CS_DEBUG((D_INFO, L"LBA=0x%x, ", Lba));
-	CS_DEBUG((D_INFO, L"Size=0x%x, ", BufferSize));
-	CS_DEBUG((D_INFO, L"Enc=%x) called.\n", needEncryption));
+	CS_DEBUG((D_BLKIO, L"CsReadBlocksEx(ID=0x%x, ", MediaId));
+	CS_DEBUG((D_BLKIO, L"LBA=0x%x, ", Lba));
+	CS_DEBUG((D_BLKIO, L"Size=0x%x, ", BufferSize));
+	CS_DEBUG((D_BLKIO, L"Enc=%x) called.\n", needEncryption));
 
 	if (needEncryption == FALSE) {
 		return CsParentReadWriteBlocks(CS_BLOCK_IO2_READ, This, MediaId, Lba, Token, BufferSize, Buffer);
@@ -756,10 +756,10 @@ EFI_STATUS EFIAPI CsWriteBlocksEx(
 	EFI_LBA block;
 	BOOLEAN needEncryption = CsCheckForCorrectDevice(This->Media, MediaId);
 
-	CS_DEBUG((D_INFO, L"CsWriteBlocksEx(ID=0x%x, ", MediaId));
-	CS_DEBUG((D_INFO, L"LBA=0x%x, ", Lba));
-	CS_DEBUG((D_INFO, L"Size=0x%x, ", BufferSize));
-	CS_DEBUG((D_INFO, L"Enc=%x) called.\n", needEncryption));
+	CS_DEBUG((D_BLKIO, L"CsWriteBlocksEx(ID=0x%x, ", MediaId));
+	CS_DEBUG((D_BLKIO, L"LBA=0x%x, ", Lba));
+	CS_DEBUG((D_BLKIO, L"Size=0x%x, ", BufferSize));
+	CS_DEBUG((D_BLKIO, L"Enc=%x) called.\n", needEncryption));
 
 	if (needEncryption == FALSE) {
 		return CsParentReadWriteBlocks(CS_BLOCK_IO2_WRITE, This, MediaId, Lba, Token, BufferSize, Buffer);
@@ -1496,7 +1496,7 @@ EFI_STATUS EFIAPI CsChildReadBlocks(
 		OUT VOID                          *Buffer
 	) {
 
-	CS_DEBUG((D_INFO, L"CsChildReadBlocks() started (LBA 0x%lx).\n", Lba));
+	CS_DEBUG((D_BLKIO, L"CsChildReadBlocks() started (LBA 0x%lx).\n", Lba));
 
 	return CsParentReadWriteBlocks(CS_BLOCK_IO_READ, context.ConsumedBlockIo, MediaId, Lba, NULL, BufferSize, Buffer);
 }
@@ -1528,7 +1528,7 @@ EFI_STATUS EFIAPI CsChildWriteBlocks(
 		IN VOID                           *Buffer
 	) {
 
-	CS_DEBUG((D_INFO, L"CsChildWriteBlocks(ID=0x%x, LBA=0x%lx, Size=0x%x) called.\n", MediaId, Lba, BufferSize));
+	CS_DEBUG((D_BLKIO, L"CsChildWriteBlocks(ID=0x%x, LBA=0x%lx, Size=0x%x) called.\n", MediaId, Lba, BufferSize));
 
 	return CsParentReadWriteBlocks(CS_BLOCK_IO_WRITE, context.ConsumedBlockIo, MediaId, Lba, NULL, BufferSize, Buffer);
 }
@@ -1622,8 +1622,46 @@ EFI_STATUS EFIAPI CsDriverUninstall(IN EFI_HANDLE ImageHandle) {
 
 	CS_DEBUG((D_INFO, L"CS driver uninstalled.\n"));
 
+	CS_DEBUG_EXIT(());
+
 	return EFI_SUCCESS;
 }
+
+#if EFI_DEBUG
+/*
+ * \brief initialize the debugging function, especially the logfile
+ *
+ * The function initializes the debug function by calling CS_DEBUG_INIT(). The required parameters
+ * of this function are prepared.
+ *
+ *	\param	LoadedImage		handle of the currently loaded image (EFI_LOADED_IMAGE_PROTOCOL)
+ */
+static void cs_init_driver_debug(IN EFI_LOADED_IMAGE *LoadedImage) {
+	EFI_STATUS error;
+	CHAR16 *current_dir;
+
+	ASSERT(LoadedImage != NULL);
+
+	error = get_current_directory(LoadedImage, &current_dir);
+	if (EFI_ERROR(error)) {
+		cs_print_msg(L"Unable to get current directory: %s ", DevicePathToStr(LoadedImage->FilePath));
+		return;
+	}
+
+	if (current_dir) {
+		EFI_FILE *root_dir_handle;
+
+		root_dir_handle = LibOpenRoot(LoadedImage->DeviceHandle);
+		if (root_dir_handle) {
+			CS_DEBUG_INIT((root_dir_handle, current_dir, CS_DRIVER_LOGFILE));
+		} else {
+			cs_print_msg(L"Unable to get root directory handle: %s ", DevicePathToStr(LoadedImage->FilePath));
+		}
+
+		FreePool(current_dir);
+	}
+}
+#endif
 
 /*
  * 	\brief	initialize the system context based on the driver startup parameters
@@ -1636,7 +1674,7 @@ EFI_STATUS EFIAPI CsDriverUninstall(IN EFI_HANDLE ImageHandle) {
  *
  *	\return		the success state of the function
  */
-static EFI_STATUS cs_init_crypto_options(EFI_LOADED_IMAGE *LoadedImage) {
+static EFI_STATUS cs_init_driver_options(IN EFI_LOADED_IMAGE *LoadedImage) {
 
 	ASSERT(LoadedImage != NULL);
 
@@ -1645,10 +1683,14 @@ static EFI_STATUS cs_init_crypto_options(EFI_LOADED_IMAGE *LoadedImage) {
 	if (LoadedImage->LoadOptionsSize == sizeof(context.options)) {
 		CopyMem(&context.options, LoadedImage->LoadOptions, sizeof(context.options));
 		EFIDebug = context.options.debug;
+#if EFI_DEBUG
+		cs_init_driver_debug(LoadedImage);
+#endif
 	} else {
+		EFIDebug = D_ERROR | D_WARN | D_LOAD | D_BLKIO | D_INIT | D_INFO;
+		cs_init_driver_debug(LoadedImage);
 	    CS_DEBUG((D_WARN, L"Attention: unexpected Option size of provided data (0x%x/0x%x) -> ignoring.\n",
 	    		LoadedImage->LoadOptionsSize, sizeof(context.options)));
-		EFIDebug = D_ERROR | D_WARN | D_LOAD | D_BLKIO | D_INIT | D_INFO;
 	    context.options.createChildDevice = TRUE;	/* enabled for test purposes */
 	}
 
@@ -1712,7 +1754,7 @@ EFI_STATUS EFIAPI CsDriverInstall(IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE
 	CsDriverBinding.DriverBindingHandle = ImageHandle;
 
 	/* get the provided parameters (sector and cipher data) and store them in system context */
-	error = cs_init_crypto_options(LoadedImage);
+	error = cs_init_driver_options(LoadedImage);
 	if (EFI_ERROR(error)) {
 		return error;
 	}

@@ -335,7 +335,6 @@ EFI_STATUS load_settings(IN EFI_FILE *root_dir, IN CHAR16 *current_dir, IN struc
     	StrCpy(buf, current_dir);
     	StrCat(buf, (const CHAR16 *)CS_FILENAME_OPTIONS);
        	CS_DEBUG((D_INFO, L"Settings Filename is: %s\n", buf));
-       	//Print(L"Settings Filename is: %s\n", buf);
 
     	size_settings_file = read_file(root_dir, buf, &content_settings_file);
     	if (size_settings_file) {

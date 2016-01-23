@@ -621,10 +621,10 @@ int cs_read_volume_header(IN BOOL bBoot, IN char *header, IN Password *password,
 		// Flags
 		cryptoInfo->HeaderFlags = GetHeaderField32((byte *)header, TC_HEADER_OFFSET_FLAGS);
 
-		CS_DEBUG((D_INFO, L"VolumeSize 0x%x, EncryptedAreaStart 0x%x, EncryptedAreaLength 0x%x\n",
+		CS_DEBUG((D_BM, L"VolumeSize 0x%x, EncryptedAreaStart 0x%x, EncryptedAreaLength 0x%x\n",
 				cryptoInfo->VolumeSize.Value, cryptoInfo->EncryptedAreaStart.Value,
 				cryptoInfo->EncryptedAreaLength.Value));
-		CS_DEBUG((D_INFO, L"hiddenVolumePresent %x, Flags 0x%x, Algorithm 0x%x, Mode 0x%x\n",
+		CS_DEBUG((D_BM, L"hiddenVolumePresent %x, Flags 0x%x, Algorithm 0x%x, Mode 0x%x\n",
 				cryptoInfo->hiddenVolume, cryptoInfo->HeaderFlags, cryptoInfo->ea, cryptoInfo->mode));
 
 		CopyMem(masterKey, header + HEADER_MASTER_KEYDATA_OFFSET, sizeof (masterKey));

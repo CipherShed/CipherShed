@@ -54,6 +54,8 @@
  	 	 	 	 	 	 	 	 	 	 	 	 	 	   created device offering BlockIO protocol */
 #define CS_HANDOVER_VARIABLE_NAME	WIDEN("cs_data")	/* name of the UEFI variable for runtime service
  	 	 	 	 	 	 	 	 	 	 	 	 	 	   for the hand-over data to OS driver */
+#define CS_CONTROLLER_LOGFILE		WIDEN("cs.log")		/* filename of logfile for CipherShed controller */
+#define CS_DRIVER_LOGFILE			WIDEN("cs_drv.log")	/* filename of logfile for CipherShed driver */
 /* the following GUID is needed to access the EFI variable, see SetVariable/GetVariable */
 #define CS_HANDOVER_VARIABLE_GUID     \
     { 0x16ca79bf, 0x55b8, 0x478a, {0xb8, 0xf1, 0xfe, 0x39, 0x3b, 0xdd, 0xa1, 0x06} }
@@ -150,5 +152,8 @@ void cs_exception(IN CHAR16 *format, ...);
 void cs_sleep(IN UINTN n);
 UINT32 __div64_32(UINT64 *n, UINT32 base);
 BOOL is_cs_child_device(IN EFI_HANDLE ParentHandle, IN EFI_HANDLE ControllerHandle);
+#if EFI_DEBUG
+EFI_STATUS get_current_directory(IN EFI_LOADED_IMAGE *loaded_image, OUT CHAR16** current_dir);
+#endif
 
 #endif /* _CS_COMMON_H_ */

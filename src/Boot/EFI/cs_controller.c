@@ -280,7 +280,7 @@ UINTN read_file(IN EFI_FILE_HANDLE root_handle, IN CHAR16 *filename, OUT CHAR8 *
 				buf[buflen] = '\0';
 				*content = buf;
 				len = buflen;
-				CS_DEBUG((D_INFO, L"Read 0x%x byte from file %s\n", len, filename));
+				CS_DEBUG((D_BM, L"Read 0x%x byte from file %s\n", len, filename));
 		} else {
 				FreePool(buf);
 				*content = NULL;
@@ -353,6 +353,7 @@ static void init_system_context() {
 	context.user_defined_options.flags.silent = 1;
 }
 
+#if ! EFI_DEBUG
 /*
  *	\brief	detects directory of the currently executed application in the file system
  *
@@ -405,6 +406,7 @@ static EFI_STATUS get_current_directory(IN EFI_LOADED_IMAGE *loaded_image, OUT C
 
 	return error;
 }
+#endif
 
 /*
  *	\brief	initialize context.boot_partition
@@ -511,14 +513,14 @@ static EFI_STATUS _parse_index_file(IN CHAR8 *buffer, IN UINTN size, IN CHAR16 *
 								((buffer[index + i] == ' ') || (buffer[index + i] == '\t'))) {
 							/* matching UUID found */
 							int remaining_characters = line_size - i;
-							CS_DEBUG((D_INFO, L"found line with matching UUID: \"%a\"\n", &buffer[index]));
+							CS_DEBUG((D_BM, L"found line with matching UUID: \"%a\"\n", &buffer[index]));
 
 							while ((remaining_characters > 0) &&
 									((buffer[index + i] == ' ') || (buffer[index + i] == '\t'))) {
 								i++;
 								remaining_characters--;
 							}
-							CS_DEBUG((D_INFO, L"corresponding filename: \"%a\"\n", &buffer[index + i]));
+							CS_DEBUG((D_BM, L"corresponding filename: \"%a\"\n", &buffer[index + i]));
 
 							error = init_boot_partition();
 							if (!EFI_ERROR(error))  {
@@ -555,8 +557,8 @@ static EFI_STATUS _parse_index_file(IN CHAR8 *buffer, IN UINTN size, IN CHAR16 *
 						}
 						context.uuid_buffer[i] = (CHAR16)0;
 						context.dest_uuid = &context.uuid_buffer[0];
-						CS_DEBUG((D_INFO, L"partition UUID: \"%s\"\n", context.dest_uuid));
-						CS_DEBUG((D_INFO, L"vh filename: \"%a\"\n", &buffer[index + start_filename]));
+						CS_DEBUG((D_BM, L"partition UUID: \"%s\"\n", context.dest_uuid));
+						CS_DEBUG((D_BM, L"vh filename: \"%a\"\n", &buffer[index + start_filename]));
 
 						error = init_boot_partition();
 						if (!EFI_ERROR(error))  {
@@ -574,7 +576,7 @@ static EFI_STATUS _parse_index_file(IN CHAR8 *buffer, IN UINTN size, IN CHAR16 *
 	} else {
 		/* this situation might be no error since the index file is not compulsory,
 		 * in this case the volume header might be stored in the other way */
-		CS_DEBUG((D_INFO, L"unable to read from index file \"%s\"\n", pathname));
+		CS_DEBUG((D_BM, L"unable to read from index file \"%s\"\n", pathname));
 		error = EFI_NO_MEDIA;
 	}
 
@@ -707,7 +709,7 @@ static EFI_STATUS get_volume_header_file(IN EFI_FILE *root_dir, IN CHAR16 *curre
 				if (context.dest_uuid != NULL) {
 					if ((StrLen(context.dest_uuid) == len) && (StriCmp(context.dest_uuid, f->FileName) == 0)) {
 						/* SUCCESS !! */
-						CS_DEBUG((D_INFO, L"Success: required volume header %s found.\n", context.dest_uuid));
+						CS_DEBUG((D_BM, L"Success: required volume header %s found.\n", context.dest_uuid));
 
 					} else {
 						CS_DEBUG((D_WARN, L"No match: required UUID %s, found %s\n", context.dest_uuid, f->FileName));
@@ -731,7 +733,7 @@ static EFI_STATUS get_volume_header_file(IN EFI_FILE *root_dir, IN CHAR16 *curre
 						continue;
 					}
 
-					CS_DEBUG((D_INFO, L"Volume Header candidate found: %s\n", f->FileName));
+					CS_DEBUG((D_BM, L"Volume Header candidate found: %s\n", f->FileName));
 					StrCpy(context.uuid_buffer, f->FileName);
 					context.dest_uuid = &context.uuid_buffer[0];
 				}
@@ -747,7 +749,7 @@ static EFI_STATUS get_volume_header_file(IN EFI_FILE *root_dir, IN CHAR16 *curre
 					StrCat(&context.vh_path[0], (const CHAR16 *)L"\\");
 					StrCat(&context.vh_path[0], (const CHAR16 *)f->FileName);
 
-					CS_DEBUG((D_INFO, L"Volume Header Filename is: %s\n", &context.vh_path[0]));
+					CS_DEBUG((D_BM, L"Volume Header Filename is: %s\n", &context.vh_path[0]));
 
 				} else {
 					CS_DEBUG((D_ERROR, L"buffer too small for volume header path (0x%x/0x%x byte)\n",
@@ -790,7 +792,7 @@ static EFI_STATUS load_volume_header(IN EFI_FILE *root_dir, IN CHAR16 *current_d
 		len = read_file(root_dir, &context.vh_path[0], &content_volume_header);
 		if (len) {
 			if (len == CS_VOLUME_HEADER_SIZE) {
-				CS_DEBUG((D_INFO, L"Volume Header File %s correctly read\n", context.vh_path));
+				CS_DEBUG((D_BM, L"Volume Header File %s correctly read\n", context.vh_path));
 
 				CopyMem(&context.os_driver_data.volume_header,
 						content_volume_header, sizeof(context.os_driver_data.volume_header));
@@ -835,7 +837,7 @@ static EFI_STATUS get_driver_path(IN CHAR16 *current_dir) {
     	StrCpy(context.cs_driver_path, current_dir);
     	StrCat(context.cs_driver_path, (const CHAR16 *)CS_CRYPTO_DRIVER_NAME);
 		error = EFI_SUCCESS;
-		CS_DEBUG((D_INFO, L"Driver path is: %s\n", context.cs_driver_path));
+		CS_DEBUG((D_BM, L"Driver path is: %s\n", context.cs_driver_path));
 	}
 
 	return error;
@@ -983,7 +985,7 @@ static EFI_STATUS get_handle_by_uuid(IN struct disk_info *requested_disk, OUT EF
 				case SIGNATURE_TYPE_MBR:
 					if (disk.signature.mbr_id == requested_disk->signature.mbr_id) {
 						success = TRUE;
-						CS_DEBUG((D_INFO, L"matching MBR disk handle found 0x%x\n", disk.signature.mbr_id));
+						CS_DEBUG((D_BM, L"matching MBR disk handle found 0x%x\n", disk.signature.mbr_id));
 					} else {
 						CS_DEBUG((D_INFO, L"no match: MBR 0x%x/0x%x\n",
 								disk.signature.mbr_id, requested_disk->signature.mbr_id));
@@ -993,7 +995,7 @@ static EFI_STATUS get_handle_by_uuid(IN struct disk_info *requested_disk, OUT EF
 					if (CompareMem(&disk.signature.guid, &requested_disk->signature.guid,
 							sizeof(disk.signature.guid)) == 0) {
 						success = TRUE;
-						CS_DEBUG((D_INFO, L"matching GUID disk handle found %g\n", (EFI_GUID *)&disk.signature.guid));
+						CS_DEBUG((D_BM, L"matching GUID disk handle found %g\n", (EFI_GUID *)&disk.signature.guid));
 					} else {
 						CS_DEBUG((D_INFO, L"no match: GUID %g/%g\n",
 								(EFI_GUID *)&disk.signature.guid, (EFI_GUID *)&requested_disk->signature.guid));
@@ -1285,19 +1287,20 @@ static EFI_STATUS initialize(IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE *Sys
      * This information may become important when it should be handed over to the OS driver
      * in order to access the volume header file in case of password change.
      */
-	error = get_disk_handle(loaded_image->DeviceHandle, &context.caller_disk.mbr_type,
-			&context.caller_disk.signature_type, &context.caller_disk.signature);
-	if (EFI_ERROR(error)) {
-		SetMem(&context.caller_disk, 0, sizeof(context.caller_disk));
-		cs_print_msg(L"Error getting disk signature: %r ", error);
-	}
+	if (!EFI_ERROR(error)) {
+		error = get_disk_handle(loaded_image->DeviceHandle, &context.caller_disk.mbr_type,
+				&context.caller_disk.signature_type, &context.caller_disk.signature);
+		if (EFI_ERROR(error)) {
+			SetMem(&context.caller_disk, 0, sizeof(context.caller_disk));
+			cs_print_msg(L"Error getting disk signature: %r ", error);
+		}
 #if 0
-	else {
-		Print(L"caller disk: MBR Type: 0x%x, SignatureType: 0x%x \n",
-				context.caller_disk.mbr_type, context.caller_disk.signature_type);
-	}
+		else {
+			Print(L"caller disk: MBR Type: 0x%x, SignatureType: 0x%x \n",
+					context.caller_disk.mbr_type, context.caller_disk.signature_type);
+		}
 #endif
-
+	}
 	uefi_call_wrapper(BS->CloseProtocol, 4, ImageHandle, &LoadedImageProtocol, ImageHandle, NULL);
 
 	return error;
@@ -1509,9 +1512,9 @@ static EFI_STATUS start_crypto_driver(IN EFI_HANDLE ImageHandle, OUT EFI_HANDLE 
 		context.efi_driver_data.debug = context.user_defined_options.driverdebug;
 		CopyMem(LoadOptions, &context.efi_driver_data, sizeof(*LoadOptions));
 
-		CS_DEBUG((D_INFO, L"StartSector 0x%x, SectorCount 0x%x\n",
+		CS_DEBUG((D_BM, L"StartSector 0x%x, SectorCount 0x%x\n",
 				LoadOptions->StartSector, LoadOptions->SectorCount));
-		CS_DEBUG((D_INFO, L"hiddenVolumePresent %x, Algo/Mode 0x%x/0x%x\n",
+		CS_DEBUG((D_BM, L"hiddenVolumePresent %x, Algo/Mode 0x%x/0x%x\n",
 				LoadOptions->isHiddenVolume, LoadOptions->cipher.algo, LoadOptions->cipher.mode));
 
 		error = load_start_image(ImageHandle, context.caller_disk.handle, &context.cs_driver_path[0],
@@ -1727,7 +1730,7 @@ static EFI_STATUS boot_os(IN EFI_HANDLE ImageHandle) {
 	error = init_runtime_service();
 
 	if (context.os_loader == NULL) {
-		CS_DEBUG((D_INFO, L"No OS loader given... nothing more to do...\n"));
+		CS_DEBUG((D_BM, L"No OS loader given... nothing more to do...\n"));
 		return error;
 	}
 
@@ -1803,6 +1806,10 @@ EFI_STATUS efi_main (IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE *SystemTable
 
 	/* load the loader settings from options file, on error, use default values */
 	error = load_settings(context.root_dir, current_directory, &context.user_defined_options);
+
+	/* initialize debugging, especially when debug output to file is required */
+	CS_DEBUG_INIT((context.root_dir, current_directory, CS_CONTROLLER_LOGFILE));
+
 	if (EFI_ERROR(error)) {
 		CS_DEBUG((D_WARN, L"Unable to load options from file: %r\n", error));
 	    FreePool(current_directory);
@@ -1830,7 +1837,11 @@ EFI_STATUS efi_main (IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE *SystemTable
 
 	FreePool(current_directory); /* no more file system access needed from here... */
 
-	CS_DEBUG_SLEEP(2);
+#if EFI_DEBUG
+	if (((EFIDebug & D_FILE) == 0) && ((EFIDebug & D_FILE_APPEND) == 0)) {
+		CS_DEBUG_SLEEP(2);
+	}
+#endif
 
 	do {
 		/* call user dialog to get the password or any other decision */
@@ -1899,5 +1910,6 @@ EFI_STATUS efi_main (IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE *SystemTable
 
 exit:
 	cs_cleanup();
+	CS_DEBUG_EXIT(());
 	return error;
 }

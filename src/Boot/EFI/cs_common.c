@@ -119,3 +119,58 @@ BOOL is_cs_child_device(IN EFI_HANDLE ParentHandle, IN EFI_HANDLE ControllerHand
 		return TRUE;
 	}
 }
+
+#if EFI_DEBUG
+/*
+ *	\brief	detects directory of the currently executed application in the file system
+ *
+ *	The buffer for the returned directory is allocated inside the function, hence the caller
+ *	need to free this buffer using FreePool().
+ *
+ *	\param	loaded_image	opened image
+ *	\param	current_dir		pointer to buffer for the returned directory name
+ *
+ *	\return		the success state of the function
+ */
+EFI_STATUS get_current_directory(IN EFI_LOADED_IMAGE *loaded_image, OUT CHAR16** current_dir) {
+
+	CHAR16 *current_file;
+	EFI_STATUS error = EFI_SUCCESS;
+	UINTN i;
+
+    ASSERT(loaded_image != NULL);
+    ASSERT(current_dir != NULL);
+
+    current_file = DevicePathToStr(loaded_image->FilePath);
+	if (current_file == NULL) {
+		CS_DEBUG((D_ERROR, L"Unable to translate path to string\n"));
+		return EFI_NO_MAPPING;
+	}
+
+	CS_DEBUG((D_INFO, L"Path to current Application: %s\n", current_file));
+
+	for (i = StrLen(current_file); i >= 0; i--) {
+		if ((current_file[i] == '\\') || (current_file[i] == '/')) {
+
+			current_file[i] = '\\';	/* fix: DevicePathToStr() sometimes appends "/" instead of "\" */
+			*current_dir = AllocatePool(i + 2);
+			if (*current_dir) {
+				UINTN j;
+
+				for (j = 0; j <= i; j++) {
+					(*current_dir)[j] = current_file[j];
+				}
+				(*current_dir)[i+1] = 0;
+
+				CS_DEBUG((D_INFO, L"Current Directory: \"%s\"\n", *current_dir));
+			} else {
+				CS_DEBUG((D_ERROR, L"Unable to allocate directory buffer (0x%x)\n", i + 2));
+				error = EFI_OUT_OF_RESOURCES;
+			}
+			break;
+		}
+	}
+
+	return error;
+}
+#endif
