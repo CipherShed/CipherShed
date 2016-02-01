@@ -10,6 +10,14 @@
 #ifndef _CS_COMMON_H_
 #define _CS_COMMON_H_
 
+#define _STRINGIFY(s)	#s
+#define STRINGIFY(s)	_STRINGIFY(s)
+
+#define _WIDEN(s)		L ## s
+#define WIDEN(s)		_WIDEN(s)
+
+#ifndef EFI_WINDOWS_DRIVER
+
 #include <efi.h>
 #include <efilib.h>
 #include <efibind.h>
@@ -41,27 +49,20 @@
 #define MIN(x,y)		((x)<(y)?(x):(y))
 #endif
 
-#define _STRINGIFY(s)	#s
-#define STRINGIFY(s)	_STRINGIFY(s)
-
-#define _WIDEN(s)		L ## s
-#define WIDEN(s)		_WIDEN(s)
-
-#define CS_VOLUME_HEADER_SIZE		512			/* size of volume header, needed for buffer allocation */
 #define CS_LENGTH_FILENAME_VOLUMNE_HEADER	36	/* length of a GUID */
 #define CS_MAX_DRIVER_PATH_SIZE		1024		/* maximum path size to the crypto driver */
 #define CS_CHILD_PATH_EXTENSION		WIDEN("crypto")		/* extension for Device Path Protocol for the new
  	 	 	 	 	 	 	 	 	 	 	 	 	 	   created device offering BlockIO protocol */
-#define CS_HANDOVER_VARIABLE_NAME	WIDEN("cs_data")	/* name of the UEFI variable for runtime service
- 	 	 	 	 	 	 	 	 	 	 	 	 	 	   for the hand-over data to OS driver */
 #define CS_CONTROLLER_LOGFILE		WIDEN("cs.log")		/* filename of logfile for CipherShed controller */
 #define CS_DRIVER_LOGFILE			WIDEN("cs_drv.log")	/* filename of logfile for CipherShed driver */
-/* the following GUID is needed to access the EFI variable, see SetVariable/GetVariable */
-#define CS_HANDOVER_VARIABLE_GUID     \
-    { 0x16ca79bf, 0x55b8, 0x478a, {0xb8, 0xf1, 0xfe, 0x39, 0x3b, 0xdd, 0xa1, 0x06} }
 /* the following GUID is needed identify whether the CS driver is already connected to a controller */
 #define CS_CALLER_ID_GUID     \
     { 0xa21c7a17, 0xa138, 0x40cf, {0x86, 0xb7, 0x24, 0xbc, 0x19, 0xb8, 0x9b, 0x5e} }
+/* the following GUID is needed to access the EFI variable, see SetVariable/GetVariable
+ * attention: the Windows notation to define GUIDs differs from that, hence another definition
+ *            is given below (DEFINE_GUID) */
+#define CS_HANDOVER_VARIABLE_GUID     \
+	    { 0x16ca79bf, 0x55b8, 0x478a, {0xb8, 0xf1, 0xfe, 0x39, 0x3b, 0xdd, 0xa1, 0x06} }
 
 /* taken (and modified) from TC BootDiskIo.h: struct Partition
  * -> this might be adjusted since in TC it's based on MBR based partitions */
@@ -118,17 +119,6 @@ typedef struct
 	UINT32 BootDriveSignature;
 	UINT32 BootArgumentsCrc32;
 } BootArguments;
-
-/* the following structure is intended to be handed over to the OS driver,
- * it contains the necessary keys and information */
-struct cs_driver_data {
-	BootArguments boot_arguments;
-	CRYPTO_INFO crypto_info;
-	UINT8 volume_header[CS_VOLUME_HEADER_SIZE];	/* encrypted volume header */
-	/* some more data are needed:
-	 * - GUID of the partition where the volume header is located, see context.caller_disk.signature
-	 * - full path to the volume header file at this partition, see context.vh_path[] */
-};
 #pragma pack()
 
 /* Modifying these values can introduce incompatibility with previous versions */
@@ -156,4 +146,34 @@ BOOL is_cs_child_device(IN EFI_HANDLE ParentHandle, IN EFI_HANDLE ControllerHand
 EFI_STATUS get_current_directory(IN EFI_LOADED_IMAGE *loaded_image, OUT CHAR16** current_dir);
 #endif
 
+#endif /* EFI_WINDOWS_DRIVER */
+
+#define _CS_HANDOVER_VARIABLE_NAME	"cs_data"	/* name of the UEFI variable for runtime service
+													for the hand-over data to OS driver */
+#define CS_HANDOVER_VARIABLE_NAME	WIDEN( _CS_HANDOVER_VARIABLE_NAME )
+
+#define CS_VOLUME_HEADER_SIZE		512			/* size of volume header, needed for buffer allocation */
+
+#pragma pack(1)
+/* the following structure is intended to be handed over to the OS driver,
+ * it contains the necessary keys and information */
+struct cs_driver_data {
+	BootArguments boot_arguments;
+	UINT8 volume_header[CS_VOLUME_HEADER_SIZE];	/* encrypted volume header */
+	/* some more data are needed:
+	 * - GUID of the partition where the volume header is located, see context.caller_disk.signature
+	 * - full path to the volume header file at this partition, see context.vh_path[] */
+
+	/* the following part is probably not used by the windows driver...
+	 * attention: the data structure size of CRYPTO_INFO differs in windows driver environment!! */
+	CRYPTO_INFO crypto_info;
+};
+#pragma pack()
+
 #endif /* _CS_COMMON_H_ */
+
+#ifdef EFI_WINDOWS_DRIVER
+#ifdef DEFINE_GUID	/* this is the Windows way to define GUIDs */
+DEFINE_GUID(CS_HANDOVER_VARIABLE_GUID, 0x16ca79bf, 0x55b8, 0x478a, 0xb8, 0xf1, 0xfe, 0x39, 0x3b, 0xdd, 0xa1, 0x06 );
+#endif
+#endif /* EFI_WINDOWS_DRIVER */
