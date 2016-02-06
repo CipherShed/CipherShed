@@ -99,8 +99,8 @@ static uiStrings ui_strings[] =
 			  /* CS_LANG_GER */ L"[2]    Verschlüsseln der Systempartition" },
 	},
 	{ CS_STR_ARE_YOU_SURE,
-			{ /* CS_LANG_ENG */ L"Are you sure? (y/N)",
-			  /* CS_LANG_GER */ L"Sind Sie sicher? (j/N)" },
+			{ /* CS_LANG_ENG */ L"Are you sure? (y/N) ",
+			  /* CS_LANG_GER */ L"Sind Sie sicher? (j/N) " },
 	},
 	{ CS_STR_SERVICE_CHANGE_PASSWORD,
 			{ /* CS_LANG_ENG */ L"[3]    Change password",
@@ -568,7 +568,6 @@ BOOLEAN check_really_do(IN SIMPLE_INPUT_INTERFACE *ConIn, IN SIMPLE_TEXT_OUTPUT_
 	    	break;
 	    }
 	    if (done) {
-	    	outStr(ConOut, L" ");
 	    	outStr(ConOut, &key.UnicodeChar);
 	    	break;
 	    }

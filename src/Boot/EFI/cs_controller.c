@@ -1466,6 +1466,9 @@ EFI_STATUS decrypt_volume_header() {
     context.os_driver_data.boot_arguments.Flags |= TC_BOOT_ARGS_FLAG_BOOT_VOLUME_HEADER_PRESENT;
     context.os_driver_data.boot_arguments.HiddenSystemPartitionStart = 0; /* not unsupported yet */
 
+    context.os_driver_data.boot_arguments.HeaderSaltCrc32 =
+    		GetCrc32((unsigned char *)&context.os_driver_data.volume_header[0], PKCS5_SALT_SIZE);
+
     TC_SET_BOOT_ARGUMENTS_SIGNATURE(context.os_driver_data.boot_arguments.Signature);
 
 	/* read data from the parsed volume header to send them to the EFI crypto driver:
@@ -1525,6 +1528,38 @@ static EFI_STATUS start_crypto_driver(IN EFI_HANDLE ImageHandle, OUT EFI_HANDLE 
 
 	return error;
 }
+
+#if 0
+static EFI_STATUS get_media_information(IN EFI_HANDLE ImageHandle, IN EFI_HANDLE partitionHandle,
+		OUT EFI_BLOCK_IO_MEDIA *mediaInfo) {
+	EFI_STATUS error, error2;
+	EFI_BLOCK_IO *blockIo;
+
+	ASSERT(ImageHandle != NULL);
+	ASSERT(partitionHandle != NULL);
+	ASSERT(mediaInfo != NULL);
+
+	error = uefi_call_wrapper(BS->OpenProtocol, 6, partitionHandle, &BlockIoProtocol,
+			(VOID **) &blockIo, ImageHandle, NULL, EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL);
+	if (EFI_ERROR (error)) {
+		CS_DEBUG((D_ERROR, L"unable to open block IO protocol (%r)\n", error));
+		return error;
+	}
+	if (blockIo->Media) {
+		*mediaInfo = *blockIo->Media;
+		error = EFI_SUCCESS;
+	} else {
+		CS_DEBUG((D_ERROR, L"no media data available\n"));
+		error = EFI_NO_MEDIA;
+	}
+	error2 = uefi_call_wrapper(BS->CloseProtocol, 4, partitionHandle, &BlockIoProtocol, ImageHandle, partitionHandle);
+	if (EFI_ERROR (error2)) {
+		CS_DEBUG((D_ERROR, L"unable to close block IO protocol (%r)\n", error2));
+	}
+
+	return error;
+}
+#endif
 
 /*
  *	\brief	connect the given crypto driver with the intended block device

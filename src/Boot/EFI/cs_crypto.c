@@ -468,6 +468,12 @@ int cs_update_volume_header(IN OUT char *header, IN PCRYPTO_INFO cryptoInfo, OPT
 		(*(uint32 *)(header + TC_HEADER_OFFSET_VOLUME_SIZE)) = BE32(cryptoInfo->VolumeSize.HighPart);
 		(*(uint32 *)(header + 4 + TC_HEADER_OFFSET_VOLUME_SIZE)) = BE32(cryptoInfo->VolumeSize.LowPart);
 #endif
+#if 0
+		// only for temporary use: to fix the volume header
+		(*(uint16 *)(header + TC_HEADER_OFFSET_VERSION)) = BE16(TC_VOLUME_HEADER_FORMAT_VERSION);
+		(*(uint16 *)(header + TC_HEADER_OFFSET_REQUIRED_VERSION)) = BE16(VERSION_NUM);
+		(*(uint32 *)(header + TC_HEADER_OFFSET_SECTOR_SIZE)) = BE32(512);
+#endif
 		cs_update_volume_header_crc(header);
 	}
 
@@ -495,7 +501,9 @@ int cs_write_volume_header(IN OUT char *header, IN PCRYPTO_INFO cryptoInfo, IN c
 	pwd.Length = strlena(password);
 
 	(*(uint32 *)(header + TC_HEADER_OFFSET_MAGIC)) = BE32(0x54525545);
-	(*(uint16 *)(header + TC_HEADER_OFFSET_VERSION)) = BE16(VERSION_NUM);
+	(*(uint16 *)(header + TC_HEADER_OFFSET_VERSION)) = BE16(TC_VOLUME_HEADER_FORMAT_VERSION);
+	(*(uint16 *)(header + TC_HEADER_OFFSET_REQUIRED_VERSION)) = BE16(VERSION_NUM);
+	(*(uint32 *)(header + TC_HEADER_OFFSET_SECTOR_SIZE)) = BE32(512); // need to be checked!!
 
 #ifndef TC_NO_COMPILER_INT64
 	(*(uint64 *)(header + TC_HEADER_OFFSET_ENCRYPTED_AREA_START)) = BE64(cryptoInfo->EncryptedAreaStart.Value);
@@ -626,9 +634,12 @@ int cs_read_volume_header(IN BOOL bBoot, IN char *header, IN Password *password,
 				cryptoInfo->EncryptedAreaLength.Value));
 		CS_DEBUG((D_BM, L"hiddenVolumePresent %x, Flags 0x%x, Algorithm 0x%x, Mode 0x%x\n",
 				cryptoInfo->hiddenVolume, cryptoInfo->HeaderFlags, cryptoInfo->ea, cryptoInfo->mode));
+		CS_DEBUG((D_BM, L"volume header version 0x%x, required driver version: 0x%x\n",
+				GetHeaderField16((byte *)header, TC_HEADER_OFFSET_VERSION),
+				GetHeaderField16((byte *)header, TC_HEADER_OFFSET_REQUIRED_VERSION)));
 
 		CopyMem(masterKey, header + HEADER_MASTER_KEYDATA_OFFSET, sizeof (masterKey));
-		/* encrypte the buffer again when finished with the data acquisition */
+		/* encrypt the buffer again when finished with the data acquisition */
 		EncryptBuffer((unsigned __int8 *)header + HEADER_ENCRYPTED_DATA_OFFSET, HEADER_ENCRYPTED_DATA_SIZE, cryptoInfo);
 
 		/* save cipher information for later usage */

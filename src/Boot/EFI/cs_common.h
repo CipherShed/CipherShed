@@ -130,6 +130,8 @@ typedef struct
    Modifying these values can introduce incompatibility with previous versions */
 #define TC_SET_BOOT_ARGUMENTS_SIGNATURE(SG) do { SG[0]  = 'T';   SG[1]  = 'R';   SG[2]  = 'U';   SG[3]  = 'E';   SG[4]  = 0x11;   SG[5]  = 0x23;   SG[6]  = 0x45;   SG[7]  = 0x66; } while (FALSE)
 #define TC_IS_BOOT_ARGUMENTS_SIGNATURE(SG)      (SG[0] == 'T' && SG[1] == 'R' && SG[2] == 'U' && SG[3] == 'E' && SG[4] == 0x11 && SG[5] == 0x23 && SG[6] == 0x45 && SG[7] == 0x66)
+/* this constant is part of the encrypted volume header */
+#define TC_VOLUME_HEADER_FORMAT_VERSION		0x0005
 
 #define TC_LB_SIZE_BIT_SHIFT_DIVISOR 9	/* attention: hard coded media sector size: 512 byte */
 #define TC_FIRST_BIOS_DRIVE 0x80
