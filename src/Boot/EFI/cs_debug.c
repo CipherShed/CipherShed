@@ -16,7 +16,40 @@
 #if EFI_DEBUG
 #include <cs_common.h>
 
+#define CS_MAX_DEBUG_LINESIZE	500	/* max number characters per line */
+
 EFI_FILE_HANDLE csLogfile = NULL;	/* file handle for (opened) logfile */
+
+/*
+ * \brief convert the given unicode string to an ascii string
+ *
+ * The unicode string is converted into an ascii string in the same buffer (!),
+ * hence the content of the input buffer will be destroyed.
+ * The function simply takes every second byte of the source buffer and puts
+ * it into the result buffer.
+ *
+ *	\param	uString	buffer containing the unicode string
+ *
+ *	\return	pointer to the result buffer containing the ascii string,
+ *			this is in fact the same address as the input buffer
+ */
+static CHAR8 *uString_to_aString(IN CHAR16 *uString) {
+	if (uString) {
+		CHAR8 *aString;
+		UINTN len = StrLen(uString);
+		UINTN i;
+
+		aString = (CHAR8 *)uString;
+		for (i = 0; i < len; ++i) {
+			aString[i] = aString[2 * i];
+		}
+		for (i = len; i < len * sizeof(uString[0]); ++i) {
+			aString[i] = 0;
+		}
+		return aString;
+	}
+	return NULL;
+}
 
 /*
  * \brief write the given data to the logfile
@@ -29,16 +62,18 @@ EFI_FILE_HANDLE csLogfile = NULL;	/* file handle for (opened) logfile */
  */
 static void cs_debug_write_file(IN CHAR16 *format, IN va_list args) {
 	if (csLogfile) {
-		static CHAR16 buffer[500];
+		static CHAR16 buffer[CS_MAX_DEBUG_LINESIZE];
+		CHAR8 *aString;
 		UINTN outputSize;
 		EFI_STATUS error;
 
 		ASSERT(format != NULL);
 
-		outputSize = VSPrint (buffer, sizeof(buffer), format, args);
-		outputSize *= sizeof(buffer[0]);
+		VSPrint (buffer, sizeof(buffer), format, args);
+		aString = uString_to_aString(buffer);
+		outputSize = strlena (aString);
 
-		error = uefi_call_wrapper(csLogfile->Write, 3, csLogfile, &outputSize, buffer);
+		error = uefi_call_wrapper(csLogfile->Write, 3, csLogfile, &outputSize, aString);
 		if (EFI_ERROR(error)) {
 			CS_DEBUG((D_ERROR, L"Unable to write logfile \"%s\", size 0x&x (%r)\n", buffer, outputSize, error));
 		}
@@ -58,13 +93,18 @@ void cs_debug(INTN mask, CHAR16 *format, ...) {
 	va_list args;
 
 	if (!(EFIDebug & mask)) {
-			return;
+		/* debugging is disabled per configuration */
+		return;
 	}
 
 	va_start (args, format);
 	if (((EFIDebug & D_FILE) == 0) && ((EFIDebug & D_FILE_APPEND) == 0)) {
 		VPrint(format, args);
 	} else {
+		if ((EFIDebug & D_FILE) && (EFIDebug & D_FILE_APPEND)) {
+			/* if both flags are set then output to STDOUT and to the logfile */
+			VPrint(format, args);
+		}
 		cs_debug_write_file(format, args);
 	}
 	va_end (args);
