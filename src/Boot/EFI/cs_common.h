@@ -90,8 +90,10 @@ struct cs_cipher_data {
 
 /* structure of data that are handed over from loader to EFI driver */
 struct cs_efi_option_data {
-	uint64 StartSector;				/* start of encrypted area (equal to start of partition) */
-	uint64 SectorCount;				/* size of encrypted area */
+	uint64 StartUnit;				/* start of encrypted area (data unit number),
+										relative to the disk (!) device,
+										assumed to the first data unit of the partition device */
+	uint64 UnitCount;				/* size of encrypted area (data unit count) */
 	BOOLEAN isHiddenVolume;			/* TC: BootCryptoInfo->hiddenVolume */
 	uint64 HiddenVolumeStartSector;
 	uint64 HiddenVolumeStartUnitNo;

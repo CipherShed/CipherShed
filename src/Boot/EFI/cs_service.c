@@ -244,12 +244,15 @@ static EFI_STATUS update_blocks_in_volume_header(IN UINT64 processedLba, IN CRYP
     sectorsInVolume = crypto_info->VolumeSize.Value >> TC_LB_SIZE_BIT_SHIFT_DIVISOR;
 
     if ((processedLba < startSector) || (processedLba > (startSector + sectorsInVolume))) {
-    	CS_DEBUG((D_INFO, L"inconsistent volume information: startSector: 0x%x, current LBA: 0x%x, vol size: 0x%x\n",
+    	CS_DEBUG((D_ERROR, L"inconsistent volume information: startSector: 0x%x, current LBA: 0x%x, vol size: 0x%x\n",
     			startSector, processedLba, sectorsInVolume));
     	return EFI_VOLUME_CORRUPTED;
     }
     numberSectors = processedLba - startSector;
     crypto_info->EncryptedAreaLength.Value = numberSectors << TC_LB_SIZE_BIT_SHIFT_DIVISOR;
+
+    CS_DEBUG((D_INFO, L"update EncryptedAreaLength to value 0x%x (sector 0x%x)\n",
+    		crypto_info->EncryptedAreaLength.Value, numberSectors));
 
     /* update volume header with crypto_info */
     error = update_volume_header(crypto_info);
@@ -278,7 +281,7 @@ static EFI_STATUS do_encrypt_decrypt_media(IN EFI_SYSTEM_TABLE *SystemTable,
 		IN EFI_BLOCK_IO *parentBlockIo, IN EFI_BLOCK_IO *childBlockIo, IN BOOLEAN encrypt) {
     EFI_STATUS error;
     EFI_BLOCK_IO *source, *dest;
-    CRYPTO_INFO *crypto_info;
+    PCRYPTO_INFO cryptoInfo;
     UINT64 startSector, endEncryptedArea, lba;
     UINTN numberSectors, numberEncryptedSectors, sectorsInVolume;
     void *buffer;
@@ -288,25 +291,17 @@ static EFI_STATUS do_encrypt_decrypt_media(IN EFI_SYSTEM_TABLE *SystemTable,
     ASSERT(parentBlockIo != NULL);
     ASSERT(childBlockIo != NULL);
 
-    crypto_info = get_crypto_info();
-    ASSERT(crypto_info != NULL);
+    cryptoInfo = get_crypto_info();
+    ASSERT(cryptoInfo != NULL);
 
-#if 0 //TEST
-    crypto_info->VolumeSize.Value = 5120000;
-    crypto_info->EncryptedAreaStart.Value = 0;
-//    crypto_info->EncryptedAreaLength.Value = 5120000;
-//    crypto_info->EncryptedAreaLength.Value = 512000;
-//    crypto_info->EncryptedAreaLength.Value = 102400;
-    crypto_info->EncryptedAreaLength.Value = 0;
-#endif
-
-    startSector = crypto_info->EncryptedAreaStart.Value >> TC_LB_SIZE_BIT_SHIFT_DIVISOR;
-    numberEncryptedSectors = crypto_info->EncryptedAreaLength.Value >> TC_LB_SIZE_BIT_SHIFT_DIVISOR;
+    //startSector = cryptoInfo->EncryptedAreaStart.Value >> TC_LB_SIZE_BIT_SHIFT_DIVISOR;
+    startSector = 0; /* relative to the partition/media, not to the entire disk device */
+    numberEncryptedSectors = cryptoInfo->EncryptedAreaLength.Value >> TC_LB_SIZE_BIT_SHIFT_DIVISOR;
     endEncryptedArea = startSector + numberEncryptedSectors;
-    sectorsInVolume = crypto_info->VolumeSize.Value >> TC_LB_SIZE_BIT_SHIFT_DIVISOR;
+    sectorsInVolume = cryptoInfo->VolumeSize.Value >> TC_LB_SIZE_BIT_SHIFT_DIVISOR;
     if (endEncryptedArea > (startSector + sectorsInVolume)) {
     	CS_DEBUG((D_INFO, L"inconsistent volume information: startSector: 0x%x, enc length: 0x%x, vol size: 0x%x\n",
-    			startSector, crypto_info->EncryptedAreaLength.Value >> TC_LB_SIZE_BIT_SHIFT_DIVISOR,
+    			startSector, cryptoInfo->EncryptedAreaLength.Value >> TC_LB_SIZE_BIT_SHIFT_DIVISOR,
     			sectorsInVolume));
     	return EFI_VOLUME_CORRUPTED;
     }
@@ -397,7 +392,8 @@ static EFI_STATUS do_encrypt_decrypt_media(IN EFI_SYSTEM_TABLE *SystemTable,
 
 	if (!EFI_ERROR(error)) {
 		/* update volume header and write it back to media */
-		error = update_blocks_in_volume_header((encrypt) ? lba : lba + bufferSectors, crypto_info, encrypt);
+		lba += (cryptoInfo->EncryptedAreaStart.Value >> TC_LB_SIZE_BIT_SHIFT_DIVISOR);
+		error = update_blocks_in_volume_header((encrypt) ? lba : lba + bufferSectors, cryptoInfo, encrypt);
 	}
 
     return error;

@@ -149,12 +149,13 @@ typedef struct CRYPTO_INFO_t
 	unsigned __int8 ks[MAX_EXPANDED_KEY];	/* Primary key schedule (if it is a cascade, it conatins multiple concatenated keys) */
 	unsigned __int8 ks2[MAX_EXPANDED_KEY];	/* Secondary key schedule (if cascade, multiple concatenated) for XTS mode. */
 
-	BOOL hiddenVolume;						// Indicates whether the volume is mounted/mountable as hidden volume
+	BOOL hiddenVolume;						/* Indicates whether the volume is mounted/mountable as hidden volume */
 
-	UINT64_STRUCT VolumeSize;
+	UINT64_STRUCT VolumeSize;				/* partition size in byte, taken from the volume header */
 
-	UINT64_STRUCT EncryptedAreaStart;
-	UINT64_STRUCT EncryptedAreaLength;
+	UINT64_STRUCT EncryptedAreaStart;		/* in byte, relative to the start of the device (not the partition),
+	 	 	 	 	 	 	 	 	 	 	 	 taken from the volume header */
+	UINT64_STRUCT EncryptedAreaLength;		/* in byte, taken from the volume header */
 
 	uint32 HeaderFlags;
 } CRYPTO_INFO, *PCRYPTO_INFO;

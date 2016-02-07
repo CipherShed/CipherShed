@@ -112,7 +112,8 @@ static struct cs_driver_context {
 	UINT64 hiddenSectorOffset;		/* only used for hidden volume */
 	UINT64 hiddenUnitOffset;		/* only used for hidden volume */
 	struct cs_efi_option_data options;
-	UINT64 EndSector;				/* options.StartSector + options.SectorCount */
+	UINT64 EndUnit;					/* options.StartUnit + options.UnitCount */
+	UINT16 UnitsPerSector;			/* number of crypto units (size: 512 byte) per sector (media dependent) */
 } context;
 
 EFI_STATUS EFIAPI CsReadBlocks(
@@ -144,6 +145,31 @@ EFI_STATUS EFIAPI CsWriteBlocksEx(
 
 
 /*
+ * \brief	transform a given logical block number of a partition device to a unit number
+ *
+ * In terms of the disk encryption/decryption, the algorithm uses a data unit number
+ * as input. This data unit number is different from the sector number of the
+ * media/partition. As such, the given lba needs to be transformed, since the
+ * encryption data units are relative to the disk device (not the partition device).
+ * The encryption data units have a fixed size of ENCRYPTION_DATA_UNIT_SIZE byte
+ *
+ * \param	lba			pointer to the logical block number
+ *
+ * \return	the success state of the operation
+ */
+static inline VOID transformLba(IN OUT EFI_LBA *lba) {
+	ASSERT(lba != NULL);
+	ASSERT(context.UnitsPerSector != 0);
+
+	*lba *= context.UnitsPerSector;
+	*lba += context.options.StartUnit;
+
+	if (context.options.isHiddenVolume) {
+		*lba += context.hiddenUnitOffset;
+	}
+}
+
+/*
  * \brief	encrypt a buffer (in-place)
  *
  * \param	lba			logical block number of the request
@@ -153,7 +179,7 @@ EFI_STATUS EFIAPI CsWriteBlocksEx(
  *
  * \return	the success state of the operation
  */
-EFI_STATUS EFIAPI encryptBlocks(IN EFI_LBA lba, IN UINTN BufferSize, OUT VOID *Buffer) {
+EFI_STATUS encryptBlocks(IN EFI_LBA lba, IN UINTN BufferSize, OUT VOID *Buffer) {
 
 	UINT16 blockCount = BufferSize / ENCRYPTION_DATA_UNIT_SIZE;
 
@@ -163,13 +189,11 @@ EFI_STATUS EFIAPI encryptBlocks(IN EFI_LBA lba, IN UINTN BufferSize, OUT VOID *B
 
 	ASSERT(BufferSize % ENCRYPTION_DATA_UNIT_SIZE == 0);
 
-	if (context.options.isHiddenVolume) {
-		lba += context.hiddenUnitOffset;
-	}
+	transformLba(&lba);	/* transform the given LBA into a data unit number */
 
 	while (blockCount-- > 0) {
 
-		if ((lba >= context.options.StartSector) && (lba < context.EndSector)) {
+		if ((lba >= context.options.StartUnit) && (lba < context.EndUnit)) {
 
 			CS_DEBUG((D_BLKIO_ULTRA, L"encrypt block (0x%x)\n", lba));
 
@@ -194,7 +218,7 @@ EFI_STATUS EFIAPI encryptBlocks(IN EFI_LBA lba, IN UINTN BufferSize, OUT VOID *B
  *
  * \return	the success state of the operation
  */
-EFI_STATUS EFIAPI decryptBlocks(IN EFI_LBA lba, IN UINTN BufferSize, OUT VOID *Buffer) {
+EFI_STATUS decryptBlocks(IN EFI_LBA lba, IN UINTN BufferSize, OUT VOID *Buffer) {
 
 	UINT16 blockCount = BufferSize / ENCRYPTION_DATA_UNIT_SIZE;
 
@@ -204,14 +228,12 @@ EFI_STATUS EFIAPI decryptBlocks(IN EFI_LBA lba, IN UINTN BufferSize, OUT VOID *B
 
 	ASSERT(BufferSize % ENCRYPTION_DATA_UNIT_SIZE == 0);
 
-	if (context.options.isHiddenVolume) {
-		lba += context.hiddenUnitOffset;
-	}
+	transformLba(&lba);	/* transform the given LBA into a data unit number */
 
 	while (blockCount-- > 0) {
 
 		if ((context.options.isHiddenVolume) ||
-			((lba >= context.options.StartSector) && (lba < context.EndSector))) {
+			((lba >= context.options.StartUnit) && (lba < context.EndUnit))) {
 
 			CS_DEBUG((D_BLKIO_ULTRA, L"decrypt block (0x%x)\n", lba));
 
@@ -1016,6 +1038,27 @@ static EFI_STATUS open_consumed_protocols(IN EFI_DRIVER_BINDING_PROTOCOL *This,
 		}
 		return error;
 	}
+
+	/* check the media and read the block size */
+	if (!by_child) {
+		ASSERT(context.ConsumedBlockIo->Media != NULL);
+		/* the media dependent block size must be a multiple of the crypto unit size (512) */
+		if ((context.ConsumedBlockIo->Media->BlockSize == 0) ||
+				(context.ConsumedBlockIo->Media->BlockSize % ENCRYPTION_DATA_UNIT_SIZE)) {
+			CS_DEBUG((D_ERROR, L"the block size of the media (0x%x) is invalid/not a multiple of 512 byte\n",
+					context.ConsumedBlockIo->Media->BlockSize));
+			uefi_call_wrapper(BS->CloseProtocol, 4, ControllerHandle, &BlockIoProtocol,
+							This->DriverBindingHandle, handle);
+			return EFI_UNSUPPORTED;
+		}
+		CS_DEBUG((D_INFO, L"block size of the media: 0x%x byte\n", context.ConsumedBlockIo->Media->BlockSize));
+		context.UnitsPerSector = context.ConsumedBlockIo->Media->BlockSize / ENCRYPTION_DATA_UNIT_SIZE;
+		if (context.options.isHiddenVolume) {
+			context.hiddenSectorOffset = context.options.HiddenVolumeStartSector -
+					context.options.StartUnit * ENCRYPTION_DATA_UNIT_SIZE / context.ConsumedBlockIo->Media->BlockSize;
+		}
+	}
+
 	if ((!by_child) || (context.ConsumedBlockIo2))
 		{
 			EFI_STATUS error2;
@@ -1694,9 +1737,9 @@ static EFI_STATUS cs_init_driver_options(IN EFI_LOADED_IMAGE *LoadedImage) {
 	    context.options.createChildDevice = TRUE;	/* enabled for test purposes */
 	}
 
-	context.EndSector = context.options.StartSector + context.options.SectorCount;
+	context.EndUnit = context.options.StartUnit + context.options.UnitCount;
 	CS_DEBUG((D_INFO, L"driver init: StartSector 0x%x, SectorCount 0x%x\n",
-			context.options.StartSector, context.options.SectorCount));
+			context.options.StartUnit, context.options.UnitCount));
 	CS_DEBUG((D_INFO, L"driver init: hiddenVolumePresent %x, Encryption Algorithm ID/mode: 0x%x/0x%x\n",
 			context.options.isHiddenVolume, context.options.cipher.algo, context.options.cipher.mode));
 	CS_DEBUG((D_INFO, L"driver init: need to build child device: %x\n",
@@ -1704,8 +1747,10 @@ static EFI_STATUS cs_init_driver_options(IN EFI_LOADED_IMAGE *LoadedImage) {
 
 	if (context.options.isHiddenVolume) {
 		/* see TC: BootEncryptedio.cpp ReadEncryptedSectors(), WriteEncryptedSectors() */
-		context.hiddenUnitOffset   = context.options.HiddenVolumeStartUnitNo - context.options.StartSector;
-		context.hiddenSectorOffset = context.options.HiddenVolumeStartSector - context.options.StartSector;
+		context.hiddenUnitOffset   = context.options.HiddenVolumeStartUnitNo - context.options.StartUnit;
+		/* the following value is updated later in open_consumed_protocols()
+		 * since it depends on the media sector size: */
+		context.hiddenSectorOffset = context.options.HiddenVolumeStartSector - context.options.StartUnit;
 	    CS_DEBUG((D_INFO, L"Hidden Volume: sector/unit offset: 0x%x/0x%x\n",
 	    		context.hiddenSectorOffset, context.hiddenUnitOffset));
 	} else {

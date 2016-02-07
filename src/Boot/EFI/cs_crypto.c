@@ -454,6 +454,14 @@ int cs_update_volume_header(IN OUT char *header, IN PCRYPTO_INFO cryptoInfo, OPT
 		EAInit(cryptoInfo->ea, (unsigned char *)dk + EAGetKeySize (cryptoInfo->ea), cryptoInfo->ks2);
 	}
 
+#if 0
+	// only for temporary use: to fix the volume header
+	cryptoInfo->EncryptedAreaStart.Value = 0x21000000;	// taken from the Win8 test system (/dev/sda4)
+	cryptoInfo->EncryptedAreaLength.Value = 0;
+	cryptoInfo->VolumeSize.Value = 0xc5ef00000; 		// taken from the Win8 test system (/dev/sda4)
+	cryptoInfo->VolumeSize.Value = 102400000;			// decrease it for better testing...
+#endif
+
 	/* update EncryptedAreaStart and EncryptedAreaLength */
 	if (cryptoInfo->VolumeSize.Value > 0) {
 #ifndef TC_NO_COMPILER_INT64

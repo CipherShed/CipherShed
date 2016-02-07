@@ -1473,9 +1473,9 @@ EFI_STATUS decrypt_volume_header() {
 
 	/* read data from the parsed volume header to send them to the EFI crypto driver:
 	 * first the sector numbers of the encrypted area...  */
-	context.efi_driver_data.StartSector =
+	context.efi_driver_data.StartUnit =
 			context.os_driver_data.crypto_info.EncryptedAreaStart.Value  >> TC_LB_SIZE_BIT_SHIFT_DIVISOR;
-	context.efi_driver_data.SectorCount =
+	context.efi_driver_data.UnitCount =
 			context.os_driver_data.crypto_info.EncryptedAreaLength.Value >> TC_LB_SIZE_BIT_SHIFT_DIVISOR;
 
 	/* now extract some information regarding hidden volume... */
@@ -1516,7 +1516,7 @@ static EFI_STATUS start_crypto_driver(IN EFI_HANDLE ImageHandle, OUT EFI_HANDLE 
 		CopyMem(LoadOptions, &context.efi_driver_data, sizeof(*LoadOptions));
 
 		CS_DEBUG((D_BM, L"StartSector 0x%x, SectorCount 0x%x\n",
-				LoadOptions->StartSector, LoadOptions->SectorCount));
+				LoadOptions->StartUnit, LoadOptions->UnitCount));
 		CS_DEBUG((D_BM, L"hiddenVolumePresent %x, Algo/Mode 0x%x/0x%x\n",
 				LoadOptions->isHiddenVolume, LoadOptions->cipher.algo, LoadOptions->cipher.mode));
 
@@ -1639,13 +1639,14 @@ static EFI_STATUS start_connect_crypto_driver(IN EFI_HANDLE ImageHandle) {
 EFI_STATUS start_connect_fake_crypto_driver(IN EFI_HANDLE ImageHandle) {
 
 	EFI_STATUS error;
-	uint64 encryptedSectorCount = context.efi_driver_data.SectorCount;
+	uint64 encryptedSectorCount = context.efi_driver_data.UnitCount;
 
 	context.efi_driver_data.createChildDevice = TRUE;
 
-	context.efi_driver_data.SectorCount = context.os_driver_data.crypto_info.VolumeSize.Value;
+	context.efi_driver_data.UnitCount =
+			context.os_driver_data.crypto_info.VolumeSize.Value >> TC_LB_SIZE_BIT_SHIFT_DIVISOR;
 	error = start_connect_crypto_driver(ImageHandle);
-	context.efi_driver_data.SectorCount = encryptedSectorCount;
+	context.efi_driver_data.UnitCount = encryptedSectorCount;
 
 	return error;
 }
