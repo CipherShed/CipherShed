@@ -283,28 +283,37 @@ static EFI_STATUS do_encrypt_decrypt_media(IN EFI_SYSTEM_TABLE *SystemTable,
     EFI_BLOCK_IO *source, *dest;
     PCRYPTO_INFO cryptoInfo;
     UINT64 startSector, endEncryptedArea, lba;
+    UINT32 mediaBlockSize;
     UINTN numberSectors, numberEncryptedSectors, sectorsInVolume;
     void *buffer;
-    const UINTN bufferSize = CS_SERVICE_NUMBER_SECTORS << TC_LB_SIZE_BIT_SHIFT_DIVISOR;
+    UINTN bufferSize;
 	UINTN bufferSectors = CS_SERVICE_NUMBER_SECTORS;
 
     ASSERT(parentBlockIo != NULL);
+    ASSERT(parentBlockIo->Media != NULL);
     ASSERT(childBlockIo != NULL);
 
     cryptoInfo = get_crypto_info();
     ASSERT(cryptoInfo != NULL);
 
-    //startSector = cryptoInfo->EncryptedAreaStart.Value >> TC_LB_SIZE_BIT_SHIFT_DIVISOR;
+    mediaBlockSize = parentBlockIo->Media->BlockSize;
+	CS_DEBUG((D_INFO, L"media block size is 0x%x\n", mediaBlockSize));
+    if ((mediaBlockSize == 0) || (mediaBlockSize % ENCRYPTION_DATA_UNIT_SIZE != 0)) {
+    	CS_DEBUG((D_ERROR, L"invalid media block size (0x%x/0x%x)\n", mediaBlockSize, ENCRYPTION_DATA_UNIT_SIZE));
+    	return EFI_UNSUPPORTED;
+    }
+    bufferSize = bufferSectors * mediaBlockSize;
+
     startSector = 0; /* relative to the partition/media, not to the entire disk device */
-    numberEncryptedSectors = cryptoInfo->EncryptedAreaLength.Value >> TC_LB_SIZE_BIT_SHIFT_DIVISOR;
+    numberEncryptedSectors = cryptoInfo->EncryptedAreaLength.Value / mediaBlockSize;
     endEncryptedArea = startSector + numberEncryptedSectors;
-    sectorsInVolume = cryptoInfo->VolumeSize.Value >> TC_LB_SIZE_BIT_SHIFT_DIVISOR;
+    sectorsInVolume = cryptoInfo->VolumeSize.Value / mediaBlockSize;
     if (endEncryptedArea > (startSector + sectorsInVolume)) {
-    	CS_DEBUG((D_INFO, L"inconsistent volume information: startSector: 0x%x, enc length: 0x%x, vol size: 0x%x\n",
-    			startSector, cryptoInfo->EncryptedAreaLength.Value >> TC_LB_SIZE_BIT_SHIFT_DIVISOR,
-    			sectorsInVolume));
+    	CS_DEBUG((D_ERROR, L"inconsistent volume information: startSector: 0x%x, enc sectors: 0x%x, vol size: 0x%x\n",
+    			startSector, numberEncryptedSectors, sectorsInVolume));
     	return EFI_VOLUME_CORRUPTED;
     }
+
     if (encrypt) {
     	source = childBlockIo;
     	dest = parentBlockIo;
@@ -328,7 +337,7 @@ static EFI_STATUS do_encrypt_decrypt_media(IN EFI_SYSTEM_TABLE *SystemTable,
 
     buffer = AllocatePool(bufferSize);
     if (buffer != NULL) {
-    	UINTN bytesToRead = bufferSectors << TC_LB_SIZE_BIT_SHIFT_DIVISOR;
+    	UINTN bytesToRead = bufferSectors * mediaBlockSize;
 
     	while (numberSectors > 0) {
 
@@ -360,13 +369,14 @@ static EFI_STATUS do_encrypt_decrypt_media(IN EFI_SYSTEM_TABLE *SystemTable,
         	numberSectors -= bufferSectors;
     		if (numberSectors < bufferSectors) {
         		bufferSectors = numberSectors;
-        		bytesToRead = bufferSectors << TC_LB_SIZE_BIT_SHIFT_DIVISOR;
+        		bytesToRead = bufferSectors * mediaBlockSize;
     		}
 
         	if (encrypt == FALSE) {
             	lba -= bufferSectors;
         	}
 
+        	/* update user interface with the progress of the action: */
         	if (sectorsInVolume > 0) {
         		if (encrypt) {
         			UINT64 x = 1000 * (lba - startSector + bufferSectors);
@@ -386,13 +396,16 @@ static EFI_STATUS do_encrypt_decrypt_media(IN EFI_SYSTEM_TABLE *SystemTable,
     	}
     	FreePool(buffer);
     } else {
-    	CS_DEBUG((D_ERROR, L"unable to allocate memory for cipher buffer\n")); CS_DEBUG_SLEEP(3);
+    	CS_DEBUG((D_ERROR, L"unable to allocate memory for cipher buffer\n"));
     	error = EFI_OUT_OF_RESOURCES;
     }
 
 	if (!EFI_ERROR(error)) {
-		/* update volume header and write it back to media */
+		/* update volume header and write it back to media,
+		 * the sector numbers need to be transformed to be based on crypto units (instead of media blocks) */
+		lba = lba * (mediaBlockSize / ENCRYPTION_DATA_UNIT_SIZE);
 		lba += (cryptoInfo->EncryptedAreaStart.Value >> TC_LB_SIZE_BIT_SHIFT_DIVISOR);
+		bufferSectors = bufferSectors * (mediaBlockSize / ENCRYPTION_DATA_UNIT_SIZE);
 		error = update_blocks_in_volume_header((encrypt) ? lba : lba + bufferSectors, cryptoInfo, encrypt);
 	}
 
