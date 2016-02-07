@@ -86,8 +86,6 @@
 
 typedef UINTN size_t;
 
-
-#if 1
 // Modes of operation
 enum
 {
@@ -116,7 +114,6 @@ enum
 // The last mode of operation to try when mounting and also the number of implemented modes
 #define LAST_MODE_OF_OPERATION		(MODE_ENUM_END_ID - 1)
 
-#endif
 
 typedef struct
 {
@@ -142,6 +139,7 @@ typedef struct
 	BOOL SystemEncryption;	// Available for system encryption
 } Hash;
 
+/* this is taken from Common/Crypto.h: */
 typedef struct CRYPTO_INFO_t
 {
 	int ea;									/* Encryption algorithm ID */
@@ -159,7 +157,6 @@ typedef struct CRYPTO_INFO_t
 
 	uint32 HeaderFlags;
 } CRYPTO_INFO, *PCRYPTO_INFO;
-
 
 int cs_update_volume_header(char *header, PCRYPTO_INFO cryptoInfo, Password *password);
 int cs_read_volume_header(BOOL bBoot, char *header, Password *password,

@@ -26,7 +26,7 @@
 #include "cs_debug.h"
 
 #define CS_LOADER_NAME		WIDEN("CipherShed")
-#define CS_LOADER_VERSION	0.5
+#define CS_LOADER_VERSION	0.6
 
 #define CS_DRIVER_NAME		CS_LOADER_NAME
 #define CS_CONTROLLER_NAME	WIDEN("CipherShed Crypto Device")
@@ -167,10 +167,6 @@ struct cs_driver_data {
 	/* some more data are needed:
 	 * - GUID of the partition where the volume header is located, see context.caller_disk.signature
 	 * - full path to the volume header file at this partition, see context.vh_path[] */
-
-	/* the following part is probably not used by the windows driver...
-	 * attention: the data structure size of CRYPTO_INFO differs in windows driver environment!! */
-	CRYPTO_INFO crypto_info;
 };
 #pragma pack()
 

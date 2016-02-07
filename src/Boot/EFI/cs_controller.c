@@ -58,6 +58,7 @@ static struct cs_system_context {
 	CHAR16 **os_loader_options; /* pointer into the array argv[] where the OS loader options start */
 	CHAR16 cs_driver_path[CS_MAX_DRIVER_PATH_SIZE];
 	CHAR16 vh_path[CS_MAX_DRIVER_PATH_SIZE];	/* path to volume header */
+	CRYPTO_INFO crypto_info;		/* crypto context for volume encryption */
 	struct cs_cipher_data volume_header_protection;	/* cipher data and key context for volume header encryption */
 	struct cs_option_data user_defined_options;	/* options taken from options file */
 	struct disk_info caller_disk;	/* the storage media information of the media containing this application */
@@ -220,7 +221,7 @@ EFI_HANDLE get_boot_partition_handle() {
  *	\return		the requested pointer
  */
 CRYPTO_INFO *get_crypto_info() {
-	return &context.os_driver_data.crypto_info;
+	return &context.crypto_info;
 }
 
 /*
@@ -1444,13 +1445,13 @@ EFI_STATUS decrypt_volume_header() {
 
 	int retvalue;
 
-	ASSERT(sizeof(context.efi_driver_data.cipher.ks) == sizeof(context.os_driver_data.crypto_info.ks));
-	ASSERT(sizeof(context.efi_driver_data.cipher.ks2) == sizeof(context.os_driver_data.crypto_info.ks2));
+	ASSERT(sizeof(context.efi_driver_data.cipher.ks) == sizeof(context.crypto_info.ks));
+	ASSERT(sizeof(context.efi_driver_data.cipher.ks2) == sizeof(context.crypto_info.ks2));
 
     retvalue = cs_read_volume_header(TRUE /* not a hidden volume */,
     		(char *)&context.os_driver_data.volume_header[0] /* encrypted volume header */,
     		&context.os_driver_data.boot_arguments.BootPassword,
-    		&context.os_driver_data.crypto_info);
+    		&context.crypto_info);
 
     if (retvalue != ERR_SUCCESS) {
 		CS_DEBUG((D_INFO, L"error while decryption of volume header: 0x%x\n", retvalue));
@@ -1474,21 +1475,21 @@ EFI_STATUS decrypt_volume_header() {
 	/* read data from the parsed volume header to send them to the EFI crypto driver:
 	 * first the sector numbers of the encrypted area...  */
 	context.efi_driver_data.StartUnit =
-			context.os_driver_data.crypto_info.EncryptedAreaStart.Value  >> TC_LB_SIZE_BIT_SHIFT_DIVISOR;
+			context.crypto_info.EncryptedAreaStart.Value  >> TC_LB_SIZE_BIT_SHIFT_DIVISOR;
 	context.efi_driver_data.UnitCount =
-			context.os_driver_data.crypto_info.EncryptedAreaLength.Value >> TC_LB_SIZE_BIT_SHIFT_DIVISOR;
+			context.crypto_info.EncryptedAreaLength.Value >> TC_LB_SIZE_BIT_SHIFT_DIVISOR;
 
 	/* now extract some information regarding hidden volume... */
-	context.efi_driver_data.isHiddenVolume = context.os_driver_data.crypto_info.hiddenVolume;
+	context.efi_driver_data.isHiddenVolume = context.crypto_info.hiddenVolume;
 	context.efi_driver_data.HiddenVolumeStartSector = 0;	/* not supported yet */
 	context.efi_driver_data.HiddenVolumeStartUnitNo = 0;	/* not supported yet */
 
 	/* now copy the cipher data to the hand-over buffer for the EFI crypto driver */
-	context.efi_driver_data.cipher.algo = context.os_driver_data.crypto_info.ea;
-	context.efi_driver_data.cipher.mode = context.os_driver_data.crypto_info.mode;
-	CopyMem(&context.efi_driver_data.cipher.ks[0], &context.os_driver_data.crypto_info.ks[0],
+	context.efi_driver_data.cipher.algo = context.crypto_info.ea;
+	context.efi_driver_data.cipher.mode = context.crypto_info.mode;
+	CopyMem(&context.efi_driver_data.cipher.ks[0], &context.crypto_info.ks[0],
 			sizeof(context.efi_driver_data.cipher.ks));
-	CopyMem(&context.efi_driver_data.cipher.ks2[0], &context.os_driver_data.crypto_info.ks2[0],
+	CopyMem(&context.efi_driver_data.cipher.ks2[0], &context.crypto_info.ks2[0],
 			sizeof(context.efi_driver_data.cipher.ks2));
 
 	return EFI_SUCCESS;
@@ -1644,7 +1645,7 @@ EFI_STATUS start_connect_fake_crypto_driver(IN EFI_HANDLE ImageHandle) {
 	context.efi_driver_data.createChildDevice = TRUE;
 
 	context.efi_driver_data.UnitCount =
-			context.os_driver_data.crypto_info.VolumeSize.Value >> TC_LB_SIZE_BIT_SHIFT_DIVISOR;
+			context.crypto_info.VolumeSize.Value >> TC_LB_SIZE_BIT_SHIFT_DIVISOR;
 	error = start_connect_crypto_driver(ImageHandle);
 	context.efi_driver_data.UnitCount = encryptedSectorCount;
 

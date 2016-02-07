@@ -147,8 +147,21 @@ void cs_debug_init(IN EFI_FILE_HANDLE root_dir_handle, IN CHAR16 *current_dir, I
 	       	cs_print_msg(L"Unable to open logfile \"%s\" (%r)\n", buf, error);
 			csLogfile = NULL;
 		} else {
-			uefi_call_wrapper(csLogfile->SetPosition, 2, csLogfile,
-					(EFIDebug & D_FILE_APPEND) ? 0xFFFFFFFFFFFFFFFF : 0);
+			if ((EFIDebug & D_FILE_APPEND) == 0) {
+				/* need to write to new file -> delete file, then open again... */
+				uefi_call_wrapper(root_dir_handle->Delete, 1, csLogfile);
+
+				error = uefi_call_wrapper(root_dir_handle->Open, 5, root_dir_handle, &csLogfile, buf,
+						EFI_FILE_MODE_CREATE | EFI_FILE_MODE_READ | EFI_FILE_MODE_WRITE, 0);
+				if (EFI_ERROR(error)) {
+			       	cs_print_msg(L"Unable to open logfile \"%s\" (%r)\n", buf, error);
+					csLogfile = NULL;
+				} else {
+					uefi_call_wrapper(csLogfile->SetPosition, 2, csLogfile, 0);
+				}
+			} else {
+				uefi_call_wrapper(csLogfile->SetPosition, 2, csLogfile, 0xFFFFFFFFFFFFFFFF);
+			}
 		}
 
 		FreePool(buf);
