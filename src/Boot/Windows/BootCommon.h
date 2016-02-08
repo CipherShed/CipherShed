@@ -66,6 +66,8 @@ typedef struct
 
 // Modifying these values can introduce incompatibility with previous versions
 #define TC_BOOT_ARGS_FLAG_EXTRA_BOOT_PARTITION				0x1
+// indicates whether the encrypted volume header sector was handed over by the boot loader
+#define TC_BOOT_ARGS_FLAG_BOOT_VOLUME_HEADER_PRESENT		0x2
 
 #pragma pack ()
 

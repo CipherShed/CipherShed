@@ -78,6 +78,9 @@ NTSTATUS GetDecoySystemWipeResult();
 void GetDecoySystemWipeStatus (PIRP irp, PIO_STACK_LOCATION irpSp);
 uint64 GetBootDriveLength ();
 NTSTATUS WriteBootDriveSector (PIRP irp, PIO_STACK_LOCATION irpSp);
+#ifdef EFI_WINDOWS_DRIVER
+void GetBootVolumeHeader (PIRP irp, PIO_STACK_LOCATION irpSp);
+#endif
 
 #define TC_ENCRYPTION_SETUP_IO_BLOCK_SIZE (1536 * 1024)
 #define TC_ENCRYPTION_SETUP_HEADER_UPDATE_THRESHOLD (64 * 1024 * 1024)

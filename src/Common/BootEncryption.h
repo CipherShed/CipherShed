@@ -196,6 +196,7 @@ namespace CipherShed
 		void WriteBootSectorConfig (const byte newConfig[]);
 		void WriteBootSectorUserConfig (byte userConfig, const string &customUserMessage);
 		void WriteLocalMachineRegistryDwordValue (char *keyPath, char *valueName, DWORD value);
+		void GetVolumeHeaderFromDriver (byte *pBuffer);
 
 	protected:
 		static const uint32 RescueIsoImageSize = 1835008; // Size of ISO9660 image with bootable emulated 1.44MB floppy disk image

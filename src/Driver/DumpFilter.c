@@ -22,7 +22,7 @@ NTSTATUS DumpFilterEntry (PFILTER_EXTENSION filterExtension, PFILTER_INITIALIZAT
 	GetSystemDriveDumpConfigRequest dumpConfig;
 	PHYSICAL_ADDRESS highestAcceptableWriteBufferAddr;
 	STORAGE_DEVICE_NUMBER storageDeviceNumber;
-	PARTITION_INFORMATION partitionInfo;
+	PARTITION_INFORMATION_EX partitionInfo;
 	LONG version;
 	NTSTATUS status;
 
@@ -34,8 +34,9 @@ NTSTATUS DumpFilterEntry (PFILTER_EXTENSION filterExtension, PFILTER_INITIALIZAT
 
 	// Check driver version of the main device
 	status = TCDeviceIoControl (NT_ROOT_PREFIX, TC_IOCTL_GET_DRIVER_VERSION, NULL, 0, &version, sizeof (version));
-	if (!NT_SUCCESS (status))
+	if (!NT_SUCCESS(status)) {
 		goto err;
+	}
 
 	if (version != VERSION_NUM)
 	{
@@ -45,8 +46,9 @@ NTSTATUS DumpFilterEntry (PFILTER_EXTENSION filterExtension, PFILTER_INITIALIZAT
 
 	// Get dump configuration from the main device
 	status = TCDeviceIoControl (NT_ROOT_PREFIX, TC_IOCTL_GET_SYSTEM_DRIVE_DUMP_CONFIG, NULL, 0, &dumpConfig, sizeof (dumpConfig));
-	if (!NT_SUCCESS (status))
+	if (!NT_SUCCESS(status)) {
 		goto err;
+	}
 
 	BootDriveFilterExtension = dumpConfig.BootDriveFilterExtension;
 
@@ -72,8 +74,9 @@ NTSTATUS DumpFilterEntry (PFILTER_EXTENSION filterExtension, PFILTER_INITIALIZAT
 
 	// Check dump volume is located on the system drive
 	status = SendDeviceIoControlRequest (filterExtension->DeviceObject, IOCTL_STORAGE_GET_DEVICE_NUMBER, NULL, 0, &storageDeviceNumber, sizeof (storageDeviceNumber));
-	if (!NT_SUCCESS (status))
+	if (!NT_SUCCESS(status)) {
 		goto err;
+	}
 
 	if (!BootDriveFilterExtension->SystemStorageDeviceNumberValid)
 	{
@@ -88,9 +91,10 @@ NTSTATUS DumpFilterEntry (PFILTER_EXTENSION filterExtension, PFILTER_INITIALIZAT
 	}
 
 	// Check dump volume is located within the scope of system encryption
-	status = SendDeviceIoControlRequest (filterExtension->DeviceObject, IOCTL_DISK_GET_PARTITION_INFO, NULL, 0, &partitionInfo, sizeof (partitionInfo));
-	if (!NT_SUCCESS (status))
+	status = SendDeviceIoControlRequest(filterExtension->DeviceObject, IOCTL_DISK_GET_PARTITION_INFO_EX, NULL, 0, &partitionInfo, sizeof(partitionInfo));
+	if (!NT_SUCCESS(status)) {
 		goto err;
+	}
 
 	DumpPartitionOffset = partitionInfo.StartingOffset;
 

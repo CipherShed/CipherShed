@@ -31,6 +31,11 @@ BOOL BootArgsValid = FALSE;
 BootArguments BootArgs;
 static uint16 BootLoaderSegment;
 static BOOL BootDriveSignatureValid = FALSE;
+#ifdef EFI_WINDOWS_DRIVER
+byte BootVolumeHeader[TC_BOOT_ENCRYPTION_VOLUME_HEADER_SIZE];
+#include <initguid.h>
+#include "..\Boot\EFI\cs_common.h"
+#endif
 
 static KMUTEX MountMutex;
 
@@ -71,8 +76,91 @@ NTSTATUS LoadBootArguments ()
 	PHYSICAL_ADDRESS bootArgsAddr;
 	byte *mappedBootArgs;
 	uint16 bootLoaderSegment;
+#ifdef EFI_WINDOWS_DRIVER
+	GUID variable_guid = CS_HANDOVER_VARIABLE_GUID;
+	struct cs_driver_data *efi_driver_data;
+	ULONG efi_driver_data_size = sizeof(struct cs_driver_data);
+	ANSI_STRING efi_var_name_ansi;
+	UNICODE_STRING efi_var_name_unicode;
+	ULONG efi_var_attributes;
+#endif
 
 	KeInitializeMutex (&MountMutex, 0);
+
+#ifdef EFI_WINDOWS_DRIVER
+	efi_driver_data = TCalloc(efi_driver_data_size);
+	efi_var_name_unicode.Buffer = NULL;
+	if (efi_driver_data == NULL) {
+		status = STATUS_INSUFFICIENT_RESOURCES;
+	}
+	else {
+		RtlInitAnsiString(&efi_var_name_ansi, _CS_HANDOVER_VARIABLE_NAME);
+		status = RtlAnsiStringToUnicodeString(&efi_var_name_unicode, &efi_var_name_ansi, TRUE);
+
+		if (!NT_SUCCESS(status)) {
+			Dump ("RtlAnsiStringToUnicodeString() failed with code 0x%lx\n", status);
+		}
+		else {
+			Dump ("look for EFI variable of length 0x%x/0x%x\n", 
+				efi_var_name_unicode.Length, efi_var_name_unicode.MaximumLength);
+			DumpMem (efi_var_name_unicode.Buffer, efi_var_name_unicode.MaximumLength);
+			Dump ("dump of GUID:\n");
+			DumpMem (&variable_guid, sizeof(GUID));
+			status = ExGetFirmwareEnvironmentVariable(&efi_var_name_unicode, &variable_guid,
+				efi_driver_data, &efi_driver_data_size, &efi_var_attributes);
+		}
+	}
+
+	Dump ("ExGetFirmwareEnvironmentVariable() returned 0x%lx, data size is 0x%lx, attribues: 0x%x\n", 
+		status, efi_driver_data_size, efi_var_attributes);
+
+	if (NT_SUCCESS(status) && 
+		(efi_driver_data_size >= sizeof(struct cs_driver_data))) {
+
+		BootArgs = efi_driver_data->boot_arguments;
+		BootArgs.Flags |= TC_BOOT_ARGS_FLAG_BOOT_VOLUME_HEADER_PRESENT;
+		memcpy(BootVolumeHeader, &efi_driver_data->volume_header[0], sizeof(BootVolumeHeader));
+		BootArgsValid = TRUE;
+		BootDriveSignatureValid = (BootArgs.BootLoaderVersion >= 0x710);
+
+		if (CacheBootPassword && BootArgs.BootPassword.Length > 0)
+			AddPasswordToCache(&BootArgs.BootPassword);
+
+		Dump ("BootLoaderVersion = %x\n", (int)BootArgs.BootLoaderVersion);
+		Dump ("HeaderSaltCrc32 = %x\n", (int)BootArgs.HeaderSaltCrc32);
+		Dump ("CryptoInfoOffset = %x\n", (int)BootArgs.CryptoInfoOffset);
+		Dump ("CryptoInfoLength = %d\n", (int)BootArgs.CryptoInfoLength);
+		Dump ("HiddenSystemPartitionStart = %I64u\n", BootArgs.HiddenSystemPartitionStart);
+		Dump ("DecoySystemPartitionStart = %I64u\n", BootArgs.DecoySystemPartitionStart);
+		Dump ("Flags = %x\n", BootArgs.Flags);
+		Dump ("BootDriveSignature = %x\n", BootArgs.BootDriveSignature);
+		Dump ("BootArgumentsCrc32 = %x\n", BootArgs.BootArgumentsCrc32);
+	}
+	if (efi_driver_data) {
+		burn(efi_driver_data, sizeof(struct cs_driver_data));
+	}
+	if (NT_SUCCESS(status)) {
+		/* clear the content of the EFI variable: */
+		status = ExSetFirmwareEnvironmentVariable(&efi_var_name_unicode, &variable_guid,
+			efi_driver_data, sizeof(struct cs_driver_data), efi_var_attributes);
+		/* according to the Windows documentation, this call fails if the attribute 
+		   VARIABLE_ATTRIBUTE_NON_VOLATILE (0x01) is not set. this means that only these
+		   EFI variables can be set by this function that are stored permanantly in NVRAM
+		   -> in our case that is not the intention, so we accept the fail for now... */
+		if (!NT_SUCCESS(status)) {
+			Dump ("ExSetFirmwareEnvironmentVariable() failed with code 0x%lx\n", status);
+		}
+	}
+	if (efi_driver_data) {
+		TCfree(efi_driver_data);
+	}
+	if (efi_var_name_unicode.Buffer) {
+		RtlFreeUnicodeString(&efi_var_name_unicode);
+	}
+	if (BootArgsValid) {
+		return STATUS_SUCCESS;
+	}
+#endif
 
 	for (bootLoaderSegment = TC_BOOT_LOADER_SEGMENT;
 		bootLoaderSegment >= TC_BOOT_LOADER_SEGMENT - 64 * 1024 / 16 && status != STATUS_SUCCESS;
@@ -141,7 +229,7 @@ NTSTATUS LoadBootArguments ()
 
 NTSTATUS DriveFilterAddDevice (PDRIVER_OBJECT driverObject, PDEVICE_OBJECT pdo)
 {
-	DriveFilterExtension *Extension;
+	DriveFilterExtension *Extension = NULL;
 	NTSTATUS status;
 	PDEVICE_OBJECT filterDeviceObject = NULL;
 	PDEVICE_OBJECT attachedDeviceObject;
@@ -231,7 +319,11 @@ static NTSTATUS MountDrive (DriveFilterExtension *Extension, Password *password,
 	ASSERT (KeGetCurrentIrql() == PASSIVE_LEVEL);
 
 	// Check boot drive signature first (header CRC search could fail if a user restored the header to a non-boot drive)
+#ifdef EFI_WINDOWS_DRIVER
+	if ((BootDriveSignatureValid) && !(BootArgs.Flags & TC_BOOT_ARGS_FLAG_BOOT_VOLUME_HEADER_PRESENT))
+#else
 	if (BootDriveSignatureValid)
+#endif
 	{
 		byte mbr[TC_SECTOR_SIZE_BIOS];
 
@@ -249,11 +341,22 @@ static NTSTATUS MountDrive (DriveFilterExtension *Extension, Password *password,
 	offset.QuadPart = hiddenVolume ? hiddenHeaderOffset : TC_BOOT_VOLUME_HEADER_SECTOR_OFFSET;
 	Dump ("Reading volume header at %I64u\n", offset.QuadPart);
 
-	status = TCReadDevice (Extension->LowerDeviceObject, header, offset, TC_BOOT_ENCRYPTION_VOLUME_HEADER_SIZE);
-	if (!NT_SUCCESS (status))
+#ifdef EFI_WINDOWS_DRIVER
+	if (BootArgs.Flags & TC_BOOT_ARGS_FLAG_BOOT_VOLUME_HEADER_PRESENT)
 	{
-		Dump ("TCReadDevice error %x\n", status);
-		goto ret;
+		memcpy(header, &BootVolumeHeader[0], TC_BOOT_ENCRYPTION_VOLUME_HEADER_SIZE);
+		status = STATUS_SUCCESS;
+	}
+	else
+#endif
+	{
+		status = TCReadDevice(Extension->LowerDeviceObject, header, offset, TC_BOOT_ENCRYPTION_VOLUME_HEADER_SIZE);
+		if (!NT_SUCCESS(status)) {
+			goto ret;
+		}
+#ifdef EFI_WINDOWS_DRIVER
+		memcpy(&BootVolumeHeader[0], header, TC_BOOT_ENCRYPTION_VOLUME_HEADER_SIZE);
+#endif
 	}
 
 	if (headerSaltCrc32)
@@ -276,12 +379,12 @@ static NTSTATUS MountDrive (DriveFilterExtension *Extension, Password *password,
 		goto ret;
 	}
 
-	if (ReadVolumeHeader (!hiddenVolume, header, password, &Extension->Queue.CryptoInfo, Extension->HeaderCryptoInfo) == 0)
+	if (ReadVolumeHeader(!hiddenVolume, header, password, &Extension->Queue.CryptoInfo, Extension->HeaderCryptoInfo) == 0)
 	{
 		// Header decrypted
 		status = STATUS_SUCCESS;
 		Dump ("Header decrypted\n");
-			
+
 		if (Extension->Queue.CryptoInfo->hiddenVolume)
 		{
 			int64 hiddenPartitionOffset = BootArgs.HiddenSystemPartitionStart;
@@ -341,6 +444,9 @@ static NTSTATUS MountDrive (DriveFilterExtension *Extension, Password *password,
 
 		BootDriveFilterExtension = Extension;
 		BootDriveFound = Extension->BootDrive = Extension->DriveMounted = Extension->VolumeHeaderPresent = TRUE;
+		if (BootArgs.Flags & TC_BOOT_ARGS_FLAG_BOOT_VOLUME_HEADER_PRESENT) {
+			Extension->VolumeHeaderPresent = FALSE;
+		}
 		BootDriveFilterExtension->MagicNumber = TC_BOOT_DRIVE_FILTER_EXTENSION_MAGIC_NUMBER;
 
 		burn (&BootArgs.BootPassword, sizeof (BootArgs.BootPassword));
@@ -488,7 +594,7 @@ static NTSTATUS PassFilteredIrp (PDEVICE_OBJECT deviceObject, PIRP irp, PIO_COMP
 
 	if (completionRoutine)
 		IoSetCompletionRoutine (irp, completionRoutine, completionRoutineArg, TRUE, TRUE, TRUE);
-
+	
 	return IoCallDriver (deviceObject, irp);
 }
 
@@ -626,7 +732,7 @@ static NTSTATUS DispatchPnp (PDEVICE_OBJECT DeviceObject, PIRP Irp, DriveFilterE
 				)
 			)
 		{
-			IoReleaseRemoveLock (&Extension->Queue.RemoveLock, Irp);
+			IoReleaseRemoveLock(&Extension->Queue.RemoveLock, Irp);
 
 			if (irpSp->Parameters.UsageNotification.Type == DeviceUsageTypeHibernation)
 				++HibernationPreventionCount;
@@ -781,7 +887,12 @@ void ReopenBootVolumeHeader (PIRP irp, PIO_STACK_LOCATION irpSp)
 	else
 		offset.QuadPart = TC_BOOT_VOLUME_HEADER_SECTOR_OFFSET;
 
-	irp->IoStatus.Status = TCReadDevice (BootDriveFilterExtension->LowerDeviceObject, header, offset, TC_BOOT_ENCRYPTION_VOLUME_HEADER_SIZE);
+	if (BootArgs.Flags & TC_BOOT_ARGS_FLAG_BOOT_VOLUME_HEADER_PRESENT) {
+		memcpy(header, &BootVolumeHeader[0], TC_BOOT_ENCRYPTION_VOLUME_HEADER_SIZE);
+		irp->IoStatus.Status = STATUS_SUCCESS;
+	} else
+		irp->IoStatus.Status = TCReadDevice(BootDriveFilterExtension->LowerDeviceObject, header, offset, TC_BOOT_ENCRYPTION_VOLUME_HEADER_SIZE);
+
 	if (!NT_SUCCESS (irp->IoStatus.Status))
 	{
 		Dump ("TCReadDevice error %x\n", irp->IoStatus.Status);
@@ -813,6 +924,19 @@ wipe:
 	burn (request, sizeof (*request));
 }
 
+#ifdef EFI_WINDOWS_DRIVER
+void GetBootVolumeHeader (PIRP irp, PIO_STACK_LOCATION irpSp)
+{
+	if (ValidateIOBufferSize (irp, sizeof (BootVolumeHeader), ValidateOutput))
+	{
+		byte *pBootVolumeHeader = (byte *)irp->AssociatedIrp.SystemBuffer;
+		memcpy(pBootVolumeHeader, &BootVolumeHeader[0], sizeof (BootVolumeHeader));
+
+		irp->IoStatus.Information = sizeof (BootVolumeHeader);
+		irp->IoStatus.Status = STATUS_SUCCESS;
+	}
+}
+#endif
 
 // Legacy Windows XP/2003 hibernation dump filter
 

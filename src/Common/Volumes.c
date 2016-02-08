@@ -173,7 +173,7 @@ int ReadVolumeHeader (BOOL bBoot, char *encryptedHeader, Password *password, PCR
 
 	TC_EVENT keyDerivationCompletedEvent;
 	TC_EVENT noOutstandingWorkItemEvent;
-	KeyDerivationWorkItem *keyDerivationWorkItems;
+	KeyDerivationWorkItem *keyDerivationWorkItems = NULL;
 	KeyDerivationWorkItem *item;
 	int pkcs5PrfCount = LAST_PRF_ID - FIRST_PRF_ID + 1;
 	size_t encryptionThreadCount = GetEncryptionThreadCount();

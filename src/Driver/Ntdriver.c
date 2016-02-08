@@ -34,6 +34,7 @@
 
 #include <initguid.h>
 #include <ntddvol.h>
+#include <ntddstor.h>
 
 /* Init section, which is thrown away as soon as DriverEntry returns */
 #pragma alloc_text(INIT,DriverEntry)
@@ -84,7 +85,7 @@ NTSTATUS DriverEntry (PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath)
 		
 	if (NT_SUCCESS (TCReadRegistryKey (RegistryPath, L"Start", &startKeyValue)))
 	{
-		if (startKeyValue->Type == REG_DWORD && *((uint32 *) startKeyValue->Data) == SERVICE_BOOT_START)
+		if (startKeyValue->Type == REG_DWORD && *((uint32 *)startKeyValue->Data) == SERVICE_BOOT_START)
 		{
 			if (!SelfTestsPassed)
 				TC_BUG_CHECK (STATUS_INVALID_PARAMETER);
@@ -650,6 +651,7 @@ NTSTATUS ProcessVolumeDeviceControlIrp (PDEVICE_OBJECT DeviceObject, PEXTENSION 
 		{
 			PPARTITION_INFORMATION_EX outputBuffer = (PPARTITION_INFORMATION_EX) Irp->AssociatedIrp.SystemBuffer;
 
+			// TODO: check if that is still correct for GPT based disks..
 			outputBuffer->PartitionStyle = PARTITION_STYLE_MBR;
 			outputBuffer->RewritePartition = FALSE;
 			outputBuffer->StartingOffset.QuadPart = Extension->BytesPerSector;
@@ -1522,6 +1524,12 @@ NTSTATUS ProcessMainDeviceControlIrp (PDEVICE_OBJECT DeviceObject, PEXTENSION Ex
 			}
 		}
 		break;
+
+#ifdef EFI_WINDOWS_DRIVER
+	case TC_IOCTL_GET_BOOT_VOLUME_HEADER:
+		GetBootVolumeHeader(Irp, irpSp);
+		break;
+#endif
 
 	default:
 		return TCCompleteIrp (Irp, STATUS_INVALID_DEVICE_REQUEST, 0);

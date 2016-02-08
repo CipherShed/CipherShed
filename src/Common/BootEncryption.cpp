@@ -763,6 +763,13 @@ namespace CipherShed
 		return status;
 	}
 
+	void BootEncryption::GetVolumeHeaderFromDriver (byte *pBuffer)
+	{
+		if (pBuffer == NULL)
+			throw ParameterIncorrect (SRC_POS);
+
+		CallDriver (TC_IOCTL_GET_BOOT_VOLUME_HEADER, NULL, 0, pBuffer, TC_BOOT_ENCRYPTION_VOLUME_HEADER_SIZE);
+	}
 
 	void BootEncryption::GetVolumeProperties (VOLUME_PROPERTIES_STRUCT *properties)
 	{
@@ -1688,7 +1695,7 @@ namespace CipherShed
 			filter = "truecrypt";
 			filterReg = "UpperFilters";
 			regKey = SetupDiOpenClassRegKey (deviceClassGuid, KEY_READ | KEY_WRITE);
-			throw_sys_if (regKey == INVALID_HANDLE_VALUE);
+			throw_sys_if(regKey == INVALID_HANDLE_VALUE);
 
 			break;
 
@@ -1698,15 +1705,14 @@ namespace CipherShed
 
 			filter = "truecrypt.sys";
 			filterReg = "DumpFilters";
-			SetLastError (RegOpenKeyEx (HKEY_LOCAL_MACHINE, "SYSTEM\\CurrentControlSet\\Control\\CrashControl", 0, KEY_READ | KEY_WRITE, &regKey));
-			throw_sys_if (GetLastError() != ERROR_SUCCESS);
+			SetLastError(RegOpenKeyEx(HKEY_LOCAL_MACHINE, "SYSTEM\\CurrentControlSet\\Control\\CrashControl", 0, KEY_READ | KEY_WRITE, &regKey));
+			throw_sys_if(GetLastError() != ERROR_SUCCESS);
 
 			break;
 
 		default:
 			throw ParameterIncorrect (SRC_POS);
 		}
-
 		finally_do_arg (HKEY, regKey, { RegCloseKey (finally_arg); });
 
 		if (registerFilter && filterType != DumpFilter)
@@ -1724,7 +1730,7 @@ namespace CipherShed
 				size = 1;
 
 			SetLastError (RegSetValueEx (regKey, filterReg.c_str(), 0, REG_MULTI_SZ, regKeyBuf, strSize + size));
-			throw_sys_if (GetLastError() != ERROR_SUCCESS);
+			throw_sys_if(GetLastError() != ERROR_SUCCESS);
 		}
 		else
 		{
@@ -1753,7 +1759,7 @@ namespace CipherShed
 	{
 		if (!IsAdmin() && IsUacSupported())
 		{
-			Elevator::RegisterFilterDriver (registerDriver, filterType);
+			Elevator::RegisterFilterDriver(registerDriver, filterType);
 			return;
 		}
 
@@ -2423,7 +2429,7 @@ namespace CipherShed
 
 	void BootEncryption::RegisterBootDriver (bool hiddenSystem)
 	{
-		SetDriverServiceStartType (SERVICE_BOOT_START);
+		SetDriverServiceStartType(SERVICE_BOOT_START);
 
 		try
 		{

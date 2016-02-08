@@ -49,7 +49,7 @@ BOOL IsUacSupported ()
 
 	if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System", 0, KEY_READ, &hkey) == ERROR_SUCCESS)
 	{
-		if (RegQueryValueExA(hkey, "EnableLUA", 0, 0, (LPBYTE) &value, &size) != ERROR_SUCCESS)
+		if (RegQueryValueExA(hkey, "EnableLUA", 0, 0, (LPBYTE)&value, &size) != ERROR_SUCCESS)
 			value = 1;
 
 		RegCloseKey (hkey);
