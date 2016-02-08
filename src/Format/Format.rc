@@ -7,7 +7,7 @@
 //
 // Generated from the TEXTINCLUDE 2 resource.
 //
-#include "afxres.h"
+#include "..\\common\\afxres.h"
 #include "..\\common\\resource.h"
 
 /////////////////////////////////////////////////////////////////////////////
