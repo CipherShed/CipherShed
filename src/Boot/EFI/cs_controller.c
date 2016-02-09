@@ -1210,6 +1210,7 @@ static EFI_STATUS load_start_image(IN EFI_HANDLE ImageHandle, IN EFI_HANDLE hand
 				}
 
 				/* now start the image... */
+				CS_DEBUG((D_INFO, L">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n"));
 				error = uefi_call_wrapper(BS->StartImage, 3, *loaded_handle, NULL, NULL);
 				if (EFI_ERROR (error)) {
 					uefi_call_wrapper(BS->UnloadImage, 1, *loaded_handle);
@@ -1530,38 +1531,6 @@ static EFI_STATUS start_crypto_driver(IN EFI_HANDLE ImageHandle, OUT EFI_HANDLE 
 	return error;
 }
 
-#if 0
-static EFI_STATUS get_media_information(IN EFI_HANDLE ImageHandle, IN EFI_HANDLE partitionHandle,
-		OUT EFI_BLOCK_IO_MEDIA *mediaInfo) {
-	EFI_STATUS error, error2;
-	EFI_BLOCK_IO *blockIo;
-
-	ASSERT(ImageHandle != NULL);
-	ASSERT(partitionHandle != NULL);
-	ASSERT(mediaInfo != NULL);
-
-	error = uefi_call_wrapper(BS->OpenProtocol, 6, partitionHandle, &BlockIoProtocol,
-			(VOID **) &blockIo, ImageHandle, NULL, EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL);
-	if (EFI_ERROR (error)) {
-		CS_DEBUG((D_ERROR, L"unable to open block IO protocol (%r)\n", error));
-		return error;
-	}
-	if (blockIo->Media) {
-		*mediaInfo = *blockIo->Media;
-		error = EFI_SUCCESS;
-	} else {
-		CS_DEBUG((D_ERROR, L"no media data available\n"));
-		error = EFI_NO_MEDIA;
-	}
-	error2 = uefi_call_wrapper(BS->CloseProtocol, 4, partitionHandle, &BlockIoProtocol, ImageHandle, partitionHandle);
-	if (EFI_ERROR (error2)) {
-		CS_DEBUG((D_ERROR, L"unable to close block IO protocol (%r)\n", error2));
-	}
-
-	return error;
-}
-#endif
-
 /*
  *	\brief	connect the given crypto driver with the intended block device
  *
@@ -1652,62 +1621,6 @@ EFI_STATUS start_connect_fake_crypto_driver(IN EFI_HANDLE ImageHandle) {
 	return error;
 }
 
-
-#if 0
-/*
- *	\brief	allocate and fill memory for hand over of data to the OS driver
- *
- *	This function allocates a memory pool at a defined physical location that is accessed later
- *	by the driver of the OS. For that reason the physical location must not be changed. Also,
- *	the function fills the data fields in this memory area with the correct values taken from the
- *	decrypted volume header.
- *
- *	Remark: The hard coded memory address for data hand-over probably will not work, because the
- *	        AllocatePages() call might fail when the address is not accessible by the EFI application.
- *	        Instead, an EFI runtime service (driver) might be needed in order to provide the
- *	        service to hand-over the data to the OS, then clean the data area (stop the service,
- *	        if not needed anymore)
- *
- *
- *	\return		the success state of the function
- */
-static EFI_STATUS prepare_handover_memory() {
-	EFI_STATUS error = EFI_SUCCESS;
-	BootArguments *memory_location;
-
-    /* the structure BootArguments needs 118 Byte, further memory is required by BootArguments.CryptoInfoOffset
-     * -> 1 (4K) page is big enough */
-	const UINTN number_pages = 1;
-
-	EFI_PHYSICAL_ADDRESS physical_address = CS_BOOT_LOADER_ARGS_OFFSET;
-
-	CS_DEBUG((D_INFO, L"prepare_handover_memory(0x%x)\n", physical_address));
-
-	/*
-	 * The following memory types were tested: AllocatePages() always returns "Not found":
-	 *   EfiLoaderData EfiBootServicesData EfiConventionalMemory EfiBootServicesCode EfiReservedMemoryType
-	 * in the EFI Shell, use memmap to show the mapping
-	 * */
-	error = uefi_call_wrapper(BS->AllocatePages, 4,
-			AllocateAddress, EfiRuntimeServicesData,
-			number_pages, &physical_address);
-
-	if (!EFI_ERROR(error)) {
-		memory_location = (BootArguments *)(UINTN)physical_address;
-		SetMem(memory_location, 0, number_pages * 4 * 1024);
-		physical_address += sizeof(BootArguments);
-		memory_location->CryptoInfoOffset = (UINT16)physical_address;
-		memory_location->CryptoInfoLength = 0; /* need to be adjusted later */
-
-		/* TODO: fill the BootArguments structure with correct values */
-	} else {
-	    CS_DEBUG((D_ERROR, L"unable to allocate memory pages: %r\n", error));
-	}
-
-	return error;
-}
-#endif
-
 /*
  *	\brief	initialize the runtime service to hand over the crypto information to the OS driver
  *
@@ -1756,14 +1669,7 @@ static EFI_STATUS boot_os(IN EFI_HANDLE ImageHandle) {
 	EFI_STATUS error;
 	EFI_HANDLE loaded_handle;
 
-#if 0
-	/* this is the traditional hand over method to the OS cipher driver via a fixed memory location
-	 * (backward compatible to TrueCrypt)
-	 * _BUT_ it does not (yet) work: the required physical memory address cannot be accessed...
-	 * hence the more strait forward solution using the EFI concept is to use an EFI runtime service
-	 * to hand over the data to the OS crypto driver */
-	error = prepare_handover_memory();
-#endif
+	/* set EFI variable for data hand-over to OS driver: */
 	error = init_runtime_service();
 
 	if (context.os_loader == NULL) {
@@ -1904,10 +1810,12 @@ EFI_STATUS efi_main (IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE *SystemTable
 
 		case CS_UI_REBOOT:
 			cs_cleanup();
+			CS_DEBUG_EXIT(());
 			return uefi_call_wrapper(RT->ResetSystem, 4, EfiResetCold, EFI_SUCCESS, 0, NULL);
 
 		case CS_UI_SHUTDOWN:
 			cs_cleanup();
+			CS_DEBUG_EXIT(());
 			return uefi_call_wrapper(RT->ResetSystem, 4, EfiResetShutdown, EFI_SUCCESS, 0, NULL);
 
 		default:
