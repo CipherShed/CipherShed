@@ -50,7 +50,6 @@
 #endif
 
 #define CS_LENGTH_FILENAME_VOLUMNE_HEADER	36	/* length of a GUID */
-#define CS_MAX_DRIVER_PATH_SIZE		1024		/* maximum path size to the crypto driver */
 #define CS_CHILD_PATH_EXTENSION		WIDEN("crypto")		/* extension for Device Path Protocol for the new
  	 	 	 	 	 	 	 	 	 	 	 	 	 	   created device offering BlockIO protocol */
 #define CS_CONTROLLER_LOGFILE		WIDEN("cs.log")		/* filename of logfile for CipherShed controller */
