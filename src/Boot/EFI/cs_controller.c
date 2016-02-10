@@ -31,8 +31,8 @@
 #define CS_BOOT_LOADER_ARGS_OFFSET  0x10		/* taken from TrueCrypt for compatibility reason */
 #define CS_MAX_LOAD_OPTIONS			32			/* maximum number of command line arguments */
 
-
-struct disk_info {
+/* for identification of a disk/partition device */
+struct cs_disk_info {
 	UINT8 mbr_type;				/* see efidevp.h for encoding */
 	UINT8 signature_type;		/* see efidevp.h for encoding */
 	union {
@@ -55,15 +55,14 @@ static struct cs_system_context {
 	CHAR16 *os_loader_uuid;	/* String containing the UUID of the device that contains the OS loader file */
 	CHAR16 *os_loader;		/* String containing the full path to the OS loader file */
 	UINTN os_loader_option_number;	/* number of options for the OS loader */
-	CHAR16 **os_loader_options; /* pointer into the array argv[] where the OS loader options start */
+	CHAR16 **os_loader_options; 	/* pointer into the array argv[] where the OS loader options start */
 	CHAR16 cs_driver_path[CS_MAX_DRIVER_PATH_SIZE];
-	CHAR16 vh_path[CS_MAX_DRIVER_PATH_SIZE];	/* path to volume header */
 	CRYPTO_INFO crypto_info;		/* crypto context for volume encryption */
+	EFI_HANDLE caller_disk_handle;	/* device handle of the disk containing this EFI application */
 	struct cs_cipher_data volume_header_protection;	/* cipher data and key context for volume header encryption */
 	struct cs_option_data user_defined_options;	/* options taken from options file */
-	struct disk_info caller_disk;	/* the storage media information of the media containing this application */
-	struct disk_info os_loader_disk;	/* the storage media information of the media containing the EFI OS loader */
-	struct disk_info boot_partition;	/* the storage media information of the (encrypted) boot partition */
+	struct cs_disk_info os_loader_disk;	/* the storage media information of the media containing the EFI OS loader */
+	struct cs_disk_info boot_partition;	/* the storage media information of the (encrypted) boot partition */
 	struct cs_driver_data os_driver_data;	/* data to be handed over to the OS driver */
 	struct cs_efi_option_data efi_driver_data;	/* data to be handed over to the CipherShed EFI driver */
 } context;
@@ -451,23 +450,23 @@ static EFI_STATUS _write_vh_path(IN CHAR8 *buffer, IN UINTN start_filename, IN C
 
 	needed_pathlen = StrLen(pathname) + StrLen((const CHAR16 *)L"\\") +
 			strlena(&buffer[start_filename]) + 1;
-	if ((needed_pathlen * sizeof(CHAR16)) <= sizeof(context.vh_path)) {
+	if ((needed_pathlen * sizeof(CHAR16)) <= sizeof(context.os_driver_data.volume_header_location.path)) {
 		int j, k;
-		StrCpy(&context.vh_path[0], pathname);
-		StrCat(&context.vh_path[0], (const CHAR16 *)L"\\");
-		k = StrLen(&context.vh_path[0]);
+		StrCpy(&context.os_driver_data.volume_header_location.path[0], pathname);
+		StrCat(&context.os_driver_data.volume_header_location.path[0], (const CHAR16 *)L"\\");
+		k = StrLen(&context.os_driver_data.volume_header_location.path[0]);
 		for (j = 0; j < strlena(&buffer[start_filename]); j++) {
-			context.vh_path[k + j] = (CHAR16)buffer[start_filename + j];
+			context.os_driver_data.volume_header_location.path[k + j] = (CHAR16)buffer[start_filename + j];
 		}
-		context.vh_path[k + j] = (CHAR16)0;
+		context.os_driver_data.volume_header_location.path[k + j] = (CHAR16)0;
 
 		CS_DEBUG((D_INFO, L"pathname is: %s\n", pathname));
-		CS_DEBUG((D_INFO, L"Volume Header Filename is: %s\n", &context.vh_path[0]));
+		CS_DEBUG((D_INFO, L"Volume Header Filename is: %s\n", &context.os_driver_data.volume_header_location.path[0]));
 
 		error = EFI_SUCCESS;
 	} else {
 		CS_DEBUG((D_ERROR, L"buffer too small for volume header path (0x%x/0x%x byte)\n",
-				needed_pathlen * sizeof(CHAR16), sizeof(context.vh_path)));
+				needed_pathlen * sizeof(CHAR16), sizeof(context.os_driver_data.volume_header_location.path)));
 		error = EFI_BUFFER_TOO_SMALL;
 	}
 
@@ -745,16 +744,16 @@ static EFI_STATUS get_volume_header_file(IN EFI_FILE *root_dir, IN CHAR16 *curre
 				}
 
 				len = StrLen(directory_name) + StrLen((const CHAR16 *)L"\\") + StrLen((const CHAR16 *)f->FileName) + 1;
-				if ((len * sizeof(CHAR16)) <= sizeof(context.vh_path)) {
-					StrCpy(&context.vh_path[0], directory_name);
-					StrCat(&context.vh_path[0], (const CHAR16 *)L"\\");
-					StrCat(&context.vh_path[0], (const CHAR16 *)f->FileName);
+				if ((len * sizeof(CHAR16)) <= sizeof(context.os_driver_data.volume_header_location.path)) {
+					StrCpy(&context.os_driver_data.volume_header_location.path[0], directory_name);
+					StrCat(&context.os_driver_data.volume_header_location.path[0], (const CHAR16 *)L"\\");
+					StrCat(&context.os_driver_data.volume_header_location.path[0], (const CHAR16 *)f->FileName);
 
-					CS_DEBUG((D_BM, L"Volume Header Filename is: %s\n", &context.vh_path[0]));
+					CS_DEBUG((D_BM, L"Volume Header Filename is: %s\n", &context.os_driver_data.volume_header_location.path[0]));
 
 				} else {
 					CS_DEBUG((D_ERROR, L"buffer too small for volume header path (0x%x/0x%x byte)\n",
-							len * sizeof(CHAR16), sizeof(context.vh_path)));
+							len * sizeof(CHAR16), sizeof(context.os_driver_data.volume_header_location.path)));
 					error = EFI_BUFFER_TOO_SMALL;
 					break;
 				}
@@ -790,23 +789,26 @@ static EFI_STATUS load_volume_header(IN EFI_FILE *root_dir, IN CHAR16 *current_d
     error = get_volume_header_file(root_dir, current_dir);
     if (EFI_ERROR(error) == EFI_SUCCESS) {
 
-		len = read_file(root_dir, &context.vh_path[0], &content_volume_header);
+		len = read_file(root_dir, &context.os_driver_data.volume_header_location.path[0], &content_volume_header);
 		if (len) {
 			if (len == CS_VOLUME_HEADER_SIZE) {
-				CS_DEBUG((D_BM, L"Volume Header File %s correctly read\n", context.vh_path));
+				CS_DEBUG((D_BM, L"Volume Header File %s correctly read\n",
+						context.os_driver_data.volume_header_location.path));
 
 				CopyMem(&context.os_driver_data.volume_header,
 						content_volume_header, sizeof(context.os_driver_data.volume_header));
 
 				error = EFI_SUCCESS;
 			} else {
-				CS_DEBUG((D_ERROR, L"Invalid file size %s (0x%x)\n", context.vh_path, len));
+				CS_DEBUG((D_ERROR, L"Invalid file size %s (0x%x)\n",
+						context.os_driver_data.volume_header_location.path, len));
 
 				error = EFI_INVALID_PARAMETER;
 			}
 			FreePool(content_volume_header);
 		} else {
-			CS_DEBUG((D_ERROR, L"Unable to read file %s\n", context.vh_path));
+			CS_DEBUG((D_ERROR, L"Unable to read file %s\n",
+					context.os_driver_data.volume_header_location.path));
 
 			error = EFI_END_OF_FILE;
 		}
@@ -959,7 +961,7 @@ static EFI_STATUS get_disk_handle(IN EFI_HANDLE device_handle, OUT UINT8 *mbr_ty
  *
  *	\return		the success state of the function
  */
-static EFI_STATUS get_handle_by_uuid(IN struct disk_info *requested_disk, OUT EFI_HANDLE *handle) {
+static EFI_STATUS get_handle_by_uuid(IN struct cs_disk_info *requested_disk, OUT EFI_HANDLE *handle) {
 	EFI_STATUS error;
 	UINTN number_handles = 0;
 	EFI_HANDLE *HandleBuffer = NULL;
@@ -973,7 +975,7 @@ static EFI_STATUS get_handle_by_uuid(IN struct disk_info *requested_disk, OUT EF
 	if (!EFI_ERROR(error)) {
 		BOOLEAN success = FALSE;
 		UINTN i;
-		struct disk_info disk;
+		struct cs_disk_info disk;
 
 		for (i = 0; i < number_handles; i++) {
 			error = get_disk_handle(HandleBuffer[i], &disk.mbr_type, &disk.signature_type, &disk.signature);
@@ -1005,7 +1007,7 @@ static EFI_STATUS get_handle_by_uuid(IN struct disk_info *requested_disk, OUT EF
 				}
 			} else {
 				CS_DEBUG((D_INFO, L"no match: signature type: 0x%x/0x%x/0x%x\n",
-						disk.signature_type, requested_disk->signature_type, context.caller_disk.signature_type));
+						disk.signature_type, requested_disk->signature_type, disk.signature_type));
 #if 0
 				Print(L"TEST MODE with MBR disk !!\n");
 				success = TRUE;
@@ -1269,7 +1271,7 @@ static EFI_STATUS initialize(IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE *Sys
     }
 
     CS_DEBUG((D_INFO, L"LoadedImageProtocol returned %s\n", DevicePathToStr(loaded_image->FilePath)));
-    context.caller_disk.handle = loaded_image->DeviceHandle;
+    context.caller_disk_handle = loaded_image->DeviceHandle;
 
     get_cmdline_args(loaded_image);
 
@@ -1290,10 +1292,13 @@ static EFI_STATUS initialize(IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE *Sys
      * in order to access the volume header file in case of password change.
      */
 	if (!EFI_ERROR(error)) {
-		error = get_disk_handle(loaded_image->DeviceHandle, &context.caller_disk.mbr_type,
-				&context.caller_disk.signature_type, &context.caller_disk.signature);
+		error = get_disk_handle(loaded_image->DeviceHandle,
+				&context.os_driver_data.volume_header_location.disk_info.mbr_type,
+				&context.os_driver_data.volume_header_location.disk_info.signature_type,
+				&context.os_driver_data.volume_header_location.disk_info.signature);
 		if (EFI_ERROR(error)) {
-			SetMem(&context.caller_disk, 0, sizeof(context.caller_disk));
+			SetMem(&context.os_driver_data.volume_header_location.disk_info, 0,
+					sizeof(context.os_driver_data.volume_header_location.disk_info));
 			cs_print_msg(L"Error getting disk signature: %r ", error);
 		}
 #if 0
@@ -1345,7 +1350,7 @@ static EFI_STATUS _update_volume_header(IN CRYPTO_INFO *cryptoInfo, OPTIONAL Pas
 #if 1
 	/* write volume header back to file on disk */
 	if (!EFI_ERROR (error)) {
-		error = write_file(context.root_dir, context.vh_path,
+		error = write_file(context.root_dir, context.os_driver_data.volume_header_location.path,
 				context.os_driver_data.volume_header, sizeof(context.os_driver_data.volume_header));
 	}
 #endif
@@ -1522,7 +1527,7 @@ static EFI_STATUS start_crypto_driver(IN EFI_HANDLE ImageHandle, OUT EFI_HANDLE 
 		CS_DEBUG((D_BM, L"hiddenVolumePresent %x, Algo/Mode 0x%x/0x%x\n",
 				LoadOptions->isHiddenVolume, LoadOptions->cipher.algo, LoadOptions->cipher.mode));
 
-		error = load_start_image(ImageHandle, context.caller_disk.handle, &context.cs_driver_path[0],
+		error = load_start_image(ImageHandle, context.caller_disk_handle, &context.cs_driver_path[0],
 				LoadOptionsSize, LoadOptions, pCryptoDriverHandle);
 	} else {
 		error = EFI_OUT_OF_RESOURCES;

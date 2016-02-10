@@ -150,13 +150,14 @@ BOOL is_cs_child_device(IN EFI_HANDLE ParentHandle, IN EFI_HANDLE ControllerHand
 EFI_STATUS get_current_directory(IN EFI_LOADED_IMAGE *loaded_image, OUT CHAR16** current_dir);
 #endif
 
-#endif /* EFI_WINDOWS_DRIVER */
+#endif /* ifndef EFI_WINDOWS_DRIVER */
 
 #define _CS_HANDOVER_VARIABLE_NAME	"cs_data"	/* name of the UEFI variable for runtime service
 													for the hand-over data to OS driver */
 #define CS_HANDOVER_VARIABLE_NAME	WIDEN( _CS_HANDOVER_VARIABLE_NAME )
 
 #define CS_VOLUME_HEADER_SIZE		512			/* size of volume header, needed for buffer allocation */
+#define CS_MAX_DRIVER_PATH_SIZE		1024		/* maximum path size to the crypto driver */
 
 #pragma pack(1)
 /* the following structure is intended to be handed over to the OS driver,
@@ -164,9 +165,21 @@ EFI_STATUS get_current_directory(IN EFI_LOADED_IMAGE *loaded_image, OUT CHAR16**
 struct cs_driver_data {
 	BootArguments boot_arguments;
 	UINT8 volume_header[CS_VOLUME_HEADER_SIZE];	/* encrypted volume header */
-	/* some more data are needed:
-	 * - GUID of the partition where the volume header is located, see context.caller_disk.signature
-	 * - full path to the volume header file at this partition, see context.vh_path[] */
+	/* the following structure can be used by the OS driver to identify
+	 * where the volume header file is stored;
+	 * this is important for these cases that require write access to the volume header
+	 * (password change, permanent encryption/decryption of the device) */
+	struct {
+		struct {
+			UINT8 mbr_type;				/* see efidevp.h for encoding */
+			UINT8 signature_type;		/* see efidevp.h for encoding */
+			union {
+				UINT32 mbr_id;
+				EFI_GUID guid;			/* GUID of the partition */
+			} signature;
+		} disk_info;
+		CHAR16 path[CS_MAX_DRIVER_PATH_SIZE];	/* full pathname of the volume header file */
+	} volume_header_location;
 };
 #pragma pack()
 
