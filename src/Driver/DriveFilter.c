@@ -135,6 +135,20 @@ NTSTATUS LoadBootArguments ()
 		Dump ("Flags = %x\n", BootArgs.Flags);
 		Dump ("BootDriveSignature = %x\n", BootArgs.BootDriveSignature);
 		Dump ("BootArgumentsCrc32 = %x\n", BootArgs.BootArgumentsCrc32);
+		Dump ("location volume header: GUID = {%08lX-%04hX-%04hX-%02hhX%02hhX-%02hhX%02hhX%02hhX%02hhX%02hhX%02hhX}\n",
+			efi_driver_data->volume_header_location.disk_info.signature.guid.Data1, 
+			efi_driver_data->volume_header_location.disk_info.signature.guid.Data2,
+			efi_driver_data->volume_header_location.disk_info.signature.guid.Data3,
+			efi_driver_data->volume_header_location.disk_info.signature.guid.Data4[0], 
+			efi_driver_data->volume_header_location.disk_info.signature.guid.Data4[1],
+			efi_driver_data->volume_header_location.disk_info.signature.guid.Data4[2],
+			efi_driver_data->volume_header_location.disk_info.signature.guid.Data4[3],
+			efi_driver_data->volume_header_location.disk_info.signature.guid.Data4[4],
+			efi_driver_data->volume_header_location.disk_info.signature.guid.Data4[5],
+			efi_driver_data->volume_header_location.disk_info.signature.guid.Data4[6],
+			efi_driver_data->volume_header_location.disk_info.signature.guid.Data4[7]);
+		Dump("location volume header: path = %S\n", efi_driver_data->volume_header_location.path);
+		/* efi_driver_data->volume_header_location is still unused */
 	}
 	if (efi_driver_data) {
 		burn(efi_driver_data, sizeof(struct cs_driver_data));

@@ -157,7 +157,7 @@ EFI_STATUS get_current_directory(IN EFI_LOADED_IMAGE *loaded_image, OUT CHAR16**
 #define CS_HANDOVER_VARIABLE_NAME	WIDEN( _CS_HANDOVER_VARIABLE_NAME )
 
 #define CS_VOLUME_HEADER_SIZE		512			/* size of volume header, needed for buffer allocation */
-#define CS_MAX_DRIVER_PATH_SIZE		1024		/* maximum path size to the crypto driver */
+#define CS_MAX_DRIVER_PATH_SIZE		512			/* maximum path size to the crypto driver/voume header etc. */
 
 #pragma pack(1)
 /* the following structure is intended to be handed over to the OS driver,
@@ -175,10 +175,18 @@ struct cs_driver_data {
 			UINT8 signature_type;		/* see efidevp.h for encoding */
 			union {
 				UINT32 mbr_id;
+#ifdef EFI_WINDOWS_DRIVER
+				GUID guid;				/* GUID of the partition */
+#else
 				EFI_GUID guid;			/* GUID of the partition */
+#endif
 			} signature;
 		} disk_info;
+#ifdef EFI_WINDOWS_DRIVER
+		wchar_t path[CS_MAX_DRIVER_PATH_SIZE];	/* full pathname of the volume header file */
+#else
 		CHAR16 path[CS_MAX_DRIVER_PATH_SIZE];	/* full pathname of the volume header file */
+#endif
 	} volume_header_location;
 };
 #pragma pack()
