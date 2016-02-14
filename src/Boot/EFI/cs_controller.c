@@ -1049,6 +1049,11 @@ static UINTN transform_args(IN OUT CHAR16 *buf, IN UINTN len, OUT CHAR16 **argv)
 	CHAR16 *p = buf;
 
 #define CHAR_SPACE L' '
+
+	if (len == 0) {
+		return 0;
+	}
+
     ASSERT(buf != NULL);
     ASSERT(argv != NULL);
 
@@ -1257,9 +1262,9 @@ static EFI_STATUS initialize(IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE *Sys
     ASSERT(root_dir != NULL);
     ASSERT(current_directory != NULL);
 
-    init_system_context();	/* initialize global system context (context) */
-
     InitializeLib(ImageHandle, SystemTable);
+
+    init_system_context();	/* initialize global system context (context) */
 
     // EFIDebug = D_ERROR | D_WARN | D_LOAD | D_BLKIO | D_INIT | D_INFO; // remove this later...
 
@@ -1835,7 +1840,7 @@ EFI_STATUS efi_main (IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE *SystemTable
 	/* for all other error types... close application */
 	if (EFI_ERROR(error)) {
 		if (!context.user_defined_options.flags.silent)
-			cs_print_msg(L"Unable to parse the volume header: %r\n", error);
+			cs_print_msg(L"\nUnable to parse the volume header: %r\n", error);
 	    goto exit;
 	}
 
@@ -1844,7 +1849,7 @@ EFI_STATUS efi_main (IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE *SystemTable
 	error = start_connect_crypto_driver(ImageHandle);
 	if (EFI_ERROR(error)) {
 		if (!context.user_defined_options.flags.silent)
-			cs_print_msg(L"Unable to start the crypto driver: %r\n", error);
+			cs_print_msg(L"\nUnable to start the crypto driver: %r\n", error);
 	    goto exit;
 	}
 #endif
@@ -1853,7 +1858,7 @@ EFI_STATUS efi_main (IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE *SystemTable
 	error = boot_os(ImageHandle);
 	if (EFI_ERROR(error)) {
 		if (!context.user_defined_options.flags.silent)
-			cs_print_msg(L"Unable to boot the OS: %r\n", error);
+			cs_print_msg(L"\nUnable to boot the OS: %r\n", error);
 	    goto exit;
 	}
 #endif
