@@ -31,17 +31,6 @@
 #define CS_BOOT_LOADER_ARGS_OFFSET  0x10		/* taken from TrueCrypt for compatibility reason */
 #define CS_MAX_LOAD_OPTIONS			32			/* maximum number of command line arguments */
 
-/* for identification of a disk/partition device */
-struct cs_disk_info {
-	UINT8 mbr_type;				/* see efidevp.h for encoding */
-	UINT8 signature_type;		/* see efidevp.h for encoding */
-	union {
-		UINT32 mbr_id;
-		EFI_GUID guid;
-	} signature;
-	EFI_HANDLE handle;			/* the corresponding disk handle */
-};
-
 /*
  * global system context containing all important settings and data for the application
  */
@@ -50,8 +39,8 @@ static struct cs_system_context {
 	CHAR16 *argv[CS_MAX_LOAD_OPTIONS];	/* pointer array to the NULL terminated command line options */
 	EFI_FILE_HANDLE root_dir;			/* file protocol interface for root filesystem of EFI system partition */
 	CHAR16 *dest_uuid;		/* UUID of the device that the driver shall connect to */
-	CHAR16 uuid_buffer[CS_LENGTH_FILENAME_VOLUMNE_HEADER + 1];	/* UUID of the encrypted HDD partition
-	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	   in case that none is given via command line */
+	CHAR16 uuid_buffer[CS_LENGTH_GUID_STRING + 2];	/* UUID of the encrypted HDD partition
+	 	 	 	 	 	 	 	 	 	 	 	 	 	in case that none is given via command line */
 	CHAR16 *os_loader_uuid;	/* String containing the UUID of the device that contains the OS loader file */
 	CHAR16 *os_loader;		/* String containing the full path to the OS loader file */
 	UINTN os_loader_option_number;	/* number of options for the OS loader */
@@ -61,12 +50,12 @@ static struct cs_system_context {
 	EFI_HANDLE caller_disk_handle;	/* device handle of the disk containing this EFI application */
 	struct cs_cipher_data volume_header_protection;	/* cipher data and key context for volume header encryption */
 	struct cs_option_data user_defined_options;	/* options taken from options file */
-	struct cs_disk_info os_loader_disk;	/* the storage media information of the media containing the EFI OS loader */
 	struct cs_disk_info boot_partition;	/* the storage media information of the (encrypted) boot partition */
 	struct cs_driver_data os_driver_data;	/* data to be handed over to the OS driver */
 	struct cs_efi_option_data efi_driver_data;	/* data to be handed over to the CipherShed EFI driver */
 } context;
 
+static EFI_STATUS get_handle_by_uuid(IN struct cs_disk_info *requested_disk, OUT EFI_HANDLE *handle);
 
 /*
  *  \brief	Convert a String to GUID Value
@@ -201,14 +190,24 @@ static EFI_STATUS StringToGuid (IN CHAR16 *Str, IN UINTN StrLen, OUT EFI_GUID *G
 /*
  *	\brief	return the handle of the boot partition
  *
- *	The handle is taken from the system context and only available after calling
- *	connect_crypto_driver(). In case that the handle is not yet available, the
- *	function returns NULL.
+ *	The handle is requested based on the GUID of the boot partition
+ *	in the system context. When the handle request fails, the function
+ *	returns NULL.
  *
  *	\return		the requested handle (might be NULL)
  */
 EFI_HANDLE get_boot_partition_handle() {
-	return context.boot_partition.handle;
+    EFI_STATUS error;
+    EFI_HANDLE boot_partition_handle;
+
+	error = get_handle_by_uuid(&context.boot_partition, &boot_partition_handle);
+	if (EFI_ERROR(error)) {
+		CS_DEBUG((D_ERROR, L"Unable to get boot partition handle (GUID: %g, %r)\n",
+				&context.boot_partition.signature.guid, error));
+		return NULL;
+	}
+
+	return boot_partition_handle;
 }
 
 /*
@@ -221,6 +220,30 @@ EFI_HANDLE get_boot_partition_handle() {
  */
 CRYPTO_INFO *get_crypto_info() {
 	return &context.crypto_info;
+}
+
+/*
+ *	\brief	set the given pointer as OS loader GUID string if context.os_loader_uuid is still undefined
+ *
+ *
+ *	\param os_loader_guid	pointer to a buffer containing the OS loader GUID string
+ */
+VOID set_os_loader_guid(IN CHAR16 *os_loader_guid) {
+	if (context.os_loader_uuid == NULL) {
+		context.os_loader_uuid = os_loader_guid;
+	}
+}
+
+/*
+ *	\brief	set the given pointer as OS loader string if OS loader is still undefined in context
+ *
+ *
+ *	\param os_loader	pointer to a buffer containing the OS loader string
+ */
+VOID set_os_loader(IN CHAR16 *os_loader) {
+	if (context.os_loader == NULL) {
+		context.os_loader = os_loader;
+	}
 }
 
 /*
@@ -352,61 +375,6 @@ static void init_system_context() {
 	context.user_defined_options.driverdebug = D_ERROR;
 	context.user_defined_options.flags.silent = 1;
 }
-
-#if ! EFI_DEBUG
-/*
- *	\brief	detects directory of the currently executed application in the file system
- *
- *	The buffer for the returned directory is allocated inside the function, hence the caller
- *	need to free this buffer using FreePool().
- *
- *	\param	loaded_image	opened image
- *	\param	current_dir		pointer to buffer for the returned directory name
- *
- *	\return		the success state of the function
- */
-static EFI_STATUS get_current_directory(IN EFI_LOADED_IMAGE *loaded_image, OUT CHAR16** current_dir) {
-
-	CHAR16 *current_file;
-	EFI_STATUS error = EFI_SUCCESS;
-	UINTN i;
-
-    ASSERT(loaded_image != NULL);
-    ASSERT(current_dir != NULL);
-
-    current_file = DevicePathToStr(loaded_image->FilePath);
-	if (current_file == NULL) {
-		CS_DEBUG((D_ERROR, L"Unable to translate path to string\n"));
-		return EFI_NO_MAPPING;
-	}
-
-	CS_DEBUG((D_INFO, L"Path to current Application: %s\n", current_file));
-
-	for (i = StrLen(current_file); i >= 0; i--) {
-		if ((current_file[i] == '\\') || (current_file[i] == '/')) {
-
-			current_file[i] = '\\';	/* fix: DevicePathToStr() sometimes appends "/" instead of "\" */
-			*current_dir = AllocatePool(i + 2);
-			if (*current_dir) {
-				UINTN j;
-
-				for (j = 0; j <= i; j++) {
-					(*current_dir)[j] = current_file[j];
-				}
-				(*current_dir)[i+1] = 0;
-
-				CS_DEBUG((D_INFO, L"Current Directory: \"%s\"\n", *current_dir));
-			} else {
-				CS_DEBUG((D_ERROR, L"Unable to allocate directory buffer (0x%x)\n", i + 2));
-				error = EFI_OUT_OF_RESOURCES;
-			}
-			break;
-		}
-	}
-
-	return error;
-}
-#endif
 
 /*
  *	\brief	initialize context.boot_partition
@@ -541,6 +509,7 @@ static EFI_STATUS _parse_index_file(IN CHAR8 *buffer, IN UINTN size, IN CHAR16 *
 						remaining_characters--;
 					}
 					end_uuid = i;
+
 					/* find the begin of the filename */
 					while ((remaining_characters > 0) &&
 							((buffer[index + i] == ' ') || (buffer[index + i] == '\t'))) {
@@ -718,12 +687,12 @@ static EFI_STATUS get_volume_header_file(IN EFI_FILE *root_dir, IN CHAR16 *curre
 				} else {
 					/* no UUID given as command line option-> take the first volume header that seems correct... */
 
-					if (len < CS_LENGTH_FILENAME_VOLUMNE_HEADER)
+					if (len < CS_LENGTH_GUID_STRING)
 					{
 						CS_DEBUG((D_WARN, L"Filename \"%s\" too short in Volume Header directory\n", f->FileName));
 						continue;
 					}
-					if (len > CS_LENGTH_FILENAME_VOLUMNE_HEADER)
+					if (len > CS_LENGTH_GUID_STRING)
 					{
 						CS_DEBUG((D_WARN, L"Filename \"%s\" too long in Volume Header directory\n", f->FileName));
 						continue;
@@ -1007,7 +976,7 @@ static EFI_STATUS get_handle_by_uuid(IN struct cs_disk_info *requested_disk, OUT
 				}
 			} else {
 				CS_DEBUG((D_INFO, L"no match: signature type: 0x%x/0x%x/0x%x\n",
-						disk.signature_type, requested_disk->signature_type, disk.signature_type));
+						disk.signature_type, requested_disk->signature_type, disk.mbr_type));
 #if 0
 				Print(L"TEST MODE with MBR disk !!\n");
 				success = TRUE;
@@ -1141,14 +1110,16 @@ static void get_cmdline_args(IN EFI_LOADED_IMAGE *loaded_image) {
 	}
 }
 
+#if EFI_DEBUG
 /*
- * \brief	provide debug output of the command line arguments
+ * \brief	provide debug output of some remaining information
  *
- * This function is separated from the get_cmdline_args() since at call time of get_cmdline_args()
- * the debug level was not yet read from the configuration file...
- *
+ * This function is used to output some important data for log purposes that are
+ * generated before the settings file was parsed. Before parsing the setting file
+ * the debug level is unknown, hence this function is called after importing
+ * the settings.
  */
-static void debug_cmdline_args(VOID) {
+static void debug_remaining_data(VOID) {
 
 	if (context.argc > 1) {
 		CS_DEBUG((D_INFO, L"argc: 0x%x\nargument 1: %s\n", context.argc, context.argv[1]));
@@ -1162,7 +1133,25 @@ static void debug_cmdline_args(VOID) {
 	if (context.argc > 4) {
 		CS_DEBUG((D_INFO, L"argument 4: %s\n", context.argv[4]));
 	}
+
+	if (context.os_driver_data.volume_header_location.disk_info.signature_type == SIGNATURE_TYPE_MBR) {
+		CS_DEBUG((D_INFO, L"volume header disk: signature type: 0x%x (MBR), MBR type: 0x%x, ID: 0x%x\n",
+				context.os_driver_data.volume_header_location.disk_info.signature_type,
+				context.os_driver_data.volume_header_location.disk_info.mbr_type,
+				context.os_driver_data.volume_header_location.disk_info.signature.mbr_id));
+
+	} else if (context.os_driver_data.volume_header_location.disk_info.signature_type == SIGNATURE_TYPE_GUID) {
+		CS_DEBUG((D_INFO, L"volume header disk: signature type: 0x%x (GUID), MBR type: 0x%x, GUID: %g\n",
+				context.os_driver_data.volume_header_location.disk_info.signature_type,
+				context.os_driver_data.volume_header_location.disk_info.mbr_type,
+				&context.os_driver_data.volume_header_location.disk_info.signature.guid));
+	} else {
+		CS_DEBUG((D_INFO, L"volume header disk (unknown) signature type: 0x%x, MBR type: 0x%x\n",
+				context.os_driver_data.volume_header_location.disk_info.signature_type,
+				context.os_driver_data.volume_header_location.disk_info.mbr_type));
+	}
 }
+#endif
 
 /*
  *	\brief	load and start a given EFI application
@@ -1266,7 +1255,7 @@ static EFI_STATUS initialize(IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE *Sys
 
     init_system_context();	/* initialize global system context (context) */
 
-    // EFIDebug = D_ERROR | D_WARN | D_LOAD | D_BLKIO | D_INIT | D_INFO; // remove this later...
+    //EFIDebug = D_ERROR | D_WARN | D_LOAD | D_BLKIO | D_BM | D_INIT | D_INFO; // remove this later...
 
     error = uefi_call_wrapper(BS->OpenProtocol, 6, ImageHandle, &LoadedImageProtocol, (void **)&loaded_image,
 		   ImageHandle, NULL, EFI_OPEN_PROTOCOL_GET_PROTOCOL);
@@ -1293,7 +1282,7 @@ static EFI_STATUS initialize(IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE *Sys
 
     /*
      * Read information about the storage media where this application was started.
-     * This information may become important when it should be handed over to the OS driver
+     * This information become important when it is handed over to the OS driver
      * in order to access the volume header file in case of password change.
      */
 	if (!EFI_ERROR(error)) {
@@ -1306,12 +1295,6 @@ static EFI_STATUS initialize(IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE *Sys
 					sizeof(context.os_driver_data.volume_header_location.disk_info));
 			cs_print_msg(L"Error getting disk signature: %r ", error);
 		}
-#if 0
-		else {
-			Print(L"caller disk: MBR Type: 0x%x, SignatureType: 0x%x \n",
-					context.caller_disk.mbr_type, context.caller_disk.signature_type);
-		}
-#endif
 	}
 	uefi_call_wrapper(BS->CloseProtocol, 4, ImageHandle, &LoadedImageProtocol, ImageHandle, NULL);
 
@@ -1553,11 +1536,12 @@ static EFI_STATUS start_crypto_driver(IN EFI_HANDLE ImageHandle, OUT EFI_HANDLE 
  */
 static EFI_STATUS connect_crypto_driver(IN EFI_HANDLE CryptoDriverHandle) {
 	EFI_STATUS error;
+	EFI_HANDLE boot_partition_handle = NULL;
 
     ASSERT(CryptoDriverHandle != NULL);
 
-	error = get_handle_by_uuid(&context.boot_partition, &context.boot_partition.handle);
-	if ((!EFI_ERROR(error)) && (context.boot_partition.handle)) {
+	error = get_handle_by_uuid(&context.boot_partition, &boot_partition_handle);
+	if ((!EFI_ERROR(error)) && (boot_partition_handle)) {
 		/* now bind the driver to the boot device... */
 		EFI_HANDLE driver_list[2];
 
@@ -1566,7 +1550,7 @@ static EFI_STATUS connect_crypto_driver(IN EFI_HANDLE CryptoDriverHandle) {
 		driver_list[0] = CryptoDriverHandle;
 		driver_list[1] = NULL;
 		error = uefi_call_wrapper(BS->ConnectController, 4,
-				context.boot_partition.handle, driver_list, NULL, FALSE /* recursive */);
+				boot_partition_handle, driver_list, NULL, FALSE /* recursive */);
 	}
 
 	return error;
@@ -1657,8 +1641,10 @@ static EFI_STATUS init_runtime_service() {
 		CS_DEBUG((D_ERROR, L"unable to set EFI variable %s: %r\n", CS_HANDOVER_VARIABLE_NAME, error));
 	}
 
-	/* the sensitive data in the system context are no longer needed... */
-	SetMem(&context.os_driver_data, sizeof(context.os_driver_data), 0);
+	/* the sensitive data in the system context are no longer needed...
+	 * context.os_driver_data.volume_header_location is not sensitive and is still needed -> don't remove */
+	SetMem(&context.os_driver_data.boot_arguments, sizeof(context.os_driver_data.boot_arguments), 0);
+	SetMem(&context.os_driver_data.volume_header, sizeof(context.os_driver_data.volume_header), 0);
 
 	return error;
 }
@@ -1676,20 +1662,24 @@ static EFI_STATUS init_runtime_service() {
  */
 static EFI_STATUS boot_os(IN EFI_HANDLE ImageHandle) {
 
+	const CHAR16 fallback_os_loader_file[] = L"\\EFI\\Microsoft\\Boot\\bootmgfw.efi";
 	EFI_STATUS error;
 	EFI_HANDLE loaded_handle;
 
 	/* set EFI variable for data hand-over to OS driver: */
 	error = init_runtime_service();
 
-	if (context.os_loader == NULL) {
-		CS_DEBUG((D_BM, L"No OS loader given... nothing more to do...\n"));
-		return error;
-	}
-
 	if (!EFI_ERROR(error)) {
 		UINTN os_loader_option_size = 0;
 		void *os_loader_options = NULL;
+    	struct cs_disk_info loader_disk;		/* information of partition containing the EFI OS loader */
+    	EFI_HANDLE loader_disk_handle = NULL;
+
+    	if (context.os_loader == NULL) {
+    		CS_DEBUG((D_BM, L"no OS loader given... use hard coded fallback loader: %s\n",
+    				fallback_os_loader_file));
+    		context.os_loader = (CHAR16 *)fallback_os_loader_file;
+    	}
 
 		if (context.os_loader_option_number > 0) {
 			CHAR16 *ptr = context.os_loader_options[context.os_loader_option_number - 1];
@@ -1700,20 +1690,38 @@ static EFI_STATUS boot_os(IN EFI_HANDLE ImageHandle) {
 			os_loader_options = context.os_loader_options[0];
 		}
 
-		context.os_loader_disk.mbr_type = MBR_TYPE_EFI_PARTITION_TABLE_HEADER; /* not sure whether this is correct */
-		context.os_loader_disk.signature_type = SIGNATURE_TYPE_GUID;
-        error = StringToGuid(context.os_loader_uuid, StrLen(context.os_loader_uuid),
-        		&context.os_loader_disk.signature.guid);
+		if (context.os_loader_uuid) {
+			/* the GUID is given by command line option or by configuration in settings file */
+			loader_disk.mbr_type = MBR_TYPE_EFI_PARTITION_TABLE_HEADER;
+			loader_disk.signature_type = SIGNATURE_TYPE_GUID;
+			error = StringToGuid(context.os_loader_uuid, StrLen(context.os_loader_uuid),
+								&loader_disk.signature.guid);
+
+			CS_DEBUG((D_BM, L"boot OS from media with GUID %g (%r)\n", &loader_disk.signature.guid, error));
+		} else {
+			/* no GUID given, take the partition device of the CipherShed loader */
+			loader_disk.mbr_type = context.os_driver_data.volume_header_location.disk_info.mbr_type;
+			loader_disk.signature_type = context.os_driver_data.volume_header_location.disk_info.signature_type;
+			loader_disk.signature.mbr_id = context.os_driver_data.volume_header_location.disk_info.signature.mbr_id;
+			loader_disk.signature.guid = context.os_driver_data.volume_header_location.disk_info.signature.guid;
+
+			CS_DEBUG((D_BM, L"no GUID of OS loader defined... use location of CipherShed loader: "));
+			if (loader_disk.signature_type == SIGNATURE_TYPE_GUID) {
+				CS_DEBUG((D_BM, L"%g\n", &loader_disk.signature.guid));
+			} else {
+				CS_DEBUG((D_BM, L"0x%x\n", &loader_disk.signature.mbr_id));
+			}
+		}
 
         if (!EFI_ERROR(error)) {
-			error = get_handle_by_uuid(&context.os_loader_disk, &context.os_loader_disk.handle);
+			error = get_handle_by_uuid(&loader_disk, &loader_disk_handle);
 			if (!EFI_ERROR(error)) {
 
-				error = load_start_image(ImageHandle, context.os_loader_disk.handle, context.os_loader,
+				error = load_start_image(ImageHandle, loader_disk_handle, context.os_loader,
 						os_loader_option_size, os_loader_options, &loaded_handle);
 
 			} else {
-				CS_DEBUG((D_ERROR, L"get_handle_by_uuid(%s) failed: %r\n", context.os_loader_uuid, error));
+				CS_DEBUG((D_ERROR, L"get_handle_by_uuid(%g) failed: %r\n", &loader_disk.signature.guid, error));
 			}
         } else {
 			CS_DEBUG((D_ERROR, L"StringToGuid(%s) failed: %r\n", context.os_loader_uuid, error));
@@ -1768,7 +1776,9 @@ EFI_STATUS efi_main (IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE *SystemTable
 	    FreePool(current_directory);
 	}
 
-	debug_cmdline_args();	/* only for debug output */
+#if EFI_DEBUG
+	debug_remaining_data();	/* only for debug output */
+#endif
 
 	/* load the volume header from the corresponding file */
 	error = load_volume_header(context.root_dir, current_directory);

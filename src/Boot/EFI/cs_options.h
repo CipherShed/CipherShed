@@ -25,6 +25,10 @@ struct cs_language_name
 struct cs_option_data {
 	UINTN driverdebug;		/* debugging level for the driver, see efidebug.h */
 	UINTN language;			/* language setting of the loader, see lang_strings[] */
+	CHAR16 fallback_os_loader[CS_MAX_DRIVER_PATH_SIZE];	/* only used when no OS loader is given
+															by command line argument */
+	CHAR16 fallback_os_loader_guid[CS_LENGTH_GUID_STRING + 2];	/* only used when no OS loader GUID is given
+															by command line argument */
 	struct {
 		UINT32 silent:1;	/* if set then user output (main menu/service menu) is shown */
 		UINT32 enable_service_menu:1;	/* service menu can be opened */
