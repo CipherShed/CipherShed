@@ -54,9 +54,17 @@ namespace CipherShed
 					if (!execFunctor)
 						args[argIndex++] = const_cast <char*> (processName.c_str());
 
-					foreach (const string &arg, arguments)
+					/* execvp and execFunctor need an array of string (pointers),
+					 * so make a pointer array from our std::list of strings.
+					 *
+					 * This is implemented as a for loop instead of the foreach
+					 * macro due a side-effect of foreach. It will re-construct
+					 * strings, with unstable pointers (due to garbage collection).
+					 * This previously worked, due to coincidence.
+					 */
+					for (list<string>::const_iterator arg = arguments.begin(); arg != arguments.end(); arg++)
 					{
-						args[argIndex++] = const_cast <char*> (arg.c_str());
+						args[argIndex++] = const_cast <char*> (arg->c_str());
 					}
 					args[argIndex] = nullptr;
 
