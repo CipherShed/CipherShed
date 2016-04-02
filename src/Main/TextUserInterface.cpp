@@ -119,7 +119,7 @@ namespace CipherShed
 			for (size_t i = 0; i < length && i < VolumePassword::MaxSize; ++i)
 			{
 				passwordBuf[i] = (wchar_t) passwordStr[i];
-				const_cast <wchar_t *> (passwordStr.c_str())[i] = L'X';
+				const_cast <wchar_t *> ((const wchar_t*)(passwordStr.c_str()))[i] = L'X';
 			}
 
 			if (verify && verPhase)
