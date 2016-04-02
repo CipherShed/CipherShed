@@ -263,7 +263,7 @@ MainFrameBase::MainFrameBase( wxWindow* parent, wxWindowID id, const wxString& t
 	VolumeStaticBoxSizer = new wxStaticBoxSizer( new wxStaticBox( MainPanel, wxID_ANY, _("Volume") ), wxVERTICAL );
 	
 	VolumeGridBagSizer = new wxGridBagSizer( 0, 0 );
-	VolumeGridBagSizer->AddGrowableCol( 1 );
+	VolumeGridBagSizer->AddGrowableCol( 0 );
 	VolumeGridBagSizer->AddGrowableRow( 0 );
 	VolumeGridBagSizer->SetFlexibleDirection( wxBOTH );
 	VolumeGridBagSizer->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
@@ -1075,7 +1075,7 @@ FavoriteVolumesDialogBase::FavoriteVolumesDialogBase( wxWindow* parent, wxWindow
 	
 	wxFlexGridSizer* fgSizer4;
 	fgSizer4 = new wxFlexGridSizer( 1, 5, 0, 0 );
-	fgSizer4->AddGrowableCol( 2 );
+	fgSizer4->AddGrowableCol( 1 );
 	fgSizer4->SetFlexibleDirection( wxBOTH );
 	fgSizer4->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
 	
@@ -1442,7 +1442,7 @@ MountOptionsDialogBase::MountOptionsDialogBase( wxWindow* parent, wxWindowID id,
 	bSizer54->Add( bSizer55, 1, wxEXPAND, 5 );
 	
 	FilesystemOptionsSizer = new wxGridBagSizer( 0, 0 );
-	FilesystemOptionsSizer->AddGrowableCol( 1 );
+	FilesystemOptionsSizer->AddGrowableCol( 0 );
 	FilesystemOptionsSizer->SetFlexibleDirection( wxBOTH );
 	FilesystemOptionsSizer->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
 	FilesystemOptionsSizer->SetEmptyCellSize( wxSize( 0,0 ) );
@@ -1698,7 +1698,7 @@ PreferencesDialogBase::PreferencesDialogBase( wxWindow* parent, wxWindowID id, c
 	
 	wxFlexGridSizer* fgSizer3;
 	fgSizer3 = new wxFlexGridSizer( 1, 2, 0, 0 );
-	fgSizer3->AddGrowableCol( 1 );
+	fgSizer3->AddGrowableCol( 0 );
 	fgSizer3->SetFlexibleDirection( wxBOTH );
 	fgSizer3->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
 	
@@ -2892,7 +2892,7 @@ VolumePasswordPanelBase::VolumePasswordPanelBase( wxWindow* parent, wxWindowID i
 	bSizer7 = new wxBoxSizer( wxVERTICAL );
 	
 	GridBagSizer = new wxGridBagSizer( 0, 0 );
-	GridBagSizer->AddGrowableCol( 1 );
+	GridBagSizer->AddGrowableCol( 0 );
 	GridBagSizer->SetFlexibleDirection( wxBOTH );
 	GridBagSizer->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
 	GridBagSizer->SetEmptyCellSize( wxSize( 0,0 ) );
