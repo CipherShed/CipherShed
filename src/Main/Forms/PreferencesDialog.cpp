@@ -303,7 +303,14 @@ namespace CipherShed
 #ifdef TC_WINDOWS
 		Hotkey::RegisterList (Gui->GetMainFrame(), UnregisteredHotkeys);
 #endif
-		event.Skip();
+		if (IsModal())
+		{
+			EndModal(wxID_CANCEL);
+		}
+		else
+		{
+			Destroy();
+		}
 	}
 
 	void PreferencesDialog::OnDismountOnPowerSavingCheckBoxClick (wxCommandEvent& event)
