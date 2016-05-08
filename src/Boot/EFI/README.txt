@@ -10,4 +10,4 @@ CipherShed EFI boot loader
   in the "Boot/EFI" directory, where <arch> must be either ia32 or x86_64.
 - If the ARCH variable is not set, the destination architecture is detected by the make process, 
   see Makefile.inc. Only "ia32" and "x86_64" are supported.
-- To install the loader, see the paper "doc/cs_efi_loader.odt".
+- To install the loader, see the paper "../../../doc/devdocs/boot/efi/cs_efi_loader.odt".
