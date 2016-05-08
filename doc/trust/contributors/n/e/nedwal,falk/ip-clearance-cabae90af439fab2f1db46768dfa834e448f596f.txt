@@ -3,6 +3,7 @@ b	src/Boot/EFI/include/edk2/BlockIo2.h
 b	src/Boot/EFI/include/edk2/ComponentName.h
 b	src/Boot/EFI/include/edk2/ComponentName2.h
 b	src/Boot/EFI/include/edk2/DriverBinding.h
+b	src/Boot/EFI/include/PeImage.h
 d	src/Boot/EFI/doc/cs_efi_loader.odt
 d	src/Boot/EFI/doc/cs_efi_loader.pdf
 d	src/Boot/EFI/doc/cs_pic.odg
@@ -64,6 +65,8 @@ y	src/Boot/EFI/cs_driver.c
 y	src/Boot/EFI/cs_driver.h
 y	src/Boot/EFI/cs_options.c
 y	src/Boot/EFI/cs_options.h
+y	src/Boot/EFI/cs_secure_boot.c
+y	src/Boot/EFI/cs_secure_boot.h
 y	src/Boot/EFI/cs_service.c
 y	src/Boot/EFI/cs_service.h
 y	src/Boot/EFI/cs_ui.c
