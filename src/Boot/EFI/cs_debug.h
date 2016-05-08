@@ -27,7 +27,7 @@ void cs_debug_exit();
 
 #else
 #define CS_DEBUG_INIT(a)
-#define CS_DEBUG_EXIT()
+#define CS_DEBUG_EXIT(a)
 #define CS_DEBUG(a)
 #define CS_DEBUG_SLEEP(a)
 #endif /* EFI_DEBUG */

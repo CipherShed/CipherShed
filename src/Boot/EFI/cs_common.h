@@ -26,7 +26,7 @@
 #include "cs_debug.h"
 
 #define CS_LOADER_NAME		WIDEN("CipherShed")
-#define CS_LOADER_VERSION	0.6
+#define CS_LOADER_VERSION	0.7
 
 #define CS_DRIVER_NAME		CS_LOADER_NAME
 #define CS_CONTROLLER_NAME	WIDEN("CipherShed Crypto Device")
@@ -49,8 +49,7 @@
 #define MIN(x,y)		((x)<(y)?(x):(y))
 #endif
 
-#define CS_LENGTH_FILENAME_VOLUMNE_HEADER	36	/* length of a GUID */
-#define CS_MAX_DRIVER_PATH_SIZE		1024		/* maximum path size to the crypto driver */
+#define CS_LENGTH_GUID_STRING		36					/* length of a GUID */
 #define CS_CHILD_PATH_EXTENSION		WIDEN("crypto")		/* extension for Device Path Protocol for the new
  	 	 	 	 	 	 	 	 	 	 	 	 	 	   created device offering BlockIO protocol */
 #define CS_CONTROLLER_LOGFILE		WIDEN("cs.log")		/* filename of logfile for CipherShed controller */
@@ -146,27 +145,50 @@ void cs_exception(IN CHAR16 *format, ...);
 void cs_sleep(IN UINTN n);
 UINT32 __div64_32(UINT64 *n, UINT32 base);
 BOOL is_cs_child_device(IN EFI_HANDLE ParentHandle, IN EFI_HANDLE ControllerHandle);
-#if EFI_DEBUG
 EFI_STATUS get_current_directory(IN EFI_LOADED_IMAGE *loaded_image, OUT CHAR16** current_dir);
-#endif
 
-#endif /* EFI_WINDOWS_DRIVER */
+#endif /* ifndef EFI_WINDOWS_DRIVER */
 
 #define _CS_HANDOVER_VARIABLE_NAME	"cs_data"	/* name of the UEFI variable for runtime service
 													for the hand-over data to OS driver */
 #define CS_HANDOVER_VARIABLE_NAME	WIDEN( _CS_HANDOVER_VARIABLE_NAME )
 
 #define CS_VOLUME_HEADER_SIZE		512			/* size of volume header, needed for buffer allocation */
+#define CS_MAX_DRIVER_PATH_SIZE		256			/* maximum path size to the crypto driver/voume header etc. */
 
 #pragma pack(1)
+
+/* for identification of a disk/partition device */
+struct cs_disk_info {
+	UINT8 mbr_type;				/* see efidevp.h for encoding */
+	UINT8 signature_type;		/* see efidevp.h for encoding */
+	union {
+		UINT32 mbr_id;
+#ifdef EFI_WINDOWS_DRIVER
+		GUID guid;				/* GUID of the partition */
+#else
+		EFI_GUID guid;			/* GUID of the partition */
+#endif
+	} signature;
+};
+
 /* the following structure is intended to be handed over to the OS driver,
  * it contains the necessary keys and information */
 struct cs_driver_data {
 	BootArguments boot_arguments;
 	UINT8 volume_header[CS_VOLUME_HEADER_SIZE];	/* encrypted volume header */
-	/* some more data are needed:
-	 * - GUID of the partition where the volume header is located, see context.caller_disk.signature
-	 * - full path to the volume header file at this partition, see context.vh_path[] */
+	/* the following structure can be used by the OS driver to identify
+	 * where the volume header file is stored;
+	 * this is important for these cases that require write access to the volume header
+	 * (password change, permanent encryption/decryption of the device) */
+	struct {
+		struct cs_disk_info disk_info;
+#ifdef EFI_WINDOWS_DRIVER
+		wchar_t path[CS_MAX_DRIVER_PATH_SIZE];	/* full pathname of the volume header file */
+#else
+		CHAR16 path[CS_MAX_DRIVER_PATH_SIZE];	/* full pathname of the volume header file */
+#endif
+	} volume_header_location;
 };
 #pragma pack()
 

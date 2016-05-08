@@ -32,6 +32,11 @@
 					error = uefi_call_wrapper(c->OutputString,2,c,buf);\
 					if (EFI_ERROR(error)) { goto ret; }}}
 
+/* used to store (old) cursor positions */
+struct cs_output_context {
+	INT32 row, column;
+};
+
 /* available languages for user interface */
 enum cs_enum_ui_language {
 	CS_LANG_ENG = 0,
@@ -85,6 +90,9 @@ typedef struct
 	CHAR16 *value[CS_LANG_MAX];	/* array of strings, sorted by "enum cs_enum_ui_language" */
 } uiStrings;
 
+struct cs_output_context store_output_context(IN SIMPLE_TEXT_OUTPUT_INTERFACE *ConOut);
+EFI_STATUS restore_output_context(IN SIMPLE_TEXT_OUTPUT_INTERFACE *ConOut,
+		IN struct cs_output_context *oldContext, IN BOOLEAN cleanArea);
 EFI_STATUS reset_input(IN SIMPLE_INPUT_INTERFACE *ConIn);
 BOOLEAN check_for_ESC(IN SIMPLE_INPUT_INTERFACE *ConIn);
 CHAR16 *get_string(IN const enum cs_enum_ui_stings stringId);

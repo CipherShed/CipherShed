@@ -1,4 +1,22 @@
 /*
+ Portions of this file are
+ Licensed to the The CipherShed Project (CP) under one
+ or more contributor license agreements.  See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership.  The CP licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied.  See the License for the
+ specific language governing permissions and limitations
+ under the License.
+
  Copyright (c) 2008-2012 TrueCrypt Developers Association. All rights reserved.
 
  Governed by the TrueCrypt License 3.0 the full text of which is contained in
@@ -135,6 +153,20 @@ NTSTATUS LoadBootArguments ()
 		Dump ("Flags = %x\n", BootArgs.Flags);
 		Dump ("BootDriveSignature = %x\n", BootArgs.BootDriveSignature);
 		Dump ("BootArgumentsCrc32 = %x\n", BootArgs.BootArgumentsCrc32);
+		Dump ("location volume header: GUID = {%08lX-%04hX-%04hX-%02hhX%02hhX-%02hhX%02hhX%02hhX%02hhX%02hhX%02hhX}\n",
+			efi_driver_data->volume_header_location.disk_info.signature.guid.Data1, 
+			efi_driver_data->volume_header_location.disk_info.signature.guid.Data2,
+			efi_driver_data->volume_header_location.disk_info.signature.guid.Data3,
+			efi_driver_data->volume_header_location.disk_info.signature.guid.Data4[0], 
+			efi_driver_data->volume_header_location.disk_info.signature.guid.Data4[1],
+			efi_driver_data->volume_header_location.disk_info.signature.guid.Data4[2],
+			efi_driver_data->volume_header_location.disk_info.signature.guid.Data4[3],
+			efi_driver_data->volume_header_location.disk_info.signature.guid.Data4[4],
+			efi_driver_data->volume_header_location.disk_info.signature.guid.Data4[5],
+			efi_driver_data->volume_header_location.disk_info.signature.guid.Data4[6],
+			efi_driver_data->volume_header_location.disk_info.signature.guid.Data4[7]);
+		Dump("location volume header: path = %S\n", efi_driver_data->volume_header_location.path);
+		/* efi_driver_data->volume_header_location is still unused */
 	}
 	if (efi_driver_data) {
 		burn(efi_driver_data, sizeof(struct cs_driver_data));

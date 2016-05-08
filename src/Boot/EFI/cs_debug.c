@@ -176,6 +176,7 @@ void cs_debug_init(IN EFI_FILE_HANDLE root_dir_handle, IN CHAR16 *current_dir, I
  */
 void cs_debug_exit() {
 	if (csLogfile) {
+		cs_debug(D_INFO, L"<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");	/* denote the end of the log */
 		uefi_call_wrapper(csLogfile->Flush, 1, csLogfile);
 		uefi_call_wrapper(csLogfile->Close, 1, csLogfile);
 		csLogfile = NULL;

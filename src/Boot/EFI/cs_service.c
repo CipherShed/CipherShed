@@ -15,7 +15,7 @@
 #include "cs_controller.h"
 #include <edk2/ComponentName.h>
 
-#define CS_SERVICE_NUMBER_SECTORS	80	/* number sectors to encrypt/decrypt at once while encryption/decryption
+#define CS_SERVICE_NUMBER_SECTORS	400	/* number sectors to encrypt/decrypt at once while encryption/decryption
  	 	 	 	 	 	 	 	 	 	   of the media using the service menu */
 
 EFI_GUID ComponentNameProtocol = EFI_COMPONENT_NAME_PROTOCOL_GUID;
@@ -38,6 +38,7 @@ static EFI_STATUS check_user_password(IN EFI_SYSTEM_TABLE *SystemTable,	IN const
     EFI_STATUS error;
     EFI_INPUT_KEY key;
     BOOLEAN showWrongPwd = FALSE;
+    struct cs_output_context consoleContext;
 
     ASSERT(SystemTable != NULL);
     ASSERT(options != NULL);
@@ -49,7 +50,11 @@ static EFI_STATUS check_user_password(IN EFI_SYSTEM_TABLE *SystemTable,	IN const
     	if (EFI_ERROR(error)) return error;
     }
 
+	consoleContext = store_output_context(SystemTable->ConOut);	/* store current cursor position */
+
     do {
+    	restore_output_context(SystemTable->ConOut, &consoleContext, TRUE);	/* restore cursor position */
+
         error = ask_for_pwd(SystemTable->ConOut, showWrongPwd, CS_STR_ENTER_PASSWD);
     	if (EFI_ERROR(error)) {
     		CS_DEBUG((D_ERROR, L"unable to output string (%r)\n", error));
@@ -236,7 +241,7 @@ static EFI_STATUS update_blocks_in_volume_header(IN UINT64 processedLba, IN CRYP
 		IN BOOLEAN encrypt) {
     EFI_STATUS error;
     UINT64 startSector;
-    UINTN numberSectors, sectorsInVolume;
+    UINTN numberEncryptedSectors, sectorsInVolume;
 
     ASSERT(crypto_info != NULL);
 
@@ -248,11 +253,12 @@ static EFI_STATUS update_blocks_in_volume_header(IN UINT64 processedLba, IN CRYP
     			startSector, processedLba, sectorsInVolume));
     	return EFI_VOLUME_CORRUPTED;
     }
-    numberSectors = processedLba - startSector;
-    crypto_info->EncryptedAreaLength.Value = numberSectors << TC_LB_SIZE_BIT_SHIFT_DIVISOR;
+    numberEncryptedSectors = processedLba - startSector;
+    crypto_info->EncryptedAreaLength.Value = numberEncryptedSectors << TC_LB_SIZE_BIT_SHIFT_DIVISOR;
 
-    CS_DEBUG((D_INFO, L"update EncryptedAreaLength to value 0x%x (sector 0x%x)\n",
-    		crypto_info->EncryptedAreaLength.Value, numberSectors));
+    CS_DEBUG((D_INFO, L"update EncryptedAreaLength to value 0x%x%x (encrypted units 0x%x, processedLba 0x%x)\n",
+    		crypto_info->EncryptedAreaLength.HighPart, crypto_info->EncryptedAreaLength.LowPart,
+			numberEncryptedSectors, processedLba));
 
     /* update volume header with crypto_info */
     error = update_volume_header(crypto_info);
@@ -282,12 +288,13 @@ static EFI_STATUS do_encrypt_decrypt_media(IN EFI_SYSTEM_TABLE *SystemTable,
     EFI_STATUS error;
     EFI_BLOCK_IO *source, *dest;
     PCRYPTO_INFO cryptoInfo;
-    UINT64 startSector, endEncryptedArea, lba;
+    EFI_LBA startSector, endEncryptedArea, lba;
     UINT32 mediaBlockSize;
     UINTN numberSectors, numberEncryptedSectors, sectorsInVolume;
     void *buffer;
     UINTN bufferSize;
 	UINTN bufferSectors = CS_SERVICE_NUMBER_SECTORS;
+	UINT32 loopCounter = 0;
 
     ASSERT(parentBlockIo != NULL);
     ASSERT(parentBlockIo->Media != NULL);
@@ -308,6 +315,8 @@ static EFI_STATUS do_encrypt_decrypt_media(IN EFI_SYSTEM_TABLE *SystemTable,
     numberEncryptedSectors = cryptoInfo->EncryptedAreaLength.Value / mediaBlockSize;
     endEncryptedArea = startSector + numberEncryptedSectors;
     sectorsInVolume = cryptoInfo->VolumeSize.Value / mediaBlockSize;
+	CS_DEBUG((D_INFO, L"startSector 0x%x, numberEncryptedSectors  0x%x, endEncryptedArea  0x%x, sectorsInVolume 0x%x\n",
+			startSector, numberEncryptedSectors, endEncryptedArea, sectorsInVolume));
     if (endEncryptedArea > (startSector + sectorsInVolume)) {
     	CS_DEBUG((D_ERROR, L"inconsistent volume information: startSector: 0x%x, enc sectors: 0x%x, vol size: 0x%x\n",
     			startSector, numberEncryptedSectors, sectorsInVolume));
@@ -341,6 +350,7 @@ static EFI_STATUS do_encrypt_decrypt_media(IN EFI_SYSTEM_TABLE *SystemTable,
 
     	while (numberSectors > 0) {
 
+#if 1
     		/* read from source */
         	error = uefi_call_wrapper(source->ReadBlocks, 5,
         			source, source->Media->MediaId, lba, bytesToRead, buffer);
@@ -349,6 +359,7 @@ static EFI_STATUS do_encrypt_decrypt_media(IN EFI_SYSTEM_TABLE *SystemTable,
             			bytesToRead, lba, source->Media->MediaId, error));
             	break;
         	}
+#endif
 #if 1
         	/* write to destination */
         	error = uefi_call_wrapper(dest->WriteBlocks, 5,
@@ -359,6 +370,7 @@ static EFI_STATUS do_encrypt_decrypt_media(IN EFI_SYSTEM_TABLE *SystemTable,
             	break;
         	}
 #endif
+        	loopCounter++;
 
         	// CS_DEBUG((D_INFO, L"crypted 0x%x byte at LBA 0x%lx\n", bytesToRead, lba));
 
@@ -377,7 +389,7 @@ static EFI_STATUS do_encrypt_decrypt_media(IN EFI_SYSTEM_TABLE *SystemTable,
         	}
 
         	/* update user interface with the progress of the action: */
-        	if (sectorsInVolume > 0) {
+        	if ((0 == loopCounter % 32) && (sectorsInVolume > 0)) {
         		if (encrypt) {
         			UINT64 x = 1000 * (lba - startSector + bufferSectors);
         			__div64_32(&x, sectorsInVolume);	/* x = 1000 * (lba - startSector + bufferSectors) / sectorsInVolume */
@@ -389,9 +401,11 @@ static EFI_STATUS do_encrypt_decrypt_media(IN EFI_SYSTEM_TABLE *SystemTable,
         		}
         	}
 
-        	if (check_for_ESC(SystemTable->ConIn)) {
-            	CS_DEBUG((D_INFO, L"ESC key detected... stopping...\n", lba)); CS_DEBUG_SLEEP(3);
-        		break;
+        	if (0 == loopCounter % 16) {
+				if (check_for_ESC(SystemTable->ConIn)) {
+					CS_DEBUG((D_INFO, L"ESC key detected... stopping...\n", lba)); CS_DEBUG_SLEEP(3);
+					break;
+				}
         	}
     	}
     	FreePool(buffer);
@@ -399,6 +413,10 @@ static EFI_STATUS do_encrypt_decrypt_media(IN EFI_SYSTEM_TABLE *SystemTable,
     	CS_DEBUG((D_ERROR, L"unable to allocate memory for cipher buffer\n"));
     	error = EFI_OUT_OF_RESOURCES;
     }
+
+	if (!EFI_ERROR(error)) {
+		uefi_call_wrapper(dest->FlushBlocks, 1, dest);
+	}
 
 	if (!EFI_ERROR(error)) {
 		/* update volume header and write it back to media,

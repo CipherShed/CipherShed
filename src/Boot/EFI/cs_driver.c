@@ -1731,8 +1731,10 @@ static EFI_STATUS cs_init_driver_options(IN EFI_LOADED_IMAGE *LoadedImage) {
 #endif
 	} else {
 		EFIDebug = D_ERROR | D_WARN | D_LOAD | D_BLKIO | D_INIT | D_INFO;
+#if EFI_DEBUG
 		cs_init_driver_debug(LoadedImage);
-	    CS_DEBUG((D_WARN, L"Attention: unexpected Option size of provided data (0x%x/0x%x) -> ignoring.\n",
+#endif
+		CS_DEBUG((D_WARN, L"Attention: unexpected Option size of provided data (0x%x/0x%x) -> ignoring.\n",
 	    		LoadedImage->LoadOptionsSize, sizeof(context.options)));
 	    context.options.createChildDevice = TRUE;	/* enabled for test purposes */
 	}

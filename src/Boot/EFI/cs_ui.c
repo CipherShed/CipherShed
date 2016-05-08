@@ -118,11 +118,6 @@ static uiStrings ui_strings[] =
 	}
 };
 
-/* used to store (old) cursor positions */
-struct cs_output_context {
-	INT32 row, column;
-};
-
 /*
  *  \brief	store current cursor position
  *
@@ -132,7 +127,7 @@ struct cs_output_context {
  *
  *	\return		the structure containing the cursor position
  */
-static struct cs_output_context store_output_context(IN SIMPLE_TEXT_OUTPUT_INTERFACE *ConOut) {
+struct cs_output_context store_output_context(IN SIMPLE_TEXT_OUTPUT_INTERFACE *ConOut) {
 	struct cs_output_context context;
 
 	ASSERT(ConOut != NULL);
@@ -157,7 +152,7 @@ static struct cs_output_context store_output_context(IN SIMPLE_TEXT_OUTPUT_INTER
  *
  *	\return		the success state of the function
  */
-static EFI_STATUS restore_output_context(IN SIMPLE_TEXT_OUTPUT_INTERFACE *ConOut,
+EFI_STATUS restore_output_context(IN SIMPLE_TEXT_OUTPUT_INTERFACE *ConOut,
 		IN struct cs_output_context *oldContext, IN BOOLEAN cleanArea) {
 
 	ASSERT(ConOut != NULL);
@@ -610,7 +605,7 @@ EFI_STATUS ask_for_pwd(IN SIMPLE_TEXT_OUTPUT_INTERFACE *ConOut, IN BOOLEAN showW
 	error = uefi_call_wrapper(ConOut->SetCursorPosition, 3, ConOut, column, row);
 	if (showWrong) {
 		outId(ConOut, CS_STR_WRONG_PASSWD);
-		cs_sleep(1);
+		cs_sleep(2);
 		error = uefi_call_wrapper(ConOut->SetCursorPosition, 3, ConOut, 0, row);
 		if (EFI_ERROR(error)) { return error; }
 		error = print_line(ConOut, ' ');
@@ -816,25 +811,6 @@ static EFI_STATUS main_dialog(IN SIMPLE_INPUT_INTERFACE *ConIn, IN SIMPLE_TEXT_O
 	outId(ConOut, CS_STR_ENTER_PASSWD);
 	if (!pOptions->flags.silent)	/* maybe this condition is not needed... */
 		uefi_call_wrapper(ConOut->EnableCursor, 2, ConOut, TRUE); /* ignore return code this is not always supported */
-
-#if 0
-	for (;;) {
-		CHAR16 buf[100];
-
-		error = get_input(ConIn, ConOut, buf, sizeof(buf), FALSE, FALSE /* UNICODE mode */, &key);
-		if (EFI_ERROR(error)) return error;
-
-	    if (key.ScanCode == 0x17) {
-	    	Print(L"ESCAPE pressed\n");
-	    } else if (key.ScanCode == 0x12) {
-	       	Print(L"[F8] pressed\n");
-		} else {
-			Print(L"len: 0x%x\n",  StrLen(buf));
-			Print(buf);
-			Print(L"\n");
-	    }
-	}
-#endif
 
 	error = get_input(ConIn, pOptions->flags.enable_password_asterisk ? ConOut : NULL,
 			&passwd->Text, sizeof(passwd->Text), pOptions->flags.enable_service_menu,

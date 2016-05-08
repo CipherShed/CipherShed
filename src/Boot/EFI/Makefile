@@ -2,7 +2,7 @@ include 	Makefile.inc
 
 CFLAGS += -I.
 
-OBJS_CTR        = cs_controller.o cs_crypto.o cs_debug.o cs_common.o cs_options.o cs_ui.o cs_service.o
+OBJS_CTR        = cs_controller.o cs_crypto.o cs_debug.o cs_common.o cs_options.o cs_ui.o cs_service.o cs_secure_boot.o
 OBJS_DRV        = cs_driver.o     cs_crypto.o cs_debug.o cs_common.o
 OBJS_COMMON	= $(patsubst %.o,../../Common/%.o,Crc.o Xts.o GfMul.o Pkcs5.o Endian.o)
 OBJS_CRYPTO	= $(patsubst %.o,../../Crypto/%.o,Aescrypt.o Aeskey.o Aestab.o Twofish.o Serpent.o Rmd160.o)
@@ -53,4 +53,8 @@ clean:
 	$(MAKE) -C ../../Common -f Makefile.efi clean
 
 stick:	all
-	if test -d /media/fn/6529-E05D; then cp CsDrv_64.efi CsCtr_64.efi /media/fn/6529-E05D/copy/; fi; sync
+	if test -d /media/fn/0B3C-4FE5; then \
+		cp CsDrv_64.efi CsCtr_64.efi /media/fn/0B3C-4FE5/copy/; \
+		cp CsCtr_64.efi /media/fn/0B3C-4FE5/EFI/BOOT/BOOTX64.EFI; \
+		cp CsDrv_64.efi /media/fn/0B3C-4FE5/EFI/BOOT/; \
+		fi; sync

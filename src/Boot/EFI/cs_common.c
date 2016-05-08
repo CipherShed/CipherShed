@@ -120,7 +120,6 @@ BOOL is_cs_child_device(IN EFI_HANDLE ParentHandle, IN EFI_HANDLE ControllerHand
 	}
 }
 
-#if EFI_DEBUG
 /*
  *	\brief	detects directory of the currently executed application in the file system
  *
@@ -173,4 +172,3 @@ EFI_STATUS get_current_directory(IN EFI_LOADED_IMAGE *loaded_image, OUT CHAR16**
 
 	return error;
 }
-#endif

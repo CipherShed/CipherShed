@@ -230,7 +230,7 @@ static void parse_line(IN CHAR8 *line, IN UINTN size) {
 	} else
 	if (entry_check("DRIVER_DEBUG")) {
 		pOptions->driverdebug = _ascii_to_number(word2, size2);
-		CS_DEBUG((D_INFO, L"Option: Driver Debug -> 0x%x\n", EFIDebug));
+		CS_DEBUG((D_INFO, L"Option: Driver Debug -> 0x%x\n", pOptions->driverdebug));
 	} else
 	if (entry_check("NOSILENT")) {
 		pOptions->flags.silent = 0;
@@ -247,26 +247,36 @@ static void parse_line(IN CHAR8 *line, IN UINTN size) {
 			}
 		}
 	} else
+	if (entry_check("FALLBACK_OS_LOADER")) {
+		SPrint(&pOptions->fallback_os_loader[0], sizeof(pOptions->fallback_os_loader), L"%a", word2);
+		set_os_loader(&pOptions->fallback_os_loader[0]); /* attention: this is converted to upper case! */
+		CS_DEBUG((D_INFO, L"Option: fallback OS loader: %a\n", word2));
+	} else
+	if (entry_check("FALLBACK_OS_LOADER_GUID")) {
+		SPrint(&pOptions->fallback_os_loader_guid[0], sizeof(pOptions->fallback_os_loader_guid), L"%a", word2);
+		set_os_loader_guid(&pOptions->fallback_os_loader_guid[0]);
+		CS_DEBUG((D_INFO, L"Option: fallback OS loader GUID: %a\n", word2));
+	} else
 	if (entry_check("ENABLE_SERVICE_MENU")) {
 		pOptions->flags.enable_service_menu = 1;
 		CS_DEBUG((D_INFO, L"Option: ENABLE_SERVICE_MENU\n"));
-	}	else
+	} else
 	if (entry_check("SHOW_SERVICE_MENU")) {
 		pOptions->flags.show_service_menu = 1;
 		CS_DEBUG((D_INFO, L"Option: SHOW_SERVICE_MENU\n"));
-	}
+	} else
 	if (entry_check("ENABLE_MEDIA_DECRYPTION")) {
 		pOptions->flags.enable_media_decryption = 1;
 		CS_DEBUG((D_INFO, L"Option: ENABLE_MEDIA_DECRYPTION\n"));
-	}
+	} else
 	if (entry_check("ENABLE_MEDIA_ENCRYPTION")) {
 		pOptions->flags.enable_media_encryption = 1;
 		CS_DEBUG((D_INFO, L"Option: ENABLE_MEDIA_ENCRYPTION\n"));
-	}
+	} else
 	if (entry_check("ENABLE_PASSWORD_CHANGE")) {
 		pOptions->flags.enable_password_change = 1;
 		CS_DEBUG((D_INFO, L"Option: ENABLE_PASSWORD_CHANGE\n"));
-	}
+	} else
 	if (entry_check("ENABLE_PASSWORD_ASTERISK")) {
 		pOptions->flags.enable_password_asterisk = 1;
 		CS_DEBUG((D_INFO, L"Option: ENABLE_PASSWORD_ASTERISK\n"));

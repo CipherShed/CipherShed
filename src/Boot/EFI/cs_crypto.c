@@ -435,7 +435,7 @@ int cs_update_volume_header(IN OUT char *header, IN PCRYPTO_INFO cryptoInfo, OPT
 		CS_DEBUG((D_ERROR, L"unable to update volume header: decryption failed\n"));
 		return ERR_PASSWORD_WRONG;
 	}
-	CS_DEBUG((D_INFO, L"cs_update_volume_header(): decryption Ok, passwd: 0x%x\n", password));
+	CS_DEBUG((D_INFO, L"cs_update_volume_header(): decryption Ok, passwd ptr: 0x%x\n", password));
 
 	/* if the password need to be changed... */
 	if (password) {
@@ -456,10 +456,10 @@ int cs_update_volume_header(IN OUT char *header, IN PCRYPTO_INFO cryptoInfo, OPT
 
 #if 0
 	// only for temporary use: to fix the volume header
+	//cryptoInfo->EncryptedAreaLength.Value = 0;
 	cryptoInfo->EncryptedAreaStart.Value = 0x21000000;	// taken from the Win8 test system (/dev/sda4)
-	cryptoInfo->EncryptedAreaLength.Value = 0;
 	cryptoInfo->VolumeSize.Value = 0xc5ef00000; 		// taken from the Win8 test system (/dev/sda4)
-	cryptoInfo->VolumeSize.Value = 102400000;			// decrease it for better testing...
+	//cryptoInfo->VolumeSize.Value = 102400000;			// decrease it for better testing...
 #endif
 
 	/* update EncryptedAreaStart and EncryptedAreaLength */
@@ -483,6 +483,15 @@ int cs_update_volume_header(IN OUT char *header, IN PCRYPTO_INFO cryptoInfo, OPT
 		(*(uint32 *)(header + TC_HEADER_OFFSET_SECTOR_SIZE)) = BE32(512);
 #endif
 		cs_update_volume_header_crc(header);
+
+		CS_DEBUG((D_BM, L"updated VolumeSize 0x%x%x, EncryptedAreaStart 0x%x%x, EncryptedAreaLength 0x%x%x\n",
+				cryptoInfo->VolumeSize.HighPart, cryptoInfo->VolumeSize.LowPart,
+				cryptoInfo->EncryptedAreaStart.HighPart, cryptoInfo->EncryptedAreaStart.LowPart,
+				cryptoInfo->EncryptedAreaLength.HighPart, cryptoInfo->EncryptedAreaLength.LowPart));
+		CS_DEBUG((D_BM, L"hiddenVolumePresent %x, Flags 0x%x, Algorithm 0x%x, Mode 0x%x\n",
+				cryptoInfo->hiddenVolume, cryptoInfo->HeaderFlags, cryptoInfo->ea, cryptoInfo->mode));
+	} else {
+		CS_DEBUG((D_WARN, L"strange: VolumeSize is stated as 0\n"));
 	}
 
 	EncryptBuffer((unsigned __int8 *)header + HEADER_ENCRYPTED_DATA_OFFSET, HEADER_ENCRYPTED_DATA_SIZE, cryptoInfo);
@@ -637,9 +646,10 @@ int cs_read_volume_header(IN BOOL bBoot, IN char *header, IN Password *password,
 		// Flags
 		cryptoInfo->HeaderFlags = GetHeaderField32((byte *)header, TC_HEADER_OFFSET_FLAGS);
 
-		CS_DEBUG((D_BM, L"VolumeSize 0x%x, EncryptedAreaStart 0x%x, EncryptedAreaLength 0x%x\n",
-				cryptoInfo->VolumeSize.Value, cryptoInfo->EncryptedAreaStart.Value,
-				cryptoInfo->EncryptedAreaLength.Value));
+		CS_DEBUG((D_BM, L"VolumeSize 0x%x%x, EncryptedAreaStart 0x%x%x, EncryptedAreaLength 0x%x%x\n",
+				cryptoInfo->VolumeSize.HighPart, cryptoInfo->VolumeSize.LowPart,
+				cryptoInfo->EncryptedAreaStart.HighPart, cryptoInfo->EncryptedAreaStart.LowPart,
+				cryptoInfo->EncryptedAreaLength.HighPart, cryptoInfo->EncryptedAreaLength.LowPart));
 		CS_DEBUG((D_BM, L"hiddenVolumePresent %x, Flags 0x%x, Algorithm 0x%x, Mode 0x%x\n",
 				cryptoInfo->hiddenVolume, cryptoInfo->HeaderFlags, cryptoInfo->ea, cryptoInfo->mode));
 		CS_DEBUG((D_BM, L"volume header version 0x%x, required driver version: 0x%x\n",
