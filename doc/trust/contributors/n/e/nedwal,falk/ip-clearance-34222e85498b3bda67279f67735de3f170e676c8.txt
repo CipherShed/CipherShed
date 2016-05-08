@@ -1,4 +1,4 @@
-#	x=N/A, y=Apache 2.0, b=BSD, d=documentation, ?=not reviewed, g=generated, i=implied Apache 2.0, v=violation, f=fixed
+#	x=N/A, y=Apache 2.0, b=BSD, d=documentation, ?=not reviewed, g=generated, i=implied Apache 2.0, v=violation, f=fixed, r=removed
 b	src/Boot/EFI/include/edk2/BlockIo2.h
 b	src/Boot/EFI/include/edk2/ComponentName.h
 b	src/Boot/EFI/include/edk2/ComponentName2.h
@@ -32,6 +32,7 @@ f	src/Crypto/Sha1.h
 f	src/Crypto/Sha2.c
 f	src/Crypto/Sha2.h
 f	src/Crypto/Twofish.c
+f	src/dev-tool/fn-format.c
 f	src/Driver/DriveFilter.c
 f	src/Driver/DriveFilter.h
 f	src/Driver/DumpFilter.c
@@ -46,8 +47,7 @@ i	src/CipherShed.sln
 i	src/CipherShed.vsmdi
 i	src/Common/Makefile.efi
 i	src/Crypto/Makefile.efi
-v	src/dev-tool/fn-format.c
-v	src/dev-tool/Tcformat.h
+r	src/dev-tool/Tcformat.h
 x	.gitignore
 x	src/dev-tool/dev-tool.vcxproj
 x	src/efi-Driver/efi-Driver.vcxproj

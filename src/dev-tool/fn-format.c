@@ -1,4 +1,22 @@
 /*
+ Portions of this file are
+ Licensed to the The CipherShed Project (CP) under one
+ or more contributor license agreements.  See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership.  The CP licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied.  See the License for the
+ specific language governing permissions and limitations
+ under the License.
+
  Legal Notice: Some portions of the source code contained in this file were
  derived from the source code of Encryption for the Masses 2.02a, which is
  Copyright (c) 1998-2000 Paul Le Roux and which is governed by the 'License
@@ -53,6 +71,7 @@
 
 using namespace CipherShed;
 //using namespace System; // (fn)
+// COPIED CODE \/ from: src/Format/Tcformat.c
 
 template <typename T,unsigned S>
 inline unsigned arraysize(const T (&v)[S]) { return S; }
@@ -257,6 +276,8 @@ volatile int NonSysInplaceEncStatus = NONSYS_INPLACE_ENC_STATUS_NONE;
 
 vector <HostDevice> DeferredNonSysInPlaceEncDevices;
 
+// COPIED CODE /\ from: src/Format/Tcformat.c
+
 ////////////////////////////////////////
 static unsigned int DetermineHiddenOSCreationPhase(void);
 ////////////////////////////////////////
@@ -280,6 +301,8 @@ static int GetFormatSectorSize()
 
 	return geometry.BytesPerSector;
 }
+
+// COPIED CODE \/ from: src/Format/Tcformat.c
 
 static BOOL CALLBACK BroadcastSysEncCfgUpdateCallb(HWND hwnd, LPARAM lParam)
 {
@@ -433,6 +456,8 @@ static BOOL ChangeSystemEncryptionStatus(int newStatus)
 	return TRUE;
 }
 
+// COPIED CODE /\ from: src/Format/Tcformat.c
+
 // Use this function e.g. if the config file with the system encryption settings was lost or not written
 // correctly, and we don't know whether to encrypt or decrypt (but we know that encryption or decryption
 // is required). Returns FALSE if failed or cancelled.
@@ -580,6 +605,7 @@ static BOOL SysDriveOrPartitionFullyEncrypted(BOOL bSilent)
 		&& locBootEncStatus.ConfiguredEncryptedAreaEnd == locBootEncStatus.EncryptedAreaEnd);
 }
 
+// COPIED CODE \/ from: src/Format/Tcformat.c
 
 // Returns TRUE if system encryption or decryption had been or is in progress and has not been completed
 static BOOL SysEncryptionOrDecryptionRequired(void)
@@ -610,6 +636,8 @@ static BOOL SysEncryptionOrDecryptionRequired(void)
 		)
 		);
 }
+
+// COPIED CODE /\ from: src/Format/Tcformat.c
 
 // If the return code of this function is ignored and newWizardMode == WIZARD_MODE_SYS_DEVICE, then this function
 // may be called only after CreateSysEncMutex() returns TRUE. It returns TRUE if successful (otherwise FALSE).
@@ -662,6 +690,8 @@ static BOOL ChangeWizardMode(int newWizardMode)
 
 	return TRUE;
 }
+
+// COPIED CODE \/ from: src/Format/Tcformat.c
 
 // This functions is to be used when the wizard mode needs to be changed to WIZARD_MODE_SYS_DEVICE.
 // If the function fails to switch the mode, it returns FALSE (otherwise TRUE).
@@ -1033,6 +1063,8 @@ efsf_error:
 
 	return -1;
 }
+
+// COPIED CODE /\ from: src/Format/Tcformat.c
 
 
 
