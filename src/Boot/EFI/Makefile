@@ -2,7 +2,7 @@ include 	Makefile.inc
 
 CFLAGS += -I.
 
-OBJS_CTR        = cs_controller.o cs_crypto.o cs_debug.o cs_common.o cs_options.o cs_ui.o cs_service.o
+OBJS_CTR        = cs_controller.o cs_crypto.o cs_debug.o cs_common.o cs_options.o cs_ui.o cs_service.o cs_secure_boot.o
 OBJS_DRV        = cs_driver.o     cs_crypto.o cs_debug.o cs_common.o
 OBJS_COMMON	= $(patsubst %.o,../../Common/%.o,Crc.o Xts.o GfMul.o Pkcs5.o Endian.o)
 OBJS_CRYPTO	= $(patsubst %.o,../../Crypto/%.o,Aescrypt.o Aeskey.o Aestab.o Twofish.o Serpent.o Rmd160.o)
