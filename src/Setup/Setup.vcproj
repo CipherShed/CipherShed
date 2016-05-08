@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="Setup"
 	ProjectGUID="{DF5F654D-BD44-4E31-B92E-B68074DC37A8}"
 	RootNamespace="Setup"
@@ -67,7 +67,7 @@
 				AdditionalOptions="/NODEFAULTLIB:LIBCMTD"
 				AdditionalDependencies="libcmtd.lib comctl32.lib setupapi.lib"
 				OutputFile="$(OutDir)/CipherShedSetup.exe"
-				LinkIncremental="2"
+				LinkIncremental="1"
 				GenerateManifest="false"
 				UACExecutionLevel="2"
 				GenerateDebugInformation="true"
@@ -430,11 +430,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Resource.h"
+				RelativePath="..\Common\Resource.h"
 				>
 			</File>
 			<File
-				RelativePath="..\Common\Resource.h"
+				RelativePath=".\Resource.h"
 				>
 			</File>
 			<File

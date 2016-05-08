@@ -1,0 +1,344 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Win8.1 Debug|Win32">
+      <Configuration>Win8.1 Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Win8.1 Release|Win32">
+      <Configuration>Win8.1 Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Win8 Debug|Win32">
+      <Configuration>Win8 Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Win8 Release|Win32">
+      <Configuration>Win8 Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Win7 Debug|Win32">
+      <Configuration>Win7 Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Win7 Release|Win32">
+      <Configuration>Win7 Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Win8.1 Debug|x64">
+      <Configuration>Win8.1 Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Win8.1 Release|x64">
+      <Configuration>Win8.1 Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Win8 Debug|x64">
+      <Configuration>Win8 Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Win8 Release|x64">
+      <Configuration>Win8 Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Win7 Debug|x64">
+      <Configuration>Win7 Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Win7 Release|x64">
+      <Configuration>Win7 Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{1A65BE2E-D62A-4CB5-A2B0-F8685610133C}</ProjectGuid>
+    <TemplateGuid>{dd38f7fc-d7bd-488b-9242-7d8754cde80d}</TemplateGuid>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
+    <Configuration>Win8.1 Debug</Configuration>
+    <Platform Condition="'$(Platform)' == ''">Win32</Platform>
+    <RootNamespace>efi_Driver</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win8.1 Debug|Win32'" Label="Configuration">
+    <TargetVersion>WindowsV6.3</TargetVersion>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>WindowsKernelModeDriver8.1</PlatformToolset>
+    <ConfigurationType>Driver</ConfigurationType>
+    <DriverType>WDM</DriverType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win8.1 Release|Win32'" Label="Configuration">
+    <TargetVersion>WindowsV6.3</TargetVersion>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>WindowsKernelModeDriver8.1</PlatformToolset>
+    <ConfigurationType>Driver</ConfigurationType>
+    <DriverType>WDM</DriverType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win8 Debug|Win32'" Label="Configuration">
+    <TargetVersion>Windows8</TargetVersion>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>WindowsKernelModeDriver8.1</PlatformToolset>
+    <ConfigurationType>Driver</ConfigurationType>
+    <DriverType>WDM</DriverType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win8 Release|Win32'" Label="Configuration">
+    <TargetVersion>Windows8</TargetVersion>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>WindowsKernelModeDriver8.1</PlatformToolset>
+    <ConfigurationType>Driver</ConfigurationType>
+    <DriverType>WDM</DriverType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win7 Debug|Win32'" Label="Configuration">
+    <TargetVersion>Windows7</TargetVersion>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>WindowsKernelModeDriver8.1</PlatformToolset>
+    <ConfigurationType>Driver</ConfigurationType>
+    <DriverType>WDM</DriverType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win7 Release|Win32'" Label="Configuration">
+    <TargetVersion>Windows7</TargetVersion>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>WindowsKernelModeDriver8.1</PlatformToolset>
+    <ConfigurationType>Driver</ConfigurationType>
+    <DriverType>WDM</DriverType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win8.1 Debug|x64'" Label="Configuration">
+    <TargetVersion>WindowsV6.3</TargetVersion>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>WindowsKernelModeDriver8.1</PlatformToolset>
+    <ConfigurationType>Driver</ConfigurationType>
+    <DriverType>WDM</DriverType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win8.1 Release|x64'" Label="Configuration">
+    <TargetVersion>WindowsV6.3</TargetVersion>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>WindowsKernelModeDriver8.1</PlatformToolset>
+    <ConfigurationType>Driver</ConfigurationType>
+    <DriverType>WDM</DriverType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win8 Debug|x64'" Label="Configuration">
+    <TargetVersion>Windows8</TargetVersion>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>WindowsKernelModeDriver8.1</PlatformToolset>
+    <ConfigurationType>Driver</ConfigurationType>
+    <DriverType>WDM</DriverType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win8 Release|x64'" Label="Configuration">
+    <TargetVersion>Windows8</TargetVersion>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>WindowsKernelModeDriver8.1</PlatformToolset>
+    <ConfigurationType>Driver</ConfigurationType>
+    <DriverType>WDM</DriverType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win7 Debug|x64'" Label="Configuration">
+    <TargetVersion>Windows7</TargetVersion>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>WindowsKernelModeDriver8.1</PlatformToolset>
+    <ConfigurationType>Driver</ConfigurationType>
+    <DriverType>WDM</DriverType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win7 Release|x64'" Label="Configuration">
+    <TargetVersion>Windows7</TargetVersion>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>WindowsKernelModeDriver8.1</PlatformToolset>
+    <ConfigurationType>Driver</ConfigurationType>
+    <DriverType>WDM</DriverType>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win8.1 Debug|Win32'">
+    <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
+    <TargetName>truecrypt</TargetName>
+    <IncludePath>..\Common;..\Crypto;..;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win8.1 Release|Win32'">
+    <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
+    <IncludePath>..\Crypto;..\Common;..;$(IncludePath)</IncludePath>
+    <TargetName>truecrypt</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win8 Debug|Win32'">
+    <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win8 Release|Win32'">
+    <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win7 Debug|Win32'">
+    <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win7 Release|Win32'">
+    <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win8.1 Debug|x64'">
+    <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
+    <TargetName>truecrypt-x64</TargetName>
+    <IncludePath>..\Crypto;..\Common;..;$(IncludePath)</IncludePath>
+    <OutDir>Debug\</OutDir>
+    <IntDir>Debug\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win8.1 Release|x64'">
+    <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
+    <TargetName>truecrypt-x64</TargetName>
+    <IncludePath>..\Common;..\Crypto;..;$(IncludePath)</IncludePath>
+    <OutDir>Release\</OutDir>
+    <IntDir>Release\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win8 Debug|x64'">
+    <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win8 Release|x64'">
+    <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win7 Debug|x64'">
+    <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win7 Release|x64'">
+    <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Win8.1 Release|Win32'">
+    <ClCompile>
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <DisableSpecificWarnings>4057;4100;4127;4152;4201;4701;4702;4706;4703;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <PreprocessorDefinitions>_WIN32;TC_WINDOWS_DRIVER;EFI_WINDOWS_DRIVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ForcedIncludeFiles>%(ForcedIncludeFiles)</ForcedIncludeFiles>
+    </ClCompile>
+    <Link />
+    <MASM>
+      <EnableMASM51Compatibility>false</EnableMASM51Compatibility>
+    </MASM>
+    <CustomBuild>
+      <Command>nasm.exe -f win32 --prefix _ -D MS_STDCALL -D DLL_EXPORT -o "$(ProjectDir)$(IntDir)%(Filename).obj" "%(FullPath)"
+echo nasm.exe -f win32 --prefix _ -D MS_STDCALL -D DLL_EXPORT -o "$(ProjectDir)$(IntDir)%(Filename).obj" "%(FullPath)"</Command>
+    </CustomBuild>
+    <CustomBuild>
+      <Outputs>$(IntermediateOutputPath)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Win8.1 Release|x64'">
+    <CustomBuild>
+      <Command>nasm.exe -f win64 -o "$(ProjectDir)$(IntDir)%(Filename).obj" "%(FullPath)"
+echo nasm.exe -f win64 -o "$(ProjectDir)$(IntDir)%(Filename).obj" "%(FullPath)"</Command>
+      <Outputs>$(IntermediateOutputPath)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <ClCompile>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <PreprocessorDefinitions>_WIN32;TC_WINDOWS_DRIVER;EFI_WINDOWS_DRIVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4057;4100;4127;4152;4201;4701;4702;4328;4366;4706;4703;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>..\Crypto;..\Common;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Win8.1 Debug|Win32'">
+    <ClCompile>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <PreprocessorDefinitions>_WIN32;TC_WINDOWS_DRIVER;EFI_WINDOWS_DRIVER;DEBUG;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4057;4100;4127;4152;4201;4701;4702;4706;4703;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <CustomBuild>
+      <Command>nasm.exe -f win32 --prefix _ -D MS_STDCALL -D DLL_EXPORT -o "$(ProjectDir)$(IntDir)%(Filename).obj" "%(FullPath)"
+echo nasm.exe -f win32 --prefix _ -D MS_STDCALL -D DLL_EXPORT -o "$(ProjectDir)$(IntDir)%(Filename).obj" "%(FullPath)"</Command>
+      <Outputs>$(IntermediateOutputPath)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Win8.1 Debug|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>_WIN32;TC_WINDOWS_DRIVER;EFI_WINDOWS_DRIVER;DEBUG;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4057;4100;4127;4152;4201;4701;4702;4328;4366;4706;4703;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <AdditionalIncludeDirectories>..\Crypto;..\Common;..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <CustomBuild>
+      <Command>nasm.exe -f win64 -o "$(ProjectDir)$(IntDir)%(Filename).obj" "%(FullPath)"
+echo nasm.exe -f win64 -o "$(ProjectDir)$(IntDir)%(Filename).obj" "%(FullPath)"</Command>
+      <Outputs>$(IntermediateOutputPath)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Inf Include="efiDriver.inf" />
+  </ItemGroup>
+  <ItemGroup>
+    <FilesToPackage Include="$(TargetPath)" />
+    <FilesToPackage Include="@(Inf->'%(CopyOutput)')" Condition="'@(Inf)'!=''" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Common\Cache.c" />
+    <ClCompile Include="..\Common\Crc.c" />
+    <ClCompile Include="..\Common\Crypto.c" />
+    <ClCompile Include="..\Common\EncryptionThreadPool.c" />
+    <ClCompile Include="..\Common\Endian.c" />
+    <ClCompile Include="..\Common\GfMul.c" />
+    <ClCompile Include="..\Common\Pkcs5.c" />
+    <ClCompile Include="..\Common\Tests.c" />
+    <ClCompile Include="..\Common\Volumes.c" />
+    <ClCompile Include="..\Common\Wipe.c" />
+    <ClCompile Include="..\Common\Xts.c" />
+    <ClCompile Include="..\Crypto\Aeskey.c" />
+    <ClCompile Include="..\Crypto\Aestab.c" />
+    <ClCompile Include="..\Crypto\Blowfish.c" />
+    <ClCompile Include="..\Crypto\Cast.c" />
+    <ClCompile Include="..\Crypto\Des.c" />
+    <ClCompile Include="..\Crypto\Rmd160.c" />
+    <ClCompile Include="..\Crypto\Serpent.c" />
+    <ClCompile Include="..\Crypto\Sha1.c" />
+    <ClCompile Include="..\Crypto\Sha2.c" />
+    <ClCompile Include="..\Crypto\Twofish.c" />
+    <ClCompile Include="..\Crypto\Whirlpool.c" />
+    <ClCompile Include="..\Driver\DriveFilter.c" />
+    <ClCompile Include="..\Driver\DumpFilter.c" />
+    <ClCompile Include="..\Driver\EncryptedIoQueue.c" />
+    <ClCompile Include="..\Driver\Ntdriver.c" />
+    <ClCompile Include="..\Driver\Ntvol.c" />
+    <ClCompile Include="..\Driver\VolumeFilter.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\Crypto\Aes_hw_cpu.asm">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Win8.1 Release|Win32'">nasm.exe -f win32 --prefix _ -D MS_STDCALL -D DLL_EXPORT -o "$(ProjectDir)$(IntDir)%(Filename).obj" "%(FullPath)"
+echo nasm.exe -f win32 --prefix _ -D MS_STDCALL -D DLL_EXPORT -o "$(ProjectDir)$(IntDir)%(Filename).obj" "%(FullPath)"</Command>
+    </CustomBuild>
+    <CustomBuild Include="..\Crypto\Aes_x64.asm">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Win8.1 Release|Win32'">nasm.exe -f win64 -o "$(ProjectDir)$(IntDir)%(Filename).obj" "%(FullPath)"
+echo nasm.exe -f win64 -o "$(ProjectDir)$(IntDir)%(Filename).obj" "%(FullPath)"</Command>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Win8.1 Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Win8.1 Release|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Win8.1 Debug|Win32'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <CustomBuild Include="..\Crypto\Aes_x86.asm">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Win8.1 Release|Win32'">nasm.exe -f win32 --prefix _ -D MS_STDCALL -D DLL_EXPORT -o "$(ProjectDir)$(IntDir)%(Filename).obj" "%(FullPath)"
+echo nasm.exe -f win32 --prefix _ -D MS_STDCALL -D DLL_EXPORT -o "$(ProjectDir)$(IntDir)%(Filename).obj" "%(FullPath)"</Command>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Win8.1 Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Win8.1 Debug|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Boot\EFI\cs_common.h" />
+    <ClInclude Include="..\Common\Apidrvr.h" />
+    <ClInclude Include="..\Common\Cache.h" />
+    <ClInclude Include="..\Common\Common.h" />
+    <ClInclude Include="..\Common\constants.h" />
+    <ClInclude Include="..\Common\EncryptionThreadPool.h" />
+    <ClInclude Include="..\Common\GfMul.h" />
+    <ClInclude Include="..\Common\Tcdefs.h" />
+    <ClInclude Include="..\Common\Volumes.h" />
+    <ClInclude Include="..\Common\Wipe.h" />
+    <ClInclude Include="..\Common\Xts.h" />
+    <ClInclude Include="..\Driver\DriveFilter.h" />
+    <ClInclude Include="..\Driver\DumpFilter.h" />
+    <ClInclude Include="..\Driver\EncryptedIoQueue.h" />
+    <ClInclude Include="..\Driver\Ntdriver.h" />
+    <ClInclude Include="..\Driver\Ntvol.h" />
+    <ClInclude Include="..\Driver\resource.h" />
+    <ClInclude Include="..\Driver\VolumeFilter.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\Driver\Driver.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets" />
+</Project>
