@@ -62,3 +62,6 @@
 /Mount/Logo_96dpi.bmp.h
 /Mount/MainCom_h.h
 /TestResults/
+
+# Build artifacts and object files
+/obj-*/
