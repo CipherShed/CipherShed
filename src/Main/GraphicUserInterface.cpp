@@ -1448,7 +1448,7 @@ namespace CipherShed
 	FilePath GraphicUserInterface::SelectVolumeFile (wxWindow *parent, bool saveMode, const DirectoryPath &directory) const
 	{
 		list < pair <wstring, wstring> > extensions;
-		extensions.push_back (make_pair (L"tc", LangString["TC_VOLUMES"]));
+		extensions.push_back (make_pair (L"tc", LangString["TC_VOLUMES"].wc_str()));
 
 		FilePathList selFiles = Gui->SelectFiles (parent, LangString[saveMode ? "OPEN_NEW_VOLUME" : "OPEN_VOL_TITLE"], saveMode, false, extensions, directory);
 
