@@ -194,7 +194,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="md &quot;..\Release\Setup Files&quot; 2&gt;NUL:&#x0D;&#x0A;copy Release\CipherShed.exe &quot;..\Release\Setup Files&quot;"
+				CommandLine="md &quot;..\Release\Setup Files&quot; 2&gt;NUL:&#x0D;&#x0A;copy Release\CipherShed.exe &quot;..\Release\Setup Files&quot;&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>
@@ -290,24 +290,8 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\Common\Dlgcode.c"
+					RelativePath="..\Common\Dlgcode.cpp"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							CompileAs="2"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							CompileAs="2"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\Common\EncryptionThreadPool.c"
@@ -354,7 +338,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\Common\Random.c"
+					RelativePath="..\Common\Random.cpp"
 					>
 				</File>
 				<File
@@ -390,6 +374,10 @@
 					>
 					<File
 						RelativePath="..\Common\util\csstringutil.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\Common\util\dll.cpp"
 						>
 					</File>
 					<File
@@ -686,10 +674,6 @@
 				Name="Common"
 				>
 				<File
-					RelativePath="..\Boot\Windows\Release\BootLoader.com.gz"
-					>
-				</File>
-				<File
 					RelativePath="..\Boot\Windows\Release_Twofish\BootLoader.com.gz"
 					>
 				</File>
@@ -715,6 +699,10 @@
 				</File>
 				<File
 					RelativePath="..\Boot\Windows\Release_AES\BootLoader.com.gz"
+					>
+				</File>
+				<File
+					RelativePath="..\Boot\Windows\Release\BootLoader.com.gz"
 					>
 				</File>
 				<File

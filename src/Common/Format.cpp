@@ -29,6 +29,8 @@
 #include "../Format/FormatCom.h"
 #include "../Format/Tcformat.h"
 
+#include "util/dll.h"
+
 int FormatWriteBufferSize = 1024 * 1024;
 static uint32 FormatSectorSize = 0;
 
@@ -414,7 +416,7 @@ begin_format:
 	if (!bInstantRetryOtherFilesys)
 	{
 		// Write the volume header
-		if (!WriteEffectiveVolumeHeader (volParams->bDevice, dev, header))
+		if (!WriteEffectiveVolumeHeader (volParams->bDevice, dev, (byte*)header))
 		{
 			nStatus = ERR_OS_ERROR;
 			goto error;
@@ -535,7 +537,7 @@ begin_format:
 		FIRST_MODE_OF_OPERATION_ID,
 		volParams->password,
 		volParams->pkcs5,
-		cryptoInfo->master_keydata,
+		(char*)cryptoInfo->master_keydata,
 		&cryptoInfo,
 		dataAreaSize,
 		volParams->hiddenVol ? dataAreaSize : 0,
@@ -546,7 +548,7 @@ begin_format:
 		FormatSectorSize,
 		FALSE);
 
-	if (!WriteEffectiveVolumeHeader (volParams->bDevice, dev, header))
+	if (!WriteEffectiveVolumeHeader (volParams->bDevice, dev, (byte*)header))
 	{
 		nStatus = ERR_OS_ERROR;
 		goto error;
@@ -717,14 +719,14 @@ int FormatNoFs (unsigned __int64 startSector, __int64 num_sectors, void * dev, P
 		deniability of hidden volumes. */
 
 		// Temporary master key
-		if (!RandgetBytes (temporaryKey, EAGetKeySize (cryptoInfo->ea), FALSE))
+		if (!RandgetBytes ((unsigned char*)temporaryKey, EAGetKeySize (cryptoInfo->ea), FALSE))
 			goto fail;
 
 		// Temporary secondary key (XTS mode)
 		if (!RandgetBytes (cryptoInfo->k2, sizeof cryptoInfo->k2, FALSE))
 			goto fail;
 
-		retVal = EAInit (cryptoInfo->ea, temporaryKey, cryptoInfo->ks);
+		retVal = EAInit (cryptoInfo->ea, (unsigned char*)temporaryKey, cryptoInfo->ks);
 		if (retVal != ERR_SUCCESS)
 			goto fail;
 
@@ -736,12 +738,12 @@ int FormatNoFs (unsigned __int64 startSector, __int64 num_sectors, void * dev, P
 
 		while (num_sectors--)
 		{
-			if (WriteSector (dev, sector, write_buf, &write_buf_cnt, &nSecNo,
+			if (WriteSector (dev, sector, write_buf, &write_buf_cnt, (__int64*)&nSecNo,
 				cryptoInfo) == FALSE)
 				goto fail;
 		}
 
-		if (!FlushFormatWriteBuffer (dev, write_buf, &write_buf_cnt, &nSecNo, cryptoInfo))
+		if (!FlushFormatWriteBuffer (dev, write_buf, &write_buf_cnt, (__int64*)&nSecNo, cryptoInfo))
 			goto fail;
 	}
 	else
@@ -797,13 +799,13 @@ BOOL FormatNtfs (int driveNo, int clusterSize)
 {
 	WCHAR dir[8] = { (WCHAR) driveNo + 'A', 0 };
 	PFORMATEX FormatEx;
-	HMODULE hModule = LoadLibrary ("fmifs.dll");
+	HMODULE hModule = LoadDLL_fmifs();
 	int i;
 
 	if (hModule == NULL)
 		return FALSE;
 
-	if (!(FormatEx = (PFORMATEX) GetProcAddress (GetModuleHandle ("fmifs.dll"), "FormatEx")))
+	if (!(FormatEx = (PFORMATEX) GetProcAddress (GetHandleDLL_fmifs(), "FormatEx")))
 	{
 		FreeLibrary (hModule);
 		return FALSE;
@@ -918,7 +920,7 @@ static BOOL StartFormatWriteThread ()
 	if (!WriteBufferFullEvent)
 		goto err;
 
-	WriteThreadBuffer = TCalloc (FormatWriteBufferSize);
+	WriteThreadBuffer = (byte*)TCalloc (FormatWriteBufferSize);
 	if (!WriteThreadBuffer)
 	{
 		SetLastError (ERROR_OUTOFMEMORY);
@@ -978,7 +980,7 @@ BOOL FlushFormatWriteBuffer (void *dev, char *write_buf, int *write_buf_cnt, __i
 
 	unitNo.Value = (*nSecNo * FormatSectorSize - *write_buf_cnt) / ENCRYPTION_DATA_UNIT_SIZE;
 
-	EncryptDataUnits (write_buf, &unitNo, *write_buf_cnt / ENCRYPTION_DATA_UNIT_SIZE, cryptoInfo);
+	EncryptDataUnits ((unsigned char*)write_buf, &unitNo, *write_buf_cnt / ENCRYPTION_DATA_UNIT_SIZE, cryptoInfo);
 
 	if (WriteThreadRunning)
 	{

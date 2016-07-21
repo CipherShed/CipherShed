@@ -36,6 +36,7 @@
 #include <stdlib.h>
 #endif
 
+#include "../util/dll.h"
 
 BOOL UacElevated = FALSE;
 
@@ -108,7 +109,7 @@ BOOL Is64BitOs ()
 	if (valid)
 		return isWow64;
 
-	fnIsWow64Process = (LPFN_ISWOW64PROCESS) GetProcAddress (GetModuleHandleA("kernel32"), "IsWow64Process");
+	fnIsWow64Process = (LPFN_ISWOW64PROCESS) GetProcAddress (GetHandleDLL_kernel32(), "IsWow64Process");
 
     if (fnIsWow64Process != NULL)
         if (!fnIsWow64Process (GetCurrentProcess(), &isWow64))

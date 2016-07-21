@@ -13,6 +13,10 @@
 [Dd]ebugPublic/
 [Rr]elease/
 [Rr]eleases/
+[dD]ebug x86/
+[wW]in8 [dD]ebug/
+[wW]in8 [Rr]elease/
+Win8Release/
 
 # VS Build Results of an ATL Project
 *_i.c
@@ -25,6 +29,11 @@
 # VS User-specific files
 *.suo
 *.user
+
+# VS 2010+ IDE UI files
+*.vcxproj.filters
+*.sdf
+*.opensdf
 
 /Boot/Windows/Release/
 /Boot/Windows/Release Loader/
@@ -52,6 +61,8 @@
 /Driver/obj_driver_release/
 /Driver/build_*.log
 /Driver/build_*.err
+/Driver/build_*.wrn
+/dev-tool/FormatCom_h.h
 /Format/FormatCom_h.h
 /Format/CipherShed_Wizard.bmp.h
 /License.txt.h

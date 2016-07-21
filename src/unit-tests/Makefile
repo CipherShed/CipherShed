@@ -1,4 +1,32 @@
 #ODIR = ../../tmp/unittests
+
+ARCH = $(shell uname -p)
+MARCH = $(shell uname -m)
+
+ifneq (,$(filter i386 i486 i586 i686 x86,$(ARCH)))
+        CPU_ARCH = x86
+        ASM_OBJ_FORMAT = elf32
+else ifneq (,$(filter x86_64 x86-64 amd64 x64,$(ARCH)))
+        CPU_ARCH = x64
+        ASM_OBJ_FORMAT = elf64
+else ifeq ($(ARCH),unknown)
+        ifeq ($(MARCH),i686)
+                CPU_ARCH = x86
+                ASM_OBJ_FORMAT = win32
+        else ifeq ($(MARCH),x86_64)
+                CPU_ARCH = x64
+                ASM_OBJ_FORMAT = win64
+        else
+                $(error machine ARCH '$(MARCH)' not understood)
+        endif
+else
+        $(error processor ARCH '$(ARCH)' not understood)
+endif
+
+export AS := nasm
+export ASFLAGS := -Ox -D __GNUC__
+ASFLAGS += -f $(ASM_OBJ_FORMAT)
+
 CC = g++
 CommonSDIR = ../Common
 
@@ -10,6 +38,10 @@ CPPFLAGS += -MD -MP
 GCOVR = ../../var/opt/gcovr/scripts/gcovr
 
 #sort as "LC_ALL=C sort -u"
+
+SRC_asm = \
+../Crypto/Aes_hw_cpu.asm \
+#END of SRC_asm
 
 SRC_c = \
 ../Common/Crc.c \
@@ -71,6 +103,7 @@ SRC_cpp = \
 ../Common/SecurityToken.cpp \
 ../Common/dialog/errors.cpp \
 ../Common/dialog/userperms.cpp \
+../Common/util/dll.cpp \
 ../Common/volume/volutil.cpp \
 ../Core/CoreBase.cpp \
 ../Core/CoreException.cpp \
@@ -127,8 +160,10 @@ faux/windows/FlushFileBuffers.cpp \
 faux/windows/GetFileSize.cpp \
 faux/windows/GetFileTime.cpp \
 faux/windows/GetLastError.cpp \
+faux/windows/GetSystemDirectory.cpp \
 faux/windows/GetWindowText.cpp \
 faux/windows/GetWindowTextLength.cpp \
+faux/windows/LoadLibraryEx.cpp \
 faux/windows/OutputDebugString.cpp \
 faux/windows/QueryDosDevice.cpp \
 faux/windows/SetFilePointer.cpp \
@@ -136,10 +171,11 @@ faux/windows/SetFileTime.cpp \
 faux/windows/SetLastError.cpp \
 faux/windows/_wcsicmp.cpp \
 faux/windows/swprintf_s.cpp \
+faux/windows/wcsncpy_s.cpp \
 unittesting.cpp \
 # end of SRC_cpp
 
-SRCS=$(SRC_c) $(SRC_cpp)
+SRCS=$(SRC_c) $(SRC_cpp) $(SRC_asm)
 
 .PHONY: clean gcov coverage.xml run unittests
 
@@ -155,13 +191,25 @@ run: unittests
 
 unittests: unittesting
 
-OBJ=$(SRC_c:.c=.o) $(SRC_cpp:.cpp=.o)
+OBJ=$(SRC_c:.c=.o) $(SRC_cpp:.cpp=.o) $(SRC_asm:.asm=.o)
 
-compile: compile_c compile_cpp
+compile: compile_c compile_cpp compile_asm
 
 compile_c: $(SRC_c:.c=.o)
 
 compile_cpp: $(SRC_cpp:.cpp=.o)
+
+compile_asm: $(SRC_asm:.asm=.o)
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+%.o: %.asm
+	$(AS) $(ASFLAGS) -o $@ $<
+
 
 unittesting: $(OBJ)
 	$(CC) $(CFLAGS) --disable-stdcall-fixup -o $@ $^

@@ -69,6 +69,8 @@ using namespace std;
 
 #include <memory>
 
+#include "util/dll.h"
+
 using namespace CipherShed;
 
 LONG DriverVersion;
@@ -1422,7 +1424,7 @@ void ExceptionHandlerThread (void *threadArg)
 	}
 
 	// Call stack
-	HMODULE dbgDll = LoadLibrary ("dbghelp.dll");
+	HMODULE dbgDll = LoadDLL_dbghelp();
 	if (dbgDll)
 	{
 		typedef DWORD (__stdcall *SymGetOptions_t) ();
@@ -2040,7 +2042,7 @@ void InitApp (HINSTANCE hInstance, char *lpszCommandLine)
 #ifndef SETUP
 	// Application ID
 	typedef HRESULT (WINAPI *SetAppId_t) (PCWSTR appID);
-	SetAppId_t setAppId = (SetAppId_t) GetProcAddress (GetModuleHandle ("shell32.dll"), "SetCurrentProcessExplicitAppUserModelID");
+	SetAppId_t setAppId = (SetAppId_t) GetProcAddress (GetHandleDLL_shell32(), "SetCurrentProcessExplicitAppUserModelID");
 
 	/*
 	 * Specifies a unique application-defined Application User Model ID (AppUserModelID)
@@ -2230,7 +2232,7 @@ void InitApp (HINSTANCE hInstance, char *lpszCommandLine)
 	}
 
 	// Required for RichEdit text fields to work
-	if (LoadLibrary("Riched20.dll") == NULL)
+	if (LoadDLL_Riched20() == NULL)
 	{
 		// This error is fatal e.g. because legal notices could not be displayed
 		handleWin32Error (NULL);
@@ -7012,7 +7014,7 @@ std::string GetServiceConfigPath (const char *fileName)
 	{
 		typedef UINT (WINAPI *GetSystemWow64Directory_t) (LPTSTR lpBuffer, UINT uSize);
 
-		GetSystemWow64Directory_t getSystemWow64Directory = (GetSystemWow64Directory_t) GetProcAddress (GetModuleHandle ("kernel32"), "GetSystemWow64DirectoryA");
+		GetSystemWow64Directory_t getSystemWow64Directory = (GetSystemWow64Directory_t) GetProcAddress (GetHandleDLL_kernel32(), "GetSystemWow64DirectoryA");
 		getSystemWow64Directory (sysPath, sizeof (sysPath));
 	}
 	else
@@ -7323,7 +7325,7 @@ BOOL IsHiddenOSRunning (void)
 BOOL EnableWow64FsRedirection (BOOL enable)
 {
 	typedef BOOLEAN (__stdcall *Wow64EnableWow64FsRedirection_t) (BOOL enable);
-	Wow64EnableWow64FsRedirection_t wow64EnableWow64FsRedirection = (Wow64EnableWow64FsRedirection_t) GetProcAddress (GetModuleHandle ("kernel32"), "Wow64EnableWow64FsRedirection");
+	Wow64EnableWow64FsRedirection_t wow64EnableWow64FsRedirection = (Wow64EnableWow64FsRedirection_t) GetProcAddress (GetHandleDLL_kernel32(), "Wow64EnableWow64FsRedirection");
 
     if (!wow64EnableWow64FsRedirection)
 		return FALSE;

@@ -8361,7 +8361,8 @@ static BOOL CALLBACK SecurityTokenPreferencesDlgProc (HWND hwndDlg, UINT msg, WP
 							{
 								if (memcmp (file + i, functionName, strLen) == 0)
 								{
-									HMODULE module = LoadLibrary (dllPathname.c_str());
+									//This is a path from FindFirstFile / FindNextFile with a systemDir prefixed 
+									HMODULE module = LoadLibraryA(dllPathname.c_str());
 									if (module)
 									{
 										if (GetProcAddress (module, functionName))

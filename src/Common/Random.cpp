@@ -14,6 +14,8 @@
 #include "Random.h"
 #include "snprintf.h"
 
+#include "util/dll.h"
+
 static unsigned __int8 buffer[RNG_POOL_SIZE];
 static unsigned char *pRandPool = NULL;
 static BOOL bRandDidInit = FALSE;
@@ -56,7 +58,7 @@ CRITICAL_SECTION critRandProt;	/* The critical section */
 BOOL volatile bThreadTerminate = FALSE;	/* This variable is shared among thread's so its made volatile */
 
 /* Network library handle for the SlowPoll function */
-HANDLE hNetAPI32 = NULL;
+HMODULE hNetAPI32 = NULL;
 
 // CryptoAPI
 BOOL CryptoAPIAvailable = FALSE;
@@ -482,7 +484,7 @@ LRESULT CALLBACK KeyboardProc (int nCode, WPARAM wParam, LPARAM lParam)
 		}
 
 		EnterCriticalSection (&critRandProt);
-		RandaddInt32 ((unsigned __int32) (crc32int(&lParam) + timeCrc));
+		RandaddInt32 ((unsigned __int32) (crc32int((unsigned int *)&lParam) + timeCrc));
 		LeaveCriticalSection (&critRandProt);
 	}
 
@@ -492,8 +494,6 @@ LRESULT CALLBACK KeyboardProc (int nCode, WPARAM wParam, LPARAM lParam)
 /* This is the thread function which will poll the system for randomness */
 static unsigned __stdcall PeriodicFastPollThreadProc (void *dummy)
 {
-	if (dummy);		/* Remove unused parameter warning */
-
 	for (;;)
 	{
 		EnterCriticalSection (&critRandProt);
@@ -574,7 +574,7 @@ BOOL SlowPoll (void)
 	{
 		/* Obtain a handle to the module containing the Lan Manager
 		   functions */
-		hNetAPI32 = LoadLibrary ("NETAPI32.DLL");
+		hNetAPI32 = LoadDLL_NETAPI32();
 		if (hNetAPI32 != NULL)
 		{
 			/* Now get pointers to the functions */

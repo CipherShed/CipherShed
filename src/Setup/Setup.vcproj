@@ -291,24 +291,8 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\Common\Dlgcode.c"
+					RelativePath="..\Common\Dlgcode.cpp"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							CompileAs="2"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							CompileAs="2"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\Common\Endian.c"
@@ -347,6 +331,10 @@
 					>
 					<File
 						RelativePath="..\Common\util\csstringutil.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\Common\util\dll.cpp"
 						>
 					</File>
 					<File
@@ -477,6 +465,10 @@
 					>
 					<File
 						RelativePath="..\Common\util\csstringutil.h"
+						>
+					</File>
+					<File
+						RelativePath="..\Common\util\dll.h"
 						>
 					</File>
 				</Filter>

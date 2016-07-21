@@ -61,7 +61,12 @@ struct msdos_boot_sector
 	unsigned short boot_sign;	/* 0xAA55 */
 };
 
-
+#ifdef __cplusplus 
+extern "C" {
+#endif
 void GetFatParams ( fatparams *ft );
 void PutBoot ( fatparams *ft , unsigned char *boot );
 int FormatFat (unsigned __int64 startSector, fatparams * ft, void * dev, PCRYPTO_INFO cryptoInfo, BOOL quickFormat);
+#ifdef __cplusplus 
+}
+#endif

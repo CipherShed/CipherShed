@@ -255,6 +255,10 @@
 				<Filter
 					Name="util"
 					>
+					<File
+						RelativePath="..\Common\util\dll.cpp"
+						>
+					</File>
 					<Filter
 						Name="unicode"
 						>
@@ -611,6 +615,10 @@
 							</FileConfiguration>
 						</File>
 						<File
+							RelativePath=".\faux\windows\GetSystemDirectory.cpp"
+							>
+						</File>
+						<File
 							RelativePath=".\faux\windows\GetSystemMetrics.c"
 							>
 							<FileConfiguration
@@ -737,6 +745,10 @@
 									CompileAsManaged="0"
 								/>
 							</FileConfiguration>
+						</File>
+						<File
+							RelativePath=".\faux\windows\LoadLibraryEx.cpp"
+							>
 						</File>
 						<File
 							RelativePath=".\faux\windows\LocalFree.c"
@@ -962,6 +974,10 @@
 								/>
 							</FileConfiguration>
 						</File>
+						<File
+							RelativePath=".\faux\windows\wcsncpy_s.cpp"
+							>
+						</File>
 					</Filter>
 					<Filter
 						Name="ciphershed"
@@ -1169,6 +1185,10 @@
 							>
 						</File>
 						<File
+							RelativePath=".\faux\windows\errno_t.h"
+							>
+						</File>
+						<File
 							RelativePath=".\faux\windows\ERROR.h"
 							>
 						</File>
@@ -1218,6 +1238,10 @@
 						</File>
 						<File
 							RelativePath=".\faux\windows\GetProcAddress.h"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\GetSystemDirectory.h"
 							>
 						</File>
 						<File
@@ -1318,6 +1342,10 @@
 						</File>
 						<File
 							RelativePath=".\faux\windows\LoadCursor.h"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\LoadLibraryEx.h"
 							>
 						</File>
 						<File
@@ -1453,6 +1481,10 @@
 							>
 						</File>
 						<File
+							RelativePath=".\faux\windows\size_t.h"
+							>
+						</File>
+						<File
 							RelativePath=".\faux\windows\stdcall.h"
 							>
 						</File>
@@ -1482,6 +1514,10 @@
 						</File>
 						<File
 							RelativePath=".\faux\windows\WCHAR.h"
+							>
+						</File>
+						<File
+							RelativePath=".\faux\windows\wcsncpy_s.h"
 							>
 						</File>
 						<File

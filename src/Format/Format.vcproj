@@ -186,7 +186,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="md &quot;..\Release\Setup Files&quot; 2&gt;NUL:&#x0D;&#x0A;copy Release\CipherShedFormat.exe &quot;..\Release\Setup Files\CipherShed-Format.exe&quot;"
+				CommandLine="md &quot;..\Release\Setup Files&quot; 2&gt;NUL:&#x0D;&#x0A;copy Release\CipherShedFormat.exe &quot;..\Release\Setup Files\CipherShed-Format.exe&quot;&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>
@@ -294,7 +294,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\Common\Dlgcode.c"
+					RelativePath="..\Common\Dlgcode.cpp"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -326,7 +326,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\Common\Format.c"
+					RelativePath="..\Common\Format.cpp"
 					>
 				</File>
 				<File
@@ -370,7 +370,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\Common\Random.c"
+					RelativePath="..\Common\Random.cpp"
 					>
 				</File>
 				<File
@@ -406,6 +406,10 @@
 					>
 					<File
 						RelativePath="..\Common\util\csstringutil.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\Common\util\dll.cpp"
 						>
 					</File>
 					<File
@@ -561,11 +565,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\Common\Resource.h"
+				RelativePath=".\resource.h"
 				>
 			</File>
 			<File
-				RelativePath=".\resource.h"
+				RelativePath="..\Common\Resource.h"
 				>
 			</File>
 			<File
@@ -630,6 +634,10 @@
 						RelativePath="..\Common\util\csstringutil.h"
 						>
 					</File>
+					<File
+						RelativePath="..\Common\util\dll.h"
+						>
+					</File>
 					<Filter
 						Name="unicode"
 						>
@@ -691,10 +699,6 @@
 				Name="Common"
 				>
 				<File
-					RelativePath="..\Boot\Windows\Rescue\BootLoader.com.gz"
-					>
-				</File>
-				<File
 					RelativePath="..\Boot\Windows\Rescue_Twofish\BootLoader.com.gz"
 					>
 				</File>
@@ -720,6 +724,10 @@
 				</File>
 				<File
 					RelativePath="..\Boot\Windows\Rescue_AES\BootLoader.com.gz"
+					>
+				</File>
+				<File
+					RelativePath="..\Boot\Windows\Rescue\BootLoader.com.gz"
 					>
 				</File>
 				<File
