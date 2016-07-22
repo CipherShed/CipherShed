@@ -33,7 +33,7 @@ clean:
 
 # Embedded files
 OD_BIN := od -v -t u1 -A n
-TR_SED_BIN := tr '\n' ' ' | tr -s ' ' ',' | sed -e 's/^,//g' -e 's/,$$/n/' | tr 'n' '\n'
+TR_SED_BIN := sed -e 's/\S\+/&,/g;s/\([^,]\+\),/(byte)\1, /g;$$s/,\s*$$//'
 
 %.xml.h: %.xml
 	@echo Converting $(<F)

@@ -46,14 +46,14 @@ namespace CipherShed
 		strBuf.CopyFrom (res);
 		return string (reinterpret_cast <char *> (strBuf.Ptr()));
 #else
-		static const char LanguageXml[] =
+		static const byte LanguageXml[] =
 		{
 //			include "../Common/Language.xml.h" ??? it does not exist and the next is known wrong ???
 #			include "Common/Language.xml.h"
 			, 0
 		};
 
-		return string (LanguageXml);
+		return string ((char*)LanguageXml);
 #endif
 	}
 
@@ -66,13 +66,13 @@ namespace CipherShed
 		strBuf.CopyFrom (res);
 		return string (reinterpret_cast <char *> (strBuf.Ptr()));
 #else
-		static const char License[] =
+		static const byte License[] =
 		{
 #			include "License.txt.h"
 			, 0
 		};
 
-		return string (License);
+		return string ((char*)License);
 #endif
 	}
 
