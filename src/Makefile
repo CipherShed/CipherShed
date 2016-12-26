@@ -41,8 +41,6 @@ C_CXX_FLAGS := -MMD -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_LARGE_FILES -I
 export ASFLAGS := -Ox -D __GNUC__
 export LFLAGS :=
 
-C_CXX_FLAGS += $(shell pkg-config --cflags appindicator-0.1)
-
 export PKG_CONFIG_PATH ?= /usr/local/lib/pkgconfig
 
 export WX_CONFIG ?= wx-config
@@ -65,6 +63,8 @@ ifeq "$(origin NOGUI)" "command line"
 	export TC_NO_GUI := 1
 	C_CXX_FLAGS += -DTC_NO_GUI
 	WX_CONFIGURE_FLAGS += --disable-gui
+else
+	C_CXX_FLAGS += $(shell pkg-config --cflags appindicator-0.1)
 endif
 
 ifdef PKCS11_INC
