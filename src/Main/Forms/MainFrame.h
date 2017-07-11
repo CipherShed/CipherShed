@@ -9,10 +9,16 @@
 #ifndef TC_HEADER_Main_Forms_MainFrame
 #define TC_HEADER_Main_Forms_MainFrame
 
+#ifdef HAVE_INDICATORS
 #define GSocket GlibGSocket
+#ifdef UBUNTU_INDICATOR
 #include <libappindicator/app-indicator.h>
+#elif AYATANA_INDICATOR
+#include <libayatana-appindicator/app-indicator.h>
+#endif
 #undef GSocket
- 
+#endif
+
 #include "Forms.h"
 #include "ChangePasswordDialog.h"
 
@@ -33,6 +39,7 @@ namespace TrueCrypt
 
 		void MountAllFavorites ();
 
+#ifdef HAVE_INDICATORS
 		AppIndicator *indicator;
 		GtkWidget *indicator_item_showhide;
 		GtkWidget *indicator_item_mountfavorites;
@@ -41,6 +48,7 @@ namespace TrueCrypt
 		GtkWidget *indicator_item_exit;
 		void SetBusy (bool busy);
 
+#endif
 	protected:
 		enum
 		{

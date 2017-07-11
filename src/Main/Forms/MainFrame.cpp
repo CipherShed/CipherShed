@@ -37,7 +37,9 @@
 namespace TrueCrypt
 {
 	MainFrame::MainFrame (wxWindow* parent) : MainFrameBase (parent),
+#ifdef HAVE_INDICATORS
 		indicator (NULL),
+#endif
 		ListItemRightClickEventPending (false),
 		SelectedItemIndex (-1),
 		SelectedSlotNumber (0),
@@ -1412,6 +1414,7 @@ namespace TrueCrypt
 		}
 	}
 
+#ifdef HAVE_INDICATORS
 	void MainFrame::SetBusy (bool busy)
 	{
 		gtk_widget_set_sensitive(indicator_item_mountfavorites, !busy);
@@ -1436,6 +1439,7 @@ namespace TrueCrypt
 		self->SetBusy(false);
 	}
 
+#endif
 	void MainFrame::ShowTaskBarIcon (bool show)
 	{
 		if (!show && mTaskBarIcon->IsIconInstalled())
@@ -1445,8 +1449,11 @@ namespace TrueCrypt
 		else if (show && !mTaskBarIcon->IsIconInstalled())
 		{
 #ifndef TC_MACOSX
-			//mTaskBarIcon->SetIcon (Resources::GetTrueCryptIcon(), L"TrueCrypt");
+#ifndef HAVE_INDICATORS
+			mTaskBarIcon->SetIcon (Resources::GetTrueCryptIcon(), L"TrueCrypt");
 #endif
+#endif
+#ifdef HAVE_INDICATORS
 			if (indicator == NULL) {
 				indicator = app_indicator_new ("truecrypt", "truecrypt-indicator", APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
 				app_indicator_set_status (indicator, APP_INDICATOR_STATUS_ACTIVE);
@@ -1482,6 +1489,7 @@ namespace TrueCrypt
 				gtk_widget_show_all (menu);
 				app_indicator_set_menu (indicator, GTK_MENU (menu));
 			}
+#endif
 		}
 	}
 

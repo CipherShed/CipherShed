@@ -50,7 +50,15 @@ export WXCONFIG_CFLAGS :=
 export WXCONFIG_CXXFLAGS :=
 WX_ROOT ?= ..
 
-C_CXX_FLAGS += $(shell pkg-config --cflags appindicator-0.1)
+ifeq ($(shell pkg-config --exists appindicator-0.1 && echo $$?),0)
+	export C_CXX_FLAGS += -DHAVE_INDICATORS -DUBUNTU_INDICATOR
+	export LIBS += $(shell pkg-config --libs appindicator-0.1)
+	C_CXX_FLAGS += $(shell pkg-config --cflags appindicator-0.1)
+else ifeq ($(shell pkg-config --exists ayatana-appindicator-0.1 && echo $$?),0)
+	export C_CXX_FLAGS += -DHAVE_INDICATORS -DAYATANA_INDICATOR
+	export LIBS += $(shell pkg-config --libs ayatana-appindicator-0.1)
+	C_CXX_FLAGS += $(shell pkg-config --cflags ayatana-appindicator-0.1)
+endif
 
 export TC_BUILD_CONFIG := Release
 
