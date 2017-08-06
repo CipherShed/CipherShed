@@ -13,6 +13,8 @@
 #include "../Main.h"
 #include "KeyfilesPanel.h"
 
+#include <memory>
+
 namespace CipherShed
 {
 	class PreferencesDialog : public PreferencesDialogBase
@@ -50,7 +52,7 @@ namespace CipherShed
 
 		KeyfilesPanel *DefaultKeyfilesPanel;
 		int LastVirtualKeyPressed; 
-		auto_ptr <wxTimer> mTimer;
+		std::auto_ptr <wxTimer> mTimer;
 		UserPreferences Preferences;
 		bool RestoreValidatorBell;
 		HotkeyList UnregisteredHotkeys;

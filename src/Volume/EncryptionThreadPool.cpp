@@ -20,6 +20,8 @@
 #include "../Common/Crypto.h"
 #include "EncryptionThreadPool.h"
 
+#include <memory>
+
 namespace CipherShed
 {
 	void EncryptionThreadPool::DoWork (WorkType::Enum type, const EncryptionMode *encryptionMode, byte *data, uint64 startUnitNo, uint64 unitCount, size_t sectorSize)
@@ -121,7 +123,7 @@ namespace CipherShed
 
 		firstFragmentWorkItem->ItemCompletedEvent.Wait();
 		
-		auto_ptr <Exception> itemException;
+		std::auto_ptr <Exception> itemException;
 		if (firstFragmentWorkItem->ItemException.get())
 			itemException = firstFragmentWorkItem->ItemException;
 

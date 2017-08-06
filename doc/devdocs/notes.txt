@@ -1,0 +1,14 @@
+The (nt)driver decides a volume is a TC vol by identifying a signature with in the header. This signature is the TrueCrypt string, but the rebranding changed 
+the constants, one or some of which created the string in the header. Now the code will have to look for CipherShed. To support legacy containers the code 
+searches for CipherShed first, then TrueCrypt.
+
+Thanks to Kyle for taking the time to narrow it down to a flag being zero which led to the discovery of the 4 sections of code relying on the "disk label".
+
+The 4 areas are:
+WriteBootSectorUserConfig
+
+InstallBootLoader
+
+TC_IOCTL_OPEN_TEST
+
+TC_IOCTL_GET_SYSTEM_DRIVE_CONFIG

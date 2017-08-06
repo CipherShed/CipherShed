@@ -22,6 +22,8 @@ using namespace std;
 #include "Application.h"
 #include "TextUserInterface.h"
 
+#include <memory>
+
 namespace CipherShed
 {
 	TextUserInterface::TextUserInterface ()
@@ -117,7 +119,7 @@ namespace CipherShed
 			for (size_t i = 0; i < length && i < VolumePassword::MaxSize; ++i)
 			{
 				passwordBuf[i] = (wchar_t) passwordStr[i];
-				const_cast <wchar_t *> (passwordStr.c_str())[i] = L'X';
+				const_cast <wchar_t *> ((const wchar_t*)(passwordStr.c_str()))[i] = L'X';
 			}
 
 			if (verify && verPhase)
@@ -1022,7 +1024,7 @@ namespace CipherShed
 
 		try
 		{
-			SecurityToken::InitLibrary (Preferences.SecurityTokenModule, auto_ptr <GetPinFunctor> (new PinRequestHandler (this)), auto_ptr <SendExceptionFunctor> (new WarningHandler (this)));
+			SecurityToken::InitLibrary (Preferences.SecurityTokenModule, std::auto_ptr <GetPinFunctor> (new PinRequestHandler (this)), std::auto_ptr <SendExceptionFunctor> (new WarningHandler (this)));
 		}
 		catch (Exception &e)
 		{

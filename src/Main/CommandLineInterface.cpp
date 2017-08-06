@@ -473,7 +473,7 @@ namespace CipherShed
 
 			if (param1IsFile)
 			{
-				ArgFilePath.reset (new FilePath (parser.GetParam (0)));
+				ArgFilePath.reset (new FilePath ((wstring)(parser.GetParam (0))));
 			}
 		}
 
@@ -526,7 +526,7 @@ namespace CipherShed
 					arr.Add (L"");
 					continue;
 				}
-				arr.Last() += token.empty() ? L',' : token;
+				arr.Last() += token.empty() ? wxString(L',') : token;
 			}
 			else
 				arr.Add (token);
@@ -564,12 +564,12 @@ namespace CipherShed
 			{
 				filteredVolumes.push_back (volume);
 			}
-			else if (wxString (volume->Path) == pathFilter.GetFullPath())
+			else if (wxString ((wstring)(volume->Path)) == pathFilter.GetFullPath())
 			{
 				filteredVolumes.push_back (volume);
 			}
-			else if (wxString (volume->MountPoint) == pathFilter.GetFullPath()
-				|| (wxString (volume->MountPoint) + wxFileName::GetPathSeparator()) == pathFilter.GetFullPath())
+			else if (wxString ((wstring)(volume->MountPoint)) == pathFilter.GetFullPath()
+				|| (wxString ((wstring)(volume->MountPoint)) + wxFileName::GetPathSeparator()) == pathFilter.GetFullPath())
 			{
 				filteredVolumes.push_back (volume);
 			}
@@ -581,5 +581,5 @@ namespace CipherShed
 		return filteredVolumes;
 	}
 
-	auto_ptr <CommandLineInterface> CmdLine;
+	std::auto_ptr <CommandLineInterface> CmdLine;
 }

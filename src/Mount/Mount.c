@@ -952,7 +952,7 @@ static void LaunchVolCreationWizard (HWND hwndDlg, const char *arg)
 		PROCESS_INFORMATION pi;
 		ZeroMemory (&si, sizeof (si));
 
-		strcpy (++tmp, "CipherShed Format.exe\"");
+		strcpy (++tmp, "CipherShed-Format.exe\"");
 
 		if (!FileExists(t))
 			Error ("VOL_CREATION_WIZARD_NOT_FOUND");	// Display a user-friendly error message and advise what to do
@@ -3154,8 +3154,8 @@ BOOL CALLBACK TravelerDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lPa
 			// Wizard
 			if (copyWizard)
 			{
-				sprintf (srcPath, "%s\\CipherShed Format.exe", appDir);
-				sprintf (dstPath, "%s\\CipherShed\\CipherShed Format.exe", dstDir);
+				sprintf (srcPath, "%s\\CipherShed-Format.exe", appDir);
+				sprintf (dstPath, "%s\\CipherShed\\CipherShed-Format.exe", dstDir);
 				if (!TCCopyFile (srcPath, dstPath))
 				{
 					handleWin32Error (hwndDlg);

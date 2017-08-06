@@ -99,7 +99,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="md &quot;..\Debug\Setup Files&quot; 2&gt;NUL:&#x0D;&#x0A;copy Debug\CipherShedSetup.exe &quot;..\Debug\Setup Files\CipherShed-Setup.exe&quot; &gt;NUL:&#x0D;&#x0A;copy ..\..\doc\userdocs\guide\CipherShed-User-Guide-0.7.3.0.pdf &quot;..\Debug\Setup Files\CipherShed User Guide.pdf&quot;&#x0D;&#x0A;copy ..\License.txt &quot;..\Debug\Setup Files\&quot;&#x0D;&#x0A;"
+				CommandLine="md &quot;..\Debug\Setup Files&quot; 2&gt;NUL:&#x0D;&#x0A;copy Debug\CipherShedSetup.exe &quot;..\Debug\Setup Files\CipherShed-Setup.exe&quot; &gt;NUL:&#x0D;&#x0A;copy ..\..\doc\userdocs\guide\CipherShed-User-Guide-0.7.4.0.pdf &quot;..\Debug\Setup Files\CipherShed User Guide.pdf&quot;&#x0D;&#x0A;copy ..\License.txt &quot;..\Debug\Setup Files\&quot;&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -187,7 +187,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy Release\CipherShedSetup.exe &quot;..\Release\Setup Files\CipherShed-Setup.exe&quot;&#x0D;&#x0A;copy ..\..\doc\userdocs\guide\CipherShed-User-Guide-0.7.3.0.pdf &quot;..\Release\Setup Files\CipherShed User Guide.pdf&quot;&#x0D;&#x0A;copy ..\License.txt &quot;..\Release\Setup Files\&quot;&#x0D;&#x0A;"
+				CommandLine="copy Release\CipherShedSetup.exe &quot;..\Release\Setup Files\CipherShed-Setup.exe&quot;&#x0D;&#x0A;copy ..\..\doc\userdocs\guide\CipherShed-User-Guide-0.7.4.0.pdf &quot;..\Release\Setup Files\CipherShed User Guide.pdf&quot;&#x0D;&#x0A;copy ..\License.txt &quot;..\Release\Setup Files\&quot;&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>
@@ -563,7 +563,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\Resources\Texts\License.rtf"
+					RelativePath="..\License.txt"
 					>
 				</File>
 				<File

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <CipherShed>
-  <localization prog-version="0.7.3">
+  <localization prog-version="0.7.4.0">
     <!-- Languages -->
     <language langid="en" name="English" en-name="English" version="0.0.0" translators="" />
     <!-- Fonts -->
@@ -13,7 +13,6 @@
     <control lang="en" key="IDC_ALL_USERS">Install &amp;for all users</control>
     <control lang="en" key="IDC_BROWSE">Bro&amp;wse...</control>
     <control lang="en" key="IDC_DESKTOP_ICON">Add CipherShed icon to &amp;desktop</control>
-    <control lang="en" key="IDC_DONATE">Donate now...</control>
     <control lang="en" key="IDC_FILE_TYPE">Associate the .tc file &amp;extension with CipherShed</control>
     <control lang="en" key="IDC_OPEN_CONTAINING_FOLDER">&amp;Open the destination location when finished</control>
     <control lang="en" key="IDC_PROG_GROUP">Add CipherShed to &amp;Start menu</control>
@@ -530,7 +529,7 @@
     <string lang="en" key="MOUNTED_NO_PKCS5_PRF_CHANGE">The header key derivation algorithm cannot be changed while the volume is mounted. Please dismount the volume first.</string>
     <string lang="en" key="MOUNT_BUTTON">&amp;Mount</string>
     <string lang="en" key="NEW_VERSION_REQUIRED">A newer version of CipherShed is required to mount this volume.</string>
-    <string lang="en" key="VOL_CREATION_WIZARD_NOT_FOUND">Error: Volume Creation Wizard not found.\n\nPlease make sure that the file 'CipherShed Format.exe' is in the folder from which 'CipherShed.exe' was launched. If it is not, please reinstall CipherShed, or locate 'CipherShed Format.exe' on your disk and run it.</string>
+    <string lang="en" key="VOL_CREATION_WIZARD_NOT_FOUND">Error: Volume Creation Wizard not found.\n\nPlease make sure that the file 'CipherShed-Format.exe' is in the folder from which 'CipherShed.exe' was launched. If it is not, please reinstall CipherShed, or locate 'CipherShed Format.exe' on your disk and run it.</string>
     <string lang="en" key="NEXT">&amp;Next &gt;</string>
     <string lang="en" key="FINALIZE">&amp;Finish</string>
     <string lang="en" key="INSTALL">&amp;Install</string>

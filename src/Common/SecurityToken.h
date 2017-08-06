@@ -10,7 +10,7 @@
 #define TC_HEADER_Common_SecurityToken
 
 #include "../Platform/PlatformBase.h"
-#if defined (TC_WINDOWS) && !defined (TC_PROTOTYPE)
+#if defined (TC_WINDOWS)
 #	include "Exception.h"
 #else
 #	include "../Platform/Exception.h"
@@ -185,7 +185,7 @@ namespace CipherShed
 		static void GetKeyfileData (const SecurityTokenKeyfile &keyfile, vector <byte> &keyfileData);
 		static list <SecurityTokenInfo> GetAvailableTokens ();
 		static SecurityTokenInfo GetTokenInfo (CK_SLOT_ID slotId);
-		static void InitLibrary (const string &pkcs11LibraryPath, auto_ptr <GetPinFunctor> pinCallback, auto_ptr <SendExceptionFunctor> warningCallback);
+		static void InitLibrary (const string &pkcs11LibraryPath, std::auto_ptr <GetPinFunctor> pinCallback, std::auto_ptr <SendExceptionFunctor> warningCallback);
 		static bool IsInitialized () { return Initialized; }
 		static bool IsKeyfilePathValid (const wstring &securityTokenKeyfilePath);
 	
@@ -202,7 +202,7 @@ namespace CipherShed
 		static void CheckLibraryStatus ();
 
 		static bool Initialized;
-		static auto_ptr <GetPinFunctor> PinCallback;
+		static std::auto_ptr <GetPinFunctor> PinCallback;
 		static CK_FUNCTION_LIST_PTR Pkcs11Functions;
 #ifdef TC_WINDOWS
 		static HMODULE Pkcs11LibraryHandle;
@@ -210,7 +210,7 @@ namespace CipherShed
 		static void *Pkcs11LibraryHandle;
 #endif
 		static map <CK_SLOT_ID, Pkcs11Session> Sessions;
-		static auto_ptr <SendExceptionFunctor> WarningCallback;
+		static std::auto_ptr <SendExceptionFunctor> WarningCallback;
 	};
 }
 

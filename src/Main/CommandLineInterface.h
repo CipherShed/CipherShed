@@ -17,6 +17,8 @@
 #include "UserPreferences.h"
 #include "UserInterfaceType.h"
 
+#include <memory>
+
 namespace CipherShed
 {
 	struct CommandId
@@ -88,7 +90,7 @@ namespace CipherShed
 		CommandLineInterface &operator= (const CommandLineInterface &);
 	};
 
-	extern auto_ptr <CommandLineInterface> CmdLine;
+	extern std::auto_ptr <CommandLineInterface> CmdLine;
 }
 
 #endif // TC_HEADER_Main_CommandInterface

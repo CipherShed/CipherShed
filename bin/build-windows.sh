@@ -1,5 +1,9 @@
 #!/bin/bash -x
 . "$(dirname "$0")/../etc/env.sh"
 cd "$(dirname "$0")/../src"
-"$DEVENVcon" CipherShed.sln /build "All Debug"
-"$DEVENVcon" CipherShed.sln /build "All"
+declare -a BUILDS
+[ $# -eq 0 ] && BUILDS=("All Debug" "All") || BUILDS=("$@")
+for BUILD in "${BUILDS[@]}";
+do
+	"$DEVENVcon" CipherShed.sln /build "$BUILD" || exit $?
+done

@@ -18,6 +18,8 @@
 #include "CoreFreeBSD.h"
 #include "../CoreServiceProxy.h"
 
+#include <memory>
+
 namespace CipherShed
 {
 	CoreFreeBSD::CoreFreeBSD ()
@@ -198,7 +200,7 @@ namespace CipherShed
 	}
 
 #ifdef TC_FREEBSD
-	auto_ptr <CoreBase> Core (new CoreServiceProxy <CoreFreeBSD>);
-	auto_ptr <CoreBase> CoreDirect (new CoreFreeBSD);
+	std::auto_ptr <CoreBase> Core (new CoreServiceProxy <CoreFreeBSD>);
+	std::auto_ptr <CoreBase> CoreDirect (new CoreFreeBSD);
 #endif
 }

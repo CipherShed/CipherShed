@@ -13,6 +13,8 @@
 #include "Main.h"
 #include "UserInterface.h"
 
+#include <memory>
+
 namespace CipherShed
 {
 	class TextUserInterface : public UserInterface
@@ -64,8 +66,8 @@ namespace CipherShed
 		virtual void ReadInputStreamLine (wxString &line) const;
 		virtual wxString ReadInputStreamLine () const;
 
-		auto_ptr <wxFFileInputStream> FInputStream;
-		auto_ptr <wxTextInputStream> TextInputStream;
+		std::auto_ptr <wxFFileInputStream> FInputStream;
+		std::auto_ptr <wxTextInputStream> TextInputStream;
 
 	private:
 		TextUserInterface (const TextUserInterface &);

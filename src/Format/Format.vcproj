@@ -98,7 +98,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="md &quot;..\Debug\Setup Files&quot; 2&gt;NUL:&#x0D;&#x0A;copy Debug\CipherShedFormat.exe &quot;..\Debug\Setup Files\CipherShed Format.exe&quot;&#x0D;&#x0A;"
+				CommandLine="md &quot;..\Debug\Setup Files&quot; 2&gt;NUL:&#x0D;&#x0A;copy Debug\CipherShedFormat.exe &quot;..\Debug\Setup Files\CipherShed-Format.exe&quot;&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -186,7 +186,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="md &quot;..\Release\Setup Files&quot; 2&gt;NUL:&#x0D;&#x0A;copy Release\CipherShedFormat.exe &quot;..\Release\Setup Files\CipherShed Format.exe&quot;"
+				CommandLine="md &quot;..\Release\Setup Files&quot; 2&gt;NUL:&#x0D;&#x0A;copy Release\CipherShedFormat.exe &quot;..\Release\Setup Files\CipherShed-Format.exe&quot;"
 			/>
 		</Configuration>
 	</Configurations>
@@ -787,7 +787,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\Resources\Texts\License.rtf"
+					RelativePath="..\License.txt"
 					>
 				</File>
 				<File

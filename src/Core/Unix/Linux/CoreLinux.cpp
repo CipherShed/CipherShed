@@ -22,6 +22,8 @@
 #include "../../../Driver/Fuse/FuseService.h"
 #include "../CoreServiceProxy.h"
 
+#include <memory>
+
 namespace CipherShed
 {
 	CoreLinux::CoreLinux ()
@@ -472,6 +474,6 @@ namespace CipherShed
 		}
 	}
 
-	auto_ptr <CoreBase> Core (new CoreServiceProxy <CoreLinux>);
-	auto_ptr <CoreBase> CoreDirect (new CoreLinux);
+	std::auto_ptr <CoreBase> Core (new CoreServiceProxy <CoreLinux>);
+	std::auto_ptr <CoreBase> CoreDirect (new CoreLinux);
 }

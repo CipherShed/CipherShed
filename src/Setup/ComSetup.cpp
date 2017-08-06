@@ -32,7 +32,7 @@ extern "C" BOOL RegisterComServers (char *modulePath)
 	CComPtr<ITypeLib> tl, tl2;
 
 	wsprintfW (mainModule, L"%hsCipherShed.exe", modulePath);
-	wsprintfW (formatModule, L"%hsCipherShed Format.exe", modulePath);
+	wsprintfW (formatModule, L"%hsCipherShed-Format.exe", modulePath);
 
 	UnRegisterTypeLib (LIBID_CipherShedMainCom, TC_MAIN_COM_VERSION_MAJOR, TC_MAIN_COM_VERSION_MINOR, 0, SYS_WIN32);
 	UnRegisterTypeLib (LIBID_CipherShedFormatCom, TC_FORMAT_COM_VERSION_MAJOR, TC_FORMAT_COM_VERSION_MINOR, 0, SYS_WIN32);
@@ -80,7 +80,7 @@ extern "C" BOOL UnregisterComServers (char *modulePath)
 	wsprintfW (module, L"%hsCipherShed.exe", modulePath);
 	ro.AddReplacement (L"MAIN_MODULE", module);
 
-	wsprintfW (module, L"%hsCipherShed Format.exe", modulePath);
+	wsprintfW (module, L"%hsCipherShed-Format.exe", modulePath);
 	ro.AddReplacement (L"FORMAT_MODULE", module);
 
 	wchar_t setupModule[MAX_PATH];

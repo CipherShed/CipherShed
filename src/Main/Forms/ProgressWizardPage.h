@@ -11,6 +11,8 @@
 
 #include "Forms.h"
 
+#include <memory>
+
 namespace CipherShed
 {
 	class ProgressWizardPage : public ProgressWizardPageBase
@@ -32,7 +34,7 @@ namespace CipherShed
 		void OnAbortButtonClick (wxCommandEvent& event);
 		void OnTimer ();
 
-		auto_ptr <wxTimer> mTimer;
+		std::auto_ptr <wxTimer> mTimer;
 		int PreviousGaugeValue;
 		uint64 ProgressBarRange;
 		int RealProgressBarRange;

@@ -67,6 +67,8 @@ using namespace std;
 
 #include "util/process.h"
 
+#include <memory>
+
 using namespace CipherShed;
 
 LONG DriverVersion;
@@ -6578,7 +6580,7 @@ void ManageStartupSeqWiz (BOOL bRemove, const char *arg)
 				char *tmp = NULL;
 
 				if (tmp = strrchr (exe, '\\'))
-					strcpy (++tmp, "CipherShed Format.exe");
+					strcpy (++tmp, "CipherShed-Format.exe");
 			}
 #endif
 
@@ -6588,10 +6590,10 @@ void ManageStartupSeqWiz (BOOL bRemove, const char *arg)
 			strcat (exe, arg);
 		}
 
-		WriteRegistryString (regk, "CipherShed Format", exe);
+		WriteRegistryString (regk, "CipherShed-Format", exe);
 	}
 	else
-		DeleteRegistryValue (regk, "CipherShed Format");
+		DeleteRegistryValue (regk, "CipherShed-Format");
 }
 
 
@@ -8379,7 +8381,7 @@ BOOL InitSecurityTokenLibrary ()
 
 	try
 	{
-		SecurityToken::InitLibrary (SecurityTokenLibraryPath, auto_ptr <GetPinFunctor> (new PinRequestHandler), auto_ptr <SendExceptionFunctor> (new WarningHandler));
+		SecurityToken::InitLibrary (SecurityTokenLibraryPath, std::auto_ptr <GetPinFunctor> (new PinRequestHandler), std::auto_ptr <SendExceptionFunctor> (new WarningHandler));
 	}
 	catch (Exception &e)
 	{

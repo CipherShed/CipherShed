@@ -12,6 +12,8 @@
 #include "Forms.h"
 #include "ChangePasswordDialog.h"
 
+#include <memory>
+
 namespace CipherShed
 {
 	struct FavoriteVolume;
@@ -161,8 +163,8 @@ namespace CipherShed
 		map <int, FavoriteVolume> FavoriteVolumesMenuMap;
 		bool ListItemRightClickEventPending;
 		VolumeInfoList MountedVolumes;
-		auto_ptr <wxTaskBarIcon> mTaskBarIcon;
-		auto_ptr <wxTimer> mTimer;
+		std::auto_ptr <wxTaskBarIcon> mTaskBarIcon;
+		std::auto_ptr <wxTimer> mTimer;
 		long SelectedItemIndex;
 		VolumeSlotNumber SelectedSlotNumber;
 		int ShowRequestFifo;
