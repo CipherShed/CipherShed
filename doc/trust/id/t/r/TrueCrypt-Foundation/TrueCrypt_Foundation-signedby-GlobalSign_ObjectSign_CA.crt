@@ -1,0 +1,102 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            01:00:00:00:00:01:24:da:79:a3:f3
+    Signature Algorithm: sha1WithRSAEncryption
+        Issuer: C=BE, O=GlobalSign nv-sa, OU=ObjectSign CA, CN=GlobalSign ObjectSign CA
+        Validity
+            Not Before: Nov  9 18:54:34 2009 GMT
+            Not After : Nov  9 18:54:32 2012 GMT
+        Subject: C=US, ST=Nevada, O=TrueCrypt Foundation, CN=TrueCrypt Foundation/emailAddress=contact@truecrypt.org
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                Public-Key: (2048 bit)
+                Modulus:
+                    00:b4:ca:6a:bf:cb:7c:05:8b:1d:d9:0b:1a:26:25:
+                    b5:ad:7d:7c:6c:8f:01:3a:5e:49:93:ae:7b:b9:39:
+                    1e:0e:02:65:f4:fa:36:25:52:0b:6a:7a:b4:66:21:
+                    71:3c:c0:38:65:71:d0:e2:ee:95:6e:9f:60:d0:71:
+                    8c:85:25:db:15:98:99:67:cd:98:ad:a5:2c:95:14:
+                    82:37:c9:ef:88:77:69:d0:f7:b9:4b:8e:7a:42:99:
+                    95:e6:bf:df:0e:a6:48:74:36:33:18:06:93:48:a7:
+                    59:64:fa:58:a1:4c:23:fe:c9:db:4a:a4:ee:69:17:
+                    b5:ac:64:4c:f6:59:53:24:89:60:8d:41:08:45:87:
+                    97:66:6e:d2:ae:cd:e8:07:c5:c2:e4:16:c5:c6:ef:
+                    6c:41:bf:0b:6b:b1:25:db:6f:39:12:cf:b8:c1:a1:
+                    d5:db:77:54:b1:a2:cc:53:ce:80:8b:4a:fd:d1:6a:
+                    9f:63:b8:e9:fd:3a:08:2b:43:2f:a1:c5:f6:17:ee:
+                    95:50:a9:eb:36:ae:4f:fd:0d:e8:aa:f4:d0:f8:9d:
+                    4a:d3:b9:09:8e:f9:48:0d:10:a4:41:5c:77:3e:45:
+                    2a:44:ec:f2:4e:6c:e5:ae:df:b2:63:91:97:7b:72:
+                    5d:3d:08:4b:fa:6a:2f:e6:64:e6:c3:51:67:3a:c3:
+                    2d:19
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            X509v3 Authority Key Identifier: 
+                keyid:D2:5B:F3:4B:26:4B:A5:B0:E7:5D:FD:56:7F:F6:F1:2E:38:4E:53:A0
+
+            Authority Information Access: 
+                CA Issuers - URI:http://secure.globalsign.net/cacert/ObjectSign.crt
+
+            X509v3 CRL Distribution Points: 
+
+                Full Name:
+                  URI:http://crl.globalsign.net/ObjectSign.crl
+
+            X509v3 Basic Constraints: 
+                CA:FALSE
+            X509v3 Key Usage: critical
+                Digital Signature
+            X509v3 Extended Key Usage: 
+                Code Signing
+            X509v3 Certificate Policies: 
+                Policy: 1.3.6.1.4.1.4146.1.50
+                  CPS: http://www.globalsign.net/repository/
+
+            Netscape Cert Type: 
+                Object Signing
+    Signature Algorithm: sha1WithRSAEncryption
+         76:48:f5:77:01:2b:a4:3b:75:f1:27:4e:13:05:12:e9:5c:ae:
+         cc:61:56:f0:b5:c0:79:ba:c0:cb:6f:2e:49:d6:86:58:26:2c:
+         44:dc:b6:49:6c:39:c7:83:61:b5:16:40:cc:69:1a:c3:0f:ff:
+         00:1d:39:b9:bc:31:3c:40:6c:8c:c0:5b:a7:e6:0f:40:61:d8:
+         21:60:c7:60:1c:f2:f5:74:dc:23:5c:15:3e:19:a8:51:bf:5e:
+         6c:25:f2:84:d5:01:0a:f9:65:69:62:37:5f:2a:ae:c3:55:15:
+         1e:3f:d1:07:9f:36:ca:61:f7:f3:ad:80:57:78:0b:3f:39:55:
+         26:c6:63:56:d9:1b:db:92:d1:1a:8c:da:78:36:52:90:73:32:
+         f7:5b:85:01:9d:c1:f9:6e:7a:fb:de:9f:ff:2e:ca:db:4d:6d:
+         ee:c7:42:8b:fc:ba:64:68:c6:1b:04:25:b3:9b:d0:6c:3a:fd:
+         cf:48:1f:37:c9:aa:bc:66:87:58:10:b6:5a:27:6a:86:0b:73:
+         23:98:94:23:9f:a3:b5:12:91:0f:40:e4:a9:c8:da:06:81:c1:
+         dc:c1:ef:f5:78:32:78:96:ef:8b:1a:15:7a:1f:2d:5f:82:66:
+         8b:b9:e0:71:45:94:c1:68:90:6a:8c:4b:22:c8:8f:c4:6b:ca:
+         27:43:39:1e
+-----BEGIN CERTIFICATE-----
+MIIErTCCA5WgAwIBAgILAQAAAAABJNp5o/MwDQYJKoZIhvcNAQEFBQAwYzELMAkG
+A1UEBhMCQkUxGTAXBgNVBAoTEEdsb2JhbFNpZ24gbnYtc2ExFjAUBgNVBAsTDU9i
+amVjdFNpZ24gQ0ExITAfBgNVBAMTGEdsb2JhbFNpZ24gT2JqZWN0U2lnbiBDQTAe
+Fw0wOTExMDkxODU0MzRaFw0xMjExMDkxODU0MzJaMIGCMQswCQYDVQQGEwJVUzEP
+MA0GA1UECBMGTmV2YWRhMR0wGwYDVQQKExRUcnVlQ3J5cHQgRm91bmRhdGlvbjEd
+MBsGA1UEAxMUVHJ1ZUNyeXB0IEZvdW5kYXRpb24xJDAiBgkqhkiG9w0BCQEWFWNv
+bnRhY3RAdHJ1ZWNyeXB0Lm9yZzCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoC
+ggEBALTKar/LfAWLHdkLGiYlta19fGyPATpeSZOue7k5Hg4CZfT6NiVSC2p6tGYh
+cTzAOGVx0OLulW6fYNBxjIUl2xWYmWfNmK2lLJUUgjfJ74h3adD3uUuOekKZlea/
+3w6mSHQ2MxgGk0inWWT6WKFMI/7J20qk7mkXtaxkTPZZUySJYI1BCEWHl2Zu0q7N
+6AfFwuQWxcbvbEG/C2uxJdtvORLPuMGh1dt3VLGizFPOgItK/dFqn2O46f06CCtD
+L6HF9hfulVCp6zauT/0N6Kr00PidStO5CY75SA0QpEFcdz5FKkTs8k5s5a7fsmOR
+l3tyXT0IS/pqL+Zk5sNRZzrDLRkCAwEAAaOCAUAwggE8MB8GA1UdIwQYMBaAFNJb
+80smS6Ww5139Vn/28S44TlOgME4GCCsGAQUFBwEBBEIwQDA+BggrBgEFBQcwAoYy
+aHR0cDovL3NlY3VyZS5nbG9iYWxzaWduLm5ldC9jYWNlcnQvT2JqZWN0U2lnbi5j
+cnQwOQYDVR0fBDIwMDAuoCygKoYoaHR0cDovL2NybC5nbG9iYWxzaWduLm5ldC9P
+YmplY3RTaWduLmNybDAJBgNVHRMEAjAAMA4GA1UdDwEB/wQEAwIHgDATBgNVHSUE
+DDAKBggrBgEFBQcDAzBLBgNVHSAERDBCMEAGCSsGAQQBoDIBMjAzMDEGCCsGAQUF
+BwIBFiVodHRwOi8vd3d3Lmdsb2JhbHNpZ24ubmV0L3JlcG9zaXRvcnkvMBEGCWCG
+SAGG+EIBAQQEAwIEEDANBgkqhkiG9w0BAQUFAAOCAQEAdkj1dwErpDt18SdOEwUS
+6VyuzGFW8LXAebrAy28uSdaGWCYsRNy2SWw5x4NhtRZAzGkaww//AB05ubwxPEBs
+jMBbp+YPQGHYIWDHYBzy9XTcI1wVPhmoUb9ebCXyhNUBCvllaWI3Xyquw1UVHj/R
+B582ymH3862AV3gLPzlVJsZjVtkb25LRGozaeDZSkHMy91uFAZ3B+W56+96f/y7K
+201t7sdCi/y6ZGjGGwQls5vQbDr9z0gfN8mqvGaHWBC2WidqhgtzI5iUI5+jtRKR
+D0DkqcjaBoHB3MHv9XgyeJbvixoVeh8tX4Jmi7ngcUWUwWiQaoxLIsiPxGvKJ0M5
+Hg==
+-----END CERTIFICATE-----

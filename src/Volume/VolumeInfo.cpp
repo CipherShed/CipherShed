@@ -9,6 +9,7 @@
 #include "../Common/Tcdefs.h"
 #include "VolumeInfo.h"
 #include "../Platform/SerializerFactory.h"
+using namespace std;
 
 namespace CipherShed
 {

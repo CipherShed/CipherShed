@@ -13,6 +13,7 @@
 #include "Buffer.h"
 #include "SharedPtr.h"
 #include "Stream.h"
+#include <list>
 
 namespace CipherShed
 {
@@ -37,7 +38,7 @@ namespace CipherShed
 		uint32 DeserializeUInt32 (const string &name);
 		uint64 DeserializeUInt64 (const string &name);
 		string DeserializeString (const string &name);
-		list <string> DeserializeStringList (const string &name);
+		std::list <string> DeserializeStringList (const string &name);
 		wstring DeserializeWString (const string &name);
 		list <wstring> DeserializeWStringList (const string &name);
 		void Serialize (const string &name, bool data);

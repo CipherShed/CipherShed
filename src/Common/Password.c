@@ -9,10 +9,10 @@
  contained in the file License.txt included in TrueCrypt binary and source
  code distribution packages. */
 
-#include "Tcdefs.h"
+
 
 #include "Crypto.h"
-#include "Volumes.h"
+
 #include "Password.h"
 #include "Dlgcode.h"
 #include "Language.h"
@@ -20,70 +20,82 @@
 #include "Endian.h"
 #include "Random.h"
 
+#if defined(_MSC_VER) || defined(__CYGWIN__)
 #include <io.h>
+#endif
+#include "strcpys.h"
 
-void VerifyPasswordAndUpdate (HWND hwndDlg, HWND hButton, HWND hPassword,
-			 HWND hVerify, unsigned char *szPassword,
-			 char *szVerify,
-			 BOOL keyFilesEnabled)
+#include "util/unicode/ConvertUTF.h"
+#include "util/unicode/strcmpw.h"
+
+#ifndef CS_UNITTESTING
+#ifdef _MSC_VER
+__inline
+#else
+inline 
+#endif
+#endif
+int strlenw(WCHAR* s)
 {
-	char szTmp1[MAX_PASSWORD + 1];
-	char szTmp2[MAX_PASSWORD + 1];
-	int k = GetWindowTextLength (hPassword);
-	BOOL bEnable = FALSE;
-
-	if (hwndDlg);		/* Remove warning */
-
-	GetWindowText (hPassword, szTmp1, sizeof (szTmp1));
-	GetWindowText (hVerify, szTmp2, sizeof (szTmp2));
-
-	if (strcmp (szTmp1, szTmp2) != 0)
-		bEnable = FALSE;
-	else
-	{
-		if (k >= MIN_PASSWORD || keyFilesEnabled)
-			bEnable = TRUE;
-		else
-			bEnable = FALSE;
-	}
-
-	if (szPassword != NULL)
-		memcpy (szPassword, szTmp1, sizeof (szTmp1));
-
-	if (szVerify != NULL)
-		memcpy (szVerify, szTmp2, sizeof (szTmp2));
-
-	burn (szTmp1, sizeof (szTmp1));
-	burn (szTmp2, sizeof (szTmp2));
-
-	EnableWindow (hButton, bEnable);
+	int len=0;
+	if (!s) return 0;
+	while (*s++) ++len;
+	return len;
 }
-
 
 BOOL CheckPasswordCharEncoding (HWND hPassword, Password *ptrPw)
 {
 	int i, len;
-	
+
+	//It would not make sense to have both parameters specified.
+	if (hPassword!=NULL && ptrPw!=NULL)
+	{
+		return FALSE;
+	}
+
+	if (hPassword==NULL && ptrPw==NULL)
+	{
+		return FALSE;
+	}
+
 	if (hPassword == NULL)
 	{
 		unsigned char *pw;
 		len = ptrPw->Length;
+
+		if (len>=sizeof(ptrPw->Text))
+		{
+			return FALSE;
+		}
+
 		pw = (unsigned char *) ptrPw->Text;
 
 		for (i = 0; i < len; i++)
 		{
 			//for i in `seq 32 126`; do printf "\x$(printf %x $i) "; done
 			if (pw[i] >= 0x7f || pw[i] < 0x20)	// A non-ASCII or non-printable character?
+			{
 				return FALSE;
+			}
 		}
 	}
 	else
 	{
 		wchar_t s[MAX_PASSWORD + 1];
-		len = GetWindowTextLength (hPassword);
+		// Below GetWindowTextW is called, ensure the same suffix functionis called 
+		// GetWindowTextLength may be defined as GetWindowTextLengthA which would at 
+		// best return double the length
+		len = GetWindowTextLengthW (hPassword);
 
+		// this is disingenuous here, because the GetWindowTextLength function docs say to use strlen 
+		// on the return from GetWindowText because GetWindowTextLength >= strlen
+		//
+		// This check should happen after GetWindowText
+		// len=strlen(s)
 		if (len > MAX_PASSWORD)
+		{
 			return FALSE; 
+		}
 
 		GetWindowTextW (hPassword, s, sizeof (s) / sizeof (wchar_t));
 
@@ -96,20 +108,96 @@ BOOL CheckPasswordCharEncoding (HWND hPassword, Password *ptrPw)
 		burn (s, sizeof(s));
 
 		if (i < len)
+		{
 			return FALSE; 
+		}
 	}
 
 	return TRUE;
 }
 
 
+void VerifyPasswordAndUpdate2 (HWND hwndDlg, HWND hButton, HWND hPassword,
+			 HWND hVerify, unsigned char *szPassword,
+			 int sizeOfPassword,
+			 char *szVerify,
+			 int sizeOfVerify,
+			 BOOL keyFilesEnabled)
+{
+	WCHAR szTmp1[MAX_PASSWORD + 1];
+	WCHAR szTmp2[MAX_PASSWORD + 1];
+	int k = GetWindowTextLengthW(hPassword);
+	BOOL bEnable = FALSE;
+	int len;
+	int r;
+
+	if (hwndDlg);		/* Remove warning */
+
+	GetWindowTextW(hPassword, szTmp1, sizeof (szTmp1)/sizeof(*szTmp1));
+	GetWindowTextW(hVerify, szTmp2, sizeof (szTmp2)/sizeof(*szTmp2));
+
+	if (strcmpw (szTmp1, szTmp2) != 0)
+		bEnable = FALSE;
+	else
+	{
+		if (k >= MIN_PASSWORD || keyFilesEnabled)
+			bEnable = TRUE;
+		else
+			bEnable = FALSE;
+	}
+
+	if (szPassword != NULL)
+	{
+		len=strlenw(szTmp1);
+		r=ConvertUTF16toUTF8s(szTmp1,len+1,szPassword,sizeOfPassword,strictConversion);
+		if (r!=conversionOK) bEnable=FALSE;
+	}
+
+	if (szVerify != NULL)
+	{
+		len=strlenw(szTmp2);
+		r=ConvertUTF16toUTF8s(szTmp2,len+1,(UTF8*)szVerify,sizeOfVerify,strictConversion);
+		if (r!=conversionOK) bEnable=FALSE;
+	}
+
+	//clean up memory which contains passwords or metadata (e.g. length)
+	burn (szTmp1, sizeof (szTmp1));
+	burn (szTmp2, sizeof (szTmp2));
+	k=0;
+	len=0;
+
+	EnableWindow (hButton, bEnable);
+}
+
+
 BOOL CheckPasswordLength (HWND hwndDlg, HWND hwndItem)
 {
-	if (GetWindowTextLength (hwndItem) < PASSWORD_LEN_WARNING)
+	return CheckPasswordLengthAlertTitle(hwndDlg, lpszTitle, hwndItem);
+}
+
+BOOL CheckPasswordLengthAlertTitle (HWND hwndDlg, wchar_t* title, HWND hwndItem)
+{
+	if (hwndDlg==NULL)
 	{
-#ifndef _DEBUG
-		if (MessageBoxW (hwndDlg, GetString ("PASSWORD_LENGTH_WARNING"), lpszTitle, MB_YESNO|MB_ICONWARNING|MB_DEFBUTTON2) != IDYES)
+		return FALSE;
+	}
+	
+	if (hwndItem==NULL)
+	{
+		return FALSE;
+	}
+
+	// Again, this is not what this function is for, use strlen on GetWindowText, it 
+	// can return a size twice the actual size of the string.
+	if (GetWindowTextLengthW (hwndItem) < PASSWORD_LEN_WARNING)
+	{
+//DEBUG builds do not have this dialog box prompt, and the function always returns true.
+#if !defined(_DEBUG) || defined(CS_UNITTESTING)
+		// The MessageBoxW function is taking the title bar text from a global var "lpszTitle" in Dlgcode.c
+		if (MessageBoxW (hwndDlg, GetString ("PASSWORD_LENGTH_WARNING"), title, MB_YESNO|MB_ICONWARNING|MB_DEFBUTTON2) != IDYES)
+		{
 			return FALSE;
+		}
 #endif
 	}
 	return TRUE;
@@ -253,7 +341,7 @@ int ChangePwd (char *lpszVolume, Password *oldPassword, Password *newPassword, i
 		}
 
 		/* Read in volume header */
-		if (!ReadEffectiveVolumeHeader (bDevice, dev, buffer, &bytesRead))
+		if (!ReadEffectiveVolumeHeader (bDevice, dev, (byte*)buffer, &bytesRead))
 		{
 			nStatus = ERR_OS_ERROR;
 			goto error;
@@ -333,7 +421,7 @@ int ChangePwd (char *lpszVolume, Password *oldPassword, Password *newPassword, i
 				cryptoInfo->mode,
 				newPassword,
 				cryptoInfo->pkcs5,
-				cryptoInfo->master_keydata,
+				(char*)cryptoInfo->master_keydata, //unsigned __int8
 				&ci,
 				cryptoInfo->VolumeSize.Value,
 				(volumeType == TC_VOLUME_TYPE_HIDDEN || volumeType == TC_VOLUME_TYPE_HIDDEN_LEGACY) ? cryptoInfo->hiddenVolumeSize : 0,
@@ -356,7 +444,7 @@ int ChangePwd (char *lpszVolume, Password *oldPassword, Password *newPassword, i
 				goto error;
 			}
 
-			if (!WriteEffectiveVolumeHeader (bDevice, dev, buffer))
+			if (!WriteEffectiveVolumeHeader (bDevice, dev, (byte*)buffer))
 			{
 				nStatus = ERR_OS_ERROR;
 				goto error;

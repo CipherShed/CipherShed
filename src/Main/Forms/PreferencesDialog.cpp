@@ -6,7 +6,7 @@
  packages.
 */
 
-#include "System.h"
+#include "../System.h"
 #ifndef CS_UNITTESTING
 #include <wx/dynlib.h>
 #ifdef TC_WINDOWS
@@ -14,6 +14,7 @@
 #endif
 #endif
 #include "../../Common/SecurityToken.h"
+using namespace std;
 #include "../Main.h"
 #include "../Application.h"
 #include "../GraphicUserInterface.h"
@@ -302,7 +303,14 @@ namespace CipherShed
 #ifdef TC_WINDOWS
 		Hotkey::RegisterList (Gui->GetMainFrame(), UnregisteredHotkeys);
 #endif
-		event.Skip();
+		if (IsModal())
+		{
+			EndModal(wxID_CANCEL);
+		}
+		else
+		{
+			Destroy();
+		}
 	}
 
 	void PreferencesDialog::OnDismountOnPowerSavingCheckBoxClick (wxCommandEvent& event)
@@ -420,7 +428,7 @@ namespace CipherShed
 #endif
 		if (!libExtension.empty())
 		{
-			extensions.push_back (make_pair (libExtension.Mid (libExtension.find (L'.') + 1), LangString["DLL_FILES"]));
+			extensions.push_back (make_pair (libExtension.Mid (libExtension.find (L'.') + 1).wc_str(), LangString["DLL_FILES"].wc_str()));
 			extensions.push_back (make_pair (L"*", L""));
 		}
 

@@ -37,8 +37,11 @@ using namespace	Microsoft::VisualStudio::TestTools::UnitTesting;
 //http://msdn.microsoft.com/en-us/library/Microsoft.VisualStudio.TestTools.UnitTesting.Assert_methods.aspx
 //http://cpptest.sourceforge.net/cpptest-assert_8h.html
 #define TEST_ASSERT(x) Assert::IsTrue(x);
+#define TEST_ASSERT_MSG(x,y) Assert::IsTrue(x,gcnew String(y));
+//debug messages...
+//http://stackoverflow.com/questions/16815804/how-to-get-console-output-in-visual-studio-2012-unit-tests
 #else
-#include <cpptest.h>
+#include "../../var/opt/cpptest-code/cpptest/src/cpptest.h"
 #define TESTCLASS
 #define TESTMETHOD
 #define PUBLIC_REF_CLASS class

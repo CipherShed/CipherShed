@@ -15,6 +15,8 @@
 #include "../../Volume/VolumeInfo.h"
 #include "../../Volume/Volume.h"
 
+#include <memory>
+
 namespace CipherShed
 {
 
@@ -66,7 +68,7 @@ namespace CipherShed
 		static VolumeSlotNumber SlotNumber;
 		static uid_t UserId;
 		static gid_t GroupId;
-		static auto_ptr <Pipe> SignalHandlerPipe;
+		static std::auto_ptr <Pipe> SignalHandlerPipe;
 	};
 }
 

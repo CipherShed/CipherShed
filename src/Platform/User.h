@@ -10,6 +10,7 @@
 #define TC_HEADER_Platform_User
 
 #include "PlatformBase.h"
+using namespace std;
 
 #ifdef TC_UNIX
 #include <unistd.h>
@@ -21,7 +22,7 @@ namespace CipherShed
 	struct UserId
 	{
 		UserId () { }
-#ifdef TC_UNIX
+#if defined(TC_UNIX) || defined(CS_UNITTESTING)
 		UserId (uid_t systemId) : SystemId (systemId) { }
 
 		uid_t SystemId;

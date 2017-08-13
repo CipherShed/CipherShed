@@ -590,5 +590,5 @@ namespace CipherShed
 	VolumeSlotNumber FuseService::SlotNumber;
 	uid_t FuseService::UserId;
 	gid_t FuseService::GroupId;
-	auto_ptr <Pipe> FuseService::SignalHandlerPipe;
+	std::auto_ptr <Pipe> FuseService::SignalHandlerPipe;
 }

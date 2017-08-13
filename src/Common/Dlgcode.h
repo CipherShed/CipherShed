@@ -28,6 +28,16 @@
 #include "Keyfiles.h"
 #include "Wipe.h"
 
+#include "dialog/cursor.h"
+#include "dialog/errors.h"
+#include "dialog/userperms.h"
+#include "util/csstringutil.h"
+#include "volume/volutil.h"
+#include "fsutil/fsutil.h"
+#include "fsutil/diskutil.h"
+#include "util/process.h"
+#include "util/memory.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -130,7 +140,7 @@ extern HFONT WindowTitleBarFont;
 extern int ScreenDPI;
 extern double DlgAspectRatio;
 extern HWND MainDlg;
-extern BOOL Silent;
+//moved to errors.h
 extern BOOL bHistory;
 extern BOOL bPreserveTimestamp;
 extern BOOL bStartOnLogon;
@@ -156,7 +166,7 @@ extern BOOL bInPlaceEncNonSysPending;
 extern BOOL	KeyFilesEnable;
 extern KeyFile	*FirstKeyFile;
 extern KeyFilesDlgParam		defaultKeyFilesParam;
-extern BOOL UacElevated;
+//moved to userperms.h
 extern BOOL IgnoreWmDeviceChange;
 extern BOOL DeviceChangeBroadcastDisabled;
 extern BOOL LastMountedVolumeDirty;
@@ -243,29 +253,23 @@ typedef struct
 #define PRINT_TOOL "notepad"
 
 void cleanup ( void );
-void LowerCaseCopy ( char *lpszDest , const char *lpszSource );
-void UpperCaseCopy ( char *lpszDest , const char *lpszSource );
-void CreateFullVolumePath ( char *lpszDiskFile , const char *lpszFileName , BOOL *bDevice );
+//moved to csstringutil.h
+//moved to volutil.h
 int FakeDosNameForDevice ( const char *lpszDiskFile , char *lpszDosDevice , char *lpszCFDevice , BOOL bNameOnly );
 int RemoveFakeDosName ( char *lpszDiskFile , char *lpszDosDevice );
-void AbortProcess ( char *stringId );
-void AbortProcessSilent ( void );
-void *err_malloc ( size_t size );
+//moved to process.h
+//moved to memory.h
 char *err_strdup ( char *lpszText );
-DWORD handleWin32Error ( HWND hwndDlg );
-BOOL IsDiskReadError (DWORD error);
-BOOL IsDiskWriteError (DWORD error);
-BOOL IsDiskError (DWORD error);
-BOOL translateWin32Error ( wchar_t *lpszMsgBuf , int nWSizeOfBuf );
+//moved to errors.h
+//moved to diskutil.h
+//moved to errors.h
 BOOL CALLBACK AboutDlgProc ( HWND hwndDlg , UINT msg , WPARAM wParam , LPARAM lParam );
 static BOOL CALLBACK StaticModelessWaitDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam);
 void DisplayStaticModelessWaitDlg (HWND parent);
 void CloseStaticModelessWaitDlg (void);
 BOOL IsButtonChecked ( HWND hButton );
 void CheckButton ( HWND hButton );
-void LeftPadString (char *szTmp, int len, int targetLen, char filler);
-void ToSBCS ( LPWSTR lpszText );
-void ToUNICODE ( char *lpszText );
+//moved to csstringutil.h
 void InitDialog ( HWND hwndDlg );
 void ProcessPaintMessages (HWND hwnd, int maxMessagesToProcess);
 HDC CreateMemBitmap ( HINSTANCE hInstance , HWND hwnd , char *resource );
@@ -274,10 +278,7 @@ LRESULT CALLBACK RedTick ( HWND hwnd , UINT uMsg , WPARAM wParam , LPARAM lParam
 BOOL RegisterRedTick ( HINSTANCE hInstance );
 BOOL UnregisterRedTick ( HINSTANCE hInstance );
 LRESULT CALLBACK SplashDlgProc ( HWND hwnd , UINT uMsg , WPARAM wParam , LPARAM lParam );
-void WaitCursor ( void );
-void NormalCursor ( void );
-void ArrowWaitCursor ( void );
-void HandCursor ();
+//moved to cursor.h
 void AddComboPair (HWND hComboBox, const char *lpszItem, int value);
 void AddComboPairW (HWND hComboBox, const wchar_t *lpszItem, int value);
 void SelectAlgo ( HWND hComboBox , int *nCipher );
@@ -313,8 +314,7 @@ void InitApp ( HINSTANCE hInstance, char *lpszCommandLine );
 void InitHelpFileName (void);
 BOOL OpenDevice (const char *lpszPath, OPEN_TEST_STRUCT *driver, BOOL detectFilesystem);
 void NotifyDriverOfPortableMode (void);
-int GetAvailableFixedDisks ( HWND hComboBox , char *lpszRootPath );
-int GetAvailableRemovables ( HWND hComboBox , char *lpszRootPath );
+//removed unused function declarations
 int IsSystemDevicePath (char *path, HWND hwndDlg, BOOL bReliableRequired);
 BOOL CALLBACK RawDevicesDlgProc ( HWND hwndDlg , UINT msg , WPARAM wParam , LPARAM lParam );
 BOOL TextInfoDialogBox (int nID);
@@ -330,7 +330,7 @@ void ResetCipherTest ( HWND hwndDlg , int idTestCipher );
 void ResetCurrentDirectory ();
 BOOL BrowseFiles (HWND hwndDlg, char *stringId, char *lpszFileName, BOOL keepHistory, BOOL saveMode, wchar_t *browseFilter);
 BOOL BrowseDirectories (HWND hWnd, char *lpszTitle, char *dirName);
-void handleError ( HWND hwndDlg , int code );
+//moved to errors.h
 BOOL CheckFileStreamWriteErrors (FILE *file, const char *fileName);
 void LocalizeDialog ( HWND hwnd, char *stringId );
 void OpenVolumeExplorerWindow (int driveNo);
@@ -350,14 +350,11 @@ void BroadcastDeviceChange (WPARAM message, int nDosDriveNo, DWORD driveMap);
 int MountVolume (HWND hwndDlg, int driveNo, char *volumePath, Password *password, BOOL cachePassword, BOOL sharedAccess,  const MountOptions* const mountOptions, BOOL quiet, BOOL bReportWrongPassword);
 BOOL UnmountVolume (HWND hwndDlg , int nDosDriveNo, BOOL forceUnmount);
 BOOL IsPasswordCacheEmpty (void);
-BOOL IsMountedVolume (const char *volname);
-int GetMountedVolumeDriveNo (char *volname);
-BOOL IsAdmin (void);
-BOOL IsBuiltInAdmin ();
-BOOL IsUacSupported ();
-BOOL ResolveSymbolicLink (const wchar_t *symLinkName, PWSTR targetName);
-int GetDiskDeviceDriveLetter (PWSTR deviceName);
-int FileSystemAppearsEmpty (const char *devicePath);
+//moved to volutil.h
+//moved to userperms.h
+//moved to fsutil.h
+//moved to diskutil.h
+//moved to fsutil.h
 __int64 GetStatsFreeSpaceOnPartition (const char *devicePath, float *percent, __int64 *occupiedBytes, BOOL silent);
 __int64 GetDeviceSize (const char *devicePath);
 HANDLE DismountDrive (char *devName, char *devicePath);
@@ -395,36 +392,7 @@ char *GetConfigPath (char *fileName);
 char *GetProgramConfigPath (char *fileName);
 char GetSystemDriveLetter (void);
 void OpenPageHelp (HWND hwndDlg, int nPage);
-void TaskBarIconDisplayBalloonTooltip (HWND hwnd, wchar_t *headline, wchar_t *text, BOOL warning);
-void InfoBalloon (char *headingStringId, char *textStringId);
-void InfoBalloonDirect (wchar_t *headingString, wchar_t *textString);
-void WarningBalloon (char *headingStringId, char *textStringId);
-void WarningBalloonDirect (wchar_t *headingString, wchar_t *textString);
-int Info (char *stringId);
-int InfoTopMost (char *stringId);
-int InfoDirect (const wchar_t *msg);
-int Warning (char *stringId);
-int WarningTopMost (char *stringId);
-int WarningDirect (const wchar_t *warnMsg);
-int Error (char *stringId);
-int ErrorDirect (const wchar_t *errMsg);
-int ErrorTopMost (char *stringId);
-int AskYesNo (char *stringId);
-int AskYesNoString (const wchar_t *str);
-int AskYesNoTopmost (char *stringId);
-int AskNoYes (char *stringId);
-int AskOkCancel (char *stringId);
-int AskWarnYesNo (char *stringId);
-int AskWarnYesNoString (const wchar_t *string);
-int AskWarnYesNoTopmost (char *stringId);
-int AskWarnYesNoStringTopmost (const wchar_t *string);
-int AskWarnNoYes (char *stringId);
-int AskWarnNoYesString (const wchar_t *string);
-int AskWarnNoYesTopmost (char *stringId);
-int AskWarnOkCancel (char *stringId);
-int AskWarnCancelOk (char *stringId);
-int AskErrYesNo (char *stringId);
-int AskErrNoYes (char *stringId);
+//moved to errors.h
 int AskMultiChoice (void *strings[], BOOL bBold);
 BOOL ConfigWriteBegin ();
 BOOL ConfigWriteEnd ();
@@ -436,10 +404,7 @@ void RestoreDefaultKeyFilesParam (void);
 BOOL LoadDefaultKeyFilesParam (void);
 void Debug (char *format, ...);
 void DebugMsgBox (char *format, ...);
-BOOL IsOSAtLeast (OSVersionEnum reqMinOS);
-BOOL IsOSVersionAtLeast (OSVersionEnum reqMinOS, int reqMinServicePack);
-BOOL Is64BitOs ();
-BOOL IsServerOS ();
+//moved to userperms.h
 BOOL IsHiddenOSRunning (void);
 BOOL EnableWow64FsRedirection (BOOL enable);
 BOOL RestartComputer (void);
@@ -449,15 +414,13 @@ void HandleDriveNotReadyError ();
 BOOL CALLBACK CloseTCWindowsEnum( HWND hwnd, LPARAM lParam);
 BOOL CALLBACK FindTCWindowEnum (HWND hwnd, LPARAM lParam);
 BYTE *MapResource (char *resourceType, int resourceId, PDWORD size);
-void InconsistencyResolved (char *msg);
-void ReportUnexpectedState (char *techInfo);
+//moved to errors.h
 BOOL SelectMultipleFiles (HWND hwndDlg, char *stringId, char *lpszFileName, BOOL keepHistory);
 BOOL SelectMultipleFilesNext (char *lpszFileName);
 void OpenOnlineHelp ();
 BOOL GetPartitionInfo (const char *deviceName, PPARTITION_INFORMATION rpartInfo);
-BOOL GetDeviceInfo (const char *deviceName, DISK_PARTITION_INFO_STRUCT *info);
-BOOL GetDriveGeometry (const char *deviceName, PDISK_GEOMETRY diskGeometry);
-BOOL IsVolumeDeviceHosted (const char *lpszDiskFile);
+//moved to diskutil.h
+//moved to volutil.h
 int CompensateXDPI (int val);
 int CompensateYDPI (int val);
 int CompensateDPIFont (int val);
@@ -484,7 +447,7 @@ void CheckFilesystem (int driveNo, BOOL fixErrors);
 BOOL BufferContainsString (const byte *buffer, size_t bufferSize, const char *str);
 int AskNonSysInPlaceEncryptionResume ();
 BOOL RemoveDeviceWriteProtection (HWND hwndDlg, char *devicePath);
-void EnableElevatedCursorChange (HWND parent);
+//moved to userperms.h
 BOOL DisableFileCompression (HANDLE file);
 BOOL VolumePathExists (char *volumePath);
 BOOL IsWindowsIsoBurnerAvailable ();
@@ -533,19 +496,14 @@ struct HostDevice
 };
 
 BOOL BrowseFilesInDir (HWND hwndDlg, char *stringId, char *initialDir, char *lpszFileName, BOOL keepHistory, BOOL saveMode, wchar_t *browseFilter, const wchar_t *initialFileName = NULL, const wchar_t *defaultExtension = NULL);
-std::wstring SingleStringToWide (const std::string &singleString);
-std::wstring Utf8StringToWide (const std::string &utf8String);
-std::string WideToSingleString (const std::wstring &wideString);
-std::string WideToUtf8String (const std::wstring &wideString);
-std::string StringToUpperCase (const std::string &str);
+//moved to csstringutil.h
 std::vector <HostDevice> GetAvailableHostDevices (bool noDeviceProperties = false, bool singleList = false, bool noFloppy = true, bool detectUnencryptedFilesystems = false);
-std::string ToUpperCase (const std::string &str);
-std::wstring GetWrongPasswordErrorMessage (HWND hwndDlg);
+//moved to csstringutil.h
+//moved to errors.h
 std::string GetWindowsEdition ();
 std::string FitPathInGfxWidth (HWND hwnd, HFONT hFont, LONG width, const std::string &path);
 std::string GetServiceConfigPath (const char *fileName);
-std::string VolumeGuidPathToDevicePath (std::string volumeGuidPath);
-std::string HarddiskVolumePathToPartitionPath (const std::string &harddiskVolumePath);
+//moved to volutil.h
 std::string FindLatestFileOrDirectory (const std::string &directory, const char *namePattern, bool findDirectory, bool findFile);
 std::string GetUserFriendlyVersionString (int version);
 

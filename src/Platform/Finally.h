@@ -10,6 +10,7 @@
 #define TC_HEADER_Platform_Finally
 
 #include "PlatformBase.h"
+using namespace std;
 
 // Execute code when leaving scope
 #define finally_do(code) \

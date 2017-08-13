@@ -12,6 +12,10 @@
 #include <fcntl.h>
 #endif
 
+#ifdef CS_UNITTESTING
+#include <unistd.h>
+#endif
+
 #include "RandomNumberGenerator.h"
 #include "../Volume/Crc32.h"
 

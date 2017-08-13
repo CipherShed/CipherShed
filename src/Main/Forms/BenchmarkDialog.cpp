@@ -6,7 +6,7 @@
  packages.
 */
 
-#include "System.h"
+#include "../System.h"
 #include "../../Volume/EncryptionModeXTS.h"
 #include "../GraphicUserInterface.h"
 #include "BenchmarkDialog.h"

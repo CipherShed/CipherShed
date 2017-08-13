@@ -4,6 +4,14 @@
 #include "BOOL.h"
 #include "HANDLE.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 BOOL FlushFileBuffers(HANDLE hFile);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -1,6 +1,7 @@
 #ifndef _faux_windows_GetWindowText_h_
 #define _faux_windows_GetWindowText_h_
 
+#include "GetWindowTextLength.h"
 #include "HWND.h"
 #include "CHAR.h"
 #include "WCHAR.h"
@@ -9,7 +10,12 @@
 extern "C" {
 #endif
 
-int GetWindowText(HWND hWnd, LPSTR lpString, int nMaxCount);
+#ifdef UNICODE
+#define GetWindowText  GetWindowTextW
+#else
+#define GetWindowText  GetWindowTextA
+#endif // !UNICODE
+
 int GetWindowTextA(HWND hWnd, LPSTR lpString, int nMaxCount);
 int GetWindowTextW(HWND hWnd, LPWSTR lpString, int nMaxCount);
 

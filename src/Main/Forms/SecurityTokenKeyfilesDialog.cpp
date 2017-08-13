@@ -6,9 +6,10 @@
  packages.
 */
 
-#include "System.h"
+#include "../System.h"
 #include "../GraphicUserInterface.h"
 #include "../../Common/SecurityToken.h"
+using namespace std;
 #include "NewSecurityTokenKeyfileDialog.h"
 #include "SecurityTokenKeyfilesDialog.h"
 

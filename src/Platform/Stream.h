@@ -10,6 +10,7 @@
 #define TC_HEADER_Platform_Stream
 
 #include "PlatformBase.h"
+using namespace std;
 #include "Buffer.h"
 
 namespace CipherShed

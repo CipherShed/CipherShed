@@ -1,0 +1,324 @@
+Notes to self for file operations:
+00.qed - ended on reboot before encryption pre-test (verified to boot Windows)
+01.qed - ended on reboot after encryption (verified to fail)
+02.qed - ended on halt after bootloader repair (verified to boot Windows)
+"Ended on x" meaning x is the last thing that made operations on the disk before new writes were redirected to a new snapshot file.
+
+Each of these drives were added to a Linux machine in read-only mode as /dev/vda, /dev/vdb, /dev/vdc
+
+First sector was copied from each of these block devices to files of corresponding names
+
+$ sudo dd if=/dev/vda bs=512 count=1 > ~/Desktop/vda.mbr.bin
+$ sudo dd if=/dev/vdb bs=512 count=1 > ~/Desktop/vdb.mbr.bin
+$ sudo dd if=/dev/vdc bs=512 count=1 > ~/Desktop/vdc.mbr.bin
+
+vda is right when Windows reboots to see if the new bootloader works, matches the bootloader installed by rescue disk (vdc).
+vdb, which is after encryption is finished, does not match.
+
+$ md5sum -b ~/Desktop/*.mbr.bin
+54d5c530df5b47ab10ef3223c71f6c41 */home/xubuntu/Desktop/vda.mbr.bin
+87d8b9f5fb2a37906e872326fd1ef131 */home/xubuntu/Desktop/vdb.mbr.bin
+54d5c530df5b47ab10ef3223c71f6c41 */home/xubuntu/Desktop/vdc.mbr.bin
+
+And xxd dump of vda follows:
+$ xxd ~/Desktop/vda.mbr.bin
+0000000: ea1f 7c00 0020 4369 7068 6572 5368 6564  ..|.. CipherShed
+0000010: 2042 6f6f 7420 4c6f 6164 6572 0d0a 00fa   Boot Loader....
+0000020: 33c0 8ed8 8ed0 bc00 7cfb f606 b67d 0175  3.......|....}.u
+0000030: 078d 3605 7ce8 dc00 b800 9081 3e13 046a  ..6.|.......>..j
+0000040: 027d 0eb8 0080 813e 1304 2a02 7d03 b800  .}.....>..*.}...
+0000050: 208e c032 c0bf 0001 b9ff a6fc f3aa 8cc0   ..2............
+0000060: 2d00 088e c0b1 02b0 04bb 0001 e8b4 0066  -..............f
+0000070: 33db be00 01b9 0008 e8ba 0066 53bb 000d  3..........fS...
+0000080: b106 b039 f606 477d 0174 04b0 1ab1 24e8  ...9..G}.t....$.
+0000090: 9100 665b be00 0d8b 0eb0 7de8 9700 663b  ..f[......}...f;
+00000a0: 1eb2 7d74 25f6 0647 7d01 750e c606 477d  ..}t%..G}.u...G}
+00000b0: 01b1 20f6 06b7 7d02 75ad 8d36 567d e853  .. ...}.u..6V}.S
+00000c0: 008d 3605 7ce8 4c00 ebfe 8cc0 8ed8 fa8e  ..6.|.L.........
+00000d0: d0bc 0080 fb52 680a 0d68 007a 6800 810e  .....Rh..h.zh...
+00000e0: 68e8 7c06 6800 01cb 83c4 065a 0e1f 85c0  h.|.h......Z....
+00000f0: 7409 8d36 567d e81b 00eb fe8a 36b7 7d8c  t..6V}......6.}.
+0000100: c005 0008 8ec0 8ed8 fa8e d0bc fca7 fb06  ................
+0000110: 6800 01cb 33db b40e fcac 84c0 7404 cd10  h...3.......t...
+0000120: ebf7 c3b5 00b6 00b4 02cd 1373 078d 3648  ...........s..6H
+0000130: 7de8 e0ff c31e 061f 6633 c0fc ac66 03d8  }.......f3...f..
+0000140: 66d1 c3e2 f71f c300 4469 736b 2065 7272  f.......Disk err
+0000150: 6f72 0d0a 0700 074c 6f61 6465 7220 6461  or.....Loader da
+0000160: 6d61 6765 6421 2055 7365 2052 6573 6375  maged! Use Rescu
+0000170: 6520 4469 736b 3a20 5265 7061 6972 204f  e Disk: Repair O
+0000180: 7074 696f 6e73 203e 2052 6573 746f 7265  ptions > Restore
+0000190: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00001a0: 0000 0000 0000 0000 0000 0000 0000 0730  ...............0
+00001b0: 0048 6679 31f1 0004 a11c 74d2 0000 8020  .Hfy1.....t.... 
+00001c0: 2100 07df 130c 0008 0000 0020 0300 00df  !.......... ....
+00001d0: 140c 07fe ffff 0028 0300 00d0 fc03 0000  .......(........
+00001e0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00001f0: 0000 0000 0000 0000 0000 0000 0000 55aa  ..............U.
+
+When diffing xxd dumps of vda and vdb, the only difference is 1 bit in a byte located at 0x1b7:
+$ diff ~/Desktop/vda.mbr.xxd ~/Desktop/vdb.mbr.xxd
+28c28
+< 00001b0: 0048 6679 31f1 0004 a11c 74d2 0000 8020  .Hfy1.....t.... 
+---
+> 00001b0: 0048 6679 31f1 0000 a11c 74d2 0000 8020  .Hfy1.....t.... 
+
+0x04 is missing in vdb.
+
+My first thought after seeing where the difference lies is that the partition table was being modified. To test my theory, I researched into MBR specification and found that the difference is before the partition table. The first partition in an MBR partition table starts at 0x1be. At that exact address is a byte representing the bootable flag. In this case, the first partition has 0x80 at that address, indicating it's bootable. This matches what partitioning tools say about all 3 versions of the partition tables. Partitioning tools see no difference between all of the partition tables, as the 1-bit difference lies before the partition table.
+
+$ echo $((0x1b7))
+439
+
+The off-byte is 439 bytes after the first byte (0x00) into the first sector. src/Boot/Windows/BootDefs.h says:
+#define TC__BOOT_SECTOR_CONFIG_OFFSET 439	// The last byte that is reserved for the boot loader
+
+Immediately above that line reveals that all the nonzero bytes before the partition table are configuration bytes for the boot loader.
+
+$ cat -n ~/src/ciphershed/src/Boot/Windows/BootSector.asm
+. . .
+   164		; DH = boot sector flags
+   165		mov dh, byte ptr [start + TC_BOOT_SECTOR_CONFIG_OFFSET]
+   166		
+   167		; Set up boot loader segment
+   168		mov ax, es
+   169		add ax, TC_BOOT_LOADER_DECOMPRESSOR_MEMORY_SIZE / 16
+   170		mov es, ax
+   171		mov ds, ax
+   172		cli
+   173		mov ss, ax
+   174		mov sp, TC_BOOT_LOADER_STACK_TOP
+   175		sti
+   176	
+   177		; Execute boot loader
+   178		push es
+   179		push TC_COM_EXECUTABLE_OFFSET
+   180		retf
+. . .
+
+It looks like that byte is loaded into dh and used by TC COM EXECUTABLE during it's operations.
+
+BootDefs.h says:
+#define TC__COM_EXECUTABLE_OFFSET		TC_HEX (100)
+
+and:
+#define TC_HEX(N) 0x##N
+
+so offset is just 0x100 or 256
+
+BootConfig.h says:
+extern byte BootSectorFlags;
+
+Since that sounds a lot like what I'm looking for, I searched all the src/Boot/Windows files for BootSectorFlags:
+$ find . -type f | while read file ; do grep 'BootSectorFlags' "$file" /dev/null -C 10 ; done
+./BootConfig.cpp-/*
+./BootConfig.cpp- Copyright (c) 2008-2012 TrueCrypt Developers Association. All rights reserved.
+./BootConfig.cpp-
+./BootConfig.cpp- Governed by the TrueCrypt License 3.0 the full text of which is contained in
+./BootConfig.cpp- the file License.txt included in TrueCrypt binary and source code distribution
+./BootConfig.cpp- packages.
+./BootConfig.cpp-*/
+./BootConfig.cpp-
+./BootConfig.cpp-#include "BootConfig.h"
+./BootConfig.cpp-
+./BootConfig.cpp:byte BootSectorFlags;
+./BootConfig.cpp-
+./BootConfig.cpp-byte BootLoaderDrive;
+./BootConfig.cpp-byte BootDrive;
+./BootConfig.cpp-bool BootDriveGeometryValid = false;
+./BootConfig.cpp-bool PreventNormalSystemBoot = false;
+./BootConfig.cpp-bool PreventBootMenu = false;
+./BootConfig.cpp-char CustomUserMessage[TC_BOOT_SECTOR_USER_MESSAGE_MAX_LENGTH + 1];
+./BootConfig.cpp-uint32 OuterVolumeBackupHeaderCrc;
+./BootConfig.cpp-
+./BootConfig.cpp-bool BootStarted = false;
+--
+./BootConfig.cpp-
+./BootConfig.cpp-
+./BootConfig.cpp-BiosResult UpdateBootSectorConfiguration (byte drive)
+./BootConfig.cpp-{
+./BootConfig.cpp-	AcquireSectorBuffer();
+./BootConfig.cpp-
+./BootConfig.cpp-	BiosResult result = ReadWriteMBR (false, drive);
+./BootConfig.cpp-	if (result != BiosResultSuccess)
+./BootConfig.cpp-		goto ret;
+./BootConfig.cpp-
+./BootConfig.cpp:	SectorBuffer[TC_BOOT_SECTOR_CONFIG_OFFSET] = BootSectorFlags;
+./BootConfig.cpp-	result = ReadWriteMBR (true, drive);
+./BootConfig.cpp-
+./BootConfig.cpp-ret:
+./BootConfig.cpp-	ReleaseSectorBuffer();
+./BootConfig.cpp-	return result;
+./BootConfig.cpp-}
+./BootConfig.cpp-
+./BootConfig.cpp-#endif // !TC_WINDOWS_BOOT_RESCUE_DISK_MODE
+./IntFilter.cpp-		IntRegisters.Flags &= ~TC_X86_CARRY_FLAG;
+./IntFilter.cpp-		IntRegisters.EAX = 0x534D4150UL;
+./IntFilter.cpp-
+./IntFilter.cpp-		++IntRegisters.EBX;
+./IntFilter.cpp-		if (IntRegisters.EBX >= BiosMemoryMapSize)
+./IntFilter.cpp-			IntRegisters.EBX = 0;
+./IntFilter.cpp-
+./IntFilter.cpp-		IntRegisters.ECX = sizeof (BiosMemoryMap[0]);
+./IntFilter.cpp-	}
+./IntFilter.cpp-
+./IntFilter.cpp:	if (IntRegisters.EBX == 0 && !(BootSectorFlags & TC_BOOT_CFG_FLAG_WINDOWS_VISTA_OR_LATER))
+./IntFilter.cpp-	{
+./IntFilter.cpp-		// Uninstall filter when the modified map has been issued three times to prevent
+./IntFilter.cpp-		// problems with hardware drivers on some notebooks running Windows XP.
+./IntFilter.cpp-
+./IntFilter.cpp-		static int CompleteMapIssueCount = 0;
+./IntFilter.cpp-		if (++CompleteMapIssueCount >= 3)
+./IntFilter.cpp-		{
+./IntFilter.cpp-			__asm
+./IntFilter.cpp-			{
+./IntFilter.cpp-				cli
+./BootConfig.h- packages.
+./BootConfig.h-*/
+./BootConfig.h-
+./BootConfig.h-#ifndef TC_HEADER_Boot_BootConfig
+./BootConfig.h-#define TC_HEADER_Boot_BootConfig
+./BootConfig.h-
+./BootConfig.h-#include "../../Common/Crypto.h"
+./BootConfig.h-#include "Platform.h"
+./BootConfig.h-#include "BootDiskIo.h"
+./BootConfig.h-
+./BootConfig.h:extern byte BootSectorFlags;
+./BootConfig.h-
+./BootConfig.h-extern byte BootLoaderDrive;
+./BootConfig.h-extern byte BootDrive;
+./BootConfig.h-extern bool BootDriveGeometryValid;
+./BootConfig.h-extern DriveGeometry BootDriveGeometry;
+./BootConfig.h-extern bool PreventNormalSystemBoot;
+./BootConfig.h-extern bool PreventBootMenu;
+./BootConfig.h-extern char CustomUserMessage[TC_BOOT_SECTOR_USER_MESSAGE_MAX_LENGTH + 1];
+./BootConfig.h-extern uint32 OuterVolumeBackupHeaderCrc;
+./BootConfig.h-
+./BootMain.cpp-static void PrintMainMenu ()
+./BootMain.cpp-{
+./BootMain.cpp-	if (PreventBootMenu)
+./BootMain.cpp-		return;
+./BootMain.cpp-
+./BootMain.cpp-	Print ("    Keyboard Controls:\r\n");
+./BootMain.cpp-	Print ("    [Esc]  ");
+./BootMain.cpp-
+./BootMain.cpp-#ifndef TC_WINDOWS_BOOT_RESCUE_DISK_MODE
+./BootMain.cpp-
+./BootMain.cpp:	Print ((BootSectorFlags & TC_BOOT_CFG_MASK_HIDDEN_OS_CREATION_PHASE) != TC_HIDDEN_OS_CREATION_PHASE_NONE
+./BootMain.cpp-		? "Boot Non-Hidden System (Boot Manager)"
+./BootMain.cpp-		: "Skip Authentication (Boot Manager)");
+./BootMain.cpp-	
+./BootMain.cpp-#else // TC_WINDOWS_BOOT_RESCUE_DISK_MODE
+./BootMain.cpp-
+./BootMain.cpp-	Print ("Skip Authentication (Boot Manager)");
+./BootMain.cpp-	Print ("\r\n    [F8]   "); Print ("Repair Options");
+./BootMain.cpp-
+./BootMain.cpp-#endif // TC_WINDOWS_BOOT_RESCUE_DISK_MODE
+./BootMain.cpp-
+--
+./BootMain.cpp-			RestoreNone = 0,
+./BootMain.cpp-			DecryptVolume,
+./BootMain.cpp-			RestoreCipherShedLoader,
+./BootMain.cpp-			RestoreVolumeHeader,
+./BootMain.cpp-			RestoreOriginalSystemLoader
+./BootMain.cpp-		};
+./BootMain.cpp-
+./BootMain.cpp-		static const char *options[] = { "Permanently decrypt system partition/drive", "Restore CipherShed Boot Loader", "Restore key data (volume header)", "Restore original system loader" };
+./BootMain.cpp-
+./BootMain.cpp-		int selection = AskSelection (options,
+./BootMain.cpp:			(BootSectorFlags & TC_BOOT_CFG_FLAG_RESCUE_DISK_ORIG_SYS_LOADER) ? array_capacity (options) : array_capacity (options) - 1);
+./BootMain.cpp-
+./BootMain.cpp-		PrintEndl();
+./BootMain.cpp-
+./BootMain.cpp-		switch (selection)
+./BootMain.cpp-		{
+./BootMain.cpp-			case RestoreNone:
+./BootMain.cpp-				return;
+./BootMain.cpp-
+./BootMain.cpp-			case DecryptVolume:
+./BootMain.cpp-				DecryptDrive (BootDrive);
+--
+./BootMain.cpp-
+./BootMain.cpp-
+./BootMain.cpp-#ifndef DEBUG
+./BootMain.cpp-extern "C" void _acrtused () { }  // Required by linker
+./BootMain.cpp-#endif
+./BootMain.cpp-
+./BootMain.cpp-
+./BootMain.cpp-void main ()
+./BootMain.cpp-{
+./BootMain.cpp-	__asm mov BootLoaderDrive, dl
+./BootMain.cpp:	__asm mov BootSectorFlags, dh
+./BootMain.cpp-
+./BootMain.cpp-#ifdef TC_BOOT_TRACING_ENABLED
+./BootMain.cpp-	InitDebugPort();
+./BootMain.cpp-#endif
+./BootMain.cpp-
+./BootMain.cpp-#ifdef TC_BOOT_STACK_CHECKING_ENABLED
+./BootMain.cpp-	InitStackChecker();
+./BootMain.cpp-#endif
+./BootMain.cpp-
+./BootMain.cpp-#ifndef TC_WINDOWS_BOOT_RESCUE_DISK_MODE
+./BootMain.cpp-	ReadBootSectorUserConfiguration();
+./BootMain.cpp-#elif defined (TC_WINDOWS_BOOT_AES)
+./BootMain.cpp:	EnableHwEncryption (!(BootSectorFlags & TC_BOOT_CFG_FLAG_RESCUE_DISABLE_HW_ENCRYPTION));
+./BootMain.cpp-#endif
+./BootMain.cpp-
+./BootMain.cpp-	InitVideoMode();
+./BootMain.cpp-	InitScreen();
+./BootMain.cpp-
+./BootMain.cpp-	// Determine boot drive
+./BootMain.cpp-	BootDrive = BootLoaderDrive;
+./BootMain.cpp-	if (BootDrive < TC_FIRST_BIOS_DRIVE)
+./BootMain.cpp-		BootDrive = TC_FIRST_BIOS_DRIVE;
+./BootMain.cpp-
+--
+./BootMain.cpp-	// Main menu
+./BootMain.cpp-
+./BootMain.cpp-	while (true)
+./BootMain.cpp-	{
+./BootMain.cpp-		byte exitKey;
+./BootMain.cpp-		InitScreen();
+./BootMain.cpp-
+./BootMain.cpp-#ifndef TC_WINDOWS_BOOT_RESCUE_DISK_MODE
+./BootMain.cpp-
+./BootMain.cpp-		// Hidden system setup
+./BootMain.cpp:		byte hiddenSystemCreationPhase = BootSectorFlags & TC_BOOT_CFG_MASK_HIDDEN_OS_CREATION_PHASE;
+./BootMain.cpp-
+./BootMain.cpp-		if (hiddenSystemCreationPhase != TC_HIDDEN_OS_CREATION_PHASE_NONE)
+./BootMain.cpp-		{
+./BootMain.cpp-			PreventNormalSystemBoot = true;
+./BootMain.cpp-			PrintMainMenu();
+./BootMain.cpp-
+./BootMain.cpp-			if (hiddenSystemCreationPhase == TC_HIDDEN_OS_CREATION_PHASE_CLONING)
+./BootMain.cpp-			{
+./BootMain.cpp-				if (CopySystemPartitionToHiddenVolume (BootDrive, exitKey))
+./BootMain.cpp-				{
+./BootMain.cpp:					BootSectorFlags = (BootSectorFlags & ~TC_BOOT_CFG_MASK_HIDDEN_OS_CREATION_PHASE) | TC_HIDDEN_OS_CREATION_PHASE_WIPING;
+./BootMain.cpp-					UpdateBootSectorConfiguration (BootLoaderDrive);
+./BootMain.cpp-				}
+./BootMain.cpp-				else if (exitKey == TC_BIOS_KEY_ESC)
+./BootMain.cpp-					goto bootMenu;
+./BootMain.cpp-				else
+./BootMain.cpp-					continue;
+./BootMain.cpp-			}
+./BootMain.cpp-		}
+./BootMain.cpp-		else
+./BootMain.cpp-			PrintMainMenu();
+
+It looks like all the values are named TC_BOOT_CFG_FLAG_* , so I looked around for those, until I found:
+#define TC__BOOT_CFG_FLAG_WINDOWS_VISTA_OR_LATER		TC_HEX (04)
+
+04 is the flag that goes missing. So that explains why we're ending up in recovery. I don't have a theory on why this bit goes missing, yet. Some kind of data is stored after the config byte, so I don't think there's a copies-all-except-last-byte issue here, unless that data is Microsoft partition table backup garbage or something. The comment did say 439 or 0x1b7 is 'The last byte that is reserved for the boot loader', so chances are that the garbage after this byte is *not* configuration, and it is extremely likely an offset didn't get corrected with renaming or something.
+
+To test if that's the only offset/length-based issue that exist (as I did not investigate the sectors following the boot sector, which I think hold decompressors and such), I manually set that bit correctly myself (on a new snapshot based off of 01.qed, which has the failing boot loader), and attempted to boot:
+$ sudo dd if=/dev/vda bs=512 count=1 | xxd > ~/Desktop/vda.mbr.xxd
+1+0 records in
+1+0 records out
+512 bytes (512 B) copied, 0.000728401 s, 703 kB/s
+$ vi ~/Desktop/vda.mbr.xxd # set 0x1b7 to 0x04
+$ xxd -r < ~/Desktop/vda.mbr.xxd | sudo dd of=/dev/vda bs=512 count=1
+1+0 records in
+1+0 records out
+512 bytes (512 B) copied, 0.00124536 s, 411 kB/s
+
+The results are that Windows boots successfully. The issue *must* be approximately as suggested earlier, where installer copies a buffer and forgets a byte, while the rescue disk copies until complete.

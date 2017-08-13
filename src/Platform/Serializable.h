@@ -9,13 +9,13 @@
 #ifndef TC_HEADER_Platform_Serializable
 #define TC_HEADER_Platform_Serializable
 
-#ifndef CS_UNITTESTING
 #include <stdexcept>
-#endif
 #include "PlatformBase.h"
+using namespace std;
 #include "ForEach.h"
 #include "Serializer.h"
 #include "SerializerFactory.h"
+#include <typeinfo>
 
 namespace CipherShed
 {

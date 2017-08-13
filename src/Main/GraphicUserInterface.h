@@ -14,6 +14,8 @@
 #include "Main.h"
 #include "UserInterface.h"
 
+#include <memory>
+
 namespace CipherShed
 {
 	class GraphicUserInterface : public UserInterface
@@ -118,10 +120,10 @@ namespace CipherShed
 		wxFrame *ActiveFrame;
 		bool BackgroundMode;
 #ifdef TC_WINDOWS
-		auto_ptr <wxDDEServer> DDEServer;
+		std::auto_ptr <wxDDEServer> DDEServer;
 #endif
 		wxFrame *mMainFrame;
-		auto_ptr <wxSingleInstanceChecker> SingleInstanceChecker;
+		std::auto_ptr <wxSingleInstanceChecker> SingleInstanceChecker;
 
 	private:
 		GraphicUserInterface (const GraphicUserInterface &);

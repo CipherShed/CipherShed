@@ -29,6 +29,10 @@
 
 #include "Tcdefs.h"
 
+#if !defined(_MSC_VER) && !defined(__CYGWIN__)
+#include <glob.h>
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -198,7 +202,7 @@ typedef struct
 #endif
 
 #include "GfMul.h"
-#include "Password.h"
+#include "types/password.h"
 
 typedef struct keyInfo_t
 {

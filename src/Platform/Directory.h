@@ -10,6 +10,7 @@
 #define TC_HEADER_Platform_Directory
 
 #include "PlatformBase.h"
+using namespace std;
 #include "FilesystemPath.h"
 
 namespace CipherShed

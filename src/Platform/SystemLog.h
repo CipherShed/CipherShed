@@ -10,6 +10,7 @@
 #define TC_HEADER_Platform_SystemLog
 
 #include "PlatformBase.h"
+using namespace std;
 #include "StringConverter.h"
 
 namespace CipherShed

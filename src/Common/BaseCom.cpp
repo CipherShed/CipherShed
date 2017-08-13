@@ -17,6 +17,8 @@
 #include "Dlgcode.h"
 #include "Registry.h"
 
+#include <memory>
+
 using namespace CipherShed;
 
 HRESULT CreateElevatedComObject (HWND hwnd, REFGUID guid, REFIID iid, void **ppv)
@@ -117,7 +119,7 @@ DWORD BaseCom::ReadWriteFile (BOOL write, BOOL device, BSTR filePath, BSTR *buff
 
 	try
 	{
-		auto_ptr <File> file (device ? new Device (string (CW2A (filePath)), !write) : new File (string (CW2A (filePath)), !write));
+		std::auto_ptr <File> file (device ? new Device (string (CW2A (filePath)), !write) : new File (string (CW2A (filePath)), !write));
 		file->SeekAt (offset);
 
 		if (write)

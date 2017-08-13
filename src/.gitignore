@@ -3,6 +3,10 @@
 *.d
 *.a
 
+*.gcno
+*.gcov
+*.gcda
+
 # https://raw.githubusercontent.com/github/gitignore/master/VisualStudio.gitignore
 # VS Build results
 [Dd]ebug/
@@ -16,12 +20,14 @@
 
 # VS C++ cache files
 *.ncb
+*.aps
 
 # VS User-specific files
 *.suo
 *.user
 
 /Boot/Windows/Release/
+/Boot/Windows/Release Loader/
 /Boot/Windows/Release_AES/
 /Boot/Windows/Release_Serpent/
 /Boot/Windows/Release_Twofish/
@@ -40,8 +46,12 @@
 /Common/Textual_logo_96dpi.bmp.h
 /Crypto/obj_driver_debug/
 /Crypto/obj_driver_release/
+/Crypto/build_driver_*.*
+/Crypto/build_errors.log
 /Driver/obj_driver_debug/
 /Driver/obj_driver_release/
+/Driver/build_*.log
+/Driver/build_*.err
 /Format/FormatCom_h.h
 /Format/CipherShed_Wizard.bmp.h
 /License.txt.h

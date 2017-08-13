@@ -9,8 +9,9 @@
 #include "../Platform/Finally.h"
 #include "../Platform/ForEach.h"
 
-#if !defined (TC_WINDOWS) || defined (TC_PROTOTYPE)
+#if !defined (TC_WINDOWS)
 #	include "../Platform/SerializerFactory.h"
+using namespace std;
 #	include "../Platform/StringConverter.h"
 #	include "../Platform/SystemException.h"
 #else
@@ -27,6 +28,14 @@
 #ifndef burn
 #	define burn Memory::Erase
 #endif
+
+#include <sstream>
+
+#ifdef CS_UNITTESTING
+#include <dlfcn.h>
+#endif
+
+#include <memory>
 
 using namespace std;
 
@@ -227,7 +236,7 @@ namespace CipherShed
 
 				keyfile.IdUtf8 = (char *) &label.front();
 
-#if defined (TC_WINDOWS) && !defined (TC_PROTOTYPE)
+#if defined (TC_WINDOWS)
 				keyfile.Id = Utf8StringToWide ((const char *) &label.front());
 #else
 				keyfile.Id = StringConverter::ToWide ((const char *) &label.front());
@@ -300,7 +309,7 @@ namespace CipherShed
 		else
 			token.LabelUtf8 = token.LabelUtf8.substr (0, lastSpace + 1);
 
-#if defined (TC_WINDOWS) && !defined (TC_PROTOTYPE)
+#if defined (TC_WINDOWS)
 		token.Label = Utf8StringToWide (token.LabelUtf8);
 #else
 		token.Label = StringConverter::ToWide (token.LabelUtf8);
@@ -506,7 +515,7 @@ namespace CipherShed
 		}
 	}
 
-	void SecurityToken::InitLibrary (const string &pkcs11LibraryPath, auto_ptr <GetPinFunctor> pinCallback, auto_ptr <SendExceptionFunctor> warningCallback)
+	void SecurityToken::InitLibrary (const string &pkcs11LibraryPath, std::auto_ptr <GetPinFunctor> pinCallback, std::auto_ptr <SendExceptionFunctor> warningCallback)
 	{
 		if (Initialized)
 			CloseLibrary();
@@ -716,8 +725,8 @@ namespace CipherShed
 	}
 #endif // TC_HEADER_Common_Exception
 
-	auto_ptr <GetPinFunctor> SecurityToken::PinCallback;
-	auto_ptr <SendExceptionFunctor> SecurityToken::WarningCallback;
+	std::auto_ptr <GetPinFunctor> SecurityToken::PinCallback;
+	std::auto_ptr <SendExceptionFunctor> SecurityToken::WarningCallback;
 
 	bool SecurityToken::Initialized;
 	CK_FUNCTION_LIST_PTR SecurityToken::Pkcs11Functions;

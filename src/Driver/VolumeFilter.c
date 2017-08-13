@@ -6,7 +6,7 @@
  packages.
 */
 
-#include "TCdefs.h"
+#include "../Common/Tcdefs.h"
 #include "Ntdriver.h"
 #include "Ntvol.h"
 #include "DriveFilter.h"

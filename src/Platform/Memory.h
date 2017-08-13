@@ -14,6 +14,7 @@
 #endif
 #include <memory.h>
 #include "PlatformBase.h"
+using namespace std;
 
 #ifdef TC_WINDOWS
 

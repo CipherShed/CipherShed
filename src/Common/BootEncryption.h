@@ -13,6 +13,7 @@
 #include "Dlgcode.h"
 #include "Exception.h"
 #include "../Platform/PlatformBase.h"
+using namespace std;
 #include "Volumes.h"
 
 using namespace std;

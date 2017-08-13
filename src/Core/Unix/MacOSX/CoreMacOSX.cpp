@@ -21,6 +21,8 @@
 #include "../../../Driver/Fuse/FuseService.h"
 #include "../CoreServiceProxy.h"
 
+#include <memory>
+
 namespace CipherShed
 {
 	CoreMacOSX::CoreMacOSX ()
@@ -212,6 +214,6 @@ namespace CipherShed
 		}
 	}
 
-	auto_ptr <CoreBase> Core (new CoreServiceProxy <CoreMacOSX>);
-	auto_ptr <CoreBase> CoreDirect (new CoreMacOSX);
+	std::auto_ptr <CoreBase> Core (new CoreServiceProxy <CoreMacOSX>);
+	std::auto_ptr <CoreBase> CoreDirect (new CoreMacOSX);
 }

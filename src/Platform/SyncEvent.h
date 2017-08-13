@@ -15,6 +15,7 @@
 #	include <pthread.h>
 #endif
 #include "PlatformBase.h"
+using namespace std;
 #include "Mutex.h"
 
 namespace CipherShed

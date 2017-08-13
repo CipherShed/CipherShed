@@ -6,6 +6,8 @@
 # packages.
 #
 
+!CMDSWITCHES -S
+
 PROJ = BootLoader
 .SILENT:
 
@@ -180,5 +182,8 @@ $(LIBS)
 	del $(PROJ).crf $(PROJ).crf2
 
 	gzip.exe -c -n --best $(PROJ).$(TARGETEXT) >$(PROJ).$(TARGETEXT).gz
+!if defined(SINGLE_CIPHER) && !defined(RESCUE_DISK)
+	for /F %i in ("$(PROJ).$(TARGETEXT).gz") do if %~zi gtr 13312 (echo "$(OUTDIR)\$(PROJ).$(TARGETEXT).gz" is too big && exit /b 1)
+!endif
 	-dd.exe conv=notrunc,sync bs=512 seek=5 if=$(PROJ).$(TARGETEXT).gz of=$(PROJ).flp 2>NUL:
 	cd ..

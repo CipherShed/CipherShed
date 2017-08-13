@@ -11,6 +11,7 @@
 
 #include "../Platform/Platform.h"
 #include "EncryptionMode.h"
+#include <memory>
 
 namespace CipherShed
 {
@@ -40,7 +41,7 @@ namespace CipherShed
 			};
 
 			struct WorkItem *FirstFragment;
-			auto_ptr <Exception> ItemException;
+			std::auto_ptr <Exception> ItemException;
 			SyncEvent ItemCompletedEvent;
 			SharedVal <size_t> OutstandingFragmentCount;
 			SharedVal <State::Enum> State;

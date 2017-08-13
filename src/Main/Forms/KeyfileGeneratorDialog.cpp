@@ -6,7 +6,7 @@
  packages.
 */
 
-#include "System.h"
+#include "../System.h"
 #include "../GraphicUserInterface.h"
 #include "../../Volume/Hash.h"
 #include "KeyfileGeneratorDialog.h"

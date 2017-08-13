@@ -12,6 +12,8 @@
 #include "Forms.h"
 #include "../../Core/VolumeCreator.h"
 
+#include <memory>
+
 namespace CipherShed
 {
 	class VolumeCreationProgressWizardPage : public VolumeCreationProgressWizardPageBase
@@ -43,7 +45,7 @@ namespace CipherShed
 
 		int PreviousGaugeValue;
 		uint64 ProgressBarRange;
-		auto_ptr <wxTimer> RandomPoolTimer;
+		std::auto_ptr <wxTimer> RandomPoolTimer;
 		int RealProgressBarRange;
 		wxLongLong StartTime;
 		bool VolumeCreatorRunning;

@@ -12,14 +12,17 @@
 #ifndef TCDEFS_H
 #define TCDEFS_H
 
+#include "constants.h"
+#include "../include/version.h"
+
 #define TC_APP_NAME						"CipherShed"
 #define TC_APP_NAME_LEGACY				"TrueCrypt"
 
 // Version displayed to user 
-#define VERSION_STRING					"0.7.3"
+#define VERSION_STRING					_CS_VERSION_DOTTED_5STR
 
 // Version number to compare against driver
-#define VERSION_NUM						0x0730
+#define VERSION_NUM						0x0740
 
 // Release date
 #define TC_STR_RELEASE_DATE				"February 7, 2012"
@@ -33,6 +36,10 @@
 #define BYTES_PER_PB                    1125899906842624LL
 
 /* GUI/driver errors */
+
+#ifdef CS_UNITTESTING
+#include "../unit-tests/faux/windows/LPWSTR.h"
+#endif
 
 #define WIDE(x) (LPWSTR)L##x
 

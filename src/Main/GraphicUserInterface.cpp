@@ -21,6 +21,7 @@
 #endif
 
 #include "../Common/SecurityToken.h"
+using namespace std;
 #include "Application.h"
 #include "GraphicUserInterface.h"
 #include "FatalErrorHandler.h"
@@ -30,6 +31,8 @@
 #include "Forms/MountOptionsDialog.h"
 #include "Forms/RandomPoolEnrichmentDialog.h"
 #include "Forms/SecurityTokenKeyfilesDialog.h"
+
+#include <memory>
 
 namespace CipherShed
 {
@@ -284,7 +287,7 @@ namespace CipherShed
 
 	void GraphicUserInterface::BeginInteractiveBusyState (wxWindow *window)
 	{
-		static auto_ptr <wxCursor> arrowWaitCursor;
+		static std::auto_ptr <wxCursor> arrowWaitCursor;
 
 		if (arrowWaitCursor.get() == nullptr)
 			arrowWaitCursor.reset (new wxCursor (wxCURSOR_ARROWWAIT));
@@ -349,7 +352,7 @@ namespace CipherShed
 	
 	void GraphicUserInterface::EndInteractiveBusyState (wxWindow *window) const
 	{
-		static auto_ptr <wxCursor> arrowCursor;
+		static std::auto_ptr <wxCursor> arrowCursor;
 
 		if (arrowCursor.get() == nullptr)
 			arrowCursor.reset (new wxCursor (wxCURSOR_ARROW));
@@ -535,7 +538,7 @@ namespace CipherShed
 
 		try
 		{
-			SecurityToken::InitLibrary (Preferences.SecurityTokenModule, auto_ptr <GetPinFunctor> (new PinRequestHandler), auto_ptr <SendExceptionFunctor> (new WarningHandler));
+			SecurityToken::InitLibrary (Preferences.SecurityTokenModule, std::auto_ptr <GetPinFunctor> (new PinRequestHandler), std::auto_ptr <SendExceptionFunctor> (new WarningHandler));
 		}
 		catch (Exception &e)
 		{
@@ -823,8 +826,8 @@ namespace CipherShed
 					wxConnectionBase *OnMakeConnection () { return new Connection; }
 				};
 
-				auto_ptr <wxDDEClient> client (new Client);
-				auto_ptr <wxConnectionBase> connection (client->MakeConnection (L"localhost", serverName, L"raise"));
+				std::auto_ptr <wxDDEClient> client (new Client);
+				std::auto_ptr <wxConnectionBase> connection (client->MakeConnection (L"localhost", serverName, L"raise"));
 
 				if (connection.get() && connection->Execute (nullptr))
 				{
@@ -1378,13 +1381,13 @@ namespace CipherShed
 
 	DirectoryPath GraphicUserInterface::SelectDirectory (wxWindow *parent, const wxString &message, bool existingOnly) const
 	{
-		return DirectoryPath (::wxDirSelector (!message.empty() ? message :
+		return DirectoryPath ((wstring)(::wxDirSelector (!message.empty() ? message :
 #ifdef __WXGTK__
 			wxDirSelectorPromptStr,
 #else
-			L"",
+			wxString(L""),
 #endif
-			L"", wxDD_DEFAULT_STYLE | (existingOnly ? wxDD_DIR_MUST_EXIST : 0), wxDefaultPosition, parent));
+			wxString(L""), wxDD_DEFAULT_STYLE | (existingOnly ? wxDD_DIR_MUST_EXIST : 0), wxDefaultPosition, parent)));
 	}
 
 	FilePathList GraphicUserInterface::SelectFiles (wxWindow *parent, const wxString &caption, bool saveMode, bool allowMultiple, const list < pair <wstring, wstring> > &fileExtensions, const DirectoryPath &directory) const
@@ -1428,14 +1431,14 @@ namespace CipherShed
 		if (dialog.ShowModal() == wxID_OK)
 		{
 			if (!allowMultiple)
-				files.push_back (make_shared <FilePath> (dialog.GetPath()));
+				files.push_back (make_shared <FilePath> ((wstring)(dialog.GetPath())));
 			else
 			{
 				wxArrayString paths;
 				dialog.GetPaths (paths);
 
 				foreach (const wxString &path, paths)
-					files.push_back (make_shared <FilePath> (path));
+					files.push_back (make_shared <FilePath> ((wstring)path));
 			}
 		}
 
@@ -1445,7 +1448,7 @@ namespace CipherShed
 	FilePath GraphicUserInterface::SelectVolumeFile (wxWindow *parent, bool saveMode, const DirectoryPath &directory) const
 	{
 		list < pair <wstring, wstring> > extensions;
-		extensions.push_back (make_pair (L"tc", LangString["TC_VOLUMES"]));
+		extensions.push_back (make_pair (L"tc", LangString["TC_VOLUMES"].wc_str()));
 
 		FilePathList selFiles = Gui->SelectFiles (parent, LangString[saveMode ? "OPEN_NEW_VOLUME" : "OPEN_VOL_TITLE"], saveMode, false, extensions, directory);
 

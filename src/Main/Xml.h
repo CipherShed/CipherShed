@@ -12,6 +12,8 @@
 #include "System.h"
 #include "Main.h"
 
+#include <memory>
+
 namespace CipherShed
 {
 	struct XmlNode;
@@ -62,8 +64,8 @@ namespace CipherShed
 
 	protected:
 		int CurrentIndentLevel;
-		auto_ptr <wxMemoryOutputStream> MemOutStream;
-		auto_ptr <wxTextOutputStream> TextOutStream;
+		std::auto_ptr <wxMemoryOutputStream> MemOutStream;
+		std::auto_ptr <wxTextOutputStream> TextOutStream;
 		File OutFile;
 
 	private:

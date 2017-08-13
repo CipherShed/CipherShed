@@ -477,7 +477,7 @@ IDR_COMMON_RSRC_HEADER  HEADER                  "..\\Common\\Resource.h"
 // TEXT
 //
 
-IDR_LICENSE             TEXT                    "..\\Resources\\Texts\\License.rtf"
+IDR_LICENSE             TEXT                    "..\\License.txt"
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -512,8 +512,8 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_CIPHERSHED_ICON      ICON                    "..\\Common\\CipherShed.ico"
-IDI_CIPHERSHED_VOL_ICON  ICON                    "..\\Common\\CipherShed_volume.ico"
+IDI_CIPHERSHED_ICON     ICON                    "..\\Common\\CipherShed.ico"
+IDI_CIPHERSHED_VOL_ICON ICON                    "..\\Common\\CipherShed_volume.ico"
 IDI_CIPHERSHED_MOUNTED_ICON ICON                    "..\\Common\\CipherShed_mounted.ico"
 
 /////////////////////////////////////////////////////////////////////////////

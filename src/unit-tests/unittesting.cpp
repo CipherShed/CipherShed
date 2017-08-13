@@ -63,6 +63,10 @@ namespace unittesting
 
 #ifndef _MSC_FULL_VER
 #include "tests/algo/crcTest.cpp"
+#include "tests/algo/endianTest.cpp"
+#include "tests/algo/passwordTest.cpp"
+#include "tests/lib/unicodeTest.cpp"
+#include "tests/lib/stringUtilTest.cpp"
 #endif
 
 #pragma warning( push )
@@ -71,7 +75,11 @@ int main(int argc, char *argv[], char *envp[])
 {
 	MAINTESTDECL
 	MAINADDTEST(new unittesting::UnitTestingFramework);
+	MAINADDTEST(new CipherShed_Tests_Algo::PasswordTest);
 	MAINADDTEST(new crc::CrcTest);
+	MAINADDTEST(new CipherShed_Tests_Algo::EndianTest);
+	MAINADDTEST(new CipherShed_Tests_lib::UnicodeTest);
+	MAINADDTEST(new CipherShed_Tests_lib::StringUtilTest);
 	MAINTESTRUN
 
 }

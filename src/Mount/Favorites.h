@@ -10,6 +10,9 @@
 #define TC_HEADER_Mount_FavoriteVolumes
 
 #include "../Common/Tcdefs.h"
+#include <list>
+#include <vector>
+#include <string>
 
 namespace CipherShed
 {
@@ -28,10 +31,10 @@ namespace CipherShed
 		{
 		}
 
-		string Path;
-		string MountPoint;
-		string VolumePathId;
-		wstring Label;
+		std::string Path;
+		std::string MountPoint;
+		std::string VolumePathId;
+		std::wstring Label;
 
 		bool DisableHotkeyMount;
 		bool DisconnectedDevice;
@@ -50,22 +53,22 @@ namespace CipherShed
 		FavoriteVolume NewFavoriteVolume;
 	};
 
-	extern vector <FavoriteVolume> FavoriteVolumes;
-	extern list <FavoriteVolume> FavoritesOnArrivalMountRequired;
-	extern list <FavoriteVolume> FavoritesMountedOnArrivalStillConnected;
+	extern std::vector <FavoriteVolume> FavoriteVolumes;
+	extern std::list <FavoriteVolume> FavoritesOnArrivalMountRequired;
+	extern std::list <FavoriteVolume> FavoritesMountedOnArrivalStillConnected;
 	extern HMENU FavoriteVolumesMenu;
 
 	BOOL AddMountedVolumeToFavorites (HWND hwndDlg, int driveNo, bool systemFavorites);
 	static BOOL CALLBACK FavoriteVolumesDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam);
 	static void FillFavoriteVolumesMenu ();
-	static void FillListControl (HWND favoriteListControl, vector <FavoriteVolume> &favorites);
+	static void FillListControl (HWND favoriteListControl, std::vector <FavoriteVolume> &favorites);
 	static void FillListControlSubItems (HWND favoriteListControl, int line, const FavoriteVolume &favorite);
-	wstring GetFavoriteVolumeLabel (const string &volumePath);
+	std::wstring GetFavoriteVolumeLabel (const std::string &volumePath);
 	void LoadFavoriteVolumes ();
-	void LoadFavoriteVolumes (vector <FavoriteVolume> &favorites, bool systemFavorites, bool noUacElevation = false);
+	void LoadFavoriteVolumes (std::vector <FavoriteVolume> &favorites, bool systemFavorites, bool noUacElevation = false);
 	static void OnFavoriteVolumesUpdated ();
 	BOOL OrganizeFavoriteVolumes (HWND hwndDlg, bool systemFavorites, const FavoriteVolume &newFavorite = FavoriteVolume());
-	static bool SaveFavoriteVolumes (const vector <FavoriteVolume> &favorites, bool systemFavorites);
+	static bool SaveFavoriteVolumes (const std::vector <FavoriteVolume> &favorites, bool systemFavorites);
 	static void SetControls (HWND hwndDlg, const FavoriteVolume &favorite, bool systemFavoritesMode, bool enable = true);
 	static void SetFavoriteVolume (HWND hwndDlg, FavoriteVolume &favorite, bool systemFavoritesMode);
 	void UpdateDeviceHostedFavoriteVolumes ();

@@ -14,6 +14,7 @@
 #endif
 #include "PlatformBase.h"
 #include "StringConverter.h"
+#include <map>
 
 namespace CipherShed
 {
@@ -46,8 +47,8 @@ namespace CipherShed
 			Serializable* (*GetNewPtr) ();
 		};
 
-		static map <string, MapEntry> *NameToTypeMap;
-		static map <string, string> *TypeToNameMap;
+		static std::map <string, MapEntry> *NameToTypeMap;
+		static std::map <string, string> *TypeToNameMap;
 
 	protected:
 		SerializerFactory ();

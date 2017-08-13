@@ -56,15 +56,6 @@ BOOL bPromptReleaseNotes = FALSE;
 
 int nPbar = 0;			/* Control ID of progress bar */
 
-static HFONT hDonTextFont;
-static BOOL OsPrngAvailable;
-static HCRYPTPROV hCryptProv;
-static int DonColorSchemeId;
-static COLORREF DonTextColor;
-static COLORREF DonBkgColor;
-
-wstring DonText = L"";
-
 void localcleanupwiz (void)
 {
 	/* Delete buffered bitmaps (if any) */
@@ -74,18 +65,6 @@ void localcleanupwiz (void)
 		hbmWizardBitmapRescaled = NULL;
 	}
 
-	if (hCryptProv != 0)
-	{
-		OsPrngAvailable = FALSE;
-		CryptReleaseContext (hCryptProv, 0);
-		hCryptProv = 0;
-	}
-
-	if (hDonTextFont != NULL)
-	{
-		DeleteObject (hDonTextFont);
-		hDonTextFont = NULL;
-	}
 }
 
 static void InitWizardDestInstallPath (void)
@@ -183,34 +162,6 @@ void LoadPage (HWND hwndDlg, int nPageNo)
 }
 
 
-static int GetDonVal (int minVal, int maxVal)
-{
-	static BOOL prngInitialized = FALSE;
-	static unsigned __int8 buffer [2];
-
-	if (!prngInitialized)
-	{
-		if (!CryptAcquireContext (&hCryptProv, NULL, NULL, PROV_RSA_FULL, 0)
-			&& !CryptAcquireContext (&hCryptProv, NULL, NULL, PROV_RSA_FULL, CRYPT_NEWKEYSET))
-			OsPrngAvailable = FALSE;
-		else
-			OsPrngAvailable = TRUE;
-
-		srand ((unsigned int) time (NULL));
-		rand(); // Generate and discard the inital value, as it always appears to be somewhat non-random.
-
-		prngInitialized = TRUE;
-	}
-
-	if (OsPrngAvailable && CryptGenRandom (hCryptProv, sizeof (buffer), buffer) != 0) 
-	{
-		return  ((int) ((double) *((uint16 *) buffer) / (0xFFFF+1) * (maxVal + 1 - minVal)) + minVal);
-	}
-	else
-		return  ((int) ((double) rand() / (RAND_MAX+1) * (maxVal + 1 - minVal)) + minVal);
-}
-
-
 /* Except in response to the WM_INITDIALOG message, the dialog box procedure
    should return nonzero if it processes the message, and zero if it does
    not. - see DialogProc */
@@ -239,7 +190,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				licenseText = GetLegalNotices ();
 				if (licenseText != NULL)
 				{
-					SetWindowText (GetDlgItem (hwndDlg, IDC_LICENSE_TEXT), licenseText);
+					SetWindowTextA(GetDlgItem (hwndDlg, IDC_LICENSE_TEXT), licenseText);
 					free (licenseText);
 				}
 				else
@@ -392,7 +343,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 			{
 				LONG driverVersion;
 
-				DetermineUpgradeDowngradeStatus (TRUE, &driverVersion); //Check this out too
+				DetermineUpgradeDowngradeStatus (TRUE, &driverVersion);
 
 				if (!bDesktopIconStatusDetermined)
 				{
@@ -504,90 +455,6 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 		case DONATIONS_PAGE:
 
-			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_TITLE), GetString (bExtractOnly ? "EXTRACTION_FINISHED_TITLE_DON" : (bUpgrade ? "SETUP_FINISHED_UPGRADE_TITLE_DON" : "SETUP_FINISHED_TITLE_DON")));
-			SetWindowTextW (GetDlgItem (GetParent (hwndDlg), IDC_BOX_INFO), GetString ("SETUP_FINISHED_INFO_DON"));
-
-			DonText = L"Please consider making a donation.";
-
-
-			// Colors
-
-			switch (DonColorSchemeId)
-			{
-			case 2:
-				// NOP - Default OS colors (foreground and background)
-				break;
-
-			case 3:
-				// Red
-				DonTextColor = RGB (255, 255, 255);
-				DonBkgColor = RGB (255, 0, 0);
-				break;
-
-			case 4:
-				// Yellow
-				DonTextColor = RGB (255, 15, 49);
-				DonBkgColor = RGB (255, 255, 0);
-				break;
-
-			case 5:
-				// Light red
-				DonTextColor = RGB (255, 255, 255);
-				DonBkgColor = RGB (255, 141, 144);
-				break;
-
-			case 6:
-				// Pink
-				DonTextColor = RGB (255, 255, 255);
-				DonBkgColor = RGB (248, 148, 207);
-				break;
-
-			case 7:
-				// White + red text
-				DonTextColor = RGB (255, 15, 49);
-				DonBkgColor = RGB (255, 255, 255);
-				break;
-
-			case 8:
-				// Blue
-				DonTextColor = RGB (255, 255, 255);
-				DonBkgColor = RGB (54, 140, 255);
-				break;
-
-			case 9:
-				// Green
-				DonTextColor = RGB (255, 255, 255);
-				DonBkgColor = RGB (70, 180, 80);
-				break;
-			}
-
-			{
-				// Font
-
-				LOGFONTW lf;
-				memset (&lf, 0, sizeof(lf));
-
-				// Main font
-				wcsncpy (lf.lfFaceName, L"Times New Roman", sizeof (lf.lfFaceName)/2);
-				lf.lfHeight = CompensateDPIFont (-21);
-				lf.lfWeight = FW_NORMAL;
-				lf.lfWidth = 0;
-				lf.lfEscapement = 0;
-				lf.lfOrientation = 0;
-				lf.lfItalic = FALSE;
-				lf.lfUnderline = FALSE;
-				lf.lfStrikeOut = FALSE;
-				lf.lfCharSet = DEFAULT_CHARSET;
-				lf.lfOutPrecision = OUT_DEFAULT_PRECIS;
-				lf.lfClipPrecision = CLIP_DEFAULT_PRECIS;
-				lf.lfQuality = PROOF_QUALITY;
-				lf.lfPitchAndFamily = FF_DONTCARE;
-				hDonTextFont = CreateFontIndirectW (&lf);
-
-				if (hDonTextFont == NULL)
-					AbortProcessSilent ();
-			}
-
 			return 1;
 		}
 
@@ -631,13 +498,13 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 		if ( nCurPageNo == EXTRACTION_OPTIONS_PAGE && hw == EN_CHANGE )
 		{
-			EnableWindow (GetDlgItem (MainDlg, IDC_NEXT), (GetWindowTextLength (GetDlgItem (hCurPage, IDC_DESTINATION)) > 1));
+			EnableWindow (GetDlgItem (MainDlg, IDC_NEXT), (GetWindowTextLengthA(GetDlgItem (hCurPage, IDC_DESTINATION)) > 1));
 			return 1;
 		}
 
 		if ( nCurPageNo == INSTALL_OPTIONS_PAGE && hw == EN_CHANGE )
 		{
-			EnableWindow (GetDlgItem (MainDlg, IDC_NEXT), (GetWindowTextLength (GetDlgItem (hCurPage, IDC_DESTINATION)) > 1));
+			EnableWindow (GetDlgItem (MainDlg, IDC_NEXT), (GetWindowTextLengthA(GetDlgItem (hCurPage, IDC_DESTINATION)) > 1));
 			return 1;
 		}
 
@@ -700,68 +567,11 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 			}
 		}
 
-		if (nCurPageNo == DONATIONS_PAGE)
-		{
-			switch (lw)
-			{
-			case IDC_DONATE:
-				{
-					char tmpstr [200];
-
-					snprintf (tmpstr, sizeof(tmpstr), "&ref=%d", DonColorSchemeId);
-
-					Applink ("donate", FALSE, tmpstr);
-				}
-				return 1;
-			}
-		}
-
 		return 0;
 
 
 	case WM_PAINT:
 
-		if (nCurPageNo == DONATIONS_PAGE)
-		{
-			PAINTSTRUCT tmpPaintStruct;
-			HDC hdc = BeginPaint (hCurPage, &tmpPaintStruct); 
-
-			if (hdc == NULL)
-				AbortProcessSilent ();
-
-			SelectObject (hdc, hDonTextFont);
-
-			if (DonColorSchemeId != 2)
-			{
-				HBRUSH tmpBrush = CreateSolidBrush (DonBkgColor);
-
-				if (tmpBrush == NULL)
-					AbortProcessSilent ();
-
-				RECT trect;
-
-				trect.left = 0;
-				trect.right = CompensateXDPI (526);
-				trect.top  = 0;
-				trect.bottom = CompensateYDPI (246);
-
-				FillRect (hdc, &trect, tmpBrush);
-
-				SetTextColor (hdc, DonTextColor);
-				SetBkColor (hdc, DonBkgColor);
-			}
-
-			SetTextAlign(hdc, TA_CENTER);
-
-			TextOutW (hdc,
-				CompensateXDPI (258),
-				CompensateYDPI (70),
-				DonText.c_str(), 
-				DonText.length()); 
-			
-			EndPaint (hCurPage, &tmpPaintStruct); 
-			ReleaseDC (hCurPage, hdc);
-		}
 		return 0; 
 
 
@@ -862,9 +672,7 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 			SendMessage (GetDlgItem (hwndDlg, IDC_BOX_TITLE), WM_SETFONT, (WPARAM) hUserBoldFont, (LPARAM) TRUE);
 
-			SetWindowText (hwndDlg, "CipherShed Setup " VERSION_STRING);
-
-			DonColorSchemeId = GetDonVal (2, 9);
+			SetWindowTextA(hwndDlg, "CipherShed Setup " VERSION_STRING);
 
 			if (bDevm)
 			{
@@ -968,14 +776,14 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 			else if (nCurPageNo == EXTRACTION_OPTIONS_PAGE)
 			{
-				GetWindowText (GetDlgItem (hCurPage, IDC_DESTINATION), WizardDestExtractPath, sizeof (WizardDestExtractPath));
+				GetWindowTextA(GetDlgItem (hCurPage, IDC_DESTINATION), WizardDestExtractPath, sizeof (WizardDestExtractPath));
 
 				bStartExtraction = TRUE;
 			}
 
 			else if (nCurPageNo == INSTALL_OPTIONS_PAGE)
 			{
-				GetWindowText (GetDlgItem (hCurPage, IDC_DESTINATION), WizardDestInstallPath, sizeof (WizardDestInstallPath));
+				GetWindowTextA(GetDlgItem (hCurPage, IDC_DESTINATION), WizardDestInstallPath, sizeof (WizardDestInstallPath));
 
 				bStartInstall = TRUE;
 			}
@@ -1015,13 +823,13 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 			else if (nCurPageNo == EXTRACTION_OPTIONS_PAGE)
 			{
-				GetWindowText (GetDlgItem (hCurPage, IDC_DESTINATION), WizardDestExtractPath, sizeof (WizardDestExtractPath));
+				GetWindowTextA(GetDlgItem (hCurPage, IDC_DESTINATION), WizardDestExtractPath, sizeof (WizardDestExtractPath));
 				nCurPageNo = WIZARD_MODE_PAGE + 1;
 			}
 
 			else if (nCurPageNo == INSTALL_OPTIONS_PAGE)
 			{
-				GetWindowText (GetDlgItem (hCurPage, IDC_DESTINATION), WizardDestInstallPath, sizeof (WizardDestInstallPath));
+				GetWindowTextA(GetDlgItem (hCurPage, IDC_DESTINATION), WizardDestInstallPath, sizeof (WizardDestInstallPath));
 			}
 
 			LoadPage (hwndDlg, --nCurPageNo);
@@ -1035,30 +843,6 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 	case WM_PAINT:
 
-		if (nCurPageNo == DONATIONS_PAGE && DonColorSchemeId != 2)
-		{
-			HWND hwndItem = GetDlgItem (MainDlg, IDC_MAIN_CONTENT_CANVAS);
-
-			PAINTSTRUCT tmpPaintStruct;
-			HDC hdc = BeginPaint (hwndItem, &tmpPaintStruct); 
-
-			if (DonColorSchemeId != 2)
-			{
-				HBRUSH tmpBrush = CreateSolidBrush (DonBkgColor);
-				
-				RECT trect;
-
-				trect.left = CompensateXDPI (1);
-				trect.right = CompensateXDPI (560);
-				trect.top  = CompensateYDPI (DonColorSchemeId == 7 ? 11 : 0);
-				trect.bottom = CompensateYDPI (260);
-
-				FillRect (hdc, &trect, tmpBrush);
-			}
-					
-			EndPaint(hwndItem, &tmpPaintStruct); 
-			ReleaseDC (hwndItem, hdc);
-		}
 		return 0; 
 
 

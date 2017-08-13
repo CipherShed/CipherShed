@@ -10,6 +10,7 @@
 #define TC_HEADER_Platform_Unix_Process
 
 #include "../PlatformBase.h"
+using namespace std;
 #include "../Buffer.h"
 #include "../Functor.h"
 

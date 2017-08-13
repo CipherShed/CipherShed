@@ -14,6 +14,13 @@
 
 #include "Tcdefs.h"
 
+typedef enum 
+{
+	ENDIAN_UNKNOWN,
+	ENDIAN_BIG,
+	ENDIAN_LITTLE
+} ENDIAN_ENUM;
+
 #if defined(__cplusplus)
 extern "C"
 {
@@ -138,7 +145,6 @@ unsigned __int32 MirrorBytes32 (unsigned __int32 x);
 #ifndef TC_NO_COMPILER_INT64
 uint64 MirrorBytes64 (uint64 x);
 #endif 
-void LongReverse ( unsigned __int32 *buffer , unsigned byteCount );
 
 #if defined(__cplusplus)
 }

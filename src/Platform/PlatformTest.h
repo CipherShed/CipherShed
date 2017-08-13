@@ -10,6 +10,7 @@
 #define TC_HEADER_Platform_PlatformTest
 
 #include "PlatformBase.h"
+using namespace std;
 #include "Thread.h"
 
 namespace CipherShed

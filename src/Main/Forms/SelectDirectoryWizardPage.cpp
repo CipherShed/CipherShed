@@ -6,7 +6,7 @@
  packages.
 */
 
-#include "System.h"
+#include "../System.h"
 #include "../GraphicUserInterface.h"
 #include "SelectDirectoryWizardPage.h"
 
@@ -16,7 +16,7 @@ namespace CipherShed
 	{
 		if (!DirectoryTextCtrl->IsEmpty())
 		{
-			return FilesystemPath (DirectoryTextCtrl->GetValue()).IsDirectory();
+			return FilesystemPath ((wstring)(DirectoryTextCtrl->GetValue())).IsDirectory();
 		}
 
 		return false;

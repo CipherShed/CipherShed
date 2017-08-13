@@ -10,6 +10,7 @@
 #define TC_HEADER_Platform_Buffer
 
 #include "PlatformBase.h"
+using namespace std;
 #include "Memory.h"
 
 namespace CipherShed

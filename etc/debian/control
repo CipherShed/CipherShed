@@ -1,0 +1,13 @@
+Source: ciphershed
+Maintainer: ChangeMe <root@localhost>
+Section: misc
+Priority: optional
+Standards-Version: 3.9.2
+Build-depends: build-essential, nasm, libfuse-dev, libwxgtk2.8-dev, pkgconf
+# fixme: build-essential too broad
+
+Package: ciphershed
+#Architecture: amd64
+Architecture: i386 amd64
+Depends: ${shlibs:Depends}
+Description: On-the-fly disk encryption

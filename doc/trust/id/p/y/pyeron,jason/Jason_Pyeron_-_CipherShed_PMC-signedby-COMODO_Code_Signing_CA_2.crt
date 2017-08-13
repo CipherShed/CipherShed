@@ -1,0 +1,132 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            79:8e:d8:df:a0:9f:6d:9f:92:0e:e0:e8:75:da:8c:97
+    Signature Algorithm: sha1WithRSAEncryption
+        Issuer: C=GB, ST=Greater Manchester, L=Salford, O=COMODO CA Limited, CN=COMODO Code Signing CA 2
+        Validity
+            Not Before: Dec 30 00:00:00 2014 GMT
+            Not After : Dec 30 23:59:59 2015 GMT
+        Subject: C=US/postalCode=21218, ST=MD, L=baltimore/street=10 w 24th st, O=Jason Pyeron - CipherShed PMC, CN=Jason Pyeron - CipherShed PMC
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                Public-Key: (4096 bit)
+                Modulus:
+                    00:a4:50:9b:5f:9f:08:3c:f1:a3:89:40:78:72:20:
+                    6a:ae:a5:ae:52:30:5f:1e:dd:b6:7c:50:37:28:71:
+                    2f:23:99:5a:b1:6c:59:e9:68:8e:f9:34:e6:f1:22:
+                    98:b6:32:5c:e6:8d:af:c4:10:63:dc:71:ec:99:bb:
+                    0a:bf:4c:2c:85:10:e7:9d:3a:f0:1a:4b:f8:11:fb:
+                    93:6c:97:df:7b:70:62:1c:bc:0b:a9:00:23:35:f6:
+                    73:82:18:af:35:aa:e5:44:95:f0:46:db:f1:c6:a4:
+                    20:1a:73:c0:41:f1:5a:ba:92:71:e7:60:6f:4a:90:
+                    0b:b0:7f:17:52:d0:41:26:5f:9b:23:21:7d:c0:c2:
+                    d9:b8:4c:2d:f5:e2:ca:ed:b0:42:9c:1f:82:2c:c2:
+                    c5:be:59:9f:20:3c:46:a6:af:82:9c:b4:6a:fb:e0:
+                    bf:9d:54:0e:30:75:42:e8:f0:68:05:20:f4:7b:d6:
+                    da:85:47:4d:95:44:c1:2a:c9:15:68:eb:77:70:3e:
+                    7c:2b:6c:1e:0c:17:e4:3b:97:a1:45:4f:7c:0f:b8:
+                    e0:0a:a7:4e:e1:cf:88:b4:92:6d:69:15:b5:f3:6f:
+                    6a:40:8d:87:e4:27:79:f9:f0:65:ac:ab:a3:b8:b1:
+                    e2:c3:8b:4f:9d:21:e1:36:ba:fe:36:ca:92:2a:7b:
+                    7e:72:ec:8b:75:f2:b9:5c:04:44:29:36:3d:6a:4a:
+                    ee:9f:49:d0:98:d0:02:37:09:e1:07:e3:4d:67:b3:
+                    45:4e:2e:f6:91:a7:bf:db:04:91:7d:f2:c9:c0:2d:
+                    9c:ff:d0:b5:fd:a4:15:75:a6:6f:12:90:15:f0:89:
+                    57:2f:21:e2:8b:4f:fb:c3:bb:f1:c3:fc:93:27:e9:
+                    b0:ac:68:c0:b6:a2:f3:c5:e9:39:f6:9e:24:5f:93:
+                    0e:74:af:a0:7a:a4:17:c9:68:a3:ff:4d:ab:45:62:
+                    4d:a6:9c:2d:e6:a1:00:53:4d:67:31:fb:ed:47:b3:
+                    d7:cd:c8:9e:89:14:20:ef:ec:99:b4:78:11:26:5b:
+                    a7:cc:d4:3e:3e:d6:c8:6e:b5:59:64:3f:9e:1a:15:
+                    37:df:78:78:29:ba:6f:92:b6:83:46:d8:86:10:da:
+                    32:b0:73:0c:31:cc:e9:80:16:01:d9:64:a7:a8:c2:
+                    60:82:b1:2a:b7:62:cb:8c:62:67:67:0d:a8:74:a3:
+                    9c:72:76:27:94:50:52:9a:90:7e:6f:03:3c:bb:98:
+                    73:92:fc:9f:ac:d0:6e:97:fe:3c:3d:57:fe:0f:fe:
+                    09:aa:6b:2a:eb:a0:0e:16:f0:6b:fd:f8:7e:ba:d9:
+                    6f:8a:6c:63:9a:76:e3:69:64:50:b1:b1:85:8f:17:
+                    50:3b:d3
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            X509v3 Authority Key Identifier: 
+                keyid:1E:C5:B1:2C:7D:87:DA:02:68:7C:25:BC:0C:07:84:3F:B6:CF:DE:F1
+
+            X509v3 Subject Key Identifier: 
+                6A:81:A5:1B:D9:B5:5B:F9:5E:E8:7A:C5:78:E7:8A:8B:32:2B:88:E3
+            X509v3 Key Usage: critical
+                Digital Signature
+            X509v3 Basic Constraints: critical
+                CA:FALSE
+            X509v3 Extended Key Usage: 
+                Code Signing
+            Netscape Cert Type: 
+                Object Signing
+            X509v3 Certificate Policies: 
+                Policy: 1.3.6.1.4.1.6449.1.2.1.3.2
+                  CPS: https://secure.comodo.net/CPS
+
+            X509v3 CRL Distribution Points: 
+
+                Full Name:
+                  URI:http://crl.comodoca.com/COMODOCodeSigningCA2.crl
+
+            Authority Information Access: 
+                CA Issuers - URI:http://crt.comodoca.com/COMODOCodeSigningCA2.crt
+                OCSP - URI:http://ocsp.comodoca.com
+
+            X509v3 Subject Alternative Name: 
+                email:trust@ciphershed.org
+    Signature Algorithm: sha1WithRSAEncryption
+         5f:35:98:5f:5a:34:87:ff:59:b2:9e:d2:61:fd:7f:c5:2d:07:
+         09:7b:b8:09:f8:9e:41:d9:c8:32:49:60:77:42:dd:13:74:b9:
+         af:25:b3:e7:7d:30:c6:e6:d6:05:58:ea:cd:88:4f:c1:41:8c:
+         35:c7:60:a2:9b:52:b6:8d:7e:5c:66:97:3c:24:eb:7f:31:e7:
+         b8:6c:0d:37:b1:3d:cb:96:af:2a:44:56:3e:f2:10:73:fd:e6:
+         5b:a1:3a:c5:9b:dc:82:e1:2b:50:ab:2e:3a:44:4d:3b:fb:c5:
+         1d:74:80:42:8b:92:f5:8f:28:55:b2:e8:94:c1:3f:3a:05:62:
+         54:b5:34:1e:6c:0f:db:70:d5:b2:1d:0b:23:b2:5f:90:a5:93:
+         39:6e:7c:61:3a:1e:33:73:5f:b1:68:7c:4f:a8:50:ee:e2:2a:
+         32:91:b3:76:1e:89:f9:e2:56:b3:71:9f:c7:b8:77:30:bb:87:
+         d7:e2:f1:99:27:2c:d1:8d:48:10:38:5b:2c:43:b3:c5:3a:c2:
+         16:14:f7:68:5b:e5:ac:b3:91:ee:6a:6d:c2:9c:3c:93:22:2e:
+         46:11:d4:3b:7d:ca:bf:5e:30:ca:4a:38:bb:c8:07:0f:f5:1c:
+         f2:ee:fa:11:1f:d3:0f:5a:c7:20:8e:11:f8:06:f6:14:6d:04:
+         8f:30:12:6c
+-----BEGIN CERTIFICATE-----
+MIIGVzCCBT+gAwIBAgIQeY7Y36CfbZ+SDuDoddqMlzANBgkqhkiG9w0BAQUFADB7
+MQswCQYDVQQGEwJHQjEbMBkGA1UECBMSR3JlYXRlciBNYW5jaGVzdGVyMRAwDgYD
+VQQHEwdTYWxmb3JkMRowGAYDVQQKExFDT01PRE8gQ0EgTGltaXRlZDEhMB8GA1UE
+AxMYQ09NT0RPIENvZGUgU2lnbmluZyBDQSAyMB4XDTE0MTIzMDAwMDAwMFoXDTE1
+MTIzMDIzNTk1OVowgaUxCzAJBgNVBAYTAlVTMQ4wDAYDVQQRDAUyMTIxODELMAkG
+A1UECAwCTUQxEjAQBgNVBAcMCWJhbHRpbW9yZTEVMBMGA1UECQwMMTAgdyAyNHRo
+IHN0MSYwJAYDVQQKDB1KYXNvbiBQeWVyb24gLSBDaXBoZXJTaGVkIFBNQzEmMCQG
+A1UEAwwdSmFzb24gUHllcm9uIC0gQ2lwaGVyU2hlZCBQTUMwggIiMA0GCSqGSIb3
+DQEBAQUAA4ICDwAwggIKAoICAQCkUJtfnwg88aOJQHhyIGqupa5SMF8e3bZ8UDco
+cS8jmVqxbFnpaI75NObxIpi2Mlzmja/EEGPcceyZuwq/TCyFEOedOvAaS/gR+5Ns
+l997cGIcvAupACM19nOCGK81quVElfBG2/HGpCAac8BB8Vq6knHnYG9KkAuwfxdS
+0EEmX5sjIX3Awtm4TC314srtsEKcH4IswsW+WZ8gPEamr4KctGr74L+dVA4wdULo
+8GgFIPR71tqFR02VRMEqyRVo63dwPnwrbB4MF+Q7l6FFT3wPuOAKp07hz4i0km1p
+FbXzb2pAjYfkJ3n58GWsq6O4seLDi0+dIeE2uv42ypIqe35y7It18rlcBEQpNj1q
+Su6fSdCY0AI3CeEH401ns0VOLvaRp7/bBJF98snALZz/0LX9pBV1pm8SkBXwiVcv
+IeKLT/vDu/HD/JMn6bCsaMC2ovPF6Tn2niRfkw50r6B6pBfJaKP/TatFYk2mnC3m
+oQBTTWcx++1Hs9fNyJ6JFCDv7Jm0eBEmW6fM1D4+1shutVlkP54aFTffeHgpum+S
+toNG2IYQ2jKwcwwxzOmAFgHZZKeowmCCsSq3YsuMYmdnDah0o5xydieUUFKakH5v
+Azy7mHOS/J+s0G6X/jw9V/4P/gmqayrroA4W8Gv9+H662W+KbGOaduNpZFCxsYWP
+F1A70wIDAQABo4IBqjCCAaYwHwYDVR0jBBgwFoAUHsWxLH2H2gJofCW8DAeEP7bP
+3vEwHQYDVR0OBBYEFGqBpRvZtVv5Xuh6xXjniosyK4jjMA4GA1UdDwEB/wQEAwIH
+gDAMBgNVHRMBAf8EAjAAMBMGA1UdJQQMMAoGCCsGAQUFBwMDMBEGCWCGSAGG+EIB
+AQQEAwIEEDBGBgNVHSAEPzA9MDsGDCsGAQQBsjEBAgEDAjArMCkGCCsGAQUFBwIB
+Fh1odHRwczovL3NlY3VyZS5jb21vZG8ubmV0L0NQUzBBBgNVHR8EOjA4MDagNKAy
+hjBodHRwOi8vY3JsLmNvbW9kb2NhLmNvbS9DT01PRE9Db2RlU2lnbmluZ0NBMi5j
+cmwwcgYIKwYBBQUHAQEEZjBkMDwGCCsGAQUFBzAChjBodHRwOi8vY3J0LmNvbW9k
+b2NhLmNvbS9DT01PRE9Db2RlU2lnbmluZ0NBMi5jcnQwJAYIKwYBBQUHMAGGGGh0
+dHA6Ly9vY3NwLmNvbW9kb2NhLmNvbTAfBgNVHREEGDAWgRR0cnVzdEBjaXBoZXJz
+aGVkLm9yZzANBgkqhkiG9w0BAQUFAAOCAQEAXzWYX1o0h/9Zsp7SYf1/xS0HCXu4
+CfieQdnIMklgd0LdE3S5ryWz530wxubWBVjqzYhPwUGMNcdgoptSto1+XGaXPCTr
+fzHnuGwNN7E9y5avKkRWPvIQc/3mW6E6xZvcguErUKsuOkRNO/vFHXSAQouS9Y8o
+VbLolME/OgViVLU0HmwP23DVsh0LI7JfkKWTOW58YToeM3NfsWh8T6hQ7uIqMpGz
+dh6J+eJWs3Gfx7h3MLuH1+LxmScs0Y1IEDhbLEOzxTrCFhT3aFvlrLOR7mptwpw8
+kyIuRhHUO33Kv14wyko4u8gHD/Uc8u76ER/TD1rHII4R+Ab2FG0EjzASbA==
+-----END CERTIFICATE-----

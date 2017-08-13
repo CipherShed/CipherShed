@@ -6,7 +6,7 @@
  packages.
 */
 
-#include "System.h"
+#include "../System.h"
 
 #ifdef TC_UNIX
 #include <fcntl.h>
@@ -16,6 +16,7 @@
 #endif
 
 #include "../../Common/SecurityToken.h"
+using namespace std;
 #include "../Main.h"
 #include "../Resources.h"
 #include "../Application.h"
@@ -483,7 +484,7 @@ namespace CipherShed
 
 			wxMenu *CreatePopupMenu ()
 			{ 
-				auto_ptr <wxMenu> popup (new wxMenu);
+				std::auto_ptr <wxMenu> popup (new wxMenu);
 
 				Gui->AppendToMenu (*popup, LangString[Gui->IsInBackgroundMode() ? "SHOW_TC" : "HIDE_TC"], this, wxCommandEventHandler (TaskBarIcon::OnShowHideMenuItemSelected));
 				
@@ -828,7 +829,7 @@ namespace CipherShed
 			// File-hosted volumes
 			if (!volume->Path.IsDevice() && !mountPoint.IsEmpty())
 			{
-				if (wxString (volume->Path).Upper().StartsWith (wstring (mountPoint).c_str()))
+				if (wxString ((wstring)(volume->Path)).Upper().StartsWith (wstring (mountPoint).c_str()))
 				{
 					removedVolumes.push_back (volume);
 					continue;

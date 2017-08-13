@@ -1,0 +1,7 @@
+#!/usr/bin/make -f
+%:
+# --parallel: We support parallel compiling.
+# --sourcedirectory=src: this calls our actual Makefile, which is
+# expected to be in the root of the ciphershed directory, but it is in
+# the src directory.
+	dh $@ --parallel --sourcedirectory=src

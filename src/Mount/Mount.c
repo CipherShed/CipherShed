@@ -43,8 +43,11 @@
 #include "../Common/Common.h"
 #include "../Common/Resource.h"
 #include "../Common/SecurityToken.h"
+using namespace std;
 #include "../Platform/Finally.h"
 #include "../Platform/ForEach.h"
+
+#include "../Common/util/unicode/ConvertUTF.h"
 
 using namespace CipherShed;
 
@@ -200,7 +203,7 @@ void EndMainDlg (HWND hwndDlg)
 
 	if (!bHistory)
 	{
-		SetWindowText (GetDlgItem (hwndDlg, IDC_VOLUME), "");
+		SetWindowTextA(GetDlgItem (hwndDlg, IDC_VOLUME), "");
 		ClearHistory (GetDlgItem (hwndDlg, IDC_VOLUME));
 	}
 
@@ -353,7 +356,7 @@ void EnableDisableButtons (HWND hwndDlg)
 
 BOOL VolumeSelected (HWND hwndDlg)
 {
-	return (GetWindowTextLength (GetDlgItem (hwndDlg, IDC_VOLUME)) > 0);
+	return (GetWindowTextLengthA(GetDlgItem (hwndDlg, IDC_VOLUME)) > 0);
 }
 
 /* Returns TRUE if the last partition/drive selected via the Select Device dialog box was the system 
@@ -374,7 +377,7 @@ BOOL ActiveSysEncDeviceSelected (void)
 		{
 			int retCode = 0;
 
-			GetWindowText (GetDlgItem (MainDlg, IDC_VOLUME), szFileName, sizeof (szFileName));
+			GetWindowTextA(GetDlgItem (MainDlg, IDC_VOLUME), szFileName, sizeof (szFileName));
 
 			retCode = IsSystemDevicePath (szFileName, MainDlg, FALSE);
 
@@ -485,7 +488,7 @@ void LoadSettings (HWND hwndDlg)
 	{
 		LoadCombo (GetDlgItem (hwndDlg, IDC_VOLUME));
 		if (CmdLineVolumeSpecified)
-			SetWindowText (GetDlgItem (hwndDlg, IDC_VOLUME), szFileName);
+			SetWindowTextA(GetDlgItem (hwndDlg, IDC_VOLUME), szFileName);
 	}
 }
 
@@ -763,7 +766,7 @@ BOOL CheckSysEncMountWithoutPBA (const char *devicePath, BOOL quiet)
 
 	if (strlen (devicePath) < 2)
 	{
-		GetWindowText (GetDlgItem (MainDlg, IDC_VOLUME), szDevicePath, sizeof (szDevicePath));
+		GetWindowTextA(GetDlgItem (MainDlg, IDC_VOLUME), szDevicePath, sizeof (szDevicePath));
 		CreateFullVolumePath (szDiskFile, szDevicePath, &tmpbDevice);
 
 		if (!tmpbDevice)
@@ -867,7 +870,7 @@ BOOL TCBootLoaderOnInactiveSysEncDrive (void)
 		if (bPrebootPasswordDlgMode)
 			return FALSE;
 
-		GetWindowText (GetDlgItem (MainDlg, IDC_VOLUME), szDevicePath, sizeof (szDevicePath));
+		GetWindowTextA(GetDlgItem (MainDlg, IDC_VOLUME), szDevicePath, sizeof (szDevicePath));
 
 		if (sscanf (szDevicePath, "\\Device\\Harddisk%d\\Partition", &driveNo) != 1)
 			return FALSE;
@@ -949,7 +952,7 @@ static void LaunchVolCreationWizard (HWND hwndDlg, const char *arg)
 		PROCESS_INFORMATION pi;
 		ZeroMemory (&si, sizeof (si));
 
-		strcpy (++tmp, "CipherShed Format.exe\"");
+		strcpy (++tmp, "CipherShed-Format.exe\"");
 
 		if (!FileExists(t))
 			Error ("VOL_CREATION_WIZARD_NOT_FOUND");	// Display a user-friendly error message and advise what to do
@@ -1336,13 +1339,16 @@ void LoadDriveLetters (HWND hTree, int drive)
 static void PasswordChangeEnable (HWND hwndDlg, int button, int passwordId, BOOL keyFilesEnabled,
 								  int newPasswordId, int newVerifyId, BOOL newKeyFilesEnabled)
 {
-	char password[MAX_PASSWORD + 1];
-	char newPassword[MAX_PASSWORD + 1];
-	char newVerify[MAX_PASSWORD + 1];
+	char password[MAX_PASSWORD + 1]={};
+	char newPassword[MAX_PASSWORD + 1]={};
+	char newVerify[MAX_PASSWORD + 1]={};
 	BOOL bEnable = TRUE;
+	WCHAR tmpUTF16buf[MAX_PASSWORD+1];
+	VirtualLock(tmpUTF16buf,sizeof(tmpUTF16buf));
 
-	GetWindowText (GetDlgItem (hwndDlg, passwordId), password, sizeof (password));
-
+	GetWindowTextW(GetDlgItem (hwndDlg, passwordId), tmpUTF16buf, sizeof(tmpUTF16buf)/sizeof(*tmpUTF16buf));
+	ConvertUTF16toUTF8s((const UTF16*)tmpUTF16buf,sizeof(tmpUTF16buf)/sizeof(*tmpUTF16buf),(UTF8*)password,sizeof(password)/sizeof(*password),strictConversion);
+	burn(tmpUTF16buf,sizeof(tmpUTF16buf));
 	if (pwdChangeDlgMode == PCDM_CHANGE_PKCS5_PRF)
 		newKeyFilesEnabled = keyFilesEnabled;
 
@@ -1356,8 +1362,11 @@ static void PasswordChangeEnable (HWND hwndDlg, int button, int passwordId, BOOL
 		break;
 
 	default:
-		GetWindowText (GetDlgItem (hwndDlg, newPasswordId), newPassword, sizeof (newPassword));
-		GetWindowText (GetDlgItem (hwndDlg, newVerifyId), newVerify, sizeof (newVerify));
+		GetWindowTextW(GetDlgItem (hwndDlg, newPasswordId), tmpUTF16buf, sizeof(tmpUTF16buf)/sizeof(*tmpUTF16buf));
+		ConvertUTF16toUTF8s((const UTF16*)tmpUTF16buf,sizeof(tmpUTF16buf)/sizeof(*tmpUTF16buf),(UTF8*)newPassword,sizeof(newPassword)/sizeof(*newPassword),strictConversion);
+		GetWindowTextW(GetDlgItem (hwndDlg, newVerifyId), tmpUTF16buf, sizeof(tmpUTF16buf)/sizeof(*tmpUTF16buf));
+		ConvertUTF16toUTF8s((const UTF16*)tmpUTF16buf,sizeof(tmpUTF16buf)/sizeof(*tmpUTF16buf),(UTF8*)newVerify,sizeof(newVerify)/sizeof(*newVerify),strictConversion);
+		burn(tmpUTF16buf,sizeof(tmpUTF16buf));
 	}
 
 	if (!keyFilesEnabled && strlen (password) < MIN_PASSWORD)
@@ -1530,16 +1539,16 @@ BOOL CALLBACK PasswordChangeDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPAR
 					// Keyboard layout is not standard US
 
 					// Attempt to wipe passwords stored in the input field buffers
-					char tmp[MAX_PASSWORD+1];
-					memset (tmp, 'X', MAX_PASSWORD);
+					WCHAR tmp[MAX_PASSWORD+1];
+					memset (tmp, 0x20, sizeof(tmp)); //0x20 = ASCII space or 0x2020 = Unicode DAGGER
 					tmp [MAX_PASSWORD] = 0;
-					SetWindowText (GetDlgItem (hwndDlg, IDC_OLD_PASSWORD), tmp);
-					SetWindowText (GetDlgItem (hwndDlg, IDC_PASSWORD), tmp);
-					SetWindowText (GetDlgItem (hwndDlg, IDC_VERIFY), tmp);
+					SetWindowTextW(GetDlgItem (hwndDlg, IDC_OLD_PASSWORD), tmp);
+					SetWindowTextW(GetDlgItem (hwndDlg, IDC_PASSWORD), tmp);
+					SetWindowTextW(GetDlgItem (hwndDlg, IDC_VERIFY), tmp);
 
-					SetWindowText (GetDlgItem (hwndDlg, IDC_OLD_PASSWORD), "");
-					SetWindowText (GetDlgItem (hwndDlg, IDC_PASSWORD), "");
-					SetWindowText (GetDlgItem (hwndDlg, IDC_VERIFY), "");
+					SetWindowTextW(GetDlgItem (hwndDlg, IDC_OLD_PASSWORD), L"");
+					SetWindowTextW(GetDlgItem (hwndDlg, IDC_PASSWORD), L"");
+					SetWindowTextW(GetDlgItem (hwndDlg, IDC_VERIFY), L"");
 
 					keybLayout = (DWORD) LoadKeyboardLayout ("00000409", KLF_ACTIVATE);
 
@@ -1585,12 +1594,12 @@ BOOL CALLBACK PasswordChangeDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPAR
 		if (lw == IDCANCEL)
 		{
 			// Attempt to wipe passwords stored in the input field buffers
-			char tmp[MAX_PASSWORD+1];
-			memset (tmp, 'X', MAX_PASSWORD);
+			WCHAR tmp[MAX_PASSWORD+1];
+			memset (tmp, 0x20, sizeof(tmp)); //0x20 = ASCII space or 0x2020 = Unicode DAGGER
 			tmp[MAX_PASSWORD] = 0;
-			SetWindowText (GetDlgItem (hwndDlg, IDC_PASSWORD), tmp);	
-			SetWindowText (GetDlgItem (hwndDlg, IDC_OLD_PASSWORD), tmp);	
-			SetWindowText (GetDlgItem (hwndDlg, IDC_VERIFY), tmp);	
+			SetWindowTextW(GetDlgItem (hwndDlg, IDC_PASSWORD), tmp);	
+			SetWindowTextW(GetDlgItem (hwndDlg, IDC_OLD_PASSWORD), tmp);	
+			SetWindowTextW(GetDlgItem (hwndDlg, IDC_VERIFY), tmp);	
 			RestoreDefaultKeyFilesParam ();
 
 			EndDialog (hwndDlg, IDCANCEL);
@@ -1654,8 +1663,8 @@ BOOL CALLBACK PasswordChangeDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPAR
 			{
 				SetCheckBox (hwndDlg, IDC_ENABLE_NEW_KEYFILES, newKeyFilesParam.EnableKeyFiles);
 
-				VerifyPasswordAndUpdate (hwndDlg, GetDlgItem (hwndDlg, IDOK), GetDlgItem (hwndDlg, IDC_PASSWORD),
-					GetDlgItem (hwndDlg, IDC_VERIFY), NULL, NULL,
+				VerifyPasswordAndUpdate2(hwndDlg, GetDlgItem (hwndDlg, IDOK), GetDlgItem (hwndDlg, IDC_PASSWORD),
+					GetDlgItem (hwndDlg, IDC_VERIFY), NULL, 0, NULL, 0,
 					newKeyFilesParam.EnableKeyFiles && newKeyFilesParam.FirstKeyFile != NULL);		
 			}
 
@@ -1745,11 +1754,13 @@ BOOL CALLBACK PasswordChangeDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPAR
 		if (lw == IDOK)
 		{
 			HWND hParent = GetParent (hwndDlg);
-			Password oldPassword;
-			Password newPassword;
+			Password oldPassword={0,{},{}};
+			Password newPassword={0,{},{}};
 			int nStatus;
 			int pkcs5 = SendMessage (GetDlgItem (hwndDlg, IDC_PKCS5_PRF_ID), CB_GETITEMDATA, 
 					SendMessage (GetDlgItem (hwndDlg, IDC_PKCS5_PRF_ID), CB_GETCURSEL, 0, 0), 0);
+			WCHAR tmpUTF16buf[MAX_PASSWORD+1];
+			VirtualLock(tmpUTF16buf,sizeof(tmpUTF16buf));
 
 			if (!CheckPasswordCharEncoding (GetDlgItem (hwndDlg, IDC_PASSWORD), NULL))
 			{
@@ -1768,9 +1779,11 @@ BOOL CALLBACK PasswordChangeDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPAR
 					return 1;
 			}
 
-			GetWindowText (GetDlgItem (hParent, IDC_VOLUME), szFileName, sizeof (szFileName));
+			GetWindowTextA(GetDlgItem (hParent, IDC_VOLUME), szFileName, sizeof (szFileName));
 
-			GetWindowText (GetDlgItem (hwndDlg, IDC_OLD_PASSWORD), (LPSTR) oldPassword.Text, sizeof (oldPassword.Text));
+			GetWindowTextW(GetDlgItem (hwndDlg, IDC_OLD_PASSWORD), tmpUTF16buf, sizeof(tmpUTF16buf)/sizeof(*tmpUTF16buf));
+			ConvertUTF16toUTF8s((const UTF16*)tmpUTF16buf,sizeof(tmpUTF16buf)/sizeof(*tmpUTF16buf),oldPassword.Text,sizeof(oldPassword.Text)/sizeof(*oldPassword.Text),strictConversion);
+			burn(tmpUTF16buf,sizeof(tmpUTF16buf));
 			oldPassword.Length = strlen ((char *) oldPassword.Text);
 
 			switch (pwdChangeDlgMode)
@@ -1783,7 +1796,9 @@ BOOL CALLBACK PasswordChangeDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPAR
 				break;
 
 			default:
-				GetWindowText (GetDlgItem (hwndDlg, IDC_PASSWORD), (LPSTR) newPassword.Text, sizeof (newPassword.Text));
+				GetWindowTextW(GetDlgItem (hwndDlg, IDC_PASSWORD), tmpUTF16buf, sizeof(tmpUTF16buf)/sizeof(*tmpUTF16buf));
+				ConvertUTF16toUTF8s((const UTF16*)tmpUTF16buf,sizeof(tmpUTF16buf)/sizeof(*tmpUTF16buf),(UTF8*)newPassword.Text,sizeof(newPassword.Text)/sizeof(*newPassword.Text),strictConversion);
+				burn(tmpUTF16buf,sizeof(tmpUTF16buf));
 				newPassword.Length = strlen ((char *) newPassword.Text);
 			}
 
@@ -1841,12 +1856,12 @@ err:
 			if (nStatus == 0)
 			{
 				// Attempt to wipe passwords stored in the input field buffers
-				char tmp[MAX_PASSWORD+1];
-				memset (tmp, 'X', MAX_PASSWORD);
+				WCHAR tmp[MAX_PASSWORD+1];
+				memset (tmp, 0x20, sizeof(tmp)); //0x20 = ASCII space or 0x2020 = Unicode DAGGER
 				tmp[MAX_PASSWORD] = 0;
-				SetWindowText (GetDlgItem (hwndDlg, IDC_PASSWORD), tmp);	
-				SetWindowText (GetDlgItem (hwndDlg, IDC_OLD_PASSWORD), tmp);	
-				SetWindowText (GetDlgItem (hwndDlg, IDC_VERIFY), tmp);	
+				SetWindowTextW(GetDlgItem (hwndDlg, IDC_PASSWORD), tmp);	
+				SetWindowTextW(GetDlgItem (hwndDlg, IDC_OLD_PASSWORD), tmp);	
+				SetWindowTextW(GetDlgItem (hwndDlg, IDC_VERIFY), tmp);	
 
 				KeyFileRemoveAll (&newKeyFilesParam.FirstKeyFile);
 				RestoreDefaultKeyFilesParam ();
@@ -1951,11 +1966,11 @@ BOOL CALLBACK PasswordDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lPa
 			ToBootPwdField (hwndDlg, IDC_PASSWORD);
 
 			// Attempt to wipe the password stored in the input field buffer
-			char tmp[MAX_PASSWORD+1];
-			memset (tmp, 'X', MAX_PASSWORD);
+			WCHAR tmp[MAX_PASSWORD+1];
+			memset (tmp, 0x20, sizeof(tmp)); //0x20 = ASCII space or 0x2020 = Unicode DAGGER
 			tmp [MAX_PASSWORD] = 0;
-			SetWindowText (GetDlgItem (hwndDlg, IDC_PASSWORD), tmp);
-			SetWindowText (GetDlgItem (hwndDlg, IDC_PASSWORD), "");
+			SetWindowTextW(GetDlgItem (hwndDlg, IDC_PASSWORD), tmp);
+			SetWindowTextW(GetDlgItem (hwndDlg, IDC_PASSWORD), L"");
 
 			sprintf (OrigKeyboardLayout, "%08X", (DWORD) GetKeyboardLayout (NULL) & 0xFFFF);
 
@@ -1998,11 +2013,11 @@ BOOL CALLBACK PasswordDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lPa
 					// Keyboard layout is not standard US
 
 					// Attempt to wipe the password stored in the input field buffer
-					char tmp[MAX_PASSWORD+1];
-					memset (tmp, 'X', MAX_PASSWORD);
+					WCHAR tmp[MAX_PASSWORD+1];
+					memset (tmp, 0x20, sizeof(tmp)); //0x20 = ASCII space or 0x2020 = Unicode DAGGER
 					tmp [MAX_PASSWORD] = 0;
-					SetWindowText (GetDlgItem (hwndDlg, IDC_PASSWORD), tmp);
-					SetWindowText (GetDlgItem (hwndDlg, IDC_PASSWORD), "");
+					SetWindowTextW(GetDlgItem (hwndDlg, IDC_PASSWORD), tmp);
+					SetWindowTextW(GetDlgItem (hwndDlg, IDC_PASSWORD), L"");
 
 					keybLayout = (DWORD) LoadKeyboardLayout ("00000409", KLF_ACTIVATE);
 
@@ -2077,24 +2092,26 @@ BOOL CALLBACK PasswordDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lPa
 
 		if (lw == IDCANCEL || lw == IDOK)
 		{
-			char tmp[MAX_PASSWORD+1];
+			WCHAR tmp[MAX_PASSWORD+1];
 			
 			if (lw == IDOK)
 			{
 				if (mountOptions.ProtectHiddenVolume && hidVolProtKeyFilesParam.EnableKeyFiles)
 					KeyFilesApply (&mountOptions.ProtectedHidVolPassword, hidVolProtKeyFilesParam.FirstKeyFile);
 
-				GetWindowText (GetDlgItem (hwndDlg, IDC_PASSWORD), (LPSTR) szXPwd->Text, MAX_PASSWORD + 1);
+				GetWindowTextW(GetDlgItem (hwndDlg, IDC_PASSWORD), tmp, sizeof(tmp)/sizeof(*tmp));
+				ConvertUTF16toUTF8s((const UTF16*)tmp,sizeof(tmp)/sizeof(*tmp),(UTF8*)szXPwd->Text,sizeof(szXPwd->Text)/sizeof(*szXPwd->Text),strictConversion);
+				burn(tmp,sizeof(tmp));
 				szXPwd->Length = strlen ((char *) szXPwd->Text);
 
 				bCacheInDriver = IsButtonChecked (GetDlgItem (hwndDlg, IDC_CACHE));	 
 			}
 
 			// Attempt to wipe password stored in the input field buffer
-			memset (tmp, 'X', MAX_PASSWORD);
+			memset (tmp, 0x20, sizeof(tmp)); //0x20 = ASCII space or 0x2020 = Unicode DAGGER
 			tmp[MAX_PASSWORD] = 0;
-			SetWindowText (GetDlgItem (hwndDlg, IDC_PASSWORD), tmp);	
-			SetWindowText (GetDlgItem (hwndDlg, IDC_PASSWORD_PROT_HIDVOL), tmp);	
+			SetWindowTextW(GetDlgItem (hwndDlg, IDC_PASSWORD), tmp);	
+			SetWindowTextW(GetDlgItem (hwndDlg, IDC_PASSWORD_PROT_HIDVOL), tmp);	
 
 			if (hidVolProtKeyFilesParam.FirstKeyFile != NULL)
 			{
@@ -2434,8 +2451,10 @@ BOOL CALLBACK MountOptionsDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM
 			SendDlgItemMessage (hwndDlg, IDC_PASSWORD_PROT_HIDVOL, EM_LIMITTEXT, MAX_PASSWORD, 0);
 
 			if (mountOptions->ProtectedHidVolPassword.Length > 0)
-				SetWindowText (GetDlgItem (hwndDlg, IDC_PASSWORD_PROT_HIDVOL), (LPSTR) mountOptions->ProtectedHidVolPassword.Text);	
-			
+			{
+				// may need to be converted to UTF16
+				SetWindowTextA(GetDlgItem (hwndDlg, IDC_PASSWORD_PROT_HIDVOL), (LPSTR) mountOptions->ProtectedHidVolPassword.Text);	
+			}
 			ToHyperlink (hwndDlg, IDC_LINK_HIDVOL_PROTECTION_INFO);
 
 		}
@@ -2498,12 +2517,12 @@ BOOL CALLBACK MountOptionsDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM
 
 		if (lw == IDCANCEL)
 		{
-			char tmp[MAX_PASSWORD+1];
+			WCHAR tmp[MAX_PASSWORD+1];
 
 			// Cleanup
-			memset (tmp, 'X', MAX_PASSWORD);
+			memset (tmp, 0x20, sizeof(tmp)); //0x20 = ASCII space or 0x2020 = Unicode DAGGER
 			tmp[MAX_PASSWORD] = 0;
-			SetWindowText (GetDlgItem (hwndDlg, IDC_PASSWORD_PROT_HIDVOL), tmp);	
+			SetWindowTextW(GetDlgItem (hwndDlg, IDC_PASSWORD_PROT_HIDVOL), tmp);	
 
 			EndDialog (hwndDlg, lw);
 			return 1;
@@ -2511,7 +2530,7 @@ BOOL CALLBACK MountOptionsDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM
 
 		if (lw == IDOK)
 		{
-			char tmp[MAX_PASSWORD+1];
+			WCHAR tmp[MAX_PASSWORD+1];
 			
 			mountOptions->ReadOnly = IsButtonChecked (GetDlgItem (hwndDlg, IDC_MOUNT_READONLY));
 			mountOptions->Removable = IsButtonChecked (GetDlgItem (hwndDlg, IDC_MOUNT_REMOVABLE));
@@ -2521,17 +2540,17 @@ BOOL CALLBACK MountOptionsDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM
 			
 			if (mountOptions->ProtectHiddenVolume)
 			{
-				GetWindowText (GetDlgItem (hwndDlg, IDC_PASSWORD_PROT_HIDVOL),
-					(LPSTR) mountOptions->ProtectedHidVolPassword.Text,
-					sizeof (mountOptions->ProtectedHidVolPassword.Text));
+				GetWindowTextW(GetDlgItem (hwndDlg, IDC_PASSWORD_PROT_HIDVOL), tmp, sizeof(tmp)/sizeof(*tmp));
+				ConvertUTF16toUTF8s((const UTF16*)tmp,sizeof(tmp)/sizeof(*tmp),(UTF8*)mountOptions->ProtectedHidVolPassword.Text,sizeof(mountOptions->ProtectedHidVolPassword.Text)/sizeof(*mountOptions->ProtectedHidVolPassword.Text),strictConversion);
+				burn(tmp,sizeof(tmp));
 
 				mountOptions->ProtectedHidVolPassword.Length = strlen ((char *) mountOptions->ProtectedHidVolPassword.Text);
 			}
 
 			// Cleanup
-			memset (tmp, 'X', MAX_PASSWORD);
+			memset (tmp, 0x20, sizeof(tmp)); //0x20 = ASCII space or 0x2020 = Unicode DAGGER
 			tmp[MAX_PASSWORD] = 0;
-			SetWindowText (GetDlgItem (hwndDlg, IDC_PASSWORD_PROT_HIDVOL), tmp);	
+			SetWindowTextW(GetDlgItem (hwndDlg, IDC_PASSWORD_PROT_HIDVOL), tmp);	
 
 			if ((mountOptions->ProtectHiddenVolume && !bEnableBkgTask)
 				&& (AskWarnYesNo ("HIDVOL_PROT_BKG_TASK_WARNING") == IDYES))
@@ -3135,8 +3154,8 @@ BOOL CALLBACK TravelerDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lPa
 			// Wizard
 			if (copyWizard)
 			{
-				sprintf (srcPath, "%s\\CipherShed Format.exe", appDir);
-				sprintf (dstPath, "%s\\CipherShed\\CipherShed Format.exe", dstDir);
+				sprintf (srcPath, "%s\\CipherShed-Format.exe", appDir);
+				sprintf (dstPath, "%s\\CipherShed\\CipherShed-Format.exe", dstDir);
 				if (!TCCopyFile (srcPath, dstPath))
 				{
 					handleWin32Error (hwndDlg);
@@ -3377,7 +3396,7 @@ static BOOL Mount (HWND hwndDlg, int nDosDriveNo, char *szFileName)
 
 	if (szFileName == NULL)
 	{
-		GetWindowText (GetDlgItem (hwndDlg, IDC_VOLUME), fileName, sizeof (fileName));
+		GetWindowTextA(GetDlgItem (hwndDlg, IDC_VOLUME), fileName, sizeof (fileName));
 		szFileName = fileName;
 	}
 
@@ -3918,7 +3937,7 @@ static void ChangePassword (HWND hwndDlg)
 {
 	int result;
 	
-	GetWindowText (GetDlgItem (hwndDlg, IDC_VOLUME), szFileName, sizeof (szFileName));
+	GetWindowTextA(GetDlgItem (hwndDlg, IDC_VOLUME), szFileName, sizeof (szFileName));
 	if (IsMountedVolume (szFileName))
 	{
 		Warning (pwdChangeDlgMode == PCDM_CHANGE_PKCS5_PRF ? "MOUNTED_NO_PKCS5_PRF_CHANGE" : "MOUNTED_NOPWCHANGE");
@@ -5944,7 +5963,7 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				}
 				else
 				{
-					GetWindowText (GetDlgItem (hwndDlg, IDC_VOLUME), volPath, sizeof (volPath));
+					GetWindowTextA(GetDlgItem (hwndDlg, IDC_VOLUME), volPath, sizeof (volPath));
 
 					WaitCursor ();
 
@@ -5964,7 +5983,7 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				}
 				else
 				{
-					GetWindowText (GetDlgItem (hwndDlg, IDC_VOLUME), volPath, sizeof (volPath));
+					GetWindowTextA(GetDlgItem (hwndDlg, IDC_VOLUME), volPath, sizeof (volPath));
 
 					WaitCursor ();
 
@@ -6211,7 +6230,7 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 			wchar_t volPathLowerW[TC_MAX_PATH];
 
 			// volPathLower will contain the volume path (if any) from the input field below the drive list 
-			GetWindowText (GetDlgItem (hwndDlg, IDC_VOLUME), volPathLower, sizeof (volPathLower));
+			GetWindowTextA(GetDlgItem (hwndDlg, IDC_VOLUME), volPathLower, sizeof (volPathLower));
 
 			if (LOWORD (selectedDrive) != TC_MLIST_ITEM_NONSYS_VOL
 				&& !(VolumeSelected (hwndDlg) && IsMountedVolume (volPathLower)))
@@ -6357,7 +6376,7 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 			{
 				char volPath[TC_MAX_PATH];		/* Volume to mount */
 
-				GetWindowText (GetDlgItem (hwndDlg, IDC_VOLUME), volPath, sizeof (volPath));
+				GetWindowTextA(GetDlgItem (hwndDlg, IDC_VOLUME), volPath, sizeof (volPath));
 
 				WaitCursor ();
 
@@ -6381,7 +6400,7 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 			{
 				char volPath[TC_MAX_PATH];		/* Volume to mount */
 
-				GetWindowText (GetDlgItem (hwndDlg, IDC_VOLUME), volPath, sizeof (volPath));
+				GetWindowTextA(GetDlgItem (hwndDlg, IDC_VOLUME), volPath, sizeof (volPath));
 
 				WaitCursor ();
 

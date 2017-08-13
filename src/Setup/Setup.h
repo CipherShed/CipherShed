@@ -22,11 +22,11 @@ static char *szFiles[]=
 	"ACipherShed User Guide.pdf",
 	"ALicense.txt",
 	"ACipherShed.exe",
-	"ACipherShed Format.exe",
+	"ACipherShed-Format.exe",
 	"Atruecrypt.sys",
 	"Atruecrypt-x64.sys",
 	"Dtruecrypt.sys",
-	"ACipherShed Setup.exe"
+	"ACipherShed-Setup.exe"
 };
 
 // Specifies what files are included in self-extracting packages (no other files will be packaged or extracted).
@@ -35,7 +35,7 @@ static char *szCompressedFiles[]=
 	"CipherShed User Guide.pdf",
 	"License.txt",
 	"CipherShed.exe",
-	"CipherShed Format.exe",
+	"CipherShed-Format.exe",
 	"truecrypt.sys",
 	"truecrypt-x64.sys"
 };

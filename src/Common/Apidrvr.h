@@ -24,7 +24,7 @@
 #include "Volumes.h"
 #include "Wipe.h"
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(CS_UNITTESTING)
 
 /* WARNING: Modifying the following values or their meanings can introduce incompatibility with previous versions. */
 
@@ -311,6 +311,8 @@ typedef struct
 /* CipherSheds mounted volume name prefix. */
 #define TC_MOUNT_PREFIX L"\\Device\\TrueCryptVolume"
 #define NT_MOUNT_PREFIX DRIVER_STR("\\Device\\TrueCryptVolume")
+
+//CVE-2015-7358: this should be addressed
 #define DOS_MOUNT_PREFIX DRIVER_STR("\\DosDevices\\")
 
 /* CipherSheds name for the kernel driver device object. */

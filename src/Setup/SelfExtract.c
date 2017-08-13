@@ -19,7 +19,7 @@
 #include "../Common/Language.h"
 #include "Resource.h"
 
-#define OutputPackageFile "CipherShed Setup " VERSION_STRING ".exe"
+#define OutputPackageFile "CipherShed-Setup-" VERSION_STRING ".exe"
 
 #define MAG_START_MARKER	"TCINSTRT"
 #define MAG_END_MARKER_OBFUSCATED	"T/C/I/N/S/C/R/C"
@@ -211,7 +211,7 @@ static void WipeSignatureAreas (char *buffer)
 }
 
 
-BOOL MakeSelfExtractingPackage (HWND hwndDlg, char *szDestDir)
+BOOL MakeSelfExtractingPackage (HWND hwndDlg, char *szDestDir, BOOL quiet)
 {
 	int i, x;
 	unsigned char inputFile [TC_MAX_PATH];
@@ -236,12 +236,12 @@ BOOL MakeSelfExtractingPackage (HWND hwndDlg, char *szDestDir)
 	strcpy (outputFile, szDestDir);
 	strncat (outputFile, OutputPackageFile, sizeof (outputFile) - strlen (outputFile) - 1);
 
-	// Clone 'CipherShed Setup.exe' to create the base of the new self-extracting archive
+	// Clone 'CipherShed-Setup.exe' to create the base of the new self-extracting archive
 
 	if (!TCCopyFile (inputFile, outputFile))
 	{
 		handleWin32Error (hwndDlg);
-		PkgError ("Cannot copy 'CipherShed Setup.exe' to the package");
+		PkgError ("Cannot copy 'CipherShed-Setup.exe' to the package");
 		goto err;
 	}
 
@@ -426,7 +426,10 @@ BOOL MakeSelfExtractingPackage (HWND hwndDlg, char *szDestDir)
 	}
 
 	sprintf (tmpStr, "Self-extracting package successfully created (%s)", outputFile);
-	PkgInfo (tmpStr);
+	if (!quiet)
+	{
+		PkgInfo (tmpStr);
+	}
 	return TRUE;
 
 err:

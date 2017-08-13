@@ -45,7 +45,7 @@ namespace CipherShed
 		if (preserveTimestamps)
 		{
 			destination.Flush();
-#ifndef TC_WINDOWS
+#if !defined(TC_WINDOWS) && !defined(CS_UNITTESTING)
 			struct stat statData;
 			throw_sys_sub_if (stat (string (sourcePath).c_str(), &statData) == -1, wstring (sourcePath));
 

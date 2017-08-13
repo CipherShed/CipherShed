@@ -10,6 +10,7 @@
 #define TC_HEADER_Platform_File
 
 #include "PlatformBase.h"
+using namespace std;
 #include "Buffer.h"
 #include "FilesystemPath.h"
 #include "SystemException.h"

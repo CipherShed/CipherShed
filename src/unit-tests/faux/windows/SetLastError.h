@@ -4,6 +4,14 @@
 #include "DWORD.h"
 #include "VOID.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 VOID SetLastError(DWORD dwErrCode);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
