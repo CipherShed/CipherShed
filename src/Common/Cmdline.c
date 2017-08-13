@@ -20,6 +20,7 @@
 #include "Apidrvr.h"
 #include "Dlgcode.h"
 #include "Language.h"
+#include "snprintf.h"
 
 /* Except in response to the WM_INITDIALOG message, the dialog box procedure
    should return nonzero if it processes the message, and zero if it does
@@ -49,7 +50,7 @@ BOOL CALLBACK CommandHelpDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM 
 		{
 			if (!as->args[i].Internal)
 			{
-				sprintf(tmp2, "%s\t%s\n", as->args[i].short_name, as->args[i].long_name);
+				snprintf(tmp2, ARRAY_LENGTH(tmp2), "%s\t%s\n", as->args[i].short_name, as->args[i].long_name);
 				strcat(tmp,tmp2);
 			}
 		}

@@ -13,12 +13,13 @@
 #define TCDEFS_H
 
 #define TC_APP_NAME						"CipherShed"
+#define TC_APP_NAME_LEGACY				"TrueCrypt"
 
 // Version displayed to user 
-#define VERSION_STRING					"7.1a"
+#define VERSION_STRING					"0.7.3"
 
 // Version number to compare against driver
-#define VERSION_NUM						0x071a
+#define VERSION_NUM						0x0730
 
 // Release date
 #define TC_STR_RELEASE_DATE				"February 7, 2012"

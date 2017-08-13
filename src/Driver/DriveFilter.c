@@ -443,6 +443,7 @@ static NTSTATUS SaveDriveVolumeHeader (DriveFilterExtension *Extension)
 
 		DecryptBuffer (header + HEADER_ENCRYPTED_DATA_OFFSET, HEADER_ENCRYPTED_DATA_SIZE, Extension->HeaderCryptoInfo);
 
+		/* Modifying 'TRUE' can introduce incompatibility with previous versions. */
 		if (GetHeaderField32 (header, TC_HEADER_OFFSET_MAGIC) != 0x54525545)
 		{
 			Dump ("Header not decrypted");

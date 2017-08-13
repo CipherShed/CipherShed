@@ -13,6 +13,7 @@
 #include "Xml.h"
 
 #include "../Common/Resource.h"
+#include "../Common/snprintf.h"
 
 #ifdef TCMOUNT
 #include "../Mount/Resource.h"
@@ -465,7 +466,7 @@ BOOL CALLBACK LanguageDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lPa
 			char tmpstr [256];
 
 			if (strlen (ActiveLangPackVersion) > 0 && strlen (GetPreferredLangId()) > 0)
-				sprintf (tmpstr, "&langpackversion=%s&lang=%s", ActiveLangPackVersion, GetPreferredLangId());
+				snprintf (tmpstr, ARRAY_LENGTH(tmpstr), "&langpackversion=%s&lang=%s", ActiveLangPackVersion, GetPreferredLangId());
 			else
 				tmpstr[0] = 0;
 
@@ -503,7 +504,7 @@ wchar_t *GetString (const char *stringId)
 	WCHAR *str = (WCHAR *) GetDictionaryValue (stringId);
 	if (str != NULL) return str;
 
-	wsprintfW (UnknownString, UNKNOWN_STRING_ID L"%hs" UNKNOWN_STRING_ID, stringId);
+	_snwprintf (UnknownString, ARRAY_LENGTH(UnknownString), UNKNOWN_STRING_ID L"%hs" UNKNOWN_STRING_ID, stringId);
 	return UnknownString;
 }
 

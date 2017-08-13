@@ -19,6 +19,7 @@
 #include "Dlgcode.h"
 #include "Language.h"
 #include "Common/Resource.h"
+#include "Common/snprintf.h"
 #include "Resource.h"
 #include "Setup.h"
 
@@ -91,10 +92,23 @@ static void InitWizardDestInstallPath (void)
 {
 	if (strlen (WizardDestInstallPath) < 2)
 	{
-		strcpy (WizardDestInstallPath, InstallationPath);
+		strcpy_s (WizardDestInstallPath, sizeof(WizardDestInstallPath), InstallationPath);
 		if (WizardDestInstallPath [strlen (WizardDestInstallPath) - 1] != '\\')
 		{
 			strcat (WizardDestInstallPath, "\\");
+		}
+
+		/* Change CipherShed migration path. */
+		if (bCipherShedMigration)
+		{
+			size_t str_len = strlen (WizardDestInstallPath);
+			size_t suffix_len = sizeof ("\\TrueCrypt\\") - 1;
+			if (str_len > suffix_len &&
+				str_len + 1 < sizeof(WizardDestInstallPath) &&
+				strncmp (WizardDestInstallPath + str_len - suffix_len, "\\TrueCrypt\\", suffix_len) == 0)
+			{
+				strcpy_s (WizardDestInstallPath + str_len - suffix_len, sizeof(WizardDestInstallPath)-(str_len - suffix_len), "\\CipherShed\\");
+			}
 		}
 	}
 }
@@ -213,7 +227,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 	case WM_INITDIALOG:
 		LocalizeDialog (hwndDlg, "IDD_INSTL_DLG");
 
-		sprintf (PageDebugId, "SETUP_WIZARD_PAGE_%d", nCurPageNo);
+		snprintf (PageDebugId, sizeof(PageDebugId), "SETUP_WIZARD_PAGE_%d", nCurPageNo);
 		LastDialogId = PageDebugId;
 
 		switch (nCurPageNo)
@@ -307,7 +321,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 			if (strlen(WizardDestExtractPath) < 2)
 			{ 
-				strcpy (WizardDestExtractPath, SetupFilesDir);
+				strcpy_s (WizardDestExtractPath, sizeof(WizardDestExtractPath), SetupFilesDir);
 				strncat (WizardDestExtractPath, "CipherShed\\", sizeof (WizardDestExtractPath) - strlen (WizardDestExtractPath) - 1);
 			}
 
@@ -353,7 +367,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				if (WizardDestExtractPath [strlen(WizardDestExtractPath)-1] != '\\')
 					strcat (WizardDestExtractPath, "\\");
 
-				strcpy (DestExtractPath, WizardDestExtractPath);
+				strcpy_s (DestExtractPath, sizeof(DestExtractPath), WizardDestExtractPath);
 
 				InitProgressBar ();
 
@@ -382,7 +396,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 				if (!bDesktopIconStatusDetermined)
 				{
-					bDesktopIcon = !bUpgrade;
+					bDesktopIcon = !bUpgrade || bCipherShedMigration;
 					bDesktopIconStatusDetermined = TRUE;
 				}
 
@@ -403,9 +417,19 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 					EnableWindow (GetDlgItem (hwndDlg, IDC_BROWSE), FALSE);
 					EnableWindow (GetDlgItem (hwndDlg, IDC_ALL_USERS), FALSE);
 
+					/* Determine bForAllUsers state. */
 					char path[MAX_PATH];
 					SHGetSpecialFolderPath (hwndDlg, path, CSIDL_COMMON_PROGRAMS, 0);
-					bForAllUsers = (_access ((string (path) + "\\" TC_APP_NAME).c_str(), 0) == 0);
+					bForAllUsers = (_access ((string (path) + "\\" TC_APP_NAME).c_str(), 0) == 0 || _access ((string (path) + "\\" TC_APP_NAME_LEGACY).c_str(), 0) == 0);
+
+					/* Determine bRegisterFileExt state. */
+					HKEY hKey = 0;
+					if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, "Software\\Classes\\TrueCryptVolume", 0, KEY_READ, &hKey) == ERROR_SUCCESS)
+					{
+						RegCloseKey(hKey);
+						EnableWindow (GetDlgItem (hwndDlg, IDC_FILE_TYPE), FALSE);
+						bRegisterFileExt = TRUE;
+					}
 				}
 
 				// System Restore
@@ -456,7 +480,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				if (WizardDestInstallPath [strlen(WizardDestInstallPath)-1] != '\\')
 					strcat (WizardDestInstallPath, "\\");
 
-				strcpy (InstallationPath, WizardDestInstallPath);
+				strcpy_s (InstallationPath, sizeof(InstallationPath), WizardDestInstallPath);
 
 				WaitCursor ();
 
@@ -684,7 +708,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 				{
 					char tmpstr [200];
 
-					sprintf (tmpstr, "&ref=%d", DonColorSchemeId);
+					snprintf (tmpstr, sizeof(tmpstr), "&ref=%d", DonColorSchemeId);
 
 					Applink ("donate", FALSE, tmpstr);
 				}
@@ -932,6 +956,13 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 					bExtractOnly = TRUE;
 					nCurPageNo = EXTRACTION_OPTIONS_PAGE - 1;
+				}
+
+				/* CipherShed migration note. */
+				else if (bCipherShedMigration
+					&& AskWarnYesNo("CIPHERSHED_MIGRATION_NOTE") == IDNO)
+				{
+					return 1;
 				}
 			}
 

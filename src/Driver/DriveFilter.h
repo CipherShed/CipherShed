@@ -45,6 +45,7 @@ typedef struct _DriveFilterExtension
 
 } DriveFilterExtension;
 
+/* Modifying 'TRUE' can introduce incompatibility with previous versions. */
 #define TC_BOOT_DRIVE_FILTER_EXTENSION_MAGIC_NUMBER 0x5452554542455854
 
 extern BOOL BootArgsValid;

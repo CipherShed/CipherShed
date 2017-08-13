@@ -23,9 +23,9 @@ static char *szFiles[]=
 	"ALicense.txt",
 	"ACipherShed.exe",
 	"ACipherShed Format.exe",
-	"Aciphershed.sys",
-	"Aciphershed-x64.sys",
-	"Dciphershed.sys",
+	"Atruecrypt.sys",
+	"Atruecrypt-x64.sys",
+	"Dtruecrypt.sys",
 	"ACipherShed Setup.exe"
 };
 
@@ -36,11 +36,11 @@ static char *szCompressedFiles[]=
 	"License.txt",
 	"CipherShed.exe",
 	"CipherShed Format.exe",
-	"ciphershed.sys",
-	"ciphershed-x64.sys"
+	"truecrypt.sys",
+	"truecrypt-x64.sys"
 };
 
-#define FILENAME_64BIT_DRIVER	"ciphershed-x64.sys"
+#define FILENAME_64BIT_DRIVER	"truecrypt-x64.sys"
 #define NBR_COMPRESSED_FILES (sizeof(szCompressedFiles) / sizeof(szCompressedFiles[0]))
 
 void localcleanup (void);
@@ -62,12 +62,14 @@ static int CALLBACK BrowseCallbackProc ( HWND hwnd , UINT uMsg , LPARAM lp , LPA
 void LoadLicense ( HWND hwndDlg );
 void DetermineUpgradeDowngradeStatus (BOOL bCloseDriverHandle, LONG *driverVersionPtr);
 BOOL DoFilesInstall ( HWND hwndDlg , char *szDestDir );
+BOOL DoTrueCryptFilesUninstall (HWND hwndDlg);
 BOOL DoRegInstall ( HWND hwndDlg , char *szDestDir , BOOL bInstallType );
 BOOL DoRegUninstall (HWND hwndDlg, BOOL bRemoveDeprecated);
 BOOL DoServiceUninstall ( HWND hwndDlg , char *lpszService );
 BOOL DoDriverUnload ( HWND hwndDlg );
 BOOL DoShortcutsInstall ( HWND hwndDlg , char *szDestDir , BOOL bProgGroup, BOOL bDesktopIcon );
 BOOL DoShortcutsUninstall (HWND hwndDlg, char *szDestDir);
+BOOL DoTrueCryptShortcutsUninstall (HWND hwndDlg, char *szDestDir);
 void OutcomePrompt ( HWND hwndDlg , BOOL bOK );
 void DoUninstall ( void *hwndDlg );
 void DoInstall ( void *hwndDlg );
@@ -77,6 +79,7 @@ BOOL CALLBACK InstallDlgProc ( HWND hwndDlg , UINT msg , WPARAM wParam , LPARAM 
 
 extern BOOL bDevm;
 extern BOOL Rollback;
+extern BOOL bCipherShedMigration;
 extern BOOL bUpgrade;
 extern BOOL bPossiblyFirstTimeInstall;
 extern BOOL bRepairMode;

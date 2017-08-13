@@ -28,8 +28,8 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 7,1,1,0
- PRODUCTVERSION 7,1,1,0
+ FILEVERSION 0,7,3,0
+ PRODUCTVERSION 0,7,3,0
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -46,11 +46,11 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "CipherShed Organization"
             VALUE "FileDescription", "CipherShed Format"
-            VALUE "FileVersion", "7.1a"
+            VALUE "FileVersion", "0.7.3"
             VALUE "LegalTrademarks", "CipherShed"
             VALUE "OriginalFilename", "CipherShed Format.exe"
             VALUE "ProductName", "CipherShed"
-            VALUE "ProductVersion", "7.1a"
+            VALUE "ProductVersion", "0.7.3"
         END
     END
     BLOCK "VarFileInfo"
@@ -669,7 +669,7 @@ END
 // Bitmap
 //
 
-IDB_WIZARD              BITMAP                  "CipherShed_wizard.bmp"
+IDB_WIZARD              BITMAP                  "CipherShed_Wizard.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //
