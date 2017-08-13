@@ -228,25 +228,28 @@ void IconMessage (HWND hwndDlg, char *txt)
 	StatusMessageParam (hwndDlg, "ADDING_ICON", txt);
 }
 
-void DetermineUpgradeDowngradeStatus (BOOL bCloseDriverHandle, LONG *driverVersionPtr)
+void DetermineUpgradeDowngradeStatus (BOOL bCloseDriverHandle, LONG *driverVersionPtr) //This does its thing by changing the value
 {
-	LONG driverVersion = VERSION_NUM;
+	LONG driverVersion = VERSION_NUM; //Currently set at 0
 
-	if (hDriver == INVALID_HANDLE_VALUE)
+	if (hDriver == INVALID_HANDLE_VALUE) //INVALID_HANDLE_VALUE is some constant, I don't remember
 		DriverAttach();
 
 	if (hDriver != INVALID_HANDLE_VALUE)
 	{
-		DWORD dwResult;
+		DWORD dwResult; //DWord = 32 bits (long)
 		BOOL bResult = DeviceIoControl (hDriver, TC_IOCTL_GET_DRIVER_VERSION, NULL, 0, &driverVersion, sizeof (driverVersion), &dwResult, NULL);
 
 		if (!bResult)
-			bResult = DeviceIoControl (hDriver, TC_IOCTL_LEGACY_GET_DRIVER_VERSION, NULL, 0, &driverVersion, sizeof (driverVersion), &dwResult, NULL);
+		{
+			bResult = DeviceIoControl (hDriver, TC_IOCTL_LEGACY_GET_DRIVER_VERSION, NULL, 0, &driverVersion, sizeof (driverVersion), &dwResult, NULL); //Basically, if the normal way returns 0, then use the fallback way
+		}
 
 		if (bResult)
-			InstalledVersion = driverVersion;
-
-		bUpgrade = (bResult && driverVersion < VERSION_NUM);
+		{
+			InstalledVersion = driverVersion; //Changes driverVersion
+		}
+		bUpgrade = (bResult && driverVersion < VERSION_NUM); //Global vars 
 		bDowngrade = (bResult && driverVersion > VERSION_NUM);
 
 		PortableMode = DeviceIoControl (hDriver, TC_IOCTL_GET_PORTABLE_MODE_STATUS, NULL, 0, NULL, 0, &dwResult, NULL);
@@ -257,7 +260,8 @@ void DetermineUpgradeDowngradeStatus (BOOL bCloseDriverHandle, LONG *driverVersi
 			hDriver = INVALID_HANDLE_VALUE;
 		}
 	}
-
+	
+	//Updates here
 	*driverVersionPtr = driverVersion;
 }
 
@@ -273,7 +277,6 @@ static BOOL IsFileInUse (const string &filePath)
 
 	return FALSE;
 }
-
 
 BOOL DoFilesInstall (HWND hwndDlg, char *szDestDir)
 {
@@ -780,7 +783,6 @@ BOOL DoRegUninstall (HWND hwndDlg, BOOL bRemoveDeprecated)
 	return bOK;
 }
 
-
 BOOL DoServiceUninstall (HWND hwndDlg, char *lpszService)
 {
 	SC_HANDLE hManager, hService = NULL;
@@ -944,13 +946,13 @@ BOOL DoDriverUnload (HWND hwndDlg)
 	if (hDriver != INVALID_HANDLE_VALUE)
 	{
 		MOUNT_LIST_STRUCT driver;
-		LONG driverVersion = VERSION_NUM;
+		LONG driverVersion = VERSION_NUM; //What is Version_num?
 		int refCount;
 		DWORD dwResult;
 		BOOL bResult;
 
 		// Try to determine if it's upgrade (and not reinstall, downgrade, or first-time install).
-		DetermineUpgradeDowngradeStatus (FALSE, &driverVersion);
+		DetermineUpgradeDowngradeStatus (FALSE, &driverVersion /*This parameter is changed in this function */);
 
 		// Test for encrypted boot drive
 		try
@@ -971,7 +973,8 @@ BOOL DoDriverUnload (HWND hwndDlg)
 					}
 				}
 				catch (...) { }
-
+				
+				//So far so good, but where does it look for truecrypt as opposed to ciphershed?
 				if (bUninstallInProgress && driverVersion >= 0x500 && !bootEnc.GetStatus().DriveMounted)
 				{
 					try { bootEnc.RegisterFilterDriver (false, BootEncryption::DriveFilter); } catch (...) { }

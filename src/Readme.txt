@@ -21,15 +21,14 @@ Requirements for Building CipherShed for Linux and Mac OS X:
 - Apple Xcode (Mac OS X only)
 - NASM assembler 2.08 or compatible (x86/x64 architecture only)
 - pkg-config
-- wxWidgets 2.8 shared library and header files installed or
-  wxWidgets 2.8 library source code (available at http://www.wxwidgets.org)
+- wxWidgets 2.8/3.0.1 shared library and header files installed or
+  wxWidgets 2.8/3.0.1 library source code (available at http://www.wxwidgets.org)
 - FUSE library and header files (available at http://fuse.sourceforge.net
   and http://code.google.com/p/macfuse)
 - RSA Security Inc. PKCS #11 Cryptographic Token Interface (Cryptoki) 2.20
   header files (available at ftp://ftp.rsasecurity.com/pub/pkcs/pkcs-11/v2-20)
   located in a standard include path or in a directory defined by the
   environment variable 'PKCS11_INC'.
-
 
 Instructions for Building CipherShed for Linux and Mac OS X:
 -----------------------------------------------------------
@@ -62,6 +61,13 @@ library, use the 'NOGUI' parameter:
 
    $ make NOGUI=1 WX_ROOT=/usr/src/wxWidgets wxbuild
    $ make NOGUI=1 WXSTATIC=1
+
+Notes
+-----------------------------------------------------------
+
+- If you run into numerous compilation errors while building CipherShed, double
+  check to make sure that you installed an official release of wxwidgets and
+  not an unofficial build. 
 
 Legal Information
 ====================

@@ -106,6 +106,7 @@ extern BOOL CacheBootPassword;
 /* Helper macro returning x seconds in units of 100 nanoseconds */
 #define WAIT_SECONDS(x) ((x)*10000000)
 
+//Can we add a bit of format to this text wall, please?
 NTSTATUS DriverEntry (PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath);
 NTSTATUS DriverAddDevice (PDRIVER_OBJECT driverObject, PDEVICE_OBJECT pdo);
 void DumpMemory (void *memory, int size);

@@ -101,7 +101,7 @@ NTSTATUS LoadBootArguments ()
 
 			BootArgs = *bootArguments;
 			BootArgsValid = TRUE;
-			memset (bootArguments, 0, sizeof (*bootArguments));
+			burn (bootArguments, 0, sizeof (*bootArguments)); //Just as recommended in the audit
 
 			if (BootArgs.BootLoaderVersion < 0x600)
 			{
@@ -332,7 +332,7 @@ static NTSTATUS MountDrive (DriveFilterExtension *Extension, Password *password,
 			if (mappedCryptoInfo)
 			{
 				Dump ("Wiping memory %x %d\n", cryptoInfoAddress.LowPart, BootArgs.CryptoInfoLength);
-				memset (mappedCryptoInfo, 0, BootArgs.CryptoInfoLength);
+				burn (mappedCryptoInfo, 0, BootArgs.CryptoInfoLength); //Also as suggested in the audit
 				MmUnmapIoSpace (mappedCryptoInfo, BootArgs.CryptoInfoLength);
 			}
 		}
