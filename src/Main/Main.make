@@ -103,6 +103,18 @@ FUSE_LIBS = $(shell pkg-config fuse --libs)
 
 TC_VERSION = $(shell grep VERSION_STRING ../Common/Tcdefs.h | head -n 1 | cut -d'"' -f 2)
 
+.PHONY: all
+
+all: $(APPNAME) ../../doc/manpages/ciphershed.1.gz
+
+../../doc/manpages/ciphershed.1.gz: ../../doc/manpages/ciphershed.1
+	@echo gzip $@
+	gzip -9 -k $^
+
+../../doc/manpages/ciphershed.1: ../../doc/manpages/ciphershed.pod
+	@echo pod2man $@
+	pod2man --name='CipherShed' --release='CipherShed v0.7.3' --center='General Commands Manual' $^ $@
+
 $(APPNAME): $(LIBS) $(OBJS)
 	@echo Linking $@
 	$(CXX) -o $(APPNAME) $(LFLAGS) $(OBJS) $(LIBS) $(FUSE_LIBS) $(WX_LIBS)
