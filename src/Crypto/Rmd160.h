@@ -1,7 +1,7 @@
 #ifndef TC_HEADER_Crypto_Ripemd160
 #define TC_HEADER_Crypto_Ripemd160
 
-#include "Common/Tcdefs.h"
+#include "../Common/Tcdefs.h"
 
 #if defined(__cplusplus)
 extern "C"

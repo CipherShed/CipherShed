@@ -9,7 +9,7 @@
 #ifndef TC_HEADER_Boot_BootCommon
 #define TC_HEADER_Boot_BootCommon
 
-#include "Common/Password.h"
+#include "../../Common/Password.h"
 #include "BootDefs.h"
 
 // The user will be advised to upgrade the rescue disk if upgrading from the following or any previous version

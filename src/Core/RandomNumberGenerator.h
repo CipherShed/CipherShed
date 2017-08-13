@@ -9,9 +9,9 @@
 #ifndef TC_HEADER_Core_RandomNumberGenerator
 #define TC_HEADER_Core_RandomNumberGenerator
 
-#include "Platform/Platform.h"
-#include "Volume/Hash.h"
-#include "Common/Random.h"
+#include "../Platform/Platform.h"
+#include "../Volume/Hash.h"
+#include "../Common/Random.h"
 
 namespace CipherShed
 {

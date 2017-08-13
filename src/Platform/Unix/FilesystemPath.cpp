@@ -6,9 +6,9 @@
  packages.
 */
 
-#include "Platform/FilesystemPath.h"
-#include "Platform/SystemException.h"
-#include "Platform/StringConverter.h"
+#include "../FilesystemPath.h"
+#include "../SystemException.h"
+#include "../StringConverter.h"
 #include <stdio.h>
 #include <sys/stat.h>
 

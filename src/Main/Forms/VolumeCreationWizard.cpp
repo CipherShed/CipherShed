@@ -7,16 +7,16 @@
 */
 
 #include "System.h"
-#include "Platform/SystemInfo.h"
+#include "../../Platform/SystemInfo.h"
 #ifdef TC_UNIX
 #include <unistd.h>
-#include "Platform/Unix/Process.h"
+#include "../../Platform/Unix/Process.h"
 #endif
-#include "Core/RandomNumberGenerator.h"
-#include "Core/VolumeCreator.h"
-#include "Main/Application.h"
-#include "Main/GraphicUserInterface.h"
-#include "Main/Resources.h"
+#include "../../Core/RandomNumberGenerator.h"
+#include "../../Core/VolumeCreator.h"
+#include "../Application.h"
+#include "../GraphicUserInterface.h"
+#include "../Resources.h"
 #include "VolumeCreationWizard.h"
 #include "EncryptionOptionsWizardPage.h"
 #include "InfoWizardPage.h"

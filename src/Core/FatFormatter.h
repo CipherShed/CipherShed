@@ -9,7 +9,7 @@
 #ifndef TC_HEADER_Core_FatFormatter
 #define TC_HEADER_Core_FatFormatter
 
-#include "Platform/Platform.h"
+#include "../Platform/Platform.h"
 
 namespace CipherShed
 {

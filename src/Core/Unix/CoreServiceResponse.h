@@ -9,8 +9,8 @@
 #ifndef TC_HEADER_Core_Unix_CoreServiceResponse
 #define TC_HEADER_Core_Unix_CoreServiceResponse
 
-#include "Platform/Serializable.h"
-#include "Core/Core.h"
+#include "../../Platform/Serializable.h"
+#include "../Core.h"
 
 namespace CipherShed
 {

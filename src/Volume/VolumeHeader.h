@@ -9,14 +9,14 @@
 #ifndef TC_HEADER_Volume_VolumeHeader
 #define TC_HEADER_Volume_VolumeHeader
 
-#include "Common/Tcdefs.h"
-#include "Common/Volumes.h"
-#include "Platform/Platform.h"
-#include "Volume/EncryptionAlgorithm.h"
-#include "Volume/EncryptionMode.h"
-#include "Volume/Keyfile.h"
-#include "Volume/VolumePassword.h"
-#include "Volume/Pkcs5Kdf.h"
+#include "../Common/Tcdefs.h"
+#include "../Common/Volumes.h"
+#include "../Platform/Platform.h"
+#include "EncryptionAlgorithm.h"
+#include "EncryptionMode.h"
+#include "Keyfile.h"
+#include "VolumePassword.h"
+#include "Pkcs5Kdf.h"
 #include "Version.h"
 
 

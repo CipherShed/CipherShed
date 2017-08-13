@@ -9,7 +9,7 @@
 #ifndef TC_HEADER_Encryption_Ciphers
 #define TC_HEADER_Encryption_Ciphers
 
-#include "Platform/Platform.h"
+#include "../Platform/Platform.h"
 
 
 namespace CipherShed

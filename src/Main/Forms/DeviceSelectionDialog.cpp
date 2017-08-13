@@ -7,8 +7,8 @@
 */
 
 #include "System.h"
-#include "Main/GraphicUserInterface.h"
-#include "Main/Resources.h"
+#include "../GraphicUserInterface.h"
+#include "../Resources.h"
 #include "DeviceSelectionDialog.h"
 
 namespace CipherShed

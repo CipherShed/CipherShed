@@ -6,7 +6,9 @@
  packages.
 */
 
+#ifndef CS_UNITTESTING
 #include <windows.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {

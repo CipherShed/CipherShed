@@ -13,4 +13,4 @@
 
 bool InstallInterruptFilters ();
 
-#endif TC_HEADER_Boot_IntFilter
+#endif //TC_HEADER_Boot_IntFilter

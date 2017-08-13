@@ -9,8 +9,8 @@
 #ifndef TC_HEADER_Volume_Volume
 #define TC_HEADER_Volume_Volume
 
-#include "Platform/Platform.h"
-#include "Platform/StringConverter.h"
+#include "../Platform/Platform.h"
+#include "../Platform/StringConverter.h"
 #include "EncryptionAlgorithm.h"
 #include "EncryptionMode.h"
 #include "Keyfile.h"

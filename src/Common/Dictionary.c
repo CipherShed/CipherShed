@@ -7,9 +7,11 @@
 */
 
 #include "../Common/Dictionary.h"
+#ifndef CS_UNITTESTING
 #include <windows.h>
 #include <map>
 #include <string>
+#endif
 
 using namespace std;
 

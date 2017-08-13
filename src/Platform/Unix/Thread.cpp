@@ -8,9 +8,9 @@
 
 #include <pthread.h>
 #include <unistd.h>
-#include "Platform/SystemException.h"
-#include "Platform/Thread.h"
-#include "Platform/SystemLog.h"
+#include "../SystemException.h"
+#include "../Thread.h"
+#include "../SystemLog.h"
 
 namespace CipherShed
 {

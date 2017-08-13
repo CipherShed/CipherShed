@@ -9,9 +9,9 @@
 #ifndef TC_HEADER_Platform_Unix_Process
 #define TC_HEADER_Platform_Unix_Process
 
-#include "Platform/PlatformBase.h"
-#include "Platform/Buffer.h"
-#include "Platform/Functor.h"
+#include "../PlatformBase.h"
+#include "../Buffer.h"
+#include "../Functor.h"
 
 namespace CipherShed
 {

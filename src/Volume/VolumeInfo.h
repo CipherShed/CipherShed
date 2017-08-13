@@ -9,10 +9,10 @@
 #ifndef TC_HEADER_Volume_VolumeInfo
 #define TC_HEADER_Volume_VolumeInfo
 
-#include "Platform/Platform.h"
-#include "Platform/Serializable.h"
-#include "Volume/Volume.h"
-#include "Volume/VolumeSlot.h"
+#include "../Platform/Platform.h"
+#include "../Platform/Serializable.h"
+#include "Volume.h"
+#include "VolumeSlot.h"
 
 namespace CipherShed
 {

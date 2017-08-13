@@ -7,7 +7,7 @@
 */
 
 #include "System.h"
-#include "Main/GraphicUserInterface.h"
+#include "../GraphicUserInterface.h"
 #include "KeyfilesPanel.h"
 #include "SecurityTokenKeyfilesDialog.h"
 

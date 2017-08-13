@@ -9,8 +9,8 @@
 #ifndef TC_HEADER_Platform_SystemLog
 #define TC_HEADER_Platform_SystemLog
 
-#include "Platform/PlatformBase.h"
-#include "Platform/StringConverter.h"
+#include "PlatformBase.h"
+#include "StringConverter.h"
 
 namespace CipherShed
 {

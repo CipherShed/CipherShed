@@ -9,8 +9,8 @@
 #ifndef TC_HEADER_Encryption_EncryptionTest
 #define TC_HEADER_Encryption_EncryptionTest
 
-#include "Platform/Platform.h"
-#include "Common/Crypto.h"
+#include "../Platform/Platform.h"
+#include "../Common/Crypto.h"
 
 namespace CipherShed
 {

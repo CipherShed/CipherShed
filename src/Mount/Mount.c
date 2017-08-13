@@ -9,7 +9,7 @@
  contained in the file License.txt included in TrueCrypt binary and source
  code distribution packages. */
 
-#include "Tcdefs.h"
+#include "../Common/Tcdefs.h"
 
 #include <time.h>
 #include <math.h>
@@ -20,24 +20,24 @@
 #include <sys/stat.h>
 #include <windowsx.h>
 
-#include "Apidrvr.h"
-#include "BootEncryption.h"
-#include "Cmdline.h"
-#include "Crypto.h"
-#include "Dlgcode.h"
-#include "Combo.h"
+#include "../Common/Apidrvr.h"
+#include "../Common/BootEncryption.h"
+#include "../Common/Cmdline.h"
+#include "../Common/Crypto.h"
+#include "../Common/Dlgcode.h"
+#include "../Common/Combo.h"
 #include "Favorites.h"
 #include "Hotkeys.h"
-#include "Keyfiles.h"
-#include "Language.h"
+#include "../Common/Keyfiles.h"
+#include "../Common/Language.h"
 #include "MainCom.h"
 #include "Mount.h"
-#include "Pkcs5.h"
-#include "Random.h"
-#include "Registry.h"
+#include "../Common/Pkcs5.h"
+#include "../Common/Random.h"
+#include "../Common/Registry.h"
 #include "Resource.h"
-#include "Password.h"
-#include "Xml.h"
+#include "../Common/Password.h"
+#include "../Common/Xml.h"
 #include "../Boot/Windows/BootCommon.h"
 #include "../Common/Dictionary.h"
 #include "../Common/Common.h"

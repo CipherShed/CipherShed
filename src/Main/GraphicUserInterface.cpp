@@ -20,7 +20,7 @@
 #include "Platform/Unix/Process.h"
 #endif
 
-#include "Common/SecurityToken.h"
+#include "../Common/SecurityToken.h"
 #include "Application.h"
 #include "GraphicUserInterface.h"
 #include "FatalErrorHandler.h"

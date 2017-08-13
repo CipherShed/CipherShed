@@ -10,7 +10,7 @@
 #define TC_HEADER_Main_Forms_VolumeFormatOptionsWizardPage
 
 #include "Forms.h"
-#include "Core/VolumeCreator.h"
+#include "../../Core/VolumeCreator.h"
 
 namespace CipherShed
 {

@@ -12,7 +12,7 @@
 #include "Tcdefs.h"
 #include "Crc.h"
 #include "Crypto.h"
-#include "Common/Endian.h"
+#include "Endian.h"
 #include "Tests.h"
 #include "Xts.h"
 #include <string.h>

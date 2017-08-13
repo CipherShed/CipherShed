@@ -9,7 +9,7 @@
 #ifndef TC_HEADER_Core_Unix_MountedFilesystem
 #define TC_HEADER_Core_Unix_MountedFilesystem
 
-#include "Platform/Platform.h"
+#include "../../Platform/Platform.h"
 
 namespace CipherShed
 {

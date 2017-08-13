@@ -8,11 +8,14 @@
 #ifndef __Forms__
 #define __Forms__
 
+#ifndef CS_UNITTESTING
 #include <wx/intl.h>
+#endif
 
 class WizardPage;
 
 #include "WizardPage.h"
+#ifndef CS_UNITTESTING
 #include <wx/string.h>
 #include <wx/bitmap.h>
 #include <wx/image.h>
@@ -41,6 +44,7 @@ class WizardPage;
 #include <wx/spinctrl.h>
 #include <wx/notebook.h>
 #include <wx/gauge.h>
+#endif
 
 ///////////////////////////////////////////////////////////////////////////
 

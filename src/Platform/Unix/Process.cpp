@@ -12,14 +12,14 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include "Process.h"
-#include "Platform/Exception.h"
-#include "Platform/FileStream.h"
-#include "Platform/ForEach.h"
-#include "Platform/MemoryStream.h"
-#include "Platform/SystemException.h"
-#include "Platform/StringConverter.h"
-#include "Platform/Unix/Pipe.h"
-#include "Platform/Unix/Poller.h"
+#include "../Exception.h"
+#include "../FileStream.h"
+#include "../ForEach.h"
+#include "../MemoryStream.h"
+#include "../SystemException.h"
+#include "../StringConverter.h"
+#include "../Unix/Pipe.h"
+#include "../Unix/Poller.h"
 
 namespace CipherShed
 {

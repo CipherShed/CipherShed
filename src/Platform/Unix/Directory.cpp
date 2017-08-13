@@ -11,9 +11,9 @@
 #include <dirent.h>
 #include <errno.h>
 #include "System.h"
-#include "Platform/Directory.h"
-#include "Platform/Finally.h"
-#include "Platform/SystemException.h"
+#include "../Directory.h"
+#include "../Finally.h"
+#include "../SystemException.h"
 
 namespace CipherShed
 {

@@ -84,13 +84,11 @@ typedef uint64_t uint64;
 
 typedef uint64 TC_LARGEST_COMPILER_UINT;
 
-#define BOOL int
-#ifndef FALSE
-#define FALSE 0
-#define TRUE 1
-#endif
-
 #endif // !_MSC_VER
+
+#if !defined(_MSC_VER) || defined (CS_UNITTESTING)
+#include "bool.h"
+#endif
 
 #define TC_INT_TYPES_DEFINED
 
@@ -164,11 +162,15 @@ typedef int BOOL;
 #	define	_WIN32_WINNT 0x0501	/* Does not apply to the driver */
 #endif
 
+#ifndef CS_UNITTESTING
+
 #include <windows.h>		/* Windows header */
 #include <commctrl.h>		/* The common controls */
 #include <process.h>		/* Process control */
 #include <winioctl.h>
 #include <stdio.h>		/* For sprintf */
+
+#endif
 
 #endif				/* _WIN32 */
 
@@ -215,7 +217,7 @@ typedef int BOOL;
 #	define TC_WAIT_EVENT(EVENT) WaitForSingleObject (EVENT, INFINITE)
 #endif
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(CS_UNITTESTING)
 #define burn(mem,size) do { volatile char *burnm = (volatile char *)(mem); int burnc = size; RtlSecureZeroMemory (mem, size); while (burnc--) *burnm++ = 0; } while (0)
 #else
 #define burn(mem,size) do { volatile char *burnm = (volatile char *)(mem); int burnc = size; while (burnc--) *burnm++ = 0; } while (0)

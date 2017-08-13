@@ -15,12 +15,12 @@
 #include <sys/mount.h>
 #include <sys/wait.h>
 #include "CoreLinux.h"
-#include "Platform/SystemInfo.h"
-#include "Platform/TextReader.h"
-#include "Volume/EncryptionModeLRW.h"
-#include "Volume/EncryptionModeXTS.h"
-#include "Driver/Fuse/FuseService.h"
-#include "Core/Unix/CoreServiceProxy.h"
+#include "../../../Platform/SystemInfo.h"
+#include "../../../Platform/TextReader.h"
+#include "../../../Volume/EncryptionModeLRW.h"
+#include "../../../Volume/EncryptionModeXTS.h"
+#include "../../../Driver/Fuse/FuseService.h"
+#include "../CoreServiceProxy.h"
 
 namespace CipherShed
 {

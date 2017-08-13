@@ -6,8 +6,8 @@
  packages.
 */
 
-#include "Platform/Serializer.h"
-#include "Common/SecurityToken.h"
+#include "../Platform/Serializer.h"
+#include "../Common/SecurityToken.h"
 #include "Crc32.h"
 #include "Keyfile.h"
 #include "VolumeException.h"

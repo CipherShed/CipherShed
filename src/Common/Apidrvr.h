@@ -11,8 +11,14 @@
 
 #pragma once
 
+#ifdef CS_UNITTESTING
+#include "../unit-tests/faux/windows/WCHAR.h"
+#include "../unit-tests/faux/windows/PARTITION_INFORMATION.h"
+#include "../unit-tests/faux/windows/DISK_GEOMETRY.h"
+#endif
+
 #include "Tcdefs.h"
-#include "Boot/Windows/BootDefs.h"
+#include "../Boot/Windows/BootDefs.h"
 #include "Common.h"
 #include "Crypto.h"
 #include "Volumes.h"

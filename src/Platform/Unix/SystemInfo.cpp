@@ -6,8 +6,8 @@
  packages.
 */
 
-#include "Platform/SystemException.h"
-#include "Platform/SystemInfo.h"
+#include "../SystemException.h"
+#include "../SystemInfo.h"
 #include <sys/utsname.h>
 
 namespace CipherShed

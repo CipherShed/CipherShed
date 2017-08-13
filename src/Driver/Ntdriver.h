@@ -12,7 +12,7 @@
 #ifndef TC_HEADER_NTDRIVER
 #define TC_HEADER_NTDRIVER
 
-#include "Common.h"
+#include "../Common/Common.h"
 #include "EncryptedIoQueue.h"
 
 /* This structure is used to start new threads */

@@ -9,7 +9,7 @@
 #ifndef TC_HEADER_Platform_Unix_Poller
 #define TC_HEADER_Platform_Unix_Poller
 
-#include "Platform/PlatformBase.h"
+#include "../PlatformBase.h"
 
 namespace CipherShed
 {

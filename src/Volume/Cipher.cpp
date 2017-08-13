@@ -6,17 +6,17 @@
  packages.
 */
 
-#include "Platform/Platform.h"
+#include "../Platform/Platform.h"
 #include "Cipher.h"
-#include "Crypto/Aes.h"
-#include "Crypto/Blowfish.h"
-#include "Crypto/Des.h"
-#include "Crypto/Cast.h"
-#include "Crypto/Serpent.h"
-#include "Crypto/Twofish.h"
+#include "../Crypto/Aes.h"
+#include "../Crypto/Blowfish.h"
+#include "../Crypto/Des.h"
+#include "../Crypto/Cast.h"
+#include "../Crypto/Serpent.h"
+#include "../Crypto/Twofish.h"
 
 #ifdef TC_AES_HW_CPU
-#	include "Crypto/Aes_hw_cpu.h"
+#	include "../Crypto/Aes_hw_cpu.h"
 #endif
 
 namespace CipherShed

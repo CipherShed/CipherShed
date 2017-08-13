@@ -145,7 +145,7 @@ int ChangePwd (char *lpszVolume, Password *oldPassword, Password *newPassword, i
 
 	if (bDevice == FALSE)
 	{
-		strcpy (szCFDevice, szDiskFile);
+		strcpy_s (szCFDevice, sizeof(szCFDevice), szDiskFile);
 	}
 	else
 	{

@@ -9,7 +9,7 @@
 #ifndef TC_HEADER_Encryption_Pkcs5
 #define TC_HEADER_Encryption_Pkcs5
 
-#include "Platform/Platform.h"
+#include "../Platform/Platform.h"
 #include "Hash.h"
 #include "VolumePassword.h"
 

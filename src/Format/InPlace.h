@@ -10,7 +10,7 @@
 extern "C" {
 #endif
 
-#include "Format.h"
+#include "../Common/Format.h"
 
 enum nonsys_inplace_enc_status
 {

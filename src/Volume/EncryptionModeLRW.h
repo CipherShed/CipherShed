@@ -9,7 +9,7 @@
 #ifndef TC_HEADER_Encryption_EncryptionModeLRW
 #define TC_HEADER_Encryption_EncryptionModeLRW
 
-#include "Platform/Platform.h"
+#include "../Platform/Platform.h"
 #include "EncryptionMode.h"
 
 namespace CipherShed

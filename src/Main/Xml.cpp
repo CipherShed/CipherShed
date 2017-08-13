@@ -7,8 +7,10 @@
 */
 
 #include "System.h"
+#ifndef CS_UNITTESTING
 #include <wx/tokenzr.h>
-#include "Platform/FileStream.h"
+#endif
+#include "../Platform/FileStream.h"
 #include "Xml.h"
 
 namespace CipherShed

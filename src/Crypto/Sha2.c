@@ -68,7 +68,7 @@
  on big-endian systems and for his assistance with corrections
 */
 
-#include "Common/Endian.h"
+#include "../Common/Endian.h"
 #define PLATFORM_BYTE_ORDER BYTE_ORDER
 #define IS_LITTLE_ENDIAN LITTLE_ENDIAN
 

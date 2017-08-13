@@ -1,5 +1,3 @@
-#include "stdafx.h"
-
 #include "unittesting.h"
 
 namespace unittesting
@@ -58,10 +56,14 @@ namespace unittesting
 		*/
 		UnitTestingFramework()
 		{
-			TEST_ADD(UnitTestingFramework::TestFramework)
+			TEST_ADD(UnitTestingFramework::TestFramework);
 		}
 	};
 }
+
+#ifndef _MSC_FULL_VER
+#include "tests/algo/crcTest.cpp"
+#endif
 
 #pragma warning( push )
 #pragma warning( disable : 4956 )
@@ -69,6 +71,7 @@ int main(int argc, char *argv[], char *envp[])
 {
 	MAINTESTDECL
 	MAINADDTEST(new unittesting::UnitTestingFramework);
+	MAINADDTEST(new crc::CrcTest);
 	MAINTESTRUN
 
 }

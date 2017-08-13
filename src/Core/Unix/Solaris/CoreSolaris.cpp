@@ -10,10 +10,12 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/mount.h>
+#ifndef CS_UNITTESTING
 #include <sys/mntent.h>
 #include <sys/mnttab.h>
+#endif
 #include "CoreSolaris.h"
-#include "Core/Unix/CoreServiceProxy.h"
+#include "../CoreServiceProxy.h"
 
 namespace CipherShed
 {

@@ -10,7 +10,7 @@
 
 #include "CoreBase.h"
 #include "RandomNumberGenerator.h"
-#include "Volume/Volume.h"
+#include "../Volume/Volume.h"
 
 namespace CipherShed
 {

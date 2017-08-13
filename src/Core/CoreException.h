@@ -9,7 +9,7 @@
 #ifndef TC_HEADER_Core_CoreException
 #define TC_HEADER_Core_CoreException
 
-#include "Platform/Platform.h"
+#include "../Platform/Platform.h"
 
 namespace CipherShed
 {

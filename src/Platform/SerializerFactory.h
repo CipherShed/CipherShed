@@ -9,7 +9,9 @@
 #ifndef TC_HEADER_Platform_SerializerFactory
 #define TC_HEADER_Platform_SerializerFactory
 
+#ifndef CS_UNITTESTING
 #include <typeinfo>
+#endif
 #include "PlatformBase.h"
 #include "StringConverter.h"
 

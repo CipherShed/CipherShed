@@ -7,8 +7,8 @@
 */
 
 #include "System.h"
-#include "Main/Main.h"
-#include "Main/GraphicUserInterface.h"
+#include "../Main.h"
+#include "../GraphicUserInterface.h"
 #include "ChangePasswordDialog.h"
 
 namespace CipherShed

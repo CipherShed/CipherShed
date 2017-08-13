@@ -107,7 +107,7 @@
 #endif
 
 
-#include "Common/Endian.h"
+#include "../Common/Endian.h"
 #define IS_LITTLE_ENDIAN   1234 /* byte 0 is least significant (i386) */
 #define IS_BIG_ENDIAN      4321 /* byte 0 is most significant (mc68k) */
 

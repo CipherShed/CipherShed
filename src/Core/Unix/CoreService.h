@@ -10,9 +10,9 @@
 #define TC_HEADER_Core_Unix_CoreService
 
 #include "CoreServiceRequest.h"
-#include "Platform/Stream.h"
-#include "Platform/Unix/Pipe.h"
-#include "Core/Core.h"
+#include "../../Platform/Stream.h"
+#include "../../Platform/Unix/Pipe.h"
+#include "../Core.h"
 
 namespace CipherShed
 {

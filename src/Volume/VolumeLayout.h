@@ -9,10 +9,10 @@
 #ifndef TC_HEADER_Volume_VolumeLayout
 #define TC_HEADER_Volume_VolumeLayout
 
-#include "Platform/Platform.h"
-#include "Volume/EncryptionAlgorithm.h"
-#include "Volume/EncryptionMode.h"
-#include "Volume/Pkcs5Kdf.h"
+#include "../Platform/Platform.h"
+#include "EncryptionAlgorithm.h"
+#include "EncryptionMode.h"
+#include "Pkcs5Kdf.h"
 #include "VolumeHeader.h"
 
 namespace CipherShed

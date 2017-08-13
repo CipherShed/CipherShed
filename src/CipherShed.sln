@@ -30,7 +30,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{731ABE5F-B13B-4553-BA6E-EB0F3ACE9F54}"
 	ProjectSection(SolutionItems) = preProject
 		CipherShed.vsmdi = CipherShed.vsmdi
-		LocalTestRun.testrunconfig = LocalTestRun.testrunconfig
 	EndProjectSection
 EndProject
 Global

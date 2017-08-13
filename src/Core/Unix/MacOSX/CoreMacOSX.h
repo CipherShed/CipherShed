@@ -10,7 +10,7 @@
 #define TC_HEADER_Core_CoreMacOSX
 
 #include "System.h"
-#include "Core/Unix/FreeBSD/CoreFreeBSD.h"
+#include "../FreeBSD/CoreFreeBSD.h"
 
 namespace CipherShed
 {

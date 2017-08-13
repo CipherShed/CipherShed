@@ -9,7 +9,7 @@
 #ifndef TC_HEADER_Volume_EncryptionThreadPool
 #define TC_HEADER_Volume_EncryptionThreadPool
 
-#include "Platform/Platform.h"
+#include "../Platform/Platform.h"
 #include "EncryptionMode.h"
 
 namespace CipherShed

@@ -9,7 +9,7 @@
 #ifndef TC_HEADER_Volume_VolumeSlot
 #define TC_HEADER_Volume_VolumeSlot
 
-#include "Platform/Platform.h"
+#include "../Platform/Platform.h"
 
 namespace CipherShed
 {

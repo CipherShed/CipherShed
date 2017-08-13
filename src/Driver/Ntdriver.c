@@ -9,29 +9,31 @@
  contained in the file License.txt included in TrueCrypt binary and source
  code distribution packages. */
 
-#include "TCdefs.h"
+#include "../Common/Tcdefs.h"
+#ifndef CS_UNITTESTING
 #include <ntddk.h>
-#include "Crypto.h"
-#include "Fat.h"
-#include "Tests.h"
+#include <tchar.h>
+#include <mountmgr.h>
+#include <mountdev.h>
+#endif
+#include "../Common/Crypto.h"
+#include "../Common/Fat.h"
+#include "../Common/Tests.h"
 
-#include "Apidrvr.h"
-#include "Boot/Windows/BootDefs.h"
+#include "../Common/Apidrvr.h"
+#include "../Boot/Windows/BootDefs.h"
 #include "EncryptedIoQueue.h"
-#include "EncryptionThreadPool.h"
+#include "../Common/EncryptionThreadPool.h"
 #include "Ntdriver.h"
 #include "Ntvol.h"
 #include "DriveFilter.h"
 #include "DumpFilter.h"
-#include "Cache.h"
-#include "Volumes.h"
+#include "../Common/Cache.h"
+#include "../Common/Volumes.h"
 #include "VolumeFilter.h"
 
-#include <tchar.h>
 #include <initguid.h>
 #include <limits.h>
-#include <mountmgr.h>
-#include <mountdev.h>
 #include <ntddvol.h>
 
 /* Init section, which is thrown away as soon as DriverEntry returns */

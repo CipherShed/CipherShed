@@ -9,7 +9,7 @@
 #ifndef TC_HEADER_Platform_Unix_Pipe
 #define TC_HEADER_Platform_Unix_Pipe
 
-#include "Platform/PlatformBase.h"
+#include "../PlatformBase.h"
 
 namespace CipherShed
 {

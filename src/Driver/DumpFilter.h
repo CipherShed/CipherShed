@@ -9,8 +9,10 @@
 #ifndef TC_HEADER_DRIVER_DUMP_FILTER
 #define TC_HEADER_DRIVER_DUMP_FILTER
 
-#include "Tcdefs.h"
+#include "../Common/Tcdefs.h"
+#ifndef CS_UNITTESTING
 #include <ntdddump.h>
+#endif
 
 NTSTATUS DumpFilterEntry (PFILTER_EXTENSION filterExtension, PFILTER_INITIALIZATION_DATA filterInitData);
 static NTSTATUS DumpFilterStart (PFILTER_EXTENSION filterExtension);
