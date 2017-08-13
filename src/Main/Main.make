@@ -105,13 +105,13 @@ TC_VERSION = $(shell grep VERSION_STRING ../Common/Tcdefs.h | head -n 1 | cut -d
 
 .PHONY: all
 
-all: $(APPNAME) ../../doc/manpages/ciphershed.1.gz
+all: $(APPNAME) man/ciphershed.1.gz
 
-../../doc/manpages/ciphershed.1.gz: ../../doc/manpages/ciphershed.1
+man/ciphershed.1.gz: man/ciphershed.1
 	@echo gzip $@
 	gzip -9 -k $^
 
-../../doc/manpages/ciphershed.1: ../../doc/manpages/ciphershed.pod
+man/ciphershed.1: man/ciphershed.pod
 	@echo pod2man $@
 	pod2man --name='CipherShed' --release='CipherShed v0.7.3' --center='General Commands Manual' $^ $@
 
