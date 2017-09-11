@@ -1,0 +1,377 @@
+=head1 NAME
+
+B<CipherShed> - create, access, and maintain I<Truecrypt>-format volumes
+
+=head1 SYNOPSIS
+
+=over
+
+=item B<CipherShed>
+
+=item B<CipherShed> I<[OPTION]>... I<COMMAND>
+
+=item B<CipherShed> I<[OPTION]>... I<VOLUME_PATH> I<[MOUNT_DIRECTORY]>
+
+=back
+
+=head1 DESCRIPTION
+
+B<CipherShed> is a multiplatform, easy-to-use disk encryption program that uses the I<Truecrypt> volume format. It is a fork of I<Truecrypt>, a popular disk encryption program that has since been discontinued. 
+
+Like I<Truecrypt>, B<CipherShed> maps the encrypted I<Truecrypt> volume to a virtual block device that can be used like any other block device. All data being read from a mapped I<Truecrypt> volume is transparently decrypted and all data being written to it is transparently encrypted. 
+
+=head1 IMPORTANT
+
+If you want to use B<CipherShed>, you must follow the security requirements and security precautions listed in chapter I<'Security Requirements and Precautions'> in the B<CipherShed> documentation (file I<'CipherShed User Guide.pdf'>).
+
+Be sure to remember the password to your volume and back up all keyfiles associated with your volume, as you will not be able to access the volume's contents without them. By design, there are no ways to open a I<Truecrypt> volume without the associated passwords and keyfiles, and creating such a way would necessitate creating a backdoor through which an attacker could access encrypted data. 
+
+=head1 COMMANDS
+
+Running B<CipherShed> without arguments launches the GUI. 
+
+To create a new volume:
+
+=over
+
+=item 
+1. Click I<Create Volume>. This will open the I<CipherShed Volume Creation Wizard>.
+
+=item 
+2. Choose the options for what drive you want. Defaults are recommended in most cases. 
+
+=item 
+3. Choose a place to store your volume. 
+
+=item 
+4. Choose an encryption algorithm and a hash algorithm. If you want optimal performance, click I<Benchmark>, then click I<Benchmark> again and compare the encryption and decryption rates of each encryption algorithm. 
+
+=item 
+5. Choose how much space you want to assign to the volume. 
+
+=item 
+6. Choose a good, secure password and enter it in both text fields. Secure passwords are long, have an assortment of characters (lowercase and uppercase letters, numbers, spaces, and punctuation), and don't form patterns that would be recognisable to an outside attacker (words, adjacent keys on the keyboard, number sequences, 1337, etc.) For extra security, check I<"use keyfiles">, and choose a file(s) that won't change in the forseeable future to use as your keyfile. 
+
+=item 
+7. Choose what type of filesystem you want. (FAT is usually used by Windows systems; etx2, etx3, and etx4 are more often used by Unix-like systems)
+
+=item 
+8. Wiggle your mouse for as long as you want to seed the random number generator. This randomness is used to generate keys. After you finish, click I<Format>, and wait for B<CipherShed> to format your drive. 
+
+=item 
+9. After the volume is generated, click I<Exit> to finish, or I<Next> to create another volume. 
+
+=back
+
+To mount a I<Truecrypt> volume:
+
+=over
+
+=item 
+1. Click I<Select File>, and select your I<Truecrypt> volume. 
+
+=item 
+2. Click I<Mount>. A notification window will pop up.
+
+=item 
+3. Enter the password and supply the keyfile(s) for the volume.
+
+=item 
+4. Enter your password, or your administrator's password if you are not an administrator. 
+
+=back
+
+When using the text user interface, the following procedure must be followed to create a hidden volume:
+
+=over
+
+=item 
+1. Create an outer volume with no filesystem.
+
+=item 
+2. Create a hidden volume within the outer volume.
+
+=item 
+3. Mount the outer volume using hidden volume protection.
+
+=item 
+4. Create a filesystem on the virtual device of the outer volume.
+
+=item 
+5. Mount the new filesystem and fill it with data.
+
+=item 
+6. Dismount the outer volume.
+
+=back
+
+If at any step the hidden volume protection is triggered, start again from step 1.
+
+=over
+
+=item B<--auto-mount=devices|favorites>
+
+Auto mount device-hosted or favorite volumes.
+
+=item B<--backup-headers>I<[=VOLUME_PATH]>
+
+Backup volume headers to a file. All required options are requested from the user.
+
+=item B<-c>, B<--create>I<[=VOLUME_PATH]>
+
+Create a new volume. Most options are requested from the user if not specified on command line. See also options B<--encryption>, B<-k>, B<--filesystem>, B<--hash>, B<-p>, B<--random-source>, B<--quick>, B<--size>, B<--volume-type>. Note that passing some of the options may affect security of the volume (see option B<-p> for more information).
+
+=item B<--create-keyfile>I<[=FILE_PATH]>
+
+Create a new keyfile containing pseudo-random data.
+
+=item B<-C>, B<--change>I<[=VOLUME_PATH]>
+
+Change a password and/or keyfile(s) of a volume. Most options are requested from the user if not specified on command line. PKCS-5 PRF HMAC hash algorithm can be changed with option B<--hash>. See also options B<-k>, B<--new-keyfiles>, B<--new-password>, B<-p>, B<--random-source>.
+
+=item B<-d>, B<--dismount>I<[=MOUNTED_VOLUME]>
+
+Dismount a mounted volume. If I<MOUNTED_VOLUME> is not specified, all volumes are dismounted. See below for description of I<MOUNTED_VOLUME>.
+
+=item B<--delete-token-keyfiles>
+
+Delete keyfiles from security tokens. See also command B<--list-token-keyfiles>.
+
+=item B<--export-token-keyfile>
+
+Export a keyfile from a security token. See also command B<--list-token-keyfiles>.
+
+=item B<--import-token-keyfiles>
+
+Import keyfiles to a security token. See also option B<--token-lib>.
+
+=item B<-l>, B<--list>I<[=MOUNTED_VOLUME]>
+
+Display a list of mounted volumes. If I<MOUNTED_VOLUME> is not specified, all volumes are listed. By default, the list contains only volume path, virtual device, and mount point. A more detailed list can be enabled by verbose output option (B<-v>). See below for description of I<MOUNTED_VOLUME>.
+
+=item B<--list-token-keyfiles>
+
+Display a list of all available security token keyfiles. See also command B<--import-token-keyfiles>.
+
+=item B<--mount>I<[=VOLUME_PATH]>
+
+Mount a volume. Volume path and other options are requested from the user if not specified on command line.
+
+=item B<--restore-headers>I<[=VOLUME_PATH]>
+
+Restore volume headers from the embedded or an external backup. All required options are requested from the user.
+
+=item B<--save-preferences>
+
+Save user preferences.
+
+=item B<--test>
+
+Test internal algorithms used in the process of encryption and decryption.
+
+=item B<--version>
+
+Display program version.
+
+=item B<--volume-properties>I<[=MOUNTED_VOLUME]>
+
+Display properties of a mounted volume. See below for description of I<MOUNTED_VOLUME>.
+
+=item I<MOUNTED_VOLUME>:
+
+Specifies a mounted volume. One of the following forms can be used:
+
+=over 
+
+=item 1. Path to the encrypted B<CipherShed> volume.
+
+=item 2. Mount directory of the volume's filesystem (if mounted).
+
+=item 3. Slot number of the mounted volume (requires B<--slot>).
+
+=back
+
+=back
+
+=head1 OPTIONS
+
+=over
+
+=item B<--display-password>
+
+Display password characters while typing.
+
+=item B<--encryption=>I<ENCRYPTION_ALGORITHM>
+
+Use specified encryption algorithm when creating a new volume.
+
+=item B<--filesystem=>I<TYPE>
+
+Filesystem type to mount. The TYPE argument is passed to mount(8) command with option -t. Default type is 'auto'. When creating a new volume, this option specifies the filesystem to be created on the new volume (only 'FAT' and 'none' TYPE is allowed). Filesystem type 'none' disables mounting or creating a filesystem.
+
+=item B<--force>
+
+Force mounting of a volume in use, dismounting of a volume in use, or overwriting a file. Note that this option has no effect on some platforms.
+
+=item B<--fs-options=>I<OPTIONS>
+
+Filesystem mount options. The OPTIONS argument is passed to mount(8) command with option B<-o> when a filesystem on a B<CipherShed> volume is mounted. This option is not available on some platforms.
+
+=item B<--hash=>I<HASH>
+
+Use specified hash algorithm when creating a new volume or changing password and/or keyfiles. This option also specifies the mixing PRF of the random number generator.
+
+=item B<-k>, B<--keyfiles>=I<KEYFILE1[,KEYFILE2,KEYFILE3,...]>
+
+Use specified keyfiles when mounting a volume or when changing password and/or keyfiles. When a directory is specified, all files inside it will be used (non-recursively). Multiple keyfiles must be separated by comma. Use double comma (,,) to specify a comma contained in keyfile's name. Keyfile stored on a security token must be specified as token://slot/SLOT_NUMBER/file/FILENAME. An empty keyfile (B<-k "">) disables interactive requests for keyfiles. See also options B<--import-token-keyfiles>, B<--list-token-keyfiles>, B<--new-keyfiles>, B<--protection-keyfiles>.
+
+=item B<--load-preferences>
+
+Load user preferences.
+
+=item B<-m>, B<--mount-options=>I<OPTION1[,OPTION2,OPTION3,...]>
+
+Specifies comma-separated mount options for a B<CipherShed> volume: 
+
+=over
+
+=item 
+B<headerbak:> Use backup headers when mounting a volume. 
+
+=item 
+B<nokernelcrypto:> Do not use kernel cryptographic services. 
+
+=item 
+B<readonly|ro:> Mount volume as read-only. 
+
+=item 
+B<system:> Mount partition using system encryption. 
+
+=item 
+B<timestamp|ts:> Do not restore host-file modification timestamp when a volume is dismounted (note that the operating system under certain circumstances does not alter host-file timestamps, which may be mistakenly interpreted to mean that this option does not work). 
+
+=back
+
+See also option B<--fs-options>.
+
+=item B<--new-keyfiles=>I<KEYFILE1[,KEYFILE2,KEYFILE3,...]>
+
+Add specified keyfiles to a volume. This option can only be used with command B<-C>.
+
+=item B<--new-password=>I<PASSWORD>
+
+Specifies a new password. This option can only be used with command B<-C>.
+
+=item B<-p>, B<--password=>I<PASSWORD>
+
+Use specified password to mount/open a volume. An empty password can also be specified (B<-p "">). Note that passing a password on the command line is potentially insecure as the password may be visible in the process list (see ps(1)) and/or stored in a command history file or system logs.
+
+=item B<--protect-hidden=yes|no>
+
+Write-protect a hidden volume when mounting an outer volume. Before mounting the outer volume, the user will be prompted for a password to open the hidden volume. The size and position of the hidden volume is then determined and the outer volume is mounted with all sectors belonging to the hidden volume protected against write operations. When a write to the protected area is prevented, the whole volume is switched to read-only mode. Verbose list (B<-v -l>) can be used to query the state of the hidden volume protection. Warning message is displayed when a volume switched to read-only is being dismounted.
+
+=item B<--protection-keyfiles=>I<KEYFILE1[,KEYFILE2,KEYFILE3,...]>
+
+Use specified keyfiles to open a hidden volume to be protected. This option may be used only when mounting an outer volume with hidden volume protected. See also options B<-k> and B<--protect-hidden>.
+
+=item B<--protection-password=>I<PASSWORD>
+
+Use specified password to open a hidden volume to be protected. This option may be used only when mounting an outer volume with hidden volume protected. See also options B<-p> and B<--protect-hidden>.
+
+=item B<--quick>
+
+Do not encrypt free space when creating a device-hosted volume. This option must not be used when creating an outer volume.
+
+=item B<--random-source=>I<FILE>
+
+Use I<FILE> as a source of random data (e.g., when creating a volume) instead of requiring the user to type random characters.
+
+=item B<--slot=>I<SLOT>
+
+Use specified slot number when mounting, dismounting, or listing a volume.
+
+=item B<--size=>I<SIZE>
+
+Use specified size in bytes when creating a new volume.
+
+=item B<-t>, B<--text>
+
+Use text user interface. Graphical user interface is used by default if available. This option must be specified as the first argument.
+
+=item B<--token-lib=>I<LIB_PATH>
+
+Use specified PKCS #11 security token library.
+
+=item B<--volume-type=>I<TYPE>
+
+Use specified volume type when creating a new volume. I<TYPE> can be 'normal' or 'hidden'. See option B<-c> for more information on creating hidden volumes.
+
+=item B<-v>, B<--verbose>
+
+Enable verbose output.
+
+=back
+
+=head1 EXAMPLES
+
+=over
+
+=item Create a new volume:
+
+B<CipherShed -t -c>
+
+=item Mount a volume:
+
+B<CipherShed> I<volume.tc /media/CipherShed1>
+
+=item Mount a volume as read-only, using keyfiles:
+
+B<CipherShed -m ro -k> I<keyfile1,keyfile2 volume.tc>
+
+=item Mount a volume without mounting its filesystem:
+
+B<CipherShed --filesystem=>I<none volume.tc>
+
+=item Mount a volume prompting only for its password:
+
+B<CipherShed -t -k "" --protect-hidden=no> I<volume.tc /media/CipherShed1>
+
+=item Dismount a volume:
+
+B<CipherShed -d> I<volume.tc>
+
+=item Dismount all mounted volumes:
+
+B<CipherShed -d>
+
+=back
+
+=head1 AUTHOR
+
+The sections "name", "description", "author", and "history", the first 3 paragraphs of "commands", and the second paragraph of "important", were written by Eugene Wang. All the rest of this man page was derived from the help document written by the anonymous I<Truecrypt> team for I<Truecrypt>. 
+
+=head1 HISTORY
+
+February 7, 2004 - First version of I<Truecrypt> written by an anonymous developer(s). Contained code allegedly stolen from SecurStar, causing development to stall, and persistent licensing issues to occur throughout its history. 
+
+June 7, 2004 - A second version developed and released by a different anonymous developer(s). 
+
+February 7, 2012 - I<Truecrypt 7.1a>, the last complete version of I<Truecrypt>, released. Still under the problematic "I<Truecrypt License">, which contains terms that are arguably non-free. 
+
+May 28, 2014- I<Truecrypt> project suddenly shut down, and a ominous notice posted on I<Truecrypt>'s SourceForge page telling users of I<Truecrypt> to switch to BitLocker. A handful of groups prepare to pick up where the I<Truecrypt> foundation left off, most notably I<Truecrypt.ch>, B<CipherShed>, and IDRIX. 
+
+(Insert more about B<CipherShed> development as it comes)
+
+=cut
+
+--------------------------------------------------
+Copyright (c) 2014 Eugene Wang
+
+This documentation is provided 'as-is', without any express or implied warranty. In no event will the authors be held liable for any damages arising from the use of this documentation.
+
+Permission is granted to anyone to use this documentation for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
+
+1. The origin of this documentation must not be misrepresented; you must not claim that you wrote the original documentation. If you use this documentation in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original documentation.
+3. This notice may not be removed or altered from any source distribution.
+--------------------------------------------------
