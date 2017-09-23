@@ -1,3 +1,5 @@
+void main() asm("main");
+
 asm (
 	".code16gcc\n"
 	"call main\n"
