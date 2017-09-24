@@ -1,11 +1,10 @@
-void main() asm("main");
+void  main() asm("main") __attribute__((stdcall));
 
 asm (R"ASM(
-.code16gcc
-	call main
-loop:	hlt
-	jmp loop
+	.code16gcc
+	jmp main
 )ASM");
+
 
 inline static void print(char *string)
 {
@@ -28,4 +27,8 @@ inline static void print(char *string)
 void main()
 {
     print("Hello, World!");
+    asm (R"ASM(
+loop:	hlt
+	jmp loop
+)ASM");
 }
