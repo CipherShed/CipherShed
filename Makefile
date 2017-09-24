@@ -8,7 +8,7 @@ main.img: main.com
 	truncate --size=512 $@
 
 main.s: main.c
-	$(CC) -std=gnu99 -O0 -nostdlib -m32 -march=i386 -ffreestanding -o $@ -S $<
+	$(CC) -std=gnu11 -O0 -nostdlib -m32 -march=i386 -ffreestanding -o $@ -S $<
 
 main.o: main.s
 	$(AS) -Qy --32 -o $@ $<

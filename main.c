@@ -1,12 +1,11 @@
 void main() asm("main");
 
-asm (
-	".code16gcc\n"
-	"call main\n"
-	"loop:\n"
-	"hlt\n"
-	"jmp loop\n"
-);
+asm (R"ASM(
+.code16gcc
+	call main
+loop:	hlt
+	jmp loop
+)ASM");
 
 inline static void print(char *string)
 {
@@ -14,10 +13,11 @@ inline static void print(char *string)
 	while(c = *string++)
 	{
 		asm volatile
-		(
-			"mov 7, %%bx\n"
-			"mov $0x0e, %%ah\n"
-			"int $0x10\n"
+		(R"ASM(
+	mov 7, %%bx
+	mov $0x0e, %%ah
+	int $0x10
+)ASM"
 			: /* no output */
 			: "c"(c)
 			: "al"
