@@ -6,6 +6,7 @@ asm (R"ASM(
 )ASM");
 
 
+__attribute__((stdcall))
 inline static void print(char *string)
 {
 	char c;
