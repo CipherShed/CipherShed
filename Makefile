@@ -5,7 +5,10 @@ all: main.img
 main.img: main.com
 	cp $< $@
 	printf '\x55\xaa' | dd of=$@ bs=1 seek=510
-	truncate --size=512 $@
+	truncate --size=4M $@
+
+main.vmdk: main.img
+	qemu-img convert -f raw -O vmdk $< $@
 
 main.s: main.c
 	$(CC) -std=gnu11 -O0 -nostdlib -march=i386 -m16 -ffreestanding -o $@ -S $<
@@ -20,4 +23,4 @@ test: main.img
 	qemu-system-i386 -nodefaults -nodefconfig -no-user-config -m 1M -device VGA -drive file=$<,format=raw -d guest_errors	
 
 clean:
-	rm -f main.img main.com main.s main.o
+	rm -f main.img main.vmdk main.com main.s main.o
