@@ -1,7 +1,6 @@
 void  main() asm("main") __attribute__((stdcall));
 
 asm (R"ASM(
-	.code16gcc
 	jmp main
 	nop
 OEMID:	.ascii "CSBOOTLD"
