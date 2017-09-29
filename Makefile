@@ -11,7 +11,7 @@ main.s: main.c
 	$(CC) -std=gnu11 -O0 -nostdlib -march=i386 -ffreestanding -o $@ -S $<
 
 main.o: main.s
-	$(AS) -Qy -o $@ $<
+	$(AS) -Qy --32 -o $@ $<
 
 main.com: main.o
 	$(LD) -T bootloader.ld --nmagic -m elf_i386 -o $@ $<
