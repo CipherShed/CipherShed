@@ -12,6 +12,9 @@ EBPB:	.ascii "12345678901234567890123456"
 __attribute__((stdcall))
 inline static void print(char *string)
 {
+	// Clear segments
+	asm volatile("mov $0, \%ax; mov \%ax, \%ds\n");
+
 	char c;
 	while(c = *string++)
 	{
