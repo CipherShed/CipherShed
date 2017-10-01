@@ -12,9 +12,6 @@ EBPB:	.ascii "12345678901234567890123456"
 __attribute__((stdcall))
 inline static void print(char *string)
 {
-	// Clear segments
-	asm volatile("mov $0, \%ax; mov \%ax, \%ds\n");
-
 	char c;
 	while(c = *string++)
 	{
@@ -33,6 +30,9 @@ inline static void print(char *string)
 
 void main()
 {
+    // Clear segments
+    asm volatile("mov $0, \%ax; mov \%ax, \%ds\n");
+
     print("Hello, World!");
     asm (R"ASM(
 loop:	hlt
