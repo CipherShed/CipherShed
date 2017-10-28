@@ -184,7 +184,7 @@ typedef struct
 #if !defined (TC_WINDOWS_BOOT) || defined (TC_WINDOWS_BOOT_AES)
 #	include "../Crypto/Aes.h"
 #else
-#	include "AesSmall.h"
+#	include "../Crypto/AesSmall.h"
 #endif
 
 #include "../Crypto/Aes_hw_cpu.h"

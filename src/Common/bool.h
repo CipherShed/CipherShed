@@ -5,6 +5,8 @@
 
 #include "../unit-tests/faux/windows/BOOL.h"
 
+#elif defined(_boot_windows_defaults_h_)
+
 #else
 
 #define BOOL int

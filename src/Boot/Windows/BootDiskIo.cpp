@@ -6,6 +6,8 @@
  packages.
 */
 
+#include "defaults.h"
+
 #include "Bios.h"
 #include "BootConsoleIo.h"
 #include "BootConfig.h"
@@ -46,6 +48,7 @@ bool IsLbaSupported (byte drive)
 	if (CachedDrive == drive)
 		goto ret;
 
+#ifndef __GNUC__
 	__asm
 	{
 		mov bx, 0x55aa
@@ -56,6 +59,22 @@ bool IsLbaSupported (byte drive)
 		mov result, bx
 	err:
 	}
+#else
+	asm volatile
+	(R"ASM(
+		mov $0x55aa, %%bx
+		mov %[drive], %%dl
+		mov $0x41, %%ah
+		int $0x13
+		jc err
+		mov %%bx, %[result]
+err:
+)ASM"
+		: [result] "=g" (result)
+		: [drive] "g" (drive)
+		: /* no clobbers */
+	);
+#endif
 
 	CachedDrive = drive;
 	CachedStatus = (result == 0xaa55);
@@ -121,6 +140,7 @@ BiosResult ReadWriteSectors (bool write, uint16 bufferSegment, uint16 bufferOffs
 	{
 		result = BiosResultSuccess;
 
+#ifndef __GNUC__
 		__asm
 		{
 			push es
@@ -140,6 +160,39 @@ BiosResult ReadWriteSectors (bool write, uint16 bufferSegment, uint16 bufferOffs
 		ok:
 			pop es
 		}
+#else
+	asm volatile
+	(R"ASM(
+			push %%es
+			mov %%ax, %[bufferSegment]
+			mov	%%ax, %%es
+			mov	%[bufferOffset], %%bx
+			mov %[drive], %%dl
+			mov %[cylinderLow], %%ch
+			mov %[chs], %%si
+			mov %c[Head](%%si), %%dh
+			mov %[sector], %%cl
+			mov	%[sectorCount], %%al
+			mov	%[function], %%ah
+			int	$0x13
+			jnc ok				// If CF=0, ignore AH to prevent issues caused by potential bugs in BIOSes
+			mov	%%ah, %[result]
+ok:
+			pop %%es
+)ASM"
+		: [result] "=g" (result)
+		: [bufferSegment] "g" (bufferSegment), 
+		  [bufferOffset] "g" (bufferOffset), 
+		  [drive] "g" (drive), 
+		  [cylinderLow] "g" (cylinderLow), 
+		  [chs] "g" (chs), 
+		  [sector] "g" (sector), 
+		  [sectorCount] "g" (sectorCount), 
+		  [function] "g" (function),
+		  [Head] "i" (offsetof(ChsAddress,Head))
+		: /* no clobbers */
+	);
+#endif
 
 		if (result == BiosResultEccCorrected)
 			result = BiosResultSuccess;
@@ -157,7 +210,18 @@ BiosResult ReadWriteSectors (bool write, uint16 bufferSegment, uint16 bufferOffs
 BiosResult ReadWriteSectors (bool write, byte *buffer, byte drive, const ChsAddress &chs, byte sectorCount, bool silent)
 {
 	uint16 codeSeg;
+#ifndef __GNUC__
 	__asm mov codeSeg, cs
+#else
+	asm volatile
+	(R"ASM(
+        mov %%cs, %[codeSeg]
+)ASM"
+		: [codeSeg] "=g" (codeSeg)
+		: /* no input */
+		: /* no clobbers */
+	);
+#endif
 	return ReadWriteSectors (write, codeSeg, (uint16) buffer, drive, chs, sectorCount, silent);
 }
 
@@ -205,6 +269,7 @@ static BiosResult ReadWriteSectors (bool write, BiosLbaPacket &dapPacket, byte d
 	{
 		result = BiosResultSuccess;
 
+#ifndef __GNUC__
 		__asm
 		{
 			mov	bx, 0x55aa
@@ -217,6 +282,26 @@ static BiosResult ReadWriteSectors (bool write, BiosLbaPacket &dapPacket, byte d
 			mov	result, ah
 		ok:
 		}
+#else
+	asm volatile
+	(R"ASM(
+			mov	$0x55aa, %%bx
+			mov	%[drive], %%dl
+			mov %[dapPacket], %%si
+			mov	%[function], %%ah
+			xor %%al, %%al
+			int	$0x13
+			jnc ReadWriteSectors_ok				// If CF=0, ignore AH to prevent issues caused by potential bugs in BIOSes
+			mov	%%ah, %[result]
+ReadWriteSectors_ok:
+)ASM"
+		: [result] "=g" (result)
+		: [drive] "g" (drive), 
+		  [dapPacket] "m" (dapPacket), 
+		  [function] "g" (function)
+		: /* no clobbers */
+	);
+#endif
 
 		if (result == BiosResultEccCorrected)
 			result = BiosResultSuccess;
@@ -256,7 +341,18 @@ BiosResult ReadSectors (byte *buffer, byte drive, const uint64 &sector, uint16 s
 {
 	BiosResult result;
 	uint16 codeSeg;
+#ifndef __GNUC__
 	__asm mov codeSeg, cs
+#else
+	asm volatile
+	(R"ASM(
+        mov %%cs, %[codeSeg]
+)ASM"
+		: [codeSeg] "=g" (codeSeg)
+		: /* no input */
+		: /* no clobbers */
+	);
+#endif
 	
 	result = ReadSectors (BootStarted ? codeSeg : TC_BOOT_LOADER_ALT_SEGMENT, (uint16) buffer, drive, sector, sectorCount, silent);
 
@@ -280,6 +376,7 @@ BiosResult GetDriveGeometry (byte drive, DriveGeometry &geometry, bool silent)
 
 	byte maxCylinderLow, maxHead, maxSector;
 	BiosResult result;
+#ifndef __GNUC__
 	__asm
 	{
 		push es
@@ -293,6 +390,28 @@ BiosResult GetDriveGeometry (byte drive, DriveGeometry &geometry, bool silent)
 		mov maxHead, dh
 		pop es
 	}
+#else
+	asm volatile
+	(R"ASM(
+		push %%es
+		mov %[drive], %%dl
+		mov $0x08, %%ah
+		int	$0x13
+
+		mov	%%ah, %[result]
+		mov %%ch, %[maxCylinderLow]
+		mov %%cl, %[maxSector]
+		mov %%dh, %[maxHead]
+		pop %%es
+)ASM"
+		: [result] "=g" (result),
+		  [maxCylinderLow] "=g" (maxCylinderLow),
+		  [maxSector] "=g" (maxSector),
+		  [maxHead] "=g" (maxHead)
+		: [drive] "g" (drive)
+		: /* no clobbers */
+	);
+#endif
 
 	if (result == BiosResultSuccess)
 	{

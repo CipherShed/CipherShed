@@ -1,0 +1,43 @@
+all: Decompressor.o BootConfig.o BootConsoleIo.o BootDebug.o BootDiskIo.o BootEncryptedIo.o BootMain.o BootMemory.o IntFilter.o Platform.o Crc.o Crypto.o Endian.o Pkcs5.o Volumes.o Xts.o AesSmall.o Rmd160.o Serpent.o Twofish.o
+
+Decompressor.o: Decompressor.c
+	/projects/gcc-ia16.sourceryg++-2016.11-64-ia16-elf-x86_64-w64-mingw32/bin/ia16-elf-gcc -o $@ -c $<
+BootConfig.o: BootConfig.cpp
+	/projects/gcc-ia16.sourceryg++-2016.11-64-ia16-elf-x86_64-w64-mingw32/bin/ia16-elf-g++ -o $@ -c $<
+BootConsoleIo.o: BootConsoleIo.cpp
+	/projects/gcc-ia16.sourceryg++-2016.11-64-ia16-elf-x86_64-w64-mingw32/bin/ia16-elf-g++ -o $@ -c $<
+BootDebug.o: BootDebug.cpp
+	/projects/gcc-ia16.sourceryg++-2016.11-64-ia16-elf-x86_64-w64-mingw32/bin/ia16-elf-g++ -o $@ -c $<
+BootDiskIo.o: BootDiskIo.cpp
+	/projects/gcc-ia16.sourceryg++-2016.11-64-ia16-elf-x86_64-w64-mingw32/bin/ia16-elf-g++ -o $@ -c $<
+BootEncryptedIo.o: BootEncryptedIo.cpp
+	/projects/gcc-ia16.sourceryg++-2016.11-64-ia16-elf-x86_64-w64-mingw32/bin/ia16-elf-g++ -o $@ -c $<
+BootMain.o: BootMain.cpp
+	/projects/gcc-ia16.sourceryg++-2016.11-64-ia16-elf-x86_64-w64-mingw32/bin/ia16-elf-g++ -o $@ -c $<
+BootMemory.o: BootMemory.cpp
+	/projects/gcc-ia16.sourceryg++-2016.11-64-ia16-elf-x86_64-w64-mingw32/bin/ia16-elf-g++ -o $@ -c $<
+IntFilter.o: IntFilter.cpp
+	/projects/gcc-ia16.sourceryg++-2016.11-64-ia16-elf-x86_64-w64-mingw32/bin/ia16-elf-g++ -o $@ -c $<
+Platform.o: Platform.cpp
+	/projects/gcc-ia16.sourceryg++-2016.11-64-ia16-elf-x86_64-w64-mingw32/bin/ia16-elf-g++ -o $@ -c $<
+Crc.o: ../../Common/Crc.c
+	/projects/gcc-ia16.sourceryg++-2016.11-64-ia16-elf-x86_64-w64-mingw32/bin/ia16-elf-gcc -o $@ -c $<
+Crypto.o: ../../Common/Crypto.c
+	/projects/gcc-ia16.sourceryg++-2016.11-64-ia16-elf-x86_64-w64-mingw32/bin/ia16-elf-gcc -o $@ -c $<
+Endian.o: ../../Common/Endian.c
+	/projects/gcc-ia16.sourceryg++-2016.11-64-ia16-elf-x86_64-w64-mingw32/bin/ia16-elf-gcc -o $@ -c $<
+Pkcs5.o: ../../Common/Pkcs5.c
+	/projects/gcc-ia16.sourceryg++-2016.11-64-ia16-elf-x86_64-w64-mingw32/bin/ia16-elf-gcc -o $@ -c $<
+Volumes.o: ../../Common/Volumes.c
+	/projects/gcc-ia16.sourceryg++-2016.11-64-ia16-elf-x86_64-w64-mingw32/bin/ia16-elf-gcc -o $@ -c $<
+Xts.o: ../../Common/Xts.c
+	/projects/gcc-ia16.sourceryg++-2016.11-64-ia16-elf-x86_64-w64-mingw32/bin/ia16-elf-gcc -o $@ -c $<
+AesSmall.o: ../../Crypto/AesSmall.c
+	/projects/gcc-ia16.sourceryg++-2016.11-64-ia16-elf-x86_64-w64-mingw32/bin/ia16-elf-gcc -o $@ -c $<
+Rmd160.o: ../../Crypto/Rmd160.c
+	/projects/gcc-ia16.sourceryg++-2016.11-64-ia16-elf-x86_64-w64-mingw32/bin/ia16-elf-gcc -o $@ -c $<
+Serpent.o: ../../Crypto/Serpent.c
+	/projects/gcc-ia16.sourceryg++-2016.11-64-ia16-elf-x86_64-w64-mingw32/bin/ia16-elf-gcc -o $@ -c $<
+Twofish.o: ../../Crypto/Twofish.c
+	/projects/gcc-ia16.sourceryg++-2016.11-64-ia16-elf-x86_64-w64-mingw32/bin/ia16-elf-gcc -o $@ -c $<
+

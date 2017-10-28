@@ -6,6 +6,8 @@
  packages.
 */
 
+#include "defaults.h"
+
 #include "Platform.h"
 #include "Bios.h"
 #include "BootConsoleIo.h"

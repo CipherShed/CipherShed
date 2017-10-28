@@ -12,14 +12,22 @@
 #pragma warning (disable: 4018 4102 4704 4769)
 
 #include "../../Common/Tcdefs.h"
+#if !(defined(TC_WINDOWS_BOOT) && defined(__GNUC__))
 #include <memory.h>
+#else
+#include <string.h>
+#endif
 
+#if !(defined(TC_WINDOWS_BOOT) && defined(__GNUC__))
 typedef char bool;
+#endif
 #define false 0
 #define true 1
 
 #define nullptr 0
+#if !(defined(TC_WINDOWS_BOOT) && defined(__GNUC__))
 #define NULL 0
+#endif
 
 typedef UINT64_STRUCT uint64;
 

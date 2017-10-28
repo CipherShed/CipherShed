@@ -9,6 +9,8 @@
 #ifndef TC_HEADER_Boot_BootConfig
 #define TC_HEADER_Boot_BootConfig
 
+#include "defaults.h"
+
 #include "../../Common/Crypto.h"
 #include "Platform.h"
 #include "BootDiskIo.h"

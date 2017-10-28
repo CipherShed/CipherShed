@@ -24,6 +24,7 @@
 
 /* Adapted for CipherShed */
 
+#include "decompressor.h"
 
 #define local static            /* for local function definitions */
 #define NIL ((unsigned char *)0)        /* for no output option */

@@ -62,6 +62,14 @@ typedef __int64 int64;
 typedef unsigned __int64 uint64;
 #endif
 
+#elif defined(_boot_windows_defaults_h_)
+
+typedef unsigned __int8 byte;
+typedef unsigned __int16 uint16;
+typedef unsigned __int32 uint32;
+typedef unsigned __int32	TC_LARGEST_COMPILER_UINT;
+
+
 #else // !_MSC_VER
 
 #include <inttypes.h>

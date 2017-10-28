@@ -220,6 +220,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\decompressor.h"
+				>
+			</File>
+			<File
+				RelativePath=".\defaults.h"
+				>
+			</File>
+			<File
 				RelativePath=".\IntFilter.h"
 				>
 			</File>

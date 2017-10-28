@@ -6,6 +6,8 @@
  packages.
 */
 
+#include "defaults.h"
+
 #include "Platform.h"
 #include "Bios.h"
 #include "BootConsoleIo.h"
@@ -36,6 +38,7 @@ void PrintChar (char c)
 	if (ScreenOutputDisabled)
 		return;
 
+#ifndef __GNUC__
 	__asm
 	{
 		mov bx, 7
@@ -43,6 +46,19 @@ void PrintChar (char c)
 		mov ah, 0xe
 		int 0x10
 	}
+#else
+	asm volatile
+	(R"ASM(
+        mov $0x07, %%bx
+		mov %[in], %%al
+        mov $0x0e, %%ah
+        int $0x10
+)ASM"
+		: /* no output */
+		: [in] "g" (c)
+		: /* no clobbers */
+	);
+#endif
 }
 
 
@@ -51,6 +67,7 @@ void PrintCharAtCursor (char c)
 	if (ScreenOutputDisabled)
 		return;
 
+#ifndef __GNUC__
 	__asm
 	{
 		mov bx, 7
@@ -59,6 +76,20 @@ void PrintCharAtCursor (char c)
 		mov ah, 0xa
 		int 0x10
 	}
+#else
+	asm volatile
+	(R"ASM(
+        mov $0x07, %%bx
+		mov %[in], %%al
+        mov $0x01, %%cx
+        mov $0x0a, %%ah
+        int $0x10
+)ASM"
+		: /* no output */
+		: [in] "g" (c)
+		: /* no clobbers */
+	);
+#endif
 }
 
 
@@ -153,6 +184,7 @@ void InitVideoMode ()
 	if (ScreenOutputDisabled)
 		return;
 
+#ifndef __GNUC__
 	__asm
 	{
 		// Text mode 80x25
@@ -163,6 +195,20 @@ void InitVideoMode ()
 		mov ax, 0x500
 		int 0x10
 	}
+#else
+	asm volatile
+	(R"ASM(
+        mov $0x03, %%ax
+        int $0x10
+
+        mov $0x0500, %%ax
+        int $0x10
+)ASM"
+		: /* no output */
+		: /* no input */
+		: /* no clobbers */
+	);
+#endif
 }
 
 
@@ -171,6 +217,7 @@ void ClearScreen ()
 	if (ScreenOutputDisabled)
 		return;
 
+#ifndef __GNUC__
 	__asm
 	{
 		// White text on black
@@ -186,6 +233,25 @@ void ClearScreen ()
 		mov ah, 2
 		int 0x10
 	}
+#else
+	asm volatile
+	(R"ASM(
+        mov $0x07, %%bh
+		xor %%cx, %%cx
+		mov $0x184f, %%dx
+		mov $0x0600, %%ax
+        int $0x10
+
+		xor %%bh, %%bh
+		xor %%dx, %%dx
+        mov $0x02, %%ah
+        int $0x10
+)ASM"
+		: /* no output */
+		: /* no input */
+		: /* no clobbers */
+	);
+#endif
 }
 
 
@@ -216,12 +282,25 @@ void PrintErrorNoEndl (const char *message)
 byte GetShiftFlags ()
 {
 	byte flags;
+#ifndef __GNUC__
 	__asm
 	{
 		mov ah, 2
 		int 0x16
 		mov flags, al
 	}
+#else
+	asm volatile
+	(R"ASM(
+        mov 2, %%ah
+        int $0x16
+        mov %%al, %[out]
+)ASM"
+		: [out] "=g" (flags)
+		: /* no input */
+		: /* no clobbers */
+	);
+#endif
 
 	return flags;
 }
@@ -235,10 +314,21 @@ byte GetKeyboardChar ()
 
 inline void yield(void)
 {
+#ifndef __GNUC__
 	__asm
 	{		
 		hlt //timer interrupt will cause resume after this instruction.
 	}
+#else
+	asm volatile
+	(R"ASM(
+        hlt
+)ASM"
+		: /* no output */
+		: /* no input */
+		: /* no clobbers */
+	);
+#endif
 
 }
 
@@ -250,6 +340,7 @@ byte GetKeyboardChar (byte *scanCode)
 
 	byte asciiCode;
 	byte scan;
+#ifndef __GNUC__
 	__asm
 	{
 		mov ah, 0
@@ -257,6 +348,19 @@ byte GetKeyboardChar (byte *scanCode)
 		mov asciiCode, al
 		mov scan, ah
 	}
+#else
+	asm volatile
+	(R"ASM(
+        mov 0, %%ah
+        int $0x16
+        mov %%al, %[asciiCode]
+        mov %%ah, %[scanCode]
+)ASM"
+		: [asciiCode] "=g" (asciiCode), [scanCode] "=g" (scan)
+		: /* no input */
+		: /* no clobbers */
+	);
+#endif
 	
 	if (scanCode)
 		*scanCode = scan;
@@ -268,6 +372,7 @@ byte GetKeyboardChar (byte *scanCode)
 bool IsKeyboardCharAvailable ()
 {
 	bool available = false;
+#ifndef __GNUC__
 	__asm
 	{
 		mov ah, 1
@@ -276,6 +381,20 @@ bool IsKeyboardCharAvailable ()
 		mov available, true
 	not_avail:
 	}
+#else
+	asm volatile
+	(R"ASM(
+        mov 1, %%ah
+        int $0x16
+		jz not_avail
+        mov 1, %[out]
+not_avail:
+)ASM"
+		: [out] "=g" (available)
+		: /* no input */
+		: /* no clobbers */
+	);
+#endif
 
 	return available;
 }
@@ -296,6 +415,7 @@ bool EscKeyPressed ()
 
 void ClearBiosKeystrokeBuffer ()
 {
+#ifndef __GNUC__
 	__asm
 	{
 		push es
@@ -307,6 +427,23 @@ void ClearBiosKeystrokeBuffer ()
 		rep stosb
 		pop es
 	}
+#else
+	asm volatile
+	(R"ASM(
+		push es
+		xor %%ax, %%ax
+		mov %%ax, %%es
+		mov $0x41e, %%di
+		mov 32, %%cx
+		cld
+		rep stosb
+		pop es
+)ASM"
+		: /* no output */
+		: /* no input */
+		: /* no clobbers */
+	);
+#endif
 }
 
 
