@@ -297,7 +297,7 @@ ReadWriteSectors_ok:
 )ASM"
 		: [result] "=g" (result)
 		: [drive] "g" (drive), 
-		  [dapPacket] "m" (dapPacket), 
+		  [dapPacket] "g" (dapPacket), 
 		  [function] "g" (function)
 		: /* no clobbers */
 	);

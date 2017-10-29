@@ -1,0 +1,10 @@
+http://www.scoberlin.de/content/media/http/informatik/gcc_docs/ld_3.html
+https://gcc.gnu.org/onlinedocs/gcc-3.0/gcc_3.html
+https://en.wikipedia.org/wiki/X86_calling_conventions
+https://gcc.gnu.org/onlinedocs/gcc/x86-Function-Attributes.html
+https://technet.microsoft.com/en-us/library/cc976796.aspx
+https://technet.microsoft.com/en-us/library/cc976786.aspx
+https://technet.microsoft.com/en-us/library/cc977221.aspx
+https://www.csee.umbc.edu/~chang/cs313.s02/stack.shtml
+https://gcc.godbolt.org/
+http://nullprogram.com/blog/2014/12/09/
