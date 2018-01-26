@@ -20,7 +20,10 @@ main.o: main.s
 bootcode.o: main.o
 	$(LD) -T bootcode.ld -r -o $@ $^
 
-${ARTIFACT}.o: bootcode.o
+jump.o: jump.s
+	$(AS) -Qy --32 -o $@ $<
+
+${ARTIFACT}.o: bootcode.o jump.o
 	$(LD) -T mbr.ld -o $@ $^
 
 ${ARTIFACT}.com: ${ARTIFACT}.o

@@ -1,14 +1,3 @@
-void  main() asm("main") __attribute__((stdcall));
-
-asm (R"ASM(
-	jmp main
-	nop
-OEMID:	.ascii "CSBOOTLD"
-BPB:	.ascii "1234567890123456789012345"
-EBPB:	.ascii "12345678901234567890123456"
-)ASM");
-
-
 __attribute__((stdcall))
 inline static void print(char *string)
 {
