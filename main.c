@@ -1,3 +1,5 @@
+#include "halt.h"
+
 __attribute__((stdcall))
 inline static void print(char *string)
 {
@@ -23,8 +25,6 @@ void main()
     asm volatile("mov $0, \%ax; mov \%ax, \%ds\n");
 
     print("Hello, World!");
-    asm (R"ASM(
-loop:	hlt
-	jmp loop
-)ASM");
+
+    halt();
 }

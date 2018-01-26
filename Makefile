@@ -14,10 +14,13 @@ ${ARTIFACT}.vmdk: ${ARTIFACT}.img
 main.s: main.c
 	$(CC) -std=gnu11 -O0 -nostdlib -march=i386 -m16 -ffreestanding -ffunction-sections -o $@ -S $<
 
+halt.o: halt.s
+	$(AS) -Qy --32 -o $@ $<
+
 main.o: main.s
 	$(AS) -Qy --32 -o $@ $<
 
-bootcode.o: main.o
+bootcode.o: main.o halt.o
 	$(LD) -T bootcode.ld -r -o $@ $^
 
 jump.o: jump.s
