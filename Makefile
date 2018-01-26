@@ -1,13 +1,15 @@
+ARTIFACT=boot
+
 .PHONY: all clean test
 
-all: main.img
+all: ${ARTIFACT}.img
 
-main.img: main.com
+${ARTIFACT}.img: ${ARTIFACT}.com
 	cp $< $@
 	printf '\x55\xaa' | dd of=$@ bs=1 seek=510
 	truncate --size=4M $@
 
-main.vmdk: main.img
+${ARTIFACT}.vmdk: ${ARTIFACT}.img
 	qemu-img convert -f raw -O vmdk $< $@
 
 main.s: main.c
@@ -16,11 +18,11 @@ main.s: main.c
 main.o: main.s
 	$(AS) -Qy --32 -o $@ $<
 
-main.com: main.o
+${ARTIFACT}.com: main.o
 	$(LD) -T bootloader.ld --nmagic -m elf_i386 -o $@ $<
 
-test: main.img
+test: ${ARTIFACT}.img
 	qemu-system-i386 -nodefaults -nodefconfig -no-user-config -m 1M -device VGA -drive file=$<,format=raw -d guest_errors	
 
 clean:
-	rm -f main.img main.vmdk main.com main.s main.o
+	rm -f ${ARTIFACT}.img ${ARTIFACT}.vmdk ${ARTIFACT}.com main.s main.o
