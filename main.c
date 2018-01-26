@@ -21,9 +21,6 @@ inline static void print(char *string)
 
 void main()
 {
-    // Clear segments
-    asm volatile("mov $0, \%ax; mov \%ax, \%ds\n");
-
     print("Hello, World!");
 
     halt();

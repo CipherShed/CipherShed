@@ -5,10 +5,11 @@ SECTIONS
 	.text :
 	{
 		/*
-		 * Ensure main() appears first, where main() ends up
-		 * in .text.main either by section attribute, or
-		 * gcc's -ffunction-sections.
+		 * Ensure startup+main() appears first, where main()
+		 * ends up in .text.main either by section
+		 * attribute, or gcc's -ffunction-sections.
 		 */
+		*(.text.startup);
 		*(.text.main);
 		*(.text*);
 		*(.text);

@@ -20,7 +20,10 @@ halt.o: halt.s
 main.o: main.s
 	$(AS) -Qy --32 -o $@ $<
 
-bootcode.o: main.o halt.o
+startup.o: startup.s
+	$(AS) -Qy --32 -o $@ $<
+
+bootcode.o: startup.o main.o halt.o
 	$(LD) -T bootcode.ld -r -o $@ $^
 
 jump.o: jump.s
