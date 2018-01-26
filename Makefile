@@ -13,12 +13,15 @@ ${ARTIFACT}.vmdk: ${ARTIFACT}.img
 	qemu-img convert -f raw -O vmdk $< $@
 
 main.s: main.c
-	$(CC) -std=gnu11 -O0 -nostdlib -march=i386 -m16 -ffreestanding -o $@ -S $<
+	$(CC) -std=gnu11 -O0 -nostdlib -march=i386 -m16 -ffreestanding -ffunction-sections -o $@ -S $<
 
 main.o: main.s
 	$(AS) -Qy --32 -o $@ $<
 
-${ARTIFACT}.com: main.o
+bootcode.o: main.o
+	$(LD) -T bootcode.ld -r -o $@ $^
+
+${ARTIFACT}.com: bootcode.o
 	$(LD) -T bootloader.ld --nmagic -m elf_i386 -o $@ $<
 
 test: ${ARTIFACT}.img
