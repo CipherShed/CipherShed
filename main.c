@@ -19,6 +19,7 @@ inline static void print(char *string)
 	}
 }
 
+__attribute__((noreturn))
 void main()
 {
     print("Hello, World!");
