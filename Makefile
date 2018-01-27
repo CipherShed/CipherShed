@@ -1,3 +1,9 @@
+CROSS_PREFIX = 
+CC = ${CROSS_PREFIX}gcc
+AS = ${CROSS_PREFIX}as
+LD = ${CROSS_PREFIX}ld
+OBJCOPY = ${CROSS_PREFIX}objcopy
+
 ARTIFACT=boot
 
 .PHONY: all clean test
@@ -33,7 +39,7 @@ ${ARTIFACT}.o: bootcode.o jump.o
 	$(LD) -T mbr.ld -o $@ $^
 
 ${ARTIFACT}.com: ${ARTIFACT}.o
-	objcopy $< $@ -O binary
+	$(OBJCOPY) $< $@ -O binary
 
 test: ${ARTIFACT}.img
 	qemu-system-i386 -nodefaults -nodefconfig -no-user-config -m 1M -device VGA -drive file=$<,format=raw -d guest_errors	
