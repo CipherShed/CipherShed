@@ -9,12 +9,13 @@ inline static void print(char *string)
 		asm volatile
 		(R"ASM(
 	mov 7, %%bx
+	mov %[c], %%al
 	mov $0x0e, %%ah
 	int $0x10
 )ASM"
 			: /* no output */
-			: "c"(c)
-			: "al"
+			: [c] "r" (c)
+			: "bx", "al", "ah"
 		);
 	}
 }
