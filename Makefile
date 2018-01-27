@@ -15,19 +15,19 @@ main.s: main.c
 	$(CC) -std=gnu11 -O0 -nostdlib -march=i386 -m16 -ffreestanding -ffunction-sections -o $@ -S $<
 
 halt.o: halt.s
-	$(AS) -Qy --32 -o $@ $<
+	$(AS) --32 -o $@ $<
 
 main.o: main.s
-	$(AS) -Qy --32 -o $@ $<
+	$(AS) --32 -o $@ $<
 
 startup.o: startup.s
-	$(AS) -Qy --32 -o $@ $<
+	$(AS) --32 -o $@ $<
 
 bootcode.o: startup.o main.o halt.o
 	$(LD) -T bootcode.ld -r -o $@ $^
 
 jump.o: jump.s
-	$(AS) -Qy --32 -o $@ $<
+	$(AS) --32 -o $@ $<
 
 ${ARTIFACT}.o: bootcode.o jump.o
 	$(LD) -T mbr.ld -o $@ $^
