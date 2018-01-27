@@ -9,11 +9,11 @@ SECTIONS
     }
     .rodata :
     {
-        *(.rodata);
+        *(.rodata*);
     }
     .data :
     {
-        *(.data);
+        *(.data*);
     }
     .eos 0x7c00 + 0x01fe :
     {
