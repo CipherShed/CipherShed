@@ -18,7 +18,7 @@ ${ARTIFACT}.vmdk: ${ARTIFACT}.img
 	qemu-img convert -f raw -O vmdk $< $@
 
 main.s: main.c
-	$(CC) -std=gnu11 -O0 -nostdlib -march=i386 -m16 -ffreestanding -ffunction-sections -o $@ -S $<
+	$(CC) -std=gnu11 -O0 -nostdlib -march=i386 -m16 -ffreestanding -fverbose-asm -ffunction-sections -o $@ -S $<
 
 main.o: main.s
 	$(AS) --32 -o $@ $<
