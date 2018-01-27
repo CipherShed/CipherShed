@@ -5,6 +5,9 @@ SECTIONS
     .text 0x7c00 + 0x0000 :
     {
         __bootcode_start = .;
+        *(.text.startup);
+        *(.text.main);
+        *(.text*);
         *(.text);
     }
     .rodata :

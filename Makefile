@@ -26,13 +26,10 @@ main.o: main.s
 startup.o: startup.s
 	$(AS) --32 -o $@ $<
 
-bootcode.o: startup.o main.o
-	$(LD) -T bootcode.ld -r -o $@ $^
-
 jump.o: jump.s
 	$(AS) --32 -o $@ $<
 
-${ARTIFACT}.o: bootcode.o jump.o
+${ARTIFACT}.o: startup.o main.o jump.o
 	$(LD) -T mbr.ld -o $@ $^
 
 ${ARTIFACT}.com: ${ARTIFACT}.o
