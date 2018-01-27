@@ -4,12 +4,12 @@ SECTIONS
 {
     .jump 0x7c00 + 0x0000:
     {
-        *(.text.jump);
+        KEEP(*(.text.jump));
     }
     .text 0x7c00 + 0x005a :
     {
         __bootcode_start = .;
-        *(.text.startup);
+        KEEP(*(.text.startup));
         *(.text.main);
         *(.text*);
         *(.text);
