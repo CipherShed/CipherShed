@@ -30,7 +30,7 @@ jump.o: jump.s
 	$(AS) --32 -o $@ $<
 
 ${ARTIFACT}.o: startup.o main.o jump.o
-	$(LD) -T mbr.ld -o $@ $^
+	$(LD) -T mbr.ld --require-defined=main -o $@ $^
 
 ${ARTIFACT}.com: ${ARTIFACT}.o
 	$(OBJCOPY) $< $@ -O binary
