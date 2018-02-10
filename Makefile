@@ -10,6 +10,10 @@ clean:
 	rm -f kernel *.o
 .PHONY: clean
 
+test: kernel
+	qemu-system-i386 -nodefaults -nodefconfig -no-user-config -m 1M -device VGA -d guest_errors -kernel kernel
+.PHONY: test
+
 boot.o: boot.S
 	$(CC) ${CFLAGS} -o $@ -c $<
 
