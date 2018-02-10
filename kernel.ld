@@ -12,12 +12,14 @@ SECTIONS
 		*(.rodata*);
 		*(.data*);
 	}
+	_edata = .;
 	.bss :
 	{
 		*(.bss*);
 		*(COMMON);
 		*(.scommon);
 	}
+	_end = .;
 	/DISCARD/ :
 	{
 		*(*);
