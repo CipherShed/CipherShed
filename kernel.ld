@@ -10,6 +10,7 @@ SECTIONS
 	.data :
 	{
 		*(.rodata*);
+		*(.rdata*);
 		*(.data*);
 	}
 	_edata = .;
