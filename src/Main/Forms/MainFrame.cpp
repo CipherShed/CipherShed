@@ -1575,7 +1575,7 @@ namespace VeraCrypt
 #endif
 #ifdef HAVE_INDICATORS
 			if (indicator == NULL) {
-				indicator = app_indicator_new ("veracrypt", "veracrypt-indicator", APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
+				indicator = app_indicator_new ("veracrypt", "veracrypt", APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
 				app_indicator_set_status (indicator, APP_INDICATOR_STATUS_ACTIVE);
 
 				GtkWidget *menu = gtk_menu_new();
