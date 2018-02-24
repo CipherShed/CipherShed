@@ -20,6 +20,7 @@ inline static void print(char *string)
 	}
 }
 
+__attribute__((section(".text.main")))
 __attribute__((noreturn))
 void cmain() asm("main");
 void cmain()
