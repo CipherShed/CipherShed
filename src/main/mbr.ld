@@ -21,6 +21,7 @@ SECTIONS
     {
         /* End of sector marker */
         SHORT(0xaa55);
+        *(.eos);
     }
     /DISCARD/ : {*(*)}
 }
