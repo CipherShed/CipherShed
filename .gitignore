@@ -1,5 +1,1 @@
-main.com
-main.img
-main.vmdk
-main.o
-main.s
+obj-*/
