@@ -1,42 +1,97 @@
-CROSS_PREFIX = 
-CC = ${CROSS_PREFIX}gcc
-AS = ${CROSS_PREFIX}as
-LD = ${CROSS_PREFIX}ld
-OBJCOPY = ${CROSS_PREFIX}objcopy
+#
+# root Makefile - setup `make` for all modules
+#
 
-ARTIFACT=boot
 
-.PHONY: all clean test
+# tools
 
-all: ${ARTIFACT}.img
+CROSS_PREFIX :=
 
-${ARTIFACT}.img: ${ARTIFACT}.com
-	cp $< $@
-	truncate --size=4M $@
+CC := ${CROSS_PREFIX}gcc
+CXX := ${CROSS_PREFIX}g++
+AS := ${CROSS_PREFIX}as
+OBJCOPY := ${CROSS_PREFIX}objcopy
 
-${ARTIFACT}.vmdk: ${ARTIFACT}.img
-	qemu-img convert -f raw -O vmdk $< $@
+QEMU_IMG := qemu-img
 
-main.s: main.c
-	$(CC) -std=gnu11 -O0 -nostdlib -march=i386 -m16 -ffreestanding -fverbose-asm -ffunction-sections -o $@ -S $<
 
-main.o: main.s
-	$(AS) --32 -o $@ $<
+# flags
 
-startup.o: startup.s
-	$(AS) --32 -o $@ $<
+cc_arch_flags := -m16
+ASFLAGS := ${cc_arch_flags}
+CPPFLAGS := ${cc_arch_flags} -O0 -ffreestanding -ffunction-sections
+CFLAGS := -std=gnu11
+CXXFLAGS := -std=gnu++11
+LDFLAGS := ${cc_arch_flags} -nostdlib
+LOADLIBES :=
+LDLIBS :=
 
-jump.o: jump.s
-	$(AS) --32 -o $@ $<
 
-${ARTIFACT}.o: startup.o main.o jump.o
-	$(LD) -T mbr.ld --require-defined=main -o $@ $^
+# target declaration helper variables
 
-${ARTIFACT}.com: ${ARTIFACT}.o
-	$(OBJCOPY) $< $@ -O binary
+machine := $(shell ${CC} -dumpmachine)
+machine := $(if ${machine},${machine},unknown)
 
-test: ${ARTIFACT}.img
-	qemu-system-i386 -nodefaults -nodefconfig -no-user-config -m 1M -device VGA -drive file=$<,format=raw -d guest_errors	
+objdir_root := obj-${machine}
+subdir = $(dir $(lastword ${MAKEFILE_LIST}))
+objdir = ${objdir_root}/${subdir}
+mkoutdir = test -d $(dir $@) || mkdir -p $(dir $@)
 
+SRCS_ASM = $(wildcard ${subdir}/*.s)
+SRCS_ASM_PREPROC = $(wildcard ${subdir}/*.S)
+SRCS_C = $(wildcard ${subdir}/*.c)
+SRCS_CXX = $(wildcard ${subdir}/*.cpp)
+
+OBJS_ASM = $(patsubst %.s,${objdir_root}/%.o,${SRCS_ASM})
+OBJS_ASM_PREPROC = $(patsubst %.S,${objdir_root}/%.o,${SRCS_ASM_PREPROC})
+OBJS_C = $(patsubst %.c,${objdir_root}/%.o,${SRCS_C})
+OBJS_CXX = $(patsubst %.cpp,${objdir_root}/%.o,${SRCS_CXX})
+
+OBJS = ${OBJS_ASM} ${OBJS_ASM_PREPROC} ${OBJS_C} ${OBJS_CXX}
+
+MDEPS = $(wildcard ${objdir}/*.d)
+
+# default and primary targets
+
+.PHONY: all
+all:
+
+.PHONY: clean
 clean:
-	rm -f ${ARTIFACT}.img ${ARTIFACT}.vmdk ${ARTIFACT}.com main.s *.o
+	rm -rf ${objdir_root}/
+
+.PHONY: distclean
+distclean:
+	rm -rf obj-*/
+
+
+# pattern targets
+
+${objdir_root}/%.o: %.s
+	@$(mkoutdir)
+	$(CC) ${ASFLAGS} -o $@ -c $<
+
+${objdir_root}/%.o: %.S
+	@$(mkoutdir)
+	$(CC) ${ASFLAGS} -MMD -MP -o $@ -c $<
+
+${objdir_root}/%.o: %.c
+	@$(mkoutdir)
+	$(CC) ${CPPFLAGS} ${CFLAGS} -MMD -MP -o $@ -c $<
+
+${objdir_root}/%.o: %.cpp
+	@$(mkoutdir)
+	$(CXX) ${CPPFLAGS} ${CXXFLAGS} -MMD -MP -o $@ -c $<
+
+
+# canned recipes
+override define recipe_link
+	@$(mkoutdir)
+	$(CC) ${LDFLAGS} -o $@ ${LOADLIBES} ${LDLIBS} $^
+endef
+
+
+# finally!: include module Makefiles for actual source and targets
+
+include src/main/Makefile.mk
+all: main
