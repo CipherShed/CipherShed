@@ -21,7 +21,8 @@ inline static void print(char *string)
 }
 
 __attribute__((noreturn))
-void main()
+void cmain() asm("main");
+void cmain()
 {
     print("Hello, World!");
 
