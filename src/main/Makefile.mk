@@ -19,9 +19,10 @@ ${objdir}/${ARTIFACT}.o: ${OBJS}
 #
 
 .PHONY: ${ARTIFACT}.com
-${ARTIFACT}.com: ${objdir}/${ARTIFACT}.com
+${ARTIFACT}.com: ${bindir}/${ARTIFACT}.com
 
-${objdir}/${ARTIFACT}.com: ${objdir}/${ARTIFACT}.o
+${bindir}/${ARTIFACT}.com: ${objdir}/${ARTIFACT}.o
+	@$(mkoutdir)
 	$(OBJCOPY) $< $@ -O binary
 
 #
@@ -30,9 +31,9 @@ ${objdir}/${ARTIFACT}.com: ${objdir}/${ARTIFACT}.o
 #
 
 .PHONY: ${ARTIFACT}.img
-${ARTIFACT}.img: ${objdir}/${ARTIFACT}.img
+${ARTIFACT}.img: ${bindir}/${ARTIFACT}.img
 
-${objdir}/${ARTIFACT}.img: ${objdir}/${ARTIFACT}.com
+${bindir}/${ARTIFACT}.img: ${bindir}/${ARTIFACT}.com
 	cp $< $@
 	truncate --size=4M $@
 
@@ -41,9 +42,9 @@ ${objdir}/${ARTIFACT}.img: ${objdir}/${ARTIFACT}.com
 #
 
 .PHONY: ${ARTIFACT}.vmdk
-${ARTIFACT}.vmdk: ${objdir}/${ARTIFACT}.vmdk
+${ARTIFACT}.vmdk: ${bindir}/${ARTIFACT}.vmdk
 
-${objdir}/${ARTIFACT}.vmdk: ${objdir}/${ARTIFACT}.img
+${bindir}/${ARTIFACT}.vmdk: ${bindir}/${ARTIFACT}.img
 	$(QEMU_IMG) convert -f raw -O vmdk $< $@
 
 -include ${MDEPS}

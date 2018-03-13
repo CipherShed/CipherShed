@@ -32,9 +32,11 @@ LDLIBS :=
 machine := $(shell ${CC} -dumpmachine)
 machine := $(if ${machine},${machine},unknown)
 
-objdir_root := obj-${machine}
+outdir_root := obj-${machine}
+objdir_root := ${outdir_root}/obj
 subdir = $(dir $(lastword ${MAKEFILE_LIST}))
 objdir = ${objdir_root}/${subdir}
+bindir = ${outdir_root}/bin
 mkoutdir = test -d $(dir $@) || mkdir -p $(dir $@)
 
 SRCS_ASM = $(wildcard ${subdir}/*.s)
@@ -58,7 +60,7 @@ all:
 
 .PHONY: clean
 clean:
-	rm -rf ${objdir_root}/
+	rm -rf ${outdir_root}/
 
 .PHONY: distclean
 distclean:
