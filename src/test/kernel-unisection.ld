@@ -1,4 +1,4 @@
-ENTRY(start);
+ENTRY(entry);
 SECTIONS
 {
 	. = 0x0500;

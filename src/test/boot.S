@@ -54,13 +54,9 @@ idtr:
 	.long 0x0000
 
 
-.code32
-.section .init
-start:
-	jmp entry
-
 // Seems like something for .data, but needs to be within first 8K of
 // image.
+.section .init
 .balign	4, 0x00
 multiboot_header:
 	.long multiboot_magic
@@ -73,7 +69,9 @@ multiboot_header:
 	.long multiboot_entry_addr
 
 
+.code32
 .text
+.global entry
 entry:
 	lgdt (gdtr)
 
