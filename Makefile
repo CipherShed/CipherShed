@@ -13,6 +13,7 @@ AS := ${CROSS_PREFIX}as
 OBJCOPY := ${CROSS_PREFIX}objcopy
 
 QEMU_IMG := qemu-img
+QEMU_SYSTEM_I386 := qemu-system-i386
 
 
 # flags
@@ -97,3 +98,6 @@ endef
 
 include src/main/Makefile.mk
 all: main
+
+include src/test/Makefile.mk
+all: test
