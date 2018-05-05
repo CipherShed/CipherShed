@@ -11,7 +11,7 @@ main: ${ARTIFACT}.com
 ${ARTIFACT}.o: ${objdir}/${ARTIFACT}.o
 
 ${objdir}/${ARTIFACT}.o: LDFLAGS := ${LDFLAGS} -Wl,--script=${subdir}/mbr.ld -Wl,--require-defined=main
-${objdir}/${ARTIFACT}.o: ${OBJS}
+${objdir}/${ARTIFACT}.o: ${OBJS} ${lib}
 	$(recipe_link)
 
 #

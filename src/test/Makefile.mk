@@ -9,7 +9,7 @@ test_run: ${bindir}/kernel
 test_build: ${bindir}/kernel
 
 ${bindir}/kernel: LDFLAGS := ${LDFLAGS} -Wl,--script=${subdir}/kernel-unisection.ld
-${bindir}/kernel: ${OBJS}
+${bindir}/kernel: ${OBJS} ${lib}
 	$(recipe_link)
 
 -include ${MDEPS}

@@ -11,6 +11,7 @@ CC := ${CROSS_PREFIX}gcc
 CXX := ${CROSS_PREFIX}g++
 AS := ${CROSS_PREFIX}as
 OBJCOPY := ${CROSS_PREFIX}objcopy
+AR := ${CROSS_PREFIX}ar
 
 QEMU_IMG := qemu-img
 QEMU_SYSTEM_I386 := qemu-system-i386
@@ -38,6 +39,7 @@ objdir_root := ${outdir_root}/obj
 subdir = $(dir $(lastword ${MAKEFILE_LIST}))
 objdir = ${objdir_root}/${subdir}
 bindir = ${outdir_root}/bin
+libdir = ${outdir_root}/lib
 mkoutdir = test -d $(dir $@) || mkdir -p $(dir $@)
 
 SRCS_ASM = $(wildcard ${subdir}/*.s)
@@ -93,8 +95,16 @@ override define recipe_link
 	$(CC) ${LDFLAGS} -o $@ ${LOADLIBES} ${LDLIBS} $^
 endef
 
+override define recipe_archive
+	@$(mkoutdir)
+	$(AR) rcs $@ $^
+endef
+
 
 # finally!: include module Makefiles for actual source and targets
+
+# TODO: good way to include this from modules that use this?
+include src/lib/Makefile.mk
 
 include src/main/Makefile.mk
 all: main
