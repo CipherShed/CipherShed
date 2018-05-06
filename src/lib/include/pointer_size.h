@@ -11,10 +11,12 @@
 	#define jmp_c jmpl
 	#define call_c calll
 	#define ret_c retl
+	#define sp_c %esp
 #elif defined POINTER16
 	#define jmp_c jmpw
 	#define call_c callw
 	#define ret_c retw
+	#define sp_c %sp
 #else
 	#error "Can't determine pointer size."
 #endif
