@@ -23,9 +23,9 @@ machine := $(if ${machine},${machine},unknown)
 # flags
 
 ifeq "$(filter-out ia16-%,${machine})" "" # if $machine == ia16-*
-cc_arch_flags :=
+cc_arch_flags := -DPOINTER16
 else
-cc_arch_flags := -m16
+cc_arch_flags := -DPOINTER32 -m16
 endif
 
 ASFLAGS := ${cc_arch_flags}
