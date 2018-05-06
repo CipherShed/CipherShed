@@ -125,6 +125,14 @@ real_mode_start:
 
 real_entry:
 	// Initialize stack
+	//
+	// TODO: Put stack in a segment that does not overlap with
+	// code segment
+	//
+	// However, ia16 fork of gcc currently assumes %ss == %ds (and
+	// enforces this assumption).
+	//
+	// See: https://github.com/tkchia/gcc-ia16/issues/19
 	mov stack+stack_size, sp_c
 
 	jmp main
