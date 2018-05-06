@@ -1,6 +1,7 @@
 #define ASM_FILE 1
 #include "multiboot.h"
 #include "gdt.h"
+#include <pointer_size.h>
 
 stack_size=0x4000
 multiboot_base_flags=0
@@ -124,7 +125,7 @@ real_mode_start:
 
 real_entry:
 	// Initialize stack
-	mov stack+stack_size, %esp
+	mov stack+stack_size, sp_c
 
 	jmp main
 
