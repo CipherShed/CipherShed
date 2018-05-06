@@ -1,4 +1,5 @@
 #include "halt.h"
+#include <stdint.h>
 
 __attribute__((stdcall))
 inline static void print(char *string)
@@ -22,8 +23,8 @@ inline static void print(char *string)
 
 __attribute__((section(".text.main")))
 __attribute__((noreturn))
-void cmain() asm("main");
-void cmain()
+void cmain(uint16_t boot_drive) asm("main");
+void cmain(uint16_t boot_drive)
 {
     print("Hello, World!");
 
