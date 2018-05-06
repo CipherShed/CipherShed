@@ -16,10 +16,18 @@ AR := ${CROSS_PREFIX}ar
 QEMU_IMG := qemu-img
 QEMU_SYSTEM_I386 := qemu-system-i386
 
+machine := $(shell ${CC} -dumpmachine)
+machine := $(if ${machine},${machine},unknown)
+
 
 # flags
 
+ifeq "$(filter-out ia16-%,${machine})" "" # if $machine == ia16-*
+cc_arch_flags :=
+else
 cc_arch_flags := -m16
+endif
+
 ASFLAGS := ${cc_arch_flags}
 CPPFLAGS := ${cc_arch_flags} -O0 -ffreestanding -ffunction-sections
 CFLAGS := -std=gnu11
@@ -30,9 +38,6 @@ LDLIBS :=
 
 
 # target declaration helper variables
-
-machine := $(shell ${CC} -dumpmachine)
-machine := $(if ${machine},${machine},unknown)
 
 outdir_root := obj-${machine}
 objdir_root := ${outdir_root}/obj
