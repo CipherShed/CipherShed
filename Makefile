@@ -29,7 +29,8 @@ cc_arch_flags := -m16
 endif
 
 ASFLAGS := ${cc_arch_flags}
-CPPFLAGS := ${cc_arch_flags} -O0 -ffreestanding -ffunction-sections
+CPPFLAGS :=
+C_CXX_FLAGS := ${cc_arch_flags} -O0 -ffreestanding -ffunction-sections
 CFLAGS := -std=gnu11
 CXXFLAGS := -std=gnu++11
 LDFLAGS := ${cc_arch_flags} -nostdlib
@@ -83,15 +84,15 @@ ${objdir_root}/%.o: %.s
 
 ${objdir_root}/%.o: %.S
 	@$(mkoutdir)
-	$(CC) ${ASFLAGS} -MMD -MP -o $@ -c $<
+	$(CC) ${CPPFLAGS} ${ASFLAGS} -MMD -MP -o $@ -c $<
 
 ${objdir_root}/%.o: %.c
 	@$(mkoutdir)
-	$(CC) ${CPPFLAGS} ${CFLAGS} -MMD -MP -o $@ -c $<
+	$(CC) ${CPPFLAGS} ${C_CXX_FLAGS} ${CFLAGS} -MMD -MP -o $@ -c $<
 
 ${objdir_root}/%.o: %.cpp
 	@$(mkoutdir)
-	$(CXX) ${CPPFLAGS} ${CXXFLAGS} -MMD -MP -o $@ -c $<
+	$(CXX) ${CPPFLAGS} ${C_CXX_FLAGS} ${CXXFLAGS} -MMD -MP -o $@ -c $<
 
 
 # canned recipes
