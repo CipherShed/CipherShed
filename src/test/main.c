@@ -27,6 +27,6 @@ void cmain()
 {
     print("Hello, World!\n");
 
-	qemu_exit(0);
+	qemu_exit(1);
     halt();
 }
