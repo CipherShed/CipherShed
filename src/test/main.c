@@ -14,7 +14,7 @@ inline static void print(char *string)
 	outb %%al, (%%dx)
 )ASM"
 			: /* no output */
-			: [c] "r" (c)
+			: [c] "m" (c)
 			: "bx", "al", "ah", "dx"
 		);
 	}
