@@ -33,8 +33,12 @@ ${bindir}/${ARTIFACT}.com: ${objdir}/${ARTIFACT}.o
 .PHONY: ${ARTIFACT}.img
 ${ARTIFACT}.img: ${bindir}/${ARTIFACT}.img
 
-${bindir}/${ARTIFACT}.img: ${bindir}/${ARTIFACT}.com
+${objdir}/data.img: ${subdir}/data.txt
 	cp $< $@
+	truncate --size=512 $@
+
+${bindir}/${ARTIFACT}.img: ${bindir}/${ARTIFACT}.com ${objdir}/data.img
+	cat $^ > $@
 	truncate --size=4M $@
 
 #
