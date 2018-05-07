@@ -2,7 +2,7 @@ SECTIONS
 {
     .jump 0x7c00 + 0x0000:
     {
-        KEEP(*(.text.jump));
+        KEEP(*(.jump));
     }
     .text 0x7c00 + 0x005a :
     {
