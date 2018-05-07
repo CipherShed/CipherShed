@@ -20,12 +20,5 @@ startup:
 	mov $0x7c00, sp_c
 
 	// cdecl main(boot_drive)
-
-	// boot_drive
 	pushw %dx
-
-	// At this point, the order of sections
-	// (.text.startup followed by .text.main)
-	// makes this equivalent to call_c'ing main
-	// (with an invalid return address).
-	push_c $0
+	call_c main
