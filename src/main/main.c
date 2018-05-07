@@ -9,7 +9,7 @@ inline static void print(char *string)
 	{
 		asm volatile
 		(R"ASM(
-	mov 7, %%bx
+	mov $7, %%bx
 	mov %[c], %%al
 	mov $0x0e, %%ah
 	int $0x10
