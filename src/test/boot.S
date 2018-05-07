@@ -133,7 +133,7 @@ real_entry:
 	// enforces this assumption).
 	//
 	// See: https://github.com/tkchia/gcc-ia16/issues/19
-	mov stack+stack_size, sp_c
+	mov $(stack+stack_size), sp_c
 
 	jmp main
 
