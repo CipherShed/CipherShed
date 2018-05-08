@@ -40,6 +40,7 @@ ${objdir}/data.img: ${subdir}/data.txt
 ${bindir}/${ARTIFACT}.img: ${bindir}/${ARTIFACT}.com ${objdir}/data.img
 	cat $^ > $@
 	truncate --size=4M $@
+	echo '1 1 7 *' | sfdisk -q $@
 
 #
 # VMWare disk image containing boot sector

@@ -1,5 +1,7 @@
 #include "halt.h"
 #include <stdint.h>
+#include <stdbool.h>
+#include <mbr.h>
 
 __attribute__((stdcall))
 inline static void print(char *string)
@@ -22,7 +24,7 @@ inline static void print(char *string)
 }
 
 __attribute__((stdcall))
-inline static void read_sector_2(uint8_t drive, char* buf)
+inline static void read_sector(uint8_t drive, uint16_t chs_cs, uint8_t chs_h, char* buf)
 {
 	asm volatile
 	(R"ASM(
@@ -33,8 +35,8 @@ inline static void read_sector_2(uint8_t drive, char* buf)
 	mov $2, %%ah # function
 
 	mov %[drive], %%dl # drive
-	mov $2, %%cx # (cylinder << 6) + sector
-	mov $0, %%dh # head
+	mov %[chs_cs], %%cx # (cylinder << 6) + sector
+	mov %[chs_h], %%dh # head
 	mov $1, %%al # sector count
 
 	int $0x13 # fixed disk services
@@ -42,6 +44,8 @@ inline static void read_sector_2(uint8_t drive, char* buf)
 		: /* no output */
 		:
 		  [drive] "m" (drive),
+		  [chs_cs] "m" (chs_cs),
+		  [chs_h] "m" (chs_h),
 		  [buf] "m" (buf)
 		: "ax", "bx", "cx", "dx"
 	);
@@ -53,9 +57,26 @@ void cmain(uint16_t boot_drive) asm("main");
 void cmain(uint16_t boot_drive)
 {
 	char buf[512];
+	partition_table_entry* entries = partition_table_entries;
 
-	read_sector_2(boot_drive, buf);
-	print(buf);
+	bool found = false;
+
+	for (int i = 0; i < 4; i++)
+	{
+		if (entries[i].status & partition_active)
+		{
+			read_sector(boot_drive, entries[i].start_chs_cs, entries[i].start_chs_h, buf);
+			print(buf);
+
+			found = true;
+			break;
+		}
+	}
+
+	if (!found)
+	{
+		print("fail");
+	}
 
     halt();
 }
