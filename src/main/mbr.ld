@@ -17,6 +17,12 @@ SECTIONS
     {
         *(.data*);
     }
+	.ptes 0x7c00 + 0x01be :
+	{
+		partition_table_entries = .;
+		*(.ptes);
+		. = 0x40;
+	}
     .eos 0x7c00 + 0x01fe :
     {
         /* End of sector marker */
