@@ -1,0 +1,44 @@
+Using the cross compiler on windows (cygwin/mingw) we were able to make a boot loader
+
+/cygdrive/c/Users/Public/Desktop/projects/crosstool-ng/.build/i686-centos7-linux-gnu/buildtools/bin/i686-centos7-linux-gnu-gcc.exe -specs cgntgcc.specs -v -std=gnu99 -O0 -nostdlib -m32 -march=i386 -ffreestanding -S main.c -o main.s
+/cygdrive/c/Users/Public/Desktop/projects/crosstool-ng/.build/i686-centos7-linux-gnu/buildtools/bin/i686-centos7-linux-gnu-as.exe -V -Qy --32 -o main.o main.s
+/cygdrive/c/Users/Public/Desktop/projects/crosstool-ng/.build/i686-centos7-linux-gnu/buildtools/bin/i686-centos7-linux-gnu-ld.exe -T bootloader.ld --nmagic -o main.com main.o
+> vm/test.img; dd if=/dev/zero seek=$((208896-1))  bs=512 count=1 of=vm/test.img; dd bs=512 conv=sparse,notrunc if=main.img of=vm/test.img ; du -hs vm/test.img
+/cygdrive/c/programs.x86/VMware/VMware\ Workstation/vmrun.exe start vm/bootloader-test.vmx
+
+On linux the cross compiler is not needed.
+
+Todo:
+
+$ grep -rl asm src/
+src/Boot/Windows/Boot.vcproj
+src/Boot/Windows/BootConsoleIo.cpp
+src/Boot/Windows/BootDebug.cpp
+src/Boot/Windows/BootDebug.h
+src/Boot/Windows/BootDiskIo.cpp
+src/Boot/Windows/BootMain.cpp
+src/Boot/Windows/BootMemory.cpp
+src/Boot/Windows/IntFilter.cpp
+src/Boot/Windows/Makefile
+src/Boot/Windows/Platform.cpp
+src/Boot/Windows/Platform.h
+src/Build/Include/Makefile.inc
+src/Crypto/Aesopt.h
+src/Crypto/AesSmall_x86.asm
+src/Crypto/Aestab.c
+src/Crypto/Aes_x86.asm
+src/Crypto/Crypto.vcproj
+src/Crypto/Makefile.inc
+src/Crypto/Sources
+src/Driver/BuildDriver.cmd
+src/Driver/Driver.vcproj
+src/Format/Format.manifest
+src/Format/Format.vcproj
+src/Makefile
+src/Mount/Mount.manifest
+src/Mount/Mount.vcproj
+src/Setup/Setup.manifest
+src/Setup/Setup.vcproj
+src/unit-tests/unit-tests.vcproj
+
+

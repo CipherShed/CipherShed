@@ -9,7 +9,6 @@
 !CMDSWITCHES -S
 
 PROJ = BootLoader
-.SILENT:
 
 !ifndef MSVC16_ROOT
 !error Environment variable MSVC16_ROOT must point to the installation directory of MS Visual C++ 1.5

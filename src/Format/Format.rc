@@ -9,7 +9,7 @@
 //
 #include "afxres.h"
 #include "..\\common\\resource.h"
-#include "../version.h"
+#include "../include/rcversion.h"
 
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
@@ -434,7 +434,7 @@ END
 BEGIN
     "#include ""afxres.h""\r\n"
     "#include ""..\\\\common\\\\resource.h""\r\n"
-    "#include ""../version.h""\r\n"
+    "#include ""../include/rcversion.h""\r\n"
     "\0"
 END
 

@@ -13,18 +13,23 @@
 #define TCDEFS_H
 
 #include "constants.h"
+#include "../include/version.h"
 
 #define TC_APP_NAME						"CipherShed"
 #define TC_APP_NAME_LEGACY				"TrueCrypt"
 
-#include "../version.h"
 // Version displayed to user 
-#define VERSION_STRING					_RC_INC_FILEVERSION_VALUE_STR
+#define VERSION_STRING					_CS_VERSION_DOTTED_5STR
+
+// Version number to compare against driver
+#define VERSION_NUM						0x0740
 
 // Release date
-#define TC_STR_RELEASE_DATE				"February 7, 2012"
-#define TC_RELEASE_DATE_YEAR			2012
-#define TC_RELEASE_DATE_MONTH			2
+// TODO: Automate without git during build
+// (tar release, for example)
+#define TC_STR_RELEASE_DATE				"September 6, 2017"
+#define TC_RELEASE_DATE_YEAR			2017
+#define TC_RELEASE_DATE_MONTH			9
 
 #define BYTES_PER_KB                    1024LL
 #define BYTES_PER_MB                    1048576LL

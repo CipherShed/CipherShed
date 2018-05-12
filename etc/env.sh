@@ -14,7 +14,11 @@ VSHOME="${VSHOME-"/cygdrive/c/Program Files/Microsoft Visual Studio 9.0/"}"
 
 DEVENVgui="${DEVENVgui-"$VSHOME/Common7/IDE/devenv.exe"}"
 
+[ -x "$DEVENVgui" ] || DEVENVgui=devenv.exe
+
 DEVENVcon="${DEVENVcon-"$VSHOME/Common7/IDE/devenv.com"}"
+
+[ -x "DEVENVcon" ] || DEVENVcon=denenv.com
 
 DEVENV="${DEVENV-"$DEVENVgui"}"
 

@@ -1,0 +1,10 @@
+#ifndef _cs_include_rcversion_h_
+#define _cs_include_rcversion_h_
+
+#include "version.h"
+#define _RC_INC_FILEVERSION_VALUE _CS_VERSION_1Market,_CS_VERSION_2Major,_CS_VERSION_3Minor,_CS_VERSION_4Build
+#define _RC_INC_PRODUCTVERSION_VALUE _RC_INC_FILEVERSION_VALUE
+#define _RC_INC_FILEVERSION_VALUE_STR _CS_VERSION_DOTTED_4STR
+#define _RC_INC_PRODUCTVERSION_VALUE_STR _RC_INC_FILEVERSION_VALUE_STR
+
+#endif
