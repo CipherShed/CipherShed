@@ -492,8 +492,6 @@ LRESULT CALLBACK KeyboardProc (int nCode, WPARAM wParam, LPARAM lParam)
 /* This is the thread function which will poll the system for randomness */
 static unsigned __stdcall PeriodicFastPollThreadProc (void *dummy)
 {
-	if (dummy);		/* Remove unused parameter warning */
-
 	for (;;)
 	{
 		EnterCriticalSection (&critRandProt);
