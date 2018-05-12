@@ -1,6 +1,8 @@
 #ifndef CS_unittests_faux_windows_ARRAYSIZE_h_
 #define CS_unittests_faux_windows_ARRAYSIZE_h_
 
+#include "size_t.h"
+
 extern "C++" // templates cannot be declared to have 'C' linkage
 template <typename T, size_t N>
 char (*RtlpNumberOf( UNALIGNED T (&)[N] ))[N];
