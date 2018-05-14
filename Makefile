@@ -44,8 +44,8 @@ outdir_root := obj-${machine}
 objdir_root := ${outdir_root}/obj
 subdir = $(dir $(lastword ${MAKEFILE_LIST}))
 objdir = ${objdir_root}/${subdir}
-bindir = ${outdir_root}/bin
-libdir = ${outdir_root}/lib
+bindir = ${outdir_root}/bin/${subdir}
+libdir = ${outdir_root}/lib/${subdir}
 mkoutdir = test -d $(dir $@) || mkdir -p $(dir $@)
 
 SRCS_ASM = $(wildcard ${subdir}/*.s)
