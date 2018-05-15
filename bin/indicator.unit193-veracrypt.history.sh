@@ -29,7 +29,7 @@ message="$(git show -s --format="%B" "$prepatch_source")"
 
 message="$message
 
-(applied $patch at $commit in $repo)"
+(applied $prepatch at $prepatch_source in $repo)"
 
 git commit -q --no-gpg-sign -m "$message" --allow-empty --author="$author" --date="$date"
 basecommit="$(git rev-parse HEAD)"
