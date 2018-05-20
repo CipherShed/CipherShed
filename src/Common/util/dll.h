@@ -82,17 +82,6 @@ inline HMODULE LoadDLL_NETAPI32()
 	#undef dll
 }
 
-#define dll L"kernel32.DLL"
-inline HMODULE LoadDLL_kernel32()
-{
-	return LoadDLL((const LPWSTR)dll,(UINT)ARRAYSIZE(dll));
-}
-inline HMODULE GetHandleDLL_kernel32()
-{
-	return GetHandleDLL((const LPWSTR)dll,(UINT)ARRAYSIZE(dll));
-}
-#undef dll
-
 inline HMODULE LoadDLL_srclient()
 {
 	#define dll L"srclient.dll"

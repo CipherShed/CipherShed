@@ -108,8 +108,8 @@ BOOL Is64BitOs ()
 
 	if (valid)
 		return isWow64;
-
-	fnIsWow64Process = (LPFN_ISWOW64PROCESS) GetProcAddress (GetHandleDLL_kernel32(), "IsWow64Process");
+	//this can not ever be not loaded so it is safe...
+	fnIsWow64Process = (LPFN_ISWOW64PROCESS) GetProcAddress (GetModuleHandleA("kernel32"), "IsWow64Process");
 
     if (fnIsWow64Process != NULL)
         if (!fnIsWow64Process (GetCurrentProcess(), &isWow64))

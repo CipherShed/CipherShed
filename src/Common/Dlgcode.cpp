@@ -7013,8 +7013,8 @@ std::string GetServiceConfigPath (const char *fileName)
 	if (Is64BitOs())
 	{
 		typedef UINT (WINAPI *GetSystemWow64Directory_t) (LPTSTR lpBuffer, UINT uSize);
-
-		GetSystemWow64Directory_t getSystemWow64Directory = (GetSystemWow64Directory_t) GetProcAddress (GetHandleDLL_kernel32(), "GetSystemWow64DirectoryA");
+		//this can not ever be not loaded so it is safe...
+		GetSystemWow64Directory_t getSystemWow64Directory = (GetSystemWow64Directory_t) GetProcAddress (GetModuleHandle ("kernel32"), "GetSystemWow64DirectoryA");
 		getSystemWow64Directory (sysPath, sizeof (sysPath));
 	}
 	else
@@ -7325,7 +7325,8 @@ BOOL IsHiddenOSRunning (void)
 BOOL EnableWow64FsRedirection (BOOL enable)
 {
 	typedef BOOLEAN (__stdcall *Wow64EnableWow64FsRedirection_t) (BOOL enable);
-	Wow64EnableWow64FsRedirection_t wow64EnableWow64FsRedirection = (Wow64EnableWow64FsRedirection_t) GetProcAddress (GetHandleDLL_kernel32(), "Wow64EnableWow64FsRedirection");
+	//this can not ever be not loaded so it is safe...
+	Wow64EnableWow64FsRedirection_t wow64EnableWow64FsRedirection = (Wow64EnableWow64FsRedirection_t) GetProcAddress (GetModuleHandle ("kernel32"), "Wow64EnableWow64FsRedirection");
 
     if (!wow64EnableWow64FsRedirection)
 		return FALSE;
