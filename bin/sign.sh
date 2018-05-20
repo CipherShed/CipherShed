@@ -35,7 +35,7 @@ if [ ! ${#modes[@]} -gt 0 ]; then
 	exitmsg 1 'no mode(s) set'
 fi
 
-VERSION=$(echo '_CS_VERSION_DOTTED_5STR' | cpp -P -x c -include "$DIR/src/include/version.h")
+VERSION=$(echo '_CS_VERSION_DOTTED_5RAW' | cpp -P -x c -include "$DIR/src/include/version.h")
 
 . "$DIR"/etc/sign.conf
 [ -e "$DIR"/etc/local/sign.conf ] && . "$DIR"/etc/local/sign.conf
