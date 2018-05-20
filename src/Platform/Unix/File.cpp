@@ -33,21 +33,6 @@
 
 namespace CipherShed
 {
-#if 0
-#	define TC_TRACE_FILE_OPERATIONS
-
-	static void TraceFileOperation (int fileHandle, FilePath filePath, bool write, uint64 length, int64 position = -1)
-	{
-		string path = filePath;
-		if (path.empty() || path.find ("ciphershed_aux_mnt") != string::npos)
-			return;
-
-		stringstream s;
-		s << path << ": " << (write ? "W " : "R ") << (position == -1 ? lseek (fileHandle, 0, SEEK_CUR) : position) << " (" << length << ")";
-		SystemLog::WriteError (s.str());
-	}
-#endif
-
 	void File::Close ()
 	{
 		if_debug (ValidateState());
@@ -229,52 +214,6 @@ namespace CipherShed
 
 		FileHandle = open (string (path).c_str(), sysFlags, S_IRUSR | S_IWUSR);
 		throw_sys_sub_if (FileHandle == -1, wstring (path));
-
-#if 0 // File locking is disabled to avoid remote filesystem locking issues
-		try
-		{
-			struct flock fl;
-			memset (&fl, 0, sizeof (fl));
-			fl.l_whence = SEEK_SET;
-			fl.l_start = 0;
-			fl.l_len = 0;
-
-			switch (shareMode)
-			{
-			case ShareNone:
-				fl.l_type = F_WRLCK;
-				if (fcntl (FileHandle, F_SETLK, &fl) == -1)
-					throw_sys_sub_if (errno == EAGAIN || errno == EACCES, wstring (path));
-				break;
-
-			case ShareRead:
-				fl.l_type = F_RDLCK;
-				if (fcntl (FileHandle, F_SETLK, &fl) == -1)
-					throw_sys_sub_if (errno == EAGAIN || errno == EACCES, wstring (path));
-				break;
-
-			case ShareReadWrite:
-				fl.l_type = (mode == OpenRead ? F_RDLCK : F_WRLCK);
-				if (fcntl (FileHandle, F_GETLK, &fl) != -1 && fl.l_type != F_UNLCK)
-				{
-					errno = EAGAIN;
-					throw SystemException (SRC_POS, wstring (path));
-				}
-				break;
-			
-			case ShareReadWriteIgnoreLock:
-				break;
-
-			default:
-				throw ParameterIncorrect (SRC_POS);
-			}
-		}
-		catch (...)
-		{
-			close (FileHandle);
-			throw;
-		}
-#endif // 0
 
 		Path = path;
 		mFileOpenFlags = flags;

@@ -59,12 +59,6 @@ namespace CipherShed
 		AppendToList ("MODE_OF_OPERATION", volumeInfo.EncryptionModeName);
 		AppendToList ("PKCS5_PRF", volumeInfo.Pkcs5PrfName);
 
-#if 0
-		AppendToList ("PKCS5_ITERATIONS", StringConverter::FromNumber (volumeInfo.Pkcs5IterationCount));
-		AppendToList ("VOLUME_CREATE_DATE", Gui->VolumeTimeToString (volumeInfo.VolumeCreationTime));
-		AppendToList ("VOLUME_HEADER_DATE", Gui->VolumeTimeToString (volumeInfo.HeaderCreationTime));
-#endif
-
 		AppendToList ("VOLUME_FORMAT_VERSION", StringConverter::ToWide (volumeInfo.MinRequiredProgramVersion < 0x600 ? 1 : 2));
 		AppendToList ("BACKUP_HEADER", LangString[volumeInfo.MinRequiredProgramVersion >= 0x600 ? "UISTR_YES" : "UISTR_NO"]);
 

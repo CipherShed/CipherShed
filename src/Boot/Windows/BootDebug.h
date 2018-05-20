@@ -12,25 +12,11 @@
 #include "Platform.h"
 #include "BootConsoleIo.h"
 
-#if 0
-#	define TC_BOOT_DEBUG_ENABLED
-#endif
-
-#if 0 || defined (TC_BOOT_DEBUG_ENABLED)
+#if defined (TC_BOOT_DEBUG_ENABLED)
 #	define TC_BOOT_STACK_CHECKING_ENABLED
 	extern "C" void CheckStack ();
 #else
 #	define CheckStack()
-#endif
-
-#if 0
-#	define TC_BOOT_TRACING_ENABLED
-#	if 1
-#		define TC_TRACE_INT13
-#	endif
-#	if 0
-#		define TC_TRACE_INT15
-#	endif
 #endif
 
 #ifdef TC_BOOT_DEBUG_ENABLED

@@ -27,18 +27,6 @@ namespace CipherShed
 	{
 		shared_ptr <Stream> stream (new MemoryStream);
 
-#if 0
-		make_shared_auto (File, file);
-		finally_do_arg (File&, *file, { if (finally_arg.IsOpen()) finally_arg.Delete(); });
-
-		try
-		{
-			file->Open ("ciphershed-serializer-test.tmp", File::CreateReadWrite);
-			stream = shared_ptr <Stream> (new FileStream (file));
-		}
-		catch (...) { }
-#endif
-
 		Serializer ser (stream);
 
 		uint32 i32 = 0x12345678;
@@ -90,11 +78,6 @@ namespace CipherShed
 		exList.push_back (make_shared <ExecutedProcessFailed> (ExecutedProcessFailed (SRC_POS, "cmd", -234, "error output2")));
 		exList.push_back (make_shared <ExecutedProcessFailed> (ExecutedProcessFailed (SRC_POS, "cmd", -567, "error output3")));
 		Serializable::SerializeList (stream, exList);
-
-#if 0
-		if (file->IsOpen())
-			file->SeekAt (0);
-#endif
 
 		uint32 di32;
 		ser.Deserialize ("int32", di32);

@@ -757,10 +757,6 @@ PCRYPTO_INFO crypto_open ()
 
 #else // TC_WINDOWS_BOOT
 
-#if 0
-	if (CryptoInfoBufferInUse)
-		TC_THROW_FATAL_EXCEPTION;
-#endif
 	CryptoInfoBufferInUse = 1;
 	return &CryptoInfoBuffer;
 

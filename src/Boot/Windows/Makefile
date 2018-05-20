@@ -48,11 +48,7 @@ LFLAGS = $(LFLAGS) /NOD /NOE /TINY
 OBJS = $(OUTDIR)\BootCrt.obj
 LIBS = slibce
 
-!if 1
 SRCDIR = ..
-!else
-SRCDIR = $(MAKEDIR)
-!endif
 
 TARGETS = $(TARGETS) $(OUTDIR)\$(PROJ).$(TARGETEXT)
 

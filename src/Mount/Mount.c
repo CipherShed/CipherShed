@@ -2873,54 +2873,6 @@ BOOL CALLBACK VolumePropertiesDlgProc (HWND hwndDlg, UINT msg, WPARAM wParam, LP
 			ListItemAddW (list, i, GetString ("PKCS5_PRF"));
 			ListSubItemSet (list, i++, 1, get_pkcs5_prf_name (prop.pkcs5));
 
-#if 0
-			// PCKS 5 iterations
-			ListItemAddW (list, i, GetString ("PKCS5_ITERATIONS"));
-			sprintf (szTmp, "%d", prop.pkcs5Iterations);
-			ListSubItemSet (list, i++, 1, szTmp);
-#endif
-
-#if 0
-			{
-				// Legacy
-
-				FILETIME ft, curFt;
-				LARGE_INTEGER ft64, curFt64;
-				SYSTEMTIME st;
-				wchar_t date[128];
-				memset (date, 0, sizeof (date));
-
-				// Volume date
-				ListItemAddW (list, i, GetString ("VOLUME_CREATE_DATE"));
-				*(unsigned __int64 *)(&ft) = prop.volumeCreationTime;
-				FileTimeToSystemTime (&ft, &st);
-				GetDateFormatW (LOCALE_USER_DEFAULT, 0, &st, 0, sw, sizeof (sw)/2);
-				swprintf (date, L"%s ", sw);
-				GetTimeFormatW (LOCALE_USER_DEFAULT, 0, &st, 0, sw, sizeof (sw)/2);
-				wcscat (date, sw);
-				ListSubItemSetW (list, i++, 1, date);
-
-				// Header date
-				ListItemAddW (list, i, GetString ("VOLUME_HEADER_DATE"));
-				*(unsigned __int64 *)(&ft) = prop.headerCreationTime;
-				FileTimeToSystemTime (&ft, &st);
-				GetDateFormatW (LOCALE_USER_DEFAULT, 0, &st, 0, sw, sizeof (sw)/2);
-				swprintf (date, L"%s ", sw);
-				GetTimeFormatW (LOCALE_USER_DEFAULT, 0, &st, 0, sw, sizeof (sw)/2);
-				wcscat (date, sw);
-
-				GetLocalTime (&st);
-				SystemTimeToFileTime (&st, &curFt);
-				curFt64.HighPart = curFt.dwHighDateTime;
-				curFt64.LowPart = curFt.dwLowDateTime;
-				ft64.HighPart = ft.dwHighDateTime;
-				ft64.LowPart = ft.dwLowDateTime;
-				swprintf (date + wcslen (date),  GetString ("VOLUME_HEADER_DAYS")
-					, (curFt64.QuadPart - ft64.QuadPart)/(24LL*3600*10000000));
-				ListSubItemSetW (list, i++, 1, date);
-			}
-#endif // 0
-
 			if (!bSysEnc || IsHiddenOSRunning())
 			{
 				// Volume format version

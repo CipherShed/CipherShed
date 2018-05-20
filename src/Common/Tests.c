@@ -1540,12 +1540,6 @@ static BOOL DoAutoTestAlgorithms (void)
 	if (!crc32_selftests ())
 		bFailed = TRUE;
 
-	/* GF multiplicator */
-#if 0
-	if (!GfMulSelfTest ())
-		bFailed = TRUE;
-#endif
-
 	/* XTS-AES */
 	if (!XTSAesTest (ci))
 		bFailed = TRUE;
@@ -1690,13 +1684,6 @@ BOOL test_pkcs5 ()
 	derive_key_sha1 ("password", 8, "\x12\x34\x56\x78", 4, 5, dk, 4);
 	if (memcmp (dk, "\x5c\x75\xce\xf0", 4) != 0)
 		return FALSE;
-
-#if 0	// This test is disabled because it uses 1200 iterations (to prevent startup slowdown)
-	/* PKCS-5 test 3 with HMAC-SHA-1 (deprecated/legacy) used as the PRF */
-	derive_key_sha1 ("password", 8, "ATHENA.MIT.EDUraeburn", 21, 1200, dk, 16);
-	if (memcmp (dk, "\x5c\x08\xeb\x61\xfd\xf7\x1e\x4e\x4e\xc3\xcf\x6b\xa1\xf5\x51\x2b", 16) != 0)
-		return FALSE;
-#endif
 
 	/* PKCS-5 test 1 with HMAC-RIPEMD-160 used as the PRF */
 	derive_key_ripemd160 ("password", 8, "\x12\x34\x56\x78", 4, 5, dk, 4);

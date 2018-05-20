@@ -972,12 +972,6 @@ NTSTATUS ProcessMainDeviceControlIrp (PDEVICE_OBJECT DeviceObject, PEXTENSION Ex
 				ZwClose (NtFileHandle);
 				Dump ("Open test on file %ls success.\n", opentest->wszFileName);
 			}
-			else
-			{
-#if 0
-				Dump ("Open test on file %ls failed NTSTATUS 0x%08x\n", opentest->wszFileName, ntStatus);
-#endif
-			}
 
 			Irp->IoStatus.Information = NT_SUCCESS (ntStatus) ? sizeof (OPEN_TEST_STRUCT) : 0;
 			Irp->IoStatus.Status = ntStatus;
@@ -1208,10 +1202,6 @@ NTSTATUS ProcessMainDeviceControlIrp (PDEVICE_OBJECT DeviceObject, PEXTENSION Ex
 					prop->mode = ListExtension->cryptoInfo->mode;
 					prop->pkcs5 = ListExtension->cryptoInfo->pkcs5;
 					prop->pkcs5Iterations = ListExtension->cryptoInfo->noIterations;
-#if 0
-					prop->volumeCreationTime = ListExtension->cryptoInfo->volume_creation_time;
-					prop->headerCreationTime = ListExtension->cryptoInfo->header_creation_time;
-#endif
 					prop->volumeHeaderFlags = ListExtension->cryptoInfo->HeaderFlags;
 					prop->readOnly = ListExtension->bReadOnly;
 					prop->removable = ListExtension->bRemovable;

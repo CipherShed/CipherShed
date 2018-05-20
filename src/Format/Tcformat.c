@@ -7149,14 +7149,6 @@ retryCDDriveCheck:
 				{
 					WaitCursor();
 
-#if 0
-					// Make sure the Rescue Disk is not in the drive
-					while (BootEncObj->VerifyRescueDisk ())
-					{
-						Error ("REMOVE_RESCUE_DISK_FROM_DRIVE");
-					}
-#endif
-
 					BootEncObj->Install (bHiddenOS ? true : false);
 				}
 				catch (Exception &e)

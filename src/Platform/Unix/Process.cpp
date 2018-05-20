@@ -31,14 +31,6 @@ namespace CipherShed
 		if (array_capacity (args) <= arguments.size())
 			throw ParameterTooLarge (SRC_POS);
 
-#if 0
-		stringstream dbg;
-		dbg << "exec " << processName;
-		foreach (const string &at, arguments)
-			dbg << " " << at;
-		trace_msg (dbg.str());
-#endif
-
 		Pipe inPipe, outPipe, errPipe, exceptionPipe;
 
 		int forkedPid = fork();

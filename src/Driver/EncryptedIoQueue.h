@@ -12,10 +12,6 @@
 #include "../Common/Tcdefs.h"
 #include "../Common/Apidrvr.h"
 
-#if 0
-#	define TC_TRACE_IO_QUEUE
-#endif
-
 #define TC_ENC_IO_QUEUE_MAX_FRAGMENT_SIZE (256 * 1024)
 
 #define TC_ENC_IO_QUEUE_PREALLOCATED_ITEM_COUNT 8

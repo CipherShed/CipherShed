@@ -27,11 +27,6 @@
 #		define TC__BOOT_MEMORY_REQUIRED		40
 #	endif
 
-#if 0
-#	undef TC__BOOT_MEMORY_REQUIRED
-#	define TC__BOOT_MEMORY_REQUIRED 60
-#endif
-
 #endif
 
 // Modifying this value can introduce incompatibility with previous versions

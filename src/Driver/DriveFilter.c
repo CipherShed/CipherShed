@@ -679,17 +679,6 @@ static NTSTATUS DispatchPower (PDEVICE_OBJECT DeviceObject, PIRP Irp, DriveFilte
 		while (SendDeviceIoControlRequest (RootDeviceObject, TC_IOCTL_ABORT_BOOT_ENCRYPTION_SETUP, NULL, 0, NULL, 0) == STATUS_INSUFFICIENT_RESOURCES);
 	}
 
-#if 0	// Dismount of the system drive is disabled until there is a way to do it without causing system errors (see the documentation for more info)
-	if (DriverShuttingDown
-		&& Extension->BootDrive
-		&& Extension->DriveMounted
-		&& irpSp->MinorFunction == IRP_MN_SET_POWER
-		&& irpSp->Parameters.Power.Type == DevicePowerState)
-	{
-		DismountDrive (Extension, TRUE);
-	}
-#endif // 0
-
 	PoStartNextPowerIrp (Irp);
 
 	status = IoAcquireRemoveLock (&Extension->Queue.RemoveLock, Irp);
@@ -1522,10 +1511,6 @@ void GetBootDriveVolumeProperties (PIRP irp, PIO_STACK_LOCATION irpSp)
 			prop->mode = Extension->Queue.CryptoInfo->mode;
 			prop->pkcs5 = Extension->Queue.CryptoInfo->pkcs5;
 			prop->pkcs5Iterations = Extension->Queue.CryptoInfo->noIterations;
-#if 0
-			prop->volumeCreationTime = Extension->Queue.CryptoInfo->volume_creation_time;
-			prop->headerCreationTime = Extension->Queue.CryptoInfo->header_creation_time;
-#endif
 			prop->volFormatVersion = Extension->Queue.CryptoInfo->LegacyVolume ? TC_VOLUME_FORMAT_VERSION_PRE_6_0 : TC_VOLUME_FORMAT_VERSION;
 
 			prop->totalBytesRead = Extension->Queue.TotalBytesRead;

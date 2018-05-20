@@ -24,10 +24,6 @@
 
 #include "../Common/Cache.h"
 
-#if 0 && _DEBUG
-#define EXTRA_INFO 1
-#endif
-
 #pragma warning( disable : 4127 )
 
 volatile BOOL ProbingHostDeviceForWrite = FALSE;
