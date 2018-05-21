@@ -98,7 +98,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="md &quot;..\Debug\Setup Files&quot; 2&gt;NUL:&#x0D;&#x0A;copy Debug\CipherShedFormat.exe &quot;..\Debug\Setup Files\CipherShed-Format.exe&quot;&#x0D;&#x0A;"
+				CommandLine="echo on&#x0D;&#x0A;set ConfigurationName=$(ConfigurationName)&#x0D;&#x0A;set Configuration=$(Configuration)&#x0D;&#x0A;set IntDir=$(IntDir)&#x0D;&#x0A;set OutDir=$(OutDir)&#x0D;&#x0A;set PlatformName=$(PlatformName)&#x0D;&#x0A;cd &quot;$(ProjectDir)&quot;&#x0D;&#x0A;make VCPostBuildEventTool"
 			/>
 		</Configuration>
 		<Configuration
@@ -186,7 +186,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="md &quot;..\Release\Setup Files&quot; 2&gt;NUL:&#x0D;&#x0A;copy Release\CipherShedFormat.exe &quot;..\Release\Setup Files\CipherShed-Format.exe&quot;&#x0D;&#x0A;"
+				CommandLine="echo on&#x0D;&#x0A;set ConfigurationName=$(ConfigurationName)&#x0D;&#x0A;set Configuration=$(Configuration)&#x0D;&#x0A;set IntDir=$(IntDir)&#x0D;&#x0A;set OutDir=$(OutDir)&#x0D;&#x0A;set PlatformName=$(PlatformName)&#x0D;&#x0A;cd &quot;$(ProjectDir)&quot;&#x0D;&#x0A;make VCPostBuildEventTool"
 			/>
 		</Configuration>
 	</Configurations>

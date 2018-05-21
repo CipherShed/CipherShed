@@ -99,7 +99,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="md &quot;..\Debug\Setup Files&quot; 2&gt;NUL:&#x0D;&#x0A;copy Debug\CipherShedSetup.exe &quot;..\Debug\Setup Files\CipherShed-Setup.exe&quot; &gt;NUL:&#x0D;&#x0A;copy ..\..\doc\userdocs\guide\CipherShed-User-Guide-0.7.4.1.pdf &quot;..\Debug\Setup Files\CipherShed User Guide.pdf&quot;&#x0D;&#x0A;copy ..\License.txt &quot;..\Debug\Setup Files\&quot;&#x0D;&#x0A;"
+				CommandLine="echo on&#x0D;&#x0A;set ConfigurationName=$(ConfigurationName)&#x0D;&#x0A;set Configuration=$(Configuration)&#x0D;&#x0A;set IntDir=$(IntDir)&#x0D;&#x0A;set OutDir=$(OutDir)&#x0D;&#x0A;set PlatformName=$(PlatformName)&#x0D;&#x0A;cd &quot;$(ProjectDir)&quot;&#x0D;&#x0A;set | sort&#x0D;&#x0A;make VCPostBuildEventTool"
 			/>
 		</Configuration>
 		<Configuration
@@ -187,7 +187,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy Release\CipherShedSetup.exe &quot;..\Release\Setup Files\CipherShed-Setup.exe&quot;&#x0D;&#x0A;copy ..\..\doc\userdocs\guide\CipherShed-User-Guide-0.7.4.1.pdf &quot;..\Release\Setup Files\CipherShed User Guide.pdf&quot;&#x0D;&#x0A;copy ..\License.txt &quot;..\Release\Setup Files\&quot;&#x0D;&#x0A;"
+				CommandLine="echo on&#x0D;&#x0A;set ConfigurationName=$(ConfigurationName)&#x0D;&#x0A;set Configuration=$(Configuration)&#x0D;&#x0A;set IntDir=$(IntDir)&#x0D;&#x0A;set OutDir=$(OutDir)&#x0D;&#x0A;set PlatformName=$(PlatformName)&#x0D;&#x0A;cd &quot;$(ProjectDir)&quot;&#x0D;&#x0A;set | sort&#x0D;&#x0A;make VCPostBuildEventTool"
 			/>
 		</Configuration>
 	</Configurations>

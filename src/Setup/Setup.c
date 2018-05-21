@@ -522,7 +522,7 @@ err:
 		}
 
 		SetCurrentDirectory (SetupFilesDir);
-		SetCurrentDirectory ("Setup files");
+		SetCurrentDirectory ("Setupfiles");
 		h = FindFirstFile ("CipherShed User Guide.*.pdf", &f);
 		if (h != INVALID_HANDLE_VALUE)
 		{
