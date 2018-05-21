@@ -1,0 +1,5 @@
+.PHONY: TESTGNU
+
+TESTGNU:
+	echo GNUMAKE
+

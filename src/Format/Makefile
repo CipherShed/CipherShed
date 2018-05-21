@@ -1,10 +1,16 @@
-MKDIR_OUT_SETUPFILES = mkdir -p ../Setup/${OutDir}/SetupFiles
+TARGETDIR = ../${OutDir}/SetupFiles
 
-VCPostBuildEventTool: ../${OutDir}/SetupFiles/CipherShed-Format
+TARGETFILE = ${TARGETDIR}/CipherShed-Format
 
-../${OutDir}/SetupFiles/CipherShed-Format: ${OutDir}/CipherShedFormat
+SOURCEFILE = ${OutDir}/CipherShedFormat
+
+MKDIR_OUT_SETUPFILES = mkdir -p ${TARGETDIR}
+
+VCPostBuildEventTool: ${TARGETFILE}
+
+${TARGETFILE}: ${SOURCEFILE}
 	${MKDIR_OUT_SETUPFILES}
-	cp ${OutDir}/CipherShedFormat ../${OutDir}/SetupFiles/CipherShed-Format
+	cp ${SOURCEFILE} ${TARGETFILE}
 
 .PHONY: VCPostBuildEventTool
 

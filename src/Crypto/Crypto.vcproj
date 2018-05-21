@@ -167,7 +167,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="echo $(InputFileName) &amp; nasm.exe -Xvc -f win32 -Ox -g --prefix _ -o &quot;$(TargetDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
+						CommandLine="echo on&#x0D;&#x0A;set ConfigurationName=$(ConfigurationName)&#x0D;&#x0A;set Configuration=$(Configuration)&#x0D;&#x0A;set IntDir=$(IntDir)&#x0D;&#x0A;set OutDir=$(OutDir)&#x0D;&#x0A;set PlatformName=$(PlatformName)&#x0D;&#x0A;cd &quot;$(ProjectDir)&quot;&#x0D;&#x0A;make $(OutDir)/$(InputName).obj"
 						Outputs="$(TargetDir)\$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -176,7 +176,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="echo $(InputFileName) &amp; nasm.exe -Xvc -f win32 -Ox --prefix _ -o &quot;$(TargetDir)\$(InputName).obj&quot; -l &quot;$(TargetDir)\$(InputName).lst&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
+						CommandLine="echo on&#x0D;&#x0A;set ConfigurationName=$(ConfigurationName)&#x0D;&#x0A;set Configuration=$(Configuration)&#x0D;&#x0A;set IntDir=$(IntDir)&#x0D;&#x0A;set OutDir=$(OutDir)&#x0D;&#x0A;set PlatformName=$(PlatformName)&#x0D;&#x0A;cd &quot;$(ProjectDir)&quot;&#x0D;&#x0A;make $(OutDir)/$(InputName).obj"
 						Outputs="$(TargetDir)\$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -189,7 +189,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="echo $(InputFileName) &amp; nasm.exe -Xvc -f win32 -Ox -g --prefix _ -o &quot;$(TargetDir)\$(InputName).obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
+						CommandLine="echo on&#x0D;&#x0A;set ConfigurationName=$(ConfigurationName)&#x0D;&#x0A;set Configuration=$(Configuration)&#x0D;&#x0A;set IntDir=$(IntDir)&#x0D;&#x0A;set OutDir=$(OutDir)&#x0D;&#x0A;set PlatformName=$(PlatformName)&#x0D;&#x0A;cd &quot;$(ProjectDir)&quot;&#x0D;&#x0A;make $(OutDir)/$(InputName).obj"
 						Outputs="$(TargetDir)\$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -198,7 +198,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="echo $(InputFileName) &amp; nasm.exe -Xvc -f win32 -Ox --prefix _ -o &quot;$(TargetDir)\$(InputName).obj&quot; -l &quot;$(TargetDir)\$(InputName).lst&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
+						CommandLine="echo on&#x0D;&#x0A;set ConfigurationName=$(ConfigurationName)&#x0D;&#x0A;set Configuration=$(Configuration)&#x0D;&#x0A;set IntDir=$(IntDir)&#x0D;&#x0A;set OutDir=$(OutDir)&#x0D;&#x0A;set PlatformName=$(PlatformName)&#x0D;&#x0A;cd &quot;$(ProjectDir)&quot;&#x0D;&#x0A;make $(OutDir)/$(InputName).obj"
 						Outputs="$(TargetDir)\$(InputName).obj"
 					/>
 				</FileConfiguration>

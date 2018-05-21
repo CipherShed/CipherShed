@@ -25,9 +25,9 @@
 			>
 			<Tool
 				Name="VCNMakeTool"
-				BuildCommandLine="echo ------ Building truecrypt.sys: Debug x86 ------&#x0D;&#x0A;cmd.exe /c BuildDriver.cmd -build -debug -x86 &quot;$(SolutionDir)\Common&quot; &quot;$(SolutionDir)\Crypto&quot; &quot;$(ProjectDir)&quot;&#x0D;&#x0A;if errorlevel 1 exit %errorlevel%&#x0D;&#x0A;echo.&#x0D;&#x0A;echo ------ Building truecrypt.sys: Debug x64 ------&#x0D;&#x0A;BuildDriver.cmd -build -debug -x64 &quot;$(SolutionDir)\Common&quot; &quot;$(SolutionDir)\Crypto&quot; &quot;$(ProjectDir)&quot;"
-				ReBuildCommandLine="echo ------ Rebuilding truecrypt.sys: Debug x86 ------&#x0D;&#x0A;cmd.exe /c BuildDriver.cmd -rebuild -debug -x86 &quot;$(SolutionDir)\Common&quot; &quot;$(SolutionDir)\Crypto&quot; &quot;$(ProjectDir)&quot;&#x0D;&#x0A;if errorlevel 1 exit %errorlevel%&#x0D;&#x0A;echo.&#x0D;&#x0A;echo ------ Rebuilding truecrypt.sys: Debug x64 ------&#x0D;&#x0A;BuildDriver.cmd -rebuild -debug -x64 &quot;$(SolutionDir)\Common&quot; &quot;$(SolutionDir)\Crypto&quot; &quot;$(ProjectDir)&quot;"
-				CleanCommandLine="echo ------ Cleaning truecrypt.sys: Debug x86 ------&#x0D;&#x0A;cmd.exe /c BuildDriver.cmd -clean -debug -x86 &quot;$(SolutionDir)\Common&quot; &quot;$(SolutionDir)\Crypto&quot; &quot;$(ProjectDir)&quot;&#x0D;&#x0A;if errorlevel 1 exit %errorlevel%&#x0D;&#x0A;echo.&#x0D;&#x0A;echo ------ Cleaning truecrypt.sys: Debug x64 ------&#x0D;&#x0A;BuildDriver.cmd -clean -debug -x64 &quot;$(SolutionDir)\Common&quot; &quot;$(SolutionDir)\Crypto&quot; &quot;$(ProjectDir)&quot;"
+				BuildCommandLine="echo on&#x0D;&#x0A;set ConfigurationName=$(ConfigurationName)&#x0D;&#x0A;set Configuration=$(Configuration)&#x0D;&#x0A;set IntDir=$(IntDir)&#x0D;&#x0A;set OutDir=$(OutDir)&#x0D;&#x0A;set PlatformName=$(PlatformName)&#x0D;&#x0A;cd &quot;$(ProjectDir)&quot;&#x0D;&#x0A;make BuildCommandLine"
+				ReBuildCommandLine="echo on&#x0D;&#x0A;set ConfigurationName=$(ConfigurationName)&#x0D;&#x0A;set Configuration=$(Configuration)&#x0D;&#x0A;set IntDir=$(IntDir)&#x0D;&#x0A;set OutDir=$(OutDir)&#x0D;&#x0A;set PlatformName=$(PlatformName)&#x0D;&#x0A;cd &quot;$(ProjectDir)&quot;&#x0D;&#x0A;make ReBuildCommandLine"
+				CleanCommandLine="echo on&#x0D;&#x0A;set ConfigurationName=$(ConfigurationName)&#x0D;&#x0A;set Configuration=$(Configuration)&#x0D;&#x0A;set IntDir=$(IntDir)&#x0D;&#x0A;set OutDir=$(OutDir)&#x0D;&#x0A;set PlatformName=$(PlatformName)&#x0D;&#x0A;cd &quot;$(ProjectDir)&quot;&#x0D;&#x0A;make CleanCommandLine"
 				Output=""
 				PreprocessorDefinitions="DEBUG;_DEBUG;TC_WINDOWS_DRIVER"
 				IncludeSearchPath="&quot;$(ProjectDir)&quot;;&quot;$(SolutionDir)&quot;;&quot;$(SolutionDir)\Common&quot;;&quot;$(SolutionDir)\Crypto&quot;;&quot;$(WINDDK_ROOT)\inc\ddk&quot;;&quot;$(WINDDK_ROOT)\inc\api&quot;"
@@ -46,9 +46,9 @@
 			>
 			<Tool
 				Name="VCNMakeTool"
-				BuildCommandLine="echo ------ Building truecrypt.sys: Release x86 ------&#x0D;&#x0A;cmd.exe /c BuildDriver.cmd -build -release -x86 &quot;$(SolutionDir)\Common&quot; &quot;$(SolutionDir)\Crypto&quot; &quot;$(ProjectDir)&quot;&#x0D;&#x0A;if errorlevel 1 exit %errorlevel%&#x0D;&#x0A;echo.&#x0D;&#x0A;echo ------ Building truecrypt.sys: Release x64 ------&#x0D;&#x0A;BuildDriver.cmd -build -release -x64 &quot;$(SolutionDir)\Common&quot; &quot;$(SolutionDir)\Crypto&quot; &quot;$(ProjectDir)&quot;"
-				ReBuildCommandLine="echo ------ Rebuilding truecrypt.sys: Release x86 ------&#x0D;&#x0A;cmd.exe /c BuildDriver.cmd -rebuild -release -x86 &quot;$(SolutionDir)\Common&quot; &quot;$(SolutionDir)\Crypto&quot; &quot;$(ProjectDir)&quot;&#x0D;&#x0A;if errorlevel 1 exit %errorlevel%&#x0D;&#x0A;echo.&#x0D;&#x0A;echo ------ Rebuilding truecrypt.sys: Release x64 ------&#x0D;&#x0A;BuildDriver.cmd -rebuild -release -x64 &quot;$(SolutionDir)\Common&quot; &quot;$(SolutionDir)\Crypto&quot; &quot;$(ProjectDir)&quot;"
-				CleanCommandLine="echo ------ Cleaning truecrypt.sys: Release x86 ------&#x0D;&#x0A;cmd.exe /c BuildDriver.cmd -clean -release -x86 &quot;$(SolutionDir)\Common&quot; &quot;$(SolutionDir)\Crypto&quot; &quot;$(ProjectDir)&quot;&#x0D;&#x0A;if errorlevel 1 exit %errorlevel%&#x0D;&#x0A;echo.&#x0D;&#x0A;echo ------ Cleaning truecrypt.sys: Release x64 ------&#x0D;&#x0A;BuildDriver.cmd -clean -release -x64 &quot;$(SolutionDir)\Common&quot; &quot;$(SolutionDir)\Crypto&quot; &quot;$(ProjectDir)&quot;"
+				BuildCommandLine="echo on&#x0D;&#x0A;set ConfigurationName=$(ConfigurationName)&#x0D;&#x0A;set Configuration=$(Configuration)&#x0D;&#x0A;set IntDir=$(IntDir)&#x0D;&#x0A;set OutDir=$(OutDir)&#x0D;&#x0A;set PlatformName=$(PlatformName)&#x0D;&#x0A;cd &quot;$(ProjectDir)&quot;&#x0D;&#x0A;make BuildCommandLine"
+				ReBuildCommandLine="echo on&#x0D;&#x0A;set ConfigurationName=$(ConfigurationName)&#x0D;&#x0A;set Configuration=$(Configuration)&#x0D;&#x0A;set IntDir=$(IntDir)&#x0D;&#x0A;set OutDir=$(OutDir)&#x0D;&#x0A;set PlatformName=$(PlatformName)&#x0D;&#x0A;cd &quot;$(ProjectDir)&quot;&#x0D;&#x0A;make ReBuildCommandLine"
+				CleanCommandLine="echo on&#x0D;&#x0A;set ConfigurationName=$(ConfigurationName)&#x0D;&#x0A;set Configuration=$(Configuration)&#x0D;&#x0A;set IntDir=$(IntDir)&#x0D;&#x0A;set OutDir=$(OutDir)&#x0D;&#x0A;set PlatformName=$(PlatformName)&#x0D;&#x0A;cd &quot;$(ProjectDir)&quot;&#x0D;&#x0A;make CleanCommandLine"
 				Output=""
 				PreprocessorDefinitions="TC_WINDOWS_DRIVER"
 				IncludeSearchPath="&quot;$(ProjectDir)&quot;;&quot;$(SolutionDir)&quot;;&quot;$(SolutionDir)\Common&quot;;&quot;$(SolutionDir)\Crypto&quot;;&quot;$(WINDDK_ROOT)\inc\ddk&quot;;&quot;$(WINDDK_ROOT)\inc\api&quot;"
@@ -67,9 +67,9 @@
 			>
 			<Tool
 				Name="VCNMakeTool"
-				BuildCommandLine="BuildDriver.cmd -build -release -x86 &quot;$(SolutionDir)\Common&quot; &quot;$(SolutionDir)\Crypto&quot; &quot;$(ProjectDir)&quot;"
-				ReBuildCommandLine="BuildDriver.cmd -rebuild -release -x86 &quot;$(SolutionDir)\Common&quot; &quot;$(SolutionDir)\Crypto&quot; &quot;$(ProjectDir)&quot;"
-				CleanCommandLine="BuildDriver.cmd -clean -release -x86 &quot;$(SolutionDir)\Common&quot; &quot;$(SolutionDir)\Crypto&quot; &quot;$(ProjectDir)&quot;"
+				BuildCommandLine="echo on&#x0D;&#x0A;set ConfigurationName=$(ConfigurationName)&#x0D;&#x0A;set Configuration=$(Configuration)&#x0D;&#x0A;set IntDir=$(IntDir)&#x0D;&#x0A;set OutDir=$(OutDir)&#x0D;&#x0A;set PlatformName=$(PlatformName)&#x0D;&#x0A;cd &quot;$(ProjectDir)&quot;&#x0D;&#x0A;make BuildCommandLine"
+				ReBuildCommandLine="echo on&#x0D;&#x0A;set ConfigurationName=$(ConfigurationName)&#x0D;&#x0A;set Configuration=$(Configuration)&#x0D;&#x0A;set IntDir=$(IntDir)&#x0D;&#x0A;set OutDir=$(OutDir)&#x0D;&#x0A;set PlatformName=$(PlatformName)&#x0D;&#x0A;cd &quot;$(ProjectDir)&quot;&#x0D;&#x0A;make ReBuildCommandLine"
+				CleanCommandLine="echo on&#x0D;&#x0A;set ConfigurationName=$(ConfigurationName)&#x0D;&#x0A;set Configuration=$(Configuration)&#x0D;&#x0A;set IntDir=$(IntDir)&#x0D;&#x0A;set OutDir=$(OutDir)&#x0D;&#x0A;set PlatformName=$(PlatformName)&#x0D;&#x0A;cd &quot;$(ProjectDir)&quot;&#x0D;&#x0A;make CleanCommandLine"
 				Output=""
 				PreprocessorDefinitions="TC_WINDOWS_DRIVER"
 				IncludeSearchPath="&quot;$(ProjectDir)&quot;;&quot;$(SolutionDir)&quot;;&quot;$(SolutionDir)\Common&quot;;&quot;$(SolutionDir)\Crypto&quot;;&quot;$(WINDDK_ROOT)\inc\ddk&quot;;&quot;$(WINDDK_ROOT)\inc\api&quot;"
@@ -88,9 +88,9 @@
 			>
 			<Tool
 				Name="VCNMakeTool"
-				BuildCommandLine="if exist $(SolutionDir)\Mount\Debug\CipherShed.exe ( copy $(SolutionDir)\Mount\Debug\CipherShed.exe $(ProjectDir)\obj_driver_debug\i386\CipherShed.exe &gt;NUL:&#x0D;&#x0A;) else ( copy $(SolutionDir)\Mount\Release\CipherShed.exe $(ProjectDir)\obj_driver_debug\i386\CipherShed.exe &gt;NUL: )&#x0D;&#x0A;&#x0D;&#x0A;BuildDriver.cmd -build -debug -x86 &quot;$(SolutionDir)\Common&quot; &quot;$(SolutionDir)\Crypto&quot; &quot;$(ProjectDir)&quot;"
-				ReBuildCommandLine="if exist $(SolutionDir)\Mount\Debug\CipherShed.exe ( copy $(SolutionDir)\Mount\Debug\CipherShed.exe $(ProjectDir)\obj_driver_debug\i386\CipherShed.exe &gt;NUL:&#x0D;&#x0A;) else ( copy $(SolutionDir)\Mount\Release\CipherShed.exe $(ProjectDir)\obj_driver_debug\i386\CipherShed.exe &gt;NUL: )&#x0D;&#x0A;&#x0D;&#x0A;BuildDriver.cmd -rebuild -debug -x86 &quot;$(SolutionDir)\Common&quot; &quot;$(SolutionDir)\Crypto&quot; &quot;$(ProjectDir)&quot;"
-				CleanCommandLine="BuildDriver.cmd -clean -debug -x86 &quot;$(SolutionDir)\Common&quot; &quot;$(SolutionDir)\Crypto&quot; &quot;$(ProjectDir)&quot;"
+				BuildCommandLine="echo on&#x0D;&#x0A;set ConfigurationName=$(ConfigurationName)&#x0D;&#x0A;set Configuration=$(Configuration)&#x0D;&#x0A;set IntDir=$(IntDir)&#x0D;&#x0A;set OutDir=$(OutDir)&#x0D;&#x0A;set PlatformName=$(PlatformName)&#x0D;&#x0A;cd &quot;$(ProjectDir)&quot;&#x0D;&#x0A;make BuildCommandLine"
+				ReBuildCommandLine="echo on&#x0D;&#x0A;set ConfigurationName=$(ConfigurationName)&#x0D;&#x0A;set Configuration=$(Configuration)&#x0D;&#x0A;set IntDir=$(IntDir)&#x0D;&#x0A;set OutDir=$(OutDir)&#x0D;&#x0A;set PlatformName=$(PlatformName)&#x0D;&#x0A;cd &quot;$(ProjectDir)&quot;&#x0D;&#x0A;make ReBuildCommandLine"
+				CleanCommandLine="echo on&#x0D;&#x0A;set ConfigurationName=$(ConfigurationName)&#x0D;&#x0A;set Configuration=$(Configuration)&#x0D;&#x0A;set IntDir=$(IntDir)&#x0D;&#x0A;set OutDir=$(OutDir)&#x0D;&#x0A;set PlatformName=$(PlatformName)&#x0D;&#x0A;cd &quot;$(ProjectDir)&quot;&#x0D;&#x0A;make CleanCommandLine"
 				Output="$(ProjectDir)\obj_driver_debug\i386\CipherShed.exe"
 				PreprocessorDefinitions="DEBUG;_DEBUG;TC_WINDOWS_DRIVER"
 				IncludeSearchPath="&quot;$(ProjectDir)&quot;;&quot;$(SolutionDir)&quot;;&quot;$(SolutionDir)\Common&quot;;&quot;$(SolutionDir)\Crypto&quot;;&quot;$(WINDDK_ROOT)\inc\ddk&quot;;&quot;$(WINDDK_ROOT)\inc\api&quot;"
@@ -109,9 +109,9 @@
 			>
 			<Tool
 				Name="VCNMakeTool"
-				BuildCommandLine="BuildDriver.cmd -build -release -x64 &quot;$(SolutionDir)\Common&quot; &quot;$(SolutionDir)\Crypto&quot; &quot;$(ProjectDir)&quot;"
-				ReBuildCommandLine="BuildDriver.cmd -rebuild -release -x64 &quot;$(SolutionDir)\Common&quot; &quot;$(SolutionDir)\Crypto&quot; &quot;$(ProjectDir)&quot;"
-				CleanCommandLine="BuildDriver.cmd -clean -release -x64 &quot;$(SolutionDir)\Common&quot; &quot;$(SolutionDir)\Crypto&quot; &quot;$(ProjectDir)&quot;"
+				BuildCommandLine="echo on&#x0D;&#x0A;set ConfigurationName=$(ConfigurationName)&#x0D;&#x0A;set Configuration=$(Configuration)&#x0D;&#x0A;set IntDir=$(IntDir)&#x0D;&#x0A;set OutDir=$(OutDir)&#x0D;&#x0A;set PlatformName=$(PlatformName)&#x0D;&#x0A;cd &quot;$(ProjectDir)&quot;&#x0D;&#x0A;make BuildCommandLine"
+				ReBuildCommandLine="echo on&#x0D;&#x0A;set ConfigurationName=$(ConfigurationName)&#x0D;&#x0A;set Configuration=$(Configuration)&#x0D;&#x0A;set IntDir=$(IntDir)&#x0D;&#x0A;set OutDir=$(OutDir)&#x0D;&#x0A;set PlatformName=$(PlatformName)&#x0D;&#x0A;cd &quot;$(ProjectDir)&quot;&#x0D;&#x0A;make ReBuildCommandLine"
+				CleanCommandLine="echo on&#x0D;&#x0A;set ConfigurationName=$(ConfigurationName)&#x0D;&#x0A;set Configuration=$(Configuration)&#x0D;&#x0A;set IntDir=$(IntDir)&#x0D;&#x0A;set OutDir=$(OutDir)&#x0D;&#x0A;set PlatformName=$(PlatformName)&#x0D;&#x0A;cd &quot;$(ProjectDir)&quot;&#x0D;&#x0A;make CleanCommandLine"
 				Output=""
 				PreprocessorDefinitions="TC_WINDOWS_DRIVER"
 				IncludeSearchPath="&quot;$(ProjectDir)&quot;;&quot;$(SolutionDir)&quot;;&quot;$(SolutionDir)\Common&quot;;&quot;$(SolutionDir)\Crypto&quot;;&quot;$(WINDDK_ROOT)\inc\ddk&quot;;&quot;$(WINDDK_ROOT)\inc\api&quot;"
@@ -130,9 +130,9 @@
 			>
 			<Tool
 				Name="VCNMakeTool"
-				BuildCommandLine="if exist $(SolutionDir)\Mount\Debug\CipherShed.exe ( copy $(SolutionDir)\Mount\Debug\CipherShed.exe $(ProjectDir)\obj_driver_debug\amd64\CipherShed.exe &gt;NUL:&#x0D;&#x0A;) else ( copy $(SolutionDir)\Mount\Release\CipherShed.exe $(ProjectDir)\obj_driver_debug\amd64\CipherShed.exe &gt;NUL: )&#x0D;&#x0A;&#x0D;&#x0A;BuildDriver.cmd -build -debug -x64 &quot;$(SolutionDir)\Common&quot; &quot;$(SolutionDir)\Crypto&quot; &quot;$(ProjectDir)&quot;"
-				ReBuildCommandLine="if exist $(SolutionDir)\Mount\Debug\CipherShed.exe ( copy $(SolutionDir)\Mount\Debug\CipherShed.exe $(ProjectDir)\obj_driver_debug\amd64\CipherShed.exe &gt;NUL:&#x0D;&#x0A;) else ( copy $(SolutionDir)\Mount\Release\CipherShed.exe $(ProjectDir)\obj_driver_debug\amd64\CipherShed.exe &gt;NUL: )&#x0D;&#x0A;&#x0D;&#x0A;BuildDriver.cmd -rebuild -debug -x64 &quot;$(SolutionDir)\Common&quot; &quot;$(SolutionDir)\Crypto&quot; &quot;$(ProjectDir)&quot;"
-				CleanCommandLine="BuildDriver.cmd -clean -debug -x64 &quot;$(SolutionDir)\Common&quot; &quot;$(SolutionDir)\Crypto&quot; &quot;$(ProjectDir)&quot;"
+				BuildCommandLine="echo on&#x0D;&#x0A;set ConfigurationName=$(ConfigurationName)&#x0D;&#x0A;set Configuration=$(Configuration)&#x0D;&#x0A;set IntDir=$(IntDir)&#x0D;&#x0A;set OutDir=$(OutDir)&#x0D;&#x0A;set PlatformName=$(PlatformName)&#x0D;&#x0A;cd &quot;$(ProjectDir)&quot;&#x0D;&#x0A;make BuildCommandLine"
+				ReBuildCommandLine="echo on&#x0D;&#x0A;set ConfigurationName=$(ConfigurationName)&#x0D;&#x0A;set Configuration=$(Configuration)&#x0D;&#x0A;set IntDir=$(IntDir)&#x0D;&#x0A;set OutDir=$(OutDir)&#x0D;&#x0A;set PlatformName=$(PlatformName)&#x0D;&#x0A;cd &quot;$(ProjectDir)&quot;&#x0D;&#x0A;make ReBuildCommandLine"
+				CleanCommandLine="echo on&#x0D;&#x0A;set ConfigurationName=$(ConfigurationName)&#x0D;&#x0A;set Configuration=$(Configuration)&#x0D;&#x0A;set IntDir=$(IntDir)&#x0D;&#x0A;set OutDir=$(OutDir)&#x0D;&#x0A;set PlatformName=$(PlatformName)&#x0D;&#x0A;cd &quot;$(ProjectDir)&quot;&#x0D;&#x0A;make CleanCommandLine"
 				Output="$(ProjectDir)\obj_driver_debug\amd64\CipherShed.exe"
 				PreprocessorDefinitions="DEBUG;_DEBUG;TC_WINDOWS_DRIVER"
 				IncludeSearchPath="&quot;$(ProjectDir)&quot;;&quot;$(SolutionDir)&quot;;&quot;$(SolutionDir)\Common&quot;;&quot;$(SolutionDir)\Crypto&quot;;&quot;$(WINDDK_ROOT)\inc\ddk&quot;;&quot;$(WINDDK_ROOT)\inc\api&quot;"

@@ -24,9 +24,7 @@ set TC_WINDDK_BUILD=7600.16385.1
 
 :: Check for spaces in the current directory path
 
-cd | find " " >NUL:
-
-if %ERRORLEVEL% == 0 (
+if not "x%cd: =%"=="x%cd%" (
 	echo BuildDriver.cmd: error: MS Build does not support building of projects stored in a path containing spaces. >&2
 	exit /B 1
 )
@@ -104,18 +102,17 @@ popd
 
 if "%TC_ARG_CMD%"=="-rebuild" (set TC_BUILD_OPTS=-c -Z)
 
-pushd .
 :build_dirs
-
 	if "%~1"=="" goto done
-	cd /D "%~1" || exit /B %errorlevel%
+	pushd .
+	cd /D "%~f1" || exit /B %errorlevel%
 
 	if "%TC_ARG_CMD%"=="-clean" (
 		rd /s /q obj%TC_BUILD_ALT_DIR%\%TC_BUILD_ARCH_DIR% 2>NUL:
 		rd /q obj%TC_BUILD_ALT_DIR% 2>NUL:
 	) else (
 
-		set USER_C_FLAGS=%TC_C_FLAGS% %TC_C_DISABLED_WARNINGS% -FAcs -Fa%~1\obj%TC_BUILD_ALT_DIR%\%TC_BUILD_ARCH_DIR%\
+		set USER_C_FLAGS=%TC_C_FLAGS% %TC_C_DISABLED_WARNINGS% -FAcs -Fa%~f1\obj%TC_BUILD_ALT_DIR%\%TC_BUILD_ARCH_DIR%\
 		set MSC_WARNING_LEVEL=%TC_C_WARNING_LEVEL%
 		set C_DEFINES=%TC_C_DEFINES%
 		set RCOPTIONS=/I %MFC_INC_PATH%
@@ -135,9 +132,9 @@ pushd .
 
 	shift
 	
+	popd
 goto build_dirs
 :done
-popd
 
 
 if "%TC_ARG_CMD%"=="-clean" exit /B 0
