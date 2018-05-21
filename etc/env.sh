@@ -18,7 +18,7 @@ DEVENVgui="${DEVENVgui-"$VSHOME/Common7/IDE/devenv.exe"}"
 
 DEVENVcon="${DEVENVcon-"$VSHOME/Common7/IDE/devenv.com"}"
 
-[ -x "DEVENVcon" ] || DEVENVcon=denenv.com
+[ -x "$DEVENVcon" ] || DEVENVcon=denenv.com
 
 DEVENV="${DEVENV-"$DEVENVgui"}"
 
