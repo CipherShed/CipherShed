@@ -137,7 +137,7 @@ xsign()
 
 
 
-for d in "$DIR"/src/{Release,Debug}/Setup\ Files
+for d in "$DIR"/src/{Release,Debug}/SetupFiles
 do
 	# quick test to see if there is anything to do
 	[ -e "$d/CipherShed.exe" ] || continue
