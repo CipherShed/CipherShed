@@ -62,7 +62,7 @@ git commit -m 'pre-build baseline - not a signed commit'
 
 popd
 
-./bin/build-windows.sh "All Debug"
+./bin/build-windows.sh "Debug"
 
 ./bin/artifacts-cp.sh "$PUBDIR"
 
