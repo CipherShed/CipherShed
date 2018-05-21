@@ -1,18 +1,19 @@
-MKDIR_OUT_SETUPFILES = mkdir -p ${OutDir}/SetupFiles
+TARGETDIR = ../${OutDir}/SetupFiles
+MKDIR_OUT_SETUPFILES = mkdir -p ${TARGETDIR}
 
-VCPostBuildEventTool: ${OutDir}/SetupFiles/License.txt ${OutDir}/SetupFiles/CipherShed\ User\ Guide.pdf ${OutDir}/SetupFiles/CipherShed-Setup
+VCPostBuildEventTool: ${TARGETDIR}/License.txt ${TARGETDIR}/CipherShed\ User\ Guide.pdf ${TARGETDIR}/CipherShed-Setup
 
-${OutDir}/SetupFiles/CipherShed-Setup: ${OutDir}/CipherShedSetup
+${TARGETDIR}/CipherShed-Setup: ${OutDir}/CipherShedSetup
 	${MKDIR_OUT_SETUPFILES}
-	cp ${OutDir}/CipherShedSetup ${OutDir}/SetupFiles/CipherShed-Setup
+	cp ${OutDir}/CipherShedSetup ${TARGETDIR}/CipherShed-Setup
 
-${OutDir}/SetupFiles/CipherShed\ User\ Guide.pdf: ../../doc/userdocs/guide/CipherShed-User-Guide.pdf
+${TARGETDIR}/CipherShed\ User\ Guide.pdf: ../../doc/userdocs/guide/CipherShed-User-Guide.pdf
 	${MKDIR_OUT_SETUPFILES}
-	cp ../../doc/userdocs/guide/CipherShed-User-Guide.pdf ${OutDir}/SetupFiles/CipherShed\ User\ Guide.pdf
+	cp ../../doc/userdocs/guide/CipherShed-User-Guide.pdf ${TARGETDIR}/CipherShed\ User\ Guide.pdf
 
-${OutDir}/SetupFiles/License.txt: ../License.txt
+${TARGETDIR}/License.txt: ../License.txt
 	${MKDIR_OUT_SETUPFILES}
-	cp ../License.txt ${OutDir}/SetupFiles/
+	cp ../License.txt ${TARGETDIR}/
 
 .PHONY: VCPostBuildEventTool
 
