@@ -1,0 +1,42 @@
+BuildCommandLine - Release: Release Loader
+
+md Rescue 2>NUL:
+md Rescue_AES 2>NUL:
+md Rescue_SERPENT 2>NUL:
+md Rescue_TWOFISH 2>NUL:
+
+nmake.exe /nologo RELEASE=1 RESCUE_DISK=1
+nmake.exe /nologo RELEASE=1 SINGLE_CIPHER=AES RESCUE_DISK=1
+nmake.exe /nologo RELEASE=1 SINGLE_CIPHER=SERPENT RESCUE_DISK=1
+nmake.exe /nologo RELEASE=1 SINGLE_CIPHER=TWOFISH RESCUE_DISK=1
+
+BuildCommandLine - Release Loader:
+
+md Release 2>NUL:
+md Release_AES 2>NUL:
+md Release_SERPENT 2>NUL:
+md Release_TWOFISH 2>NUL:
+
+nmake.exe /nologo RELEASE=1
+nmake.exe /nologo RELEASE=1 SINGLE_CIPHER=AES
+nmake.exe /nologo RELEASE=1 SINGLE_CIPHER=SERPENT
+nmake.exe /nologo RELEASE=1 SINGLE_CIPHER=TWOFISH
+
+ReBuildCommandLine - Release: CleanCommandLine - Release, BuildCommandLine - Release
+
+ReBuildCommandLine - Release Loader: CleanCommandLine - Release Loader, BuildCommandLine - Release Loader
+
+CleanCommandLine - Release: CleanCommandLine - Release Loader
+
+del /q /s Rescue >NUL:
+del /q /s Rescue_AES >NUL:
+del /q /s Rescue_SERPENT >NUL:
+del /q /s Rescue_TWOFISH >NUL:
+
+CleanCommandLine - Release Loader:
+
+del /q /s Release >NUL:
+del /q /s Release_AES >NUL:
+del /q /s Release_SERPENT >NUL:
+del /q /s Release_TWOFISH >NUL:
+

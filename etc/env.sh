@@ -46,7 +46,7 @@ PKCS11_INC="${PKCS11_INC-"$(cygpath -wa "$_PKCS11_INC" )"}"
 _WINDDK_ROOT="${_WINDDK_ROOT-"/cygdrive/c/WinDDK/7600.16385.1/"}"
 WINDDK_ROOT="${WINDDK_ROOT-"$(cygpath -wa "$_WINDDK_ROOT" )"}"
 
-PATH="$( realpath "$_MSVC16_ROOT/bin/" )":"$(realpath "$(dirname "$BASH_SOURCE")/../var/opt/nasm-2.08/")":$PATH
+PATH="$_MSVC16_ROOT/bin/":"$(realpath "$(dirname "$BASH_SOURCE")/../var/opt/nasm-2.08/")":"$VSHOME/VC/bin/":$PATH
 
 export MSVC16_ROOT
 export PKCS11_INC
