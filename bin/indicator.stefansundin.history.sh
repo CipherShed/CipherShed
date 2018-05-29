@@ -28,7 +28,7 @@ commits2="$(git log --reverse --format=format:%H "$prepatch_source"^'!' refs/rem
 git checkout -b "$branch1" "$basecommit"
 for commit in $commits1; do
 	git checkout "$basecommit" .
-	git show "$commit:$patch" | ( cd src/ && git apply -; )
+	git show "$commit:$patch" | git apply --directory=src/ -
 	git add src/
 
 	author="$(git show -s --format="%an <%ae>" "$commit")"
@@ -45,7 +45,7 @@ done
 # Address patches/truecrypt-7.1a-build-fixes.patch dependency
 git checkout -b "$branch2"
 git checkout "$basecommit" .
-git show "$prepatch_source:$prepatch" | ( cd src/ && git apply -; )
+git show "$prepatch_source:$prepatch" | git apply --directory=src/ -
 git add src/
 
 author="$(git show -s --format="%an <%ae>" "$prepatch_source")"
@@ -61,8 +61,8 @@ git commit -q --no-gpg-sign -m "$message" --allow-empty --author="$author" --dat
 # Revisions after patches/truecrypt-7.1a-build-fixes.patch dependency
 for commit in $commits2; do
 	git checkout "$basecommit" .
-	git show "$prepatch_source:$prepatch" | ( cd src/ && git apply -; )
-	git show "$commit:$patch" | ( cd src/ && git apply -; )
+	git show "$prepatch_source:$prepatch" | git apply --directory=src/ -
+	git show "$commit:$patch" | git apply --directory=src/ -
 	git add src/
 
 	author="$(git show -s --format="%an <%ae>" "$commit")"
