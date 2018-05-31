@@ -551,9 +551,6 @@ namespace TrueCrypt
 			wxPanel* BackgroundTaskPanel;
 			wxCheckBox* BackgroundTaskEnabledCheckBox;
 			wxCheckBox* CloseBackgroundTaskOnNoVolumesCheckBox;
-			wxCheckBox* BackgroundTaskMenuMountItemsEnabledCheckBox;
-			wxCheckBox* BackgroundTaskMenuOpenItemsEnabledCheckBox;
-			wxCheckBox* BackgroundTaskMenuDismountItemsEnabledCheckBox;
 			wxPanel* SystemIntegrationPage;
 			wxStaticBoxSizer* LogOnSizer;
 			wxCheckBox* StartOnLogonCheckBox;

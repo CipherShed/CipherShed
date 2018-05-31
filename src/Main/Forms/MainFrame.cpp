@@ -37,6 +37,7 @@
 namespace TrueCrypt
 {
 	MainFrame::MainFrame (wxWindow* parent) : MainFrameBase (parent),
+		indicator (NULL),
 		ListItemRightClickEventPending (false),
 		SelectedItemIndex (-1),
 		SelectedSlotNumber (0),
@@ -491,57 +492,6 @@ namespace TrueCrypt
 				Gui->AppendToMenu (*popup, _("Mount All Favorite Volumes"), this, wxCommandEventHandler (TaskBarIcon::OnMountAllFavoritesMenuItemSelected))->Enable (!Busy);
 				Gui->AppendToMenu (*popup, _("Dismount All Mounted Volumes"), this, wxCommandEventHandler (TaskBarIcon::OnDismountAllMenuItemSelected))->Enable (!Busy);
 				
-				// Favorite volumes
-				if (Gui->GetPreferences().BackgroundTaskMenuMountItemsEnabled && !Frame->FavoriteVolumesMenuMap.empty())
-				{
-					popup->AppendSeparator();
-					typedef pair <int, FavoriteVolume> FavMapPair;
-					foreach (FavMapPair fp, Frame->FavoriteVolumesMenuMap)
-					{
-						Gui->AppendToMenu (*popup, LangString["MOUNT"] + L" " + wstring (fp.second.Path) + (fp.second.MountPoint.IsEmpty() ? L"" : L"  " + wstring (fp.second.MountPoint)),
-							this, wxCommandEventHandler (TaskBarIcon::OnFavoriteVolumeMenuItemSelected), fp.first)->Enable (!Busy);
-					}
-				}
-
-				// Mounted volumes
-				VolumeInfoList mountedVolumes = Core->GetMountedVolumes();
-				if (!mountedVolumes.empty())
-				{
-					if (Gui->GetPreferences().BackgroundTaskMenuOpenItemsEnabled)
-					{
-						popup->AppendSeparator();
-						OpenMap.clear();
-						foreach (shared_ptr <VolumeInfo> volume, mountedVolumes)
-						{
-							if (!volume->MountPoint.IsEmpty())
-							{
-								wxString label = LangString["OPEN"] + L" " + wstring (volume->MountPoint) + L" (" + wstring (volume->Path) + L")";
-								wxMenuItem *item = Gui->AppendToMenu (*popup, label, this, wxCommandEventHandler (TaskBarIcon::OnOpenMenuItemSelected));
-								OpenMap[item->GetId()] = volume;
-							}
-						}
-					}
-
-					if (Gui->GetPreferences().BackgroundTaskMenuDismountItemsEnabled)
-					{
-						popup->AppendSeparator();
-						DismountMap.clear();
-						foreach (shared_ptr <VolumeInfo> volume, mountedVolumes)
-						{
-							wxString label = LangString["DISMOUNT"] + L" ";
-
-							if (!volume->MountPoint.IsEmpty())
-								label += wstring (volume->MountPoint) + L" (" + wstring (volume->Path) + L")";
-							else
-								label += wstring (volume->Path);
-
-							wxMenuItem *item = Gui->AppendToMenu (*popup, label, this, wxCommandEventHandler (TaskBarIcon::OnDismountMenuItemSelected));
-							item->Enable (!Busy);
-							DismountMap[item->GetId()] = volume;
-						}
-					}
-				}
-
 				popup->AppendSeparator();
 				Gui->AppendToMenu (*popup, _("Preferences..."), this, wxCommandEventHandler (TaskBarIcon::OnPreferencesMenuItemSelected))->Enable (!Busy);
 #ifndef TC_MACOSX
@@ -1411,6 +1361,30 @@ namespace TrueCrypt
 		}
 	}
 
+	void MainFrame::SetBusy (bool busy)
+	{
+		gtk_widget_set_sensitive(indicator_item_mountfavorites, !busy);
+		gtk_widget_set_sensitive(indicator_item_dismountall, !busy);
+		gtk_widget_set_sensitive(indicator_item_prefs, !busy);
+		gtk_widget_set_sensitive(indicator_item_exit, !busy /*&& CanExit()*/);
+	}
+
+	static void IndicatorOnShowHideMenuItemSelected (GtkWidget *widget, MainFrame *self) { Gui->SetBackgroundMode (!Gui->IsInBackgroundMode()); }
+	static void IndicatorOnMountAllFavoritesMenuItemSelected (GtkWidget *widget, MainFrame *self) { self->SetBusy(true); self->MountAllFavorites (); self->SetBusy(false); }
+	static void IndicatorOnDismountAllMenuItemSelected (GtkWidget *widget, MainFrame *self) { self->SetBusy(true); Gui->DismountAllVolumes(); self->SetBusy(false); }
+	static void IndicatorOnPreferencesMenuItemSelected (GtkWidget *widget, MainFrame *self) {
+		self->SetBusy(true);
+		PreferencesDialog dialog (self);
+		dialog.ShowModal();
+		self->SetBusy(false);
+	}
+	static void IndicatorOnExitMenuItemSelected (GtkWidget *widget, MainFrame *self) {
+		self->SetBusy(true);
+		if (Core->GetMountedVolumes().empty() || Gui->AskYesNo (LangString ["CONFIRM_EXIT"], false, true))
+			self->Close (true);
+		self->SetBusy(false);
+	}
+
 	void MainFrame::ShowTaskBarIcon (bool show)
 	{
 		if (!show && mTaskBarIcon->IsIconInstalled())
@@ -1419,9 +1393,41 @@ namespace TrueCrypt
 		}
 		else if (show && !mTaskBarIcon->IsIconInstalled())
 		{
-#ifndef TC_MACOSX
-			mTaskBarIcon->SetIcon (Resources::GetTrueCryptIcon(), L"TrueCrypt");
-#endif
+			if (indicator == NULL) {
+				indicator = app_indicator_new ("truecrypt", "truecrypt-indicator", APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
+				app_indicator_set_status (indicator, APP_INDICATOR_STATUS_ACTIVE);
+
+				GtkWidget *menu = gtk_menu_new();
+
+				indicator_item_showhide = gtk_menu_item_new_with_label (LangString[Gui->IsInBackgroundMode() ? "SHOW_TC" : "HIDE_TC"].mb_str());
+				gtk_menu_shell_append (GTK_MENU_SHELL (menu), indicator_item_showhide);
+				g_signal_connect (indicator_item_showhide, "activate", G_CALLBACK (IndicatorOnShowHideMenuItemSelected), this);
+
+				gtk_menu_shell_append (GTK_MENU_SHELL (menu), gtk_separator_menu_item_new());
+
+				indicator_item_mountfavorites = gtk_menu_item_new_with_label ("Mount Favorite Volumes");
+				gtk_menu_shell_append (GTK_MENU_SHELL (menu), indicator_item_mountfavorites);
+				g_signal_connect (indicator_item_mountfavorites, "activate", G_CALLBACK (IndicatorOnMountAllFavoritesMenuItemSelected), this);
+
+				indicator_item_dismountall = gtk_menu_item_new_with_label ("Dismount All");
+				gtk_menu_shell_append (GTK_MENU_SHELL (menu), indicator_item_dismountall);
+				g_signal_connect (indicator_item_dismountall, "activate", G_CALLBACK (IndicatorOnDismountAllMenuItemSelected), this);
+
+				gtk_menu_shell_append (GTK_MENU_SHELL (menu), gtk_separator_menu_item_new());
+
+				indicator_item_prefs = gtk_menu_item_new_with_label ("Preferences...");
+				gtk_menu_shell_append (GTK_MENU_SHELL (menu), indicator_item_prefs);
+				g_signal_connect (indicator_item_prefs, "activate", G_CALLBACK (IndicatorOnPreferencesMenuItemSelected), this);
+
+				gtk_menu_shell_append (GTK_MENU_SHELL (menu), gtk_separator_menu_item_new());
+
+				indicator_item_exit = gtk_menu_item_new_with_label ("Exit");
+				gtk_menu_shell_append (GTK_MENU_SHELL (menu), indicator_item_exit);
+				g_signal_connect (indicator_item_exit, "activate", G_CALLBACK (IndicatorOnExitMenuItemSelected), this);
+
+				gtk_widget_show_all (menu);
+				app_indicator_set_menu (indicator, GTK_MENU (menu));
+			}
 		}
 	}
 

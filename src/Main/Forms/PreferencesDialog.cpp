@@ -59,9 +59,6 @@ namespace TrueCrypt
 		TC_CHECK_BOX_VALIDATOR (BackgroundTaskEnabled);
 		TC_CHECK_BOX_VALIDATOR (CloseBackgroundTaskOnNoVolumes);
 		CloseBackgroundTaskOnNoVolumesCheckBox->Show (!Core->IsInPortableMode());
-		TC_CHECK_BOX_VALIDATOR (BackgroundTaskMenuDismountItemsEnabled);
-		TC_CHECK_BOX_VALIDATOR (BackgroundTaskMenuMountItemsEnabled);
-		TC_CHECK_BOX_VALIDATOR (BackgroundTaskMenuOpenItemsEnabled);
 
 		// Encryption
 		AesHwCpuSupportedStaticText->SetLabel (

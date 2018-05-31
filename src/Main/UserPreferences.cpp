@@ -67,9 +67,6 @@ namespace TrueCrypt
 #define TC_CONFIG_SET(NAME) SetValue (configMap[L###NAME], NAME)
 
 			TC_CONFIG_SET (BackgroundTaskEnabled);
-			TC_CONFIG_SET (BackgroundTaskMenuDismountItemsEnabled);
-			TC_CONFIG_SET (BackgroundTaskMenuMountItemsEnabled);
-			TC_CONFIG_SET (BackgroundTaskMenuOpenItemsEnabled);
 			TC_CONFIG_SET (BeepAfterHotkeyMountDismount);
 			SetValue (configMap[L"CachePasswords"], DefaultMountOptions.CachePassword);
 			TC_CONFIG_SET (CloseBackgroundTaskOnNoVolumes);
@@ -167,9 +164,6 @@ namespace TrueCrypt
 #define TC_CONFIG_ADD(NAME) formatter.AddEntry (L###NAME, NAME)
 
 		TC_CONFIG_ADD (BackgroundTaskEnabled);
-		TC_CONFIG_ADD (BackgroundTaskMenuDismountItemsEnabled);
-		TC_CONFIG_ADD (BackgroundTaskMenuMountItemsEnabled);
-		TC_CONFIG_ADD (BackgroundTaskMenuOpenItemsEnabled);
 		TC_CONFIG_ADD (BeepAfterHotkeyMountDismount);
 		formatter.AddEntry (L"CachePasswords", DefaultMountOptions.CachePassword);
 		TC_CONFIG_ADD (CloseBackgroundTaskOnNoVolumes);
