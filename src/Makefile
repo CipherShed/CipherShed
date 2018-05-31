@@ -50,6 +50,15 @@ export WXCONFIG_CFLAGS :=
 export WXCONFIG_CXXFLAGS :=
 WX_ROOT ?= ..
 
+ifeq ($(shell pkg-config --exists appindicator-0.1 && echo $$?),0)
+	export C_CXX_FLAGS += -DHAVE_INDICATORS -DUBUNTU_INDICATOR
+	export LIBS += $(shell pkg-config --libs appindicator-0.1)
+	C_CXX_FLAGS += $(shell pkg-config --cflags appindicator-0.1)
+else ifeq ($(shell pkg-config --exists ayatana-appindicator-0.1 && echo $$?),0)
+	export C_CXX_FLAGS += -DHAVE_INDICATORS -DAYATANA_INDICATOR
+	export LIBS += $(shell pkg-config --libs ayatana-appindicator-0.1)
+	C_CXX_FLAGS += $(shell pkg-config --cflags ayatana-appindicator-0.1)
+endif
 
 export TC_BUILD_CONFIG := Release
 
@@ -63,8 +72,6 @@ ifeq "$(origin NOGUI)" "command line"
 	export TC_NO_GUI := 1
 	C_CXX_FLAGS += -DTC_NO_GUI
 	WX_CONFIGURE_FLAGS += --disable-gui
-else
-	C_CXX_FLAGS += $(shell pkg-config --cflags appindicator-0.1)
 endif
 
 ifdef PKCS11_INC

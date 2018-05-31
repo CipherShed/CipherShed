@@ -72,10 +72,6 @@ endif
 
 CXXFLAGS += -I$(BASE_DIR)/Main
 
-ifndef TC_NO_GUI
-LIBS += $(shell pkg-config --libs appindicator-0.1)
-endif
-
 #------ wxWidgets configuration ------
 
 ifdef TC_NO_GUI

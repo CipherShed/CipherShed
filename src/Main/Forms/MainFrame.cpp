@@ -37,7 +37,9 @@
 namespace TrueCrypt
 {
 	MainFrame::MainFrame (wxWindow* parent) : MainFrameBase (parent),
+#ifdef HAVE_INDICATORS
 		indicator (NULL),
+#endif
 		ListItemRightClickEventPending (false),
 		SelectedItemIndex (-1),
 		SelectedSlotNumber (0),
@@ -492,6 +494,57 @@ namespace TrueCrypt
 				Gui->AppendToMenu (*popup, _("Mount All Favorite Volumes"), this, wxCommandEventHandler (TaskBarIcon::OnMountAllFavoritesMenuItemSelected))->Enable (!Busy);
 				Gui->AppendToMenu (*popup, _("Dismount All Mounted Volumes"), this, wxCommandEventHandler (TaskBarIcon::OnDismountAllMenuItemSelected))->Enable (!Busy);
 				
+				// Favorite volumes
+				if (Gui->GetPreferences().BackgroundTaskMenuMountItemsEnabled && !Frame->FavoriteVolumesMenuMap.empty())
+				{
+					popup->AppendSeparator();
+					typedef pair <int, FavoriteVolume> FavMapPair;
+					foreach (FavMapPair fp, Frame->FavoriteVolumesMenuMap)
+					{
+						Gui->AppendToMenu (*popup, LangString["MOUNT"] + L" " + wstring (fp.second.Path) + (fp.second.MountPoint.IsEmpty() ? L"" : L"  " + wstring (fp.second.MountPoint)),
+							this, wxCommandEventHandler (TaskBarIcon::OnFavoriteVolumeMenuItemSelected), fp.first)->Enable (!Busy);
+					}
+				}
+
+				// Mounted volumes
+				VolumeInfoList mountedVolumes = Core->GetMountedVolumes();
+				if (!mountedVolumes.empty())
+				{
+					if (Gui->GetPreferences().BackgroundTaskMenuOpenItemsEnabled)
+					{
+						popup->AppendSeparator();
+						OpenMap.clear();
+						foreach (shared_ptr <VolumeInfo> volume, mountedVolumes)
+						{
+							if (!volume->MountPoint.IsEmpty())
+							{
+								wxString label = LangString["OPEN"] + L" " + wstring (volume->MountPoint) + L" (" + wstring (volume->Path) + L")";
+								wxMenuItem *item = Gui->AppendToMenu (*popup, label, this, wxCommandEventHandler (TaskBarIcon::OnOpenMenuItemSelected));
+								OpenMap[item->GetId()] = volume;
+							}
+						}
+					}
+
+					if (Gui->GetPreferences().BackgroundTaskMenuDismountItemsEnabled)
+					{
+						popup->AppendSeparator();
+						DismountMap.clear();
+						foreach (shared_ptr <VolumeInfo> volume, mountedVolumes)
+						{
+							wxString label = LangString["DISMOUNT"] + L" ";
+
+							if (!volume->MountPoint.IsEmpty())
+								label += wstring (volume->MountPoint) + L" (" + wstring (volume->Path) + L")";
+							else
+								label += wstring (volume->Path);
+
+							wxMenuItem *item = Gui->AppendToMenu (*popup, label, this, wxCommandEventHandler (TaskBarIcon::OnDismountMenuItemSelected));
+							item->Enable (!Busy);
+							DismountMap[item->GetId()] = volume;
+						}
+					}
+				}
+
 				popup->AppendSeparator();
 				Gui->AppendToMenu (*popup, _("Preferences..."), this, wxCommandEventHandler (TaskBarIcon::OnPreferencesMenuItemSelected))->Enable (!Busy);
 #ifndef TC_MACOSX
@@ -1361,6 +1414,7 @@ namespace TrueCrypt
 		}
 	}
 
+#ifdef HAVE_INDICATORS
 	void MainFrame::SetBusy (bool busy)
 	{
 		gtk_widget_set_sensitive(indicator_item_mountfavorites, !busy);
@@ -1385,6 +1439,7 @@ namespace TrueCrypt
 		self->SetBusy(false);
 	}
 
+#endif
 	void MainFrame::ShowTaskBarIcon (bool show)
 	{
 		if (!show && mTaskBarIcon->IsIconInstalled())
@@ -1393,8 +1448,14 @@ namespace TrueCrypt
 		}
 		else if (show && !mTaskBarIcon->IsIconInstalled())
 		{
+#ifndef TC_MACOSX
+#ifndef HAVE_INDICATORS
+			mTaskBarIcon->SetIcon (Resources::GetTrueCryptIcon(), L"TrueCrypt");
+#endif
+#endif
+#ifdef HAVE_INDICATORS
 			if (indicator == NULL) {
-				indicator = app_indicator_new ("truecrypt", "truecrypt-indicator", APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
+				indicator = app_indicator_new ("truecrypt", "truecrypt", APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
 				app_indicator_set_status (indicator, APP_INDICATOR_STATUS_ACTIVE);
 
 				GtkWidget *menu = gtk_menu_new();
@@ -1428,6 +1489,7 @@ namespace TrueCrypt
 				gtk_widget_show_all (menu);
 				app_indicator_set_menu (indicator, GTK_MENU (menu));
 			}
+#endif
 		}
 	}
 
