@@ -21,7 +21,7 @@ namespace TrueCrypt
 			:
 			BackgroundTaskEnabled (true),
 			BeepAfterHotkeyMountDismount (false),
-			CloseBackgroundTaskOnNoVolumes (false),
+			CloseBackgroundTaskOnNoVolumes (true),
 			CloseExplorerWindowsOnDismount (true),
 			CloseSecurityTokenSessionsAfterMount (false),
 			DisableKernelEncryptionModeWarning (false),
