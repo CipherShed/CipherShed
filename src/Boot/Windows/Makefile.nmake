@@ -144,23 +144,22 @@ $(OUTDIR)\Decompressor.com: $(OUTDIR)\BootCrt.obj $(OUTDIR)\Decompressor.obj
 	cd ..
 
 $(OUTDIR)\$(PROJ).$(TARGETEXT): $(OBJS)
-	@echo Linking...
+	echo Linking...
 	cd $(OBJDIR)
-	
+	del $(PROJ).crf $(PROJ).crf2
 	echo >NUL: @<<$(PROJ).crf2
 
 $(PROJ).$(TARGETEXT)
 $(PROJ).map
-$(MSVC16_ROOT)\lib\+
-$(LIBS)
+$(MSVC16_ROOT)\lib\+$(LIBS)
 ;
-<<
+<<keep
 	del $(PROJ).crf >NUL: 2>NUL:
 	for %F in ($(**F)) do @echo %F + >>$(PROJ).crf
 	type $(PROJ).crf2 >>$(PROJ).crf
 	
 	$(LD) $(LFLAGS) @$(PROJ).crf
-	del $(PROJ).crf $(PROJ).crf2
+
 
 	gzip.exe -c -n --best $(PROJ).$(TARGETEXT) >$(PROJ).$(TARGETEXT).gz
 !if defined(SINGLE_CIPHER) && !defined(RESCUE_DISK)
