@@ -1,0 +1,22 @@
+From: Francis Russell <francis@unchartedbackwaters.co.uk>
+Date: Mon, 14 Jan 2013 11:44
+Subject: Move manual
+
+The user manual is installed in /usr/share/doc/ciphershed as opposed to
+/usr/share/ciphershed/doc.
+
+Forwarded: no
+
+Index: ciphershed-7.1a-source/Main/GraphicUserInterface.cpp
+===================================================================
+--- ciphershed-7.1a-source.orig/src/Main/GraphicUserInterface.cpp	2013-01-13 23:15:11.109850819 +0000
++++ ciphershed-7.1a-source/src/Main/GraphicUserInterface.cpp	2013-01-13 23:15:25.184237643 +0000
+@@ -1088,7 +1088,7 @@
+ #elif defined (TC_MACOSX)
+ 			docPath += L"/../Resources/CipherShed User Guide.pdf";
+ #elif defined (TC_UNIX)
+-			docPath = L"/usr/share/ciphershed/doc/CipherShed User Guide.pdf";
++			docPath = L"/usr/share/doc/ciphershed/user_guide.pdf";
+ #else
+ #	error TC_RESOURCE_DIR undefined
+ #endif

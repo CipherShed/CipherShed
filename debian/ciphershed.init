@@ -1,0 +1,56 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides: ciphershed
+# Required-Start:   
+# Required-Stop: $remote_fs
+# Should-Start:      
+# Should-Stop:
+# Default-Start:
+# Default-Stop: 0 1 6
+# Short-Description: Remove remaining CipherShed device mappings.
+# Description:       This init script will dismount mounted CipherShed partitions before shutdown.
+### END INIT INFO
+
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+CIPHERSHED_SHUTDOWN_UNMOUNT="yes"
+
+. /lib/lsb/init-functions
+
+[ -x /usr/bin/ciphershed ] || exit 0
+
+if [ -r /etc/default/ciphershed ]; then
+        . /etc/default/ciphershed
+fi
+
+case "${CIPHERSHED_SHUTDOWN_UNMOUNT}" in
+[Nn]*)
+        exit 0
+        ;;
+esac
+
+do_stop()
+{
+  log_action_begin_msg "Removing CipherShed device mappings"
+  ciphershed -d
+  log_action_end_msg $?
+}
+
+case "$1" in
+  start)
+        # No-op
+        ;;
+  status)
+        ciphershed --list
+        ;;
+  restart|reload|force-reload)
+        # No-op
+        ;;
+  stop)
+        do_stop
+        ;;
+  *)
+        echo "Usage: $0 stop|status" >&2
+        exit 3
+        ;;
+esac
+

@@ -1,0 +1,36 @@
+Source: ciphershed
+Section: non-free/utils
+Priority: optional
+Maintainer: Unit 193 <unit193@ubuntu.com>
+Build-Depends: debhelper (>= 11),
+ imagemagick,
+ libayatana-appindicator-dev | libappindicator-dev,
+ libfuse-dev,
+ libopencryptoki-dev,
+ libwxgtk3.0-dev,
+ nasm [any-i386 any-amd64],
+ perl,
+ pkg-config
+Standards-Version: 4.2.1
+Homepage: https://www.ciphershed.org/
+
+Package: ciphershed
+Architecture: any
+Depends:
+ dmsetup,
+ kmod,
+ lsb-base,
+ sudo,
+ ${misc:Depends},
+ ${shlibs:Depends}
+Recommends:
+ exfat-utils,
+ ntfs-3g,
+ xdg-utils
+Description: Cross-platform on-the-fly encryption
+ CipherShed provides cross-platform on-the-fly encryption for Linux, MacOS X and
+ Windows. It can encrypt filesystems stored either within a file or on disk
+ partitions. Supported encryption algorithms include AES, Serpent and Twofish.
+ The current version uses the XTS mode of disk encryption. In addition,
+ CipherShed supports "hidden volumes" - unidentifiable volumes present in the
+ free-space of a CipherShed volume.

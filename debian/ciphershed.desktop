@@ -1,0 +1,22 @@
+[Desktop Entry]
+Type=Application
+Name=CipherShed
+GenericName=CipherShed volume manager
+Comment=Create and mount CipherShed encrypted volumes
+Icon=ciphershed
+Exec=ciphershed %f
+Categories=Security;Utility;Filesystem
+Keywords=encryption,filesystem
+Terminal=false
+X-Ayatana-Desktop-Shortcuts=MountFavorites;DismountAll
+MimeType=application/x-truecrypt-volume;
+
+[MountFavorites Shortcut Group]
+Name=Mount All Favorite Volumes
+Exec=/usr/bin/ciphershed --auto-mount=favorites
+TargetEnvironment=Unity
+
+[DismountAll Shortcut Group]
+Name=Dismount All Mounted Volumes
+Exec=/usr/bin/ciphershed --dismount
+TargetEnvironment=Unity

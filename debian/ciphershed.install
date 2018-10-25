@@ -1,0 +1,6 @@
+ciphershed.xpm                    usr/share/pixmaps/
+debian/ciphershed.desktop         usr/share/applications/
+debian/ciphershed.xml             usr/share/mime/packages/
+debian/scripts/30ciphershed       usr/lib/pm-utils/sleep.d/
+debian/scripts/ciphershed         lib/systemd/system-sleep/
+src/Main/ciphershed               usr/bin/

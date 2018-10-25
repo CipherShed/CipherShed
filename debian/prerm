@@ -1,0 +1,20 @@
+#!/bin/sh
+
+set -e
+
+case "$1" in
+    remove|upgrade|deconfigure|failed-upgrade)
+        (mount | grep -q ciphershed_aux_mnt) &&
+        echo "Error: all CipherShed volumes must be unmounted before upgrade." && exit 1
+        exit 0
+    ;;
+
+    *)
+        echo "prerm called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+#DEBHELPER#
+
+exit 0

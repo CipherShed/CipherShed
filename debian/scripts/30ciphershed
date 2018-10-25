@@ -1,0 +1,19 @@
+#!/bin/sh
+
+test -d /run/systemd/system && exit 0
+
+CIPHERSHED_SUSPEND_UNMOUNT=yes
+
+. /etc/default/ciphershed
+
+case "${CIPHERSHED_SUSPEND_UNMOUNT}" in
+[Nn]*)
+	exit 0
+	;;
+esac
+
+case "$1" in
+	suspend|hibernate)
+		/usr/bin/ciphershed --dismount
+		;;
+esac

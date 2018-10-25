@@ -1,0 +1,190 @@
+From: Stefan Sundin <stefan@stefansundin.com>, Unit 193 <unit193@ubuntu.com>
+Date: Fri, 06 July 2017
+Subject: Add support for Ubuntu and Ayatana application indicators.
+
+This patch adds compile-time support for application indicators.
+
+Forwarded: no
+
+Signed-off-by: Unit 193 <unit193@ubuntu.com>
+
+Index: ciphershed/src/Main/Forms/MainFrame.cpp
+===================================================================
+--- ciphershed.orig/src/Main/Forms/MainFrame.cpp
++++ ciphershed/src/Main/Forms/MainFrame.cpp
+@@ -38,6 +38,9 @@ using namespace std;
+ namespace CipherShed
+ {
+ 	MainFrame::MainFrame (wxWindow* parent) : MainFrameBase (parent),
++#ifdef HAVE_INDICATORS
++		indicator (NULL),
++#endif
+ 		ListItemRightClickEventPending (false),
+ 		SelectedItemIndex (-1),
+ 		SelectedSlotNumber (0),
+@@ -1412,6 +1413,31 @@ namespace CipherShed
+ 		}
+ 	}
+ 
++#ifdef HAVE_INDICATORS
++	void MainFrame::SetBusy (bool busy)
++	{
++		gtk_widget_set_sensitive(indicator_item_mountfavorites, !busy);
++		gtk_widget_set_sensitive(indicator_item_dismountall, !busy);
++		gtk_widget_set_sensitive(indicator_item_prefs, !busy);
++		gtk_widget_set_sensitive(indicator_item_exit, !busy /*&& CanExit()*/);
++	}
++
++	static void IndicatorOnShowHideMenuItemSelected (GtkWidget *widget, MainFrame *self) { Gui->SetBackgroundMode (!Gui->IsInBackgroundMode()); }
++	static void IndicatorOnMountAllFavoritesMenuItemSelected (GtkWidget *widget, MainFrame *self) { self->SetBusy(true); self->MountAllFavorites (); self->SetBusy(false); }
++	static void IndicatorOnDismountAllMenuItemSelected (GtkWidget *widget, MainFrame *self) { self->SetBusy(true); Gui->DismountAllVolumes(); self->SetBusy(false); }
++	static void IndicatorOnPreferencesMenuItemSelected (GtkWidget *widget, MainFrame *self) {
++		self->SetBusy(true);
++		PreferencesDialog dialog (self);
++		dialog.ShowModal();
++		self->SetBusy(false);
++	}
++	static void IndicatorOnExitMenuItemSelected (GtkWidget *widget, MainFrame *self) {
++		self->SetBusy(true);
++		if (Core->GetMountedVolumes().empty() || Gui->AskYesNo (LangString ["CONFIRM_EXIT"], false, true))
++			self->Close (true);
++		self->SetBusy(false);
++	}
++#endif
+ 	void MainFrame::ShowTaskBarIcon (bool show)
+ 	{
+ 		if (!show && mTaskBarIcon->IsIconInstalled())
+@@ -1421,8 +1446,47 @@ namespace CipherShed
+ 		else if (show && !mTaskBarIcon->IsIconInstalled())
+ 		{
+ #ifndef TC_MACOSX
++#ifndef HAVE_INDICATORS
+ 			mTaskBarIcon->SetIcon (Resources::GetCipherShedIcon(), L"CipherShed");
+ #endif
++#endif
++#ifdef HAVE_INDICATORS
++			if (indicator == NULL) {
++				indicator = app_indicator_new ("ciphershed", "ciphershed", APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
++				app_indicator_set_status (indicator, APP_INDICATOR_STATUS_ACTIVE);
++
++				GtkWidget *menu = gtk_menu_new();
++
++				indicator_item_showhide = gtk_menu_item_new_with_label (LangString[Gui->IsInBackgroundMode() ? "SHOW_TC" : "HIDE_TC"].mb_str());
++				gtk_menu_shell_append (GTK_MENU_SHELL (menu), indicator_item_showhide);
++				g_signal_connect (indicator_item_showhide, "activate", G_CALLBACK (IndicatorOnShowHideMenuItemSelected), this);
++
++				gtk_menu_shell_append (GTK_MENU_SHELL (menu), gtk_separator_menu_item_new());
++
++				indicator_item_mountfavorites = gtk_menu_item_new_with_label ("Mount All Favorite Volumes");
++				gtk_menu_shell_append (GTK_MENU_SHELL (menu), indicator_item_mountfavorites);
++				g_signal_connect (indicator_item_mountfavorites, "activate", G_CALLBACK (IndicatorOnMountAllFavoritesMenuItemSelected), this);
++
++				indicator_item_dismountall = gtk_menu_item_new_with_label ("Dismount All Mounted Volumes");
++				gtk_menu_shell_append (GTK_MENU_SHELL (menu), indicator_item_dismountall);
++				g_signal_connect (indicator_item_dismountall, "activate", G_CALLBACK (IndicatorOnDismountAllMenuItemSelected), this);
++
++				gtk_menu_shell_append (GTK_MENU_SHELL (menu), gtk_separator_menu_item_new());
++
++				indicator_item_prefs = gtk_menu_item_new_with_label ("Preferences...");
++				gtk_menu_shell_append (GTK_MENU_SHELL (menu), indicator_item_prefs);
++				g_signal_connect (indicator_item_prefs, "activate", G_CALLBACK (IndicatorOnPreferencesMenuItemSelected), this);
++
++				gtk_menu_shell_append (GTK_MENU_SHELL (menu), gtk_separator_menu_item_new());
++
++				indicator_item_exit = gtk_menu_item_new_with_label ("Exit");
++				gtk_menu_shell_append (GTK_MENU_SHELL (menu), indicator_item_exit);
++				g_signal_connect (indicator_item_exit, "activate", G_CALLBACK (IndicatorOnExitMenuItemSelected), this);
++
++				gtk_widget_show_all (menu);
++				app_indicator_set_menu (indicator, GTK_MENU (menu));
++			}
++#endif
+ 		}
+ 	}
+ 
+Index: ciphershed/src/Main/Forms/MainFrame.h
+===================================================================
+--- ciphershed.orig/src/Main/Forms/MainFrame.h
++++ ciphershed/src/Main/Forms/MainFrame.h
+@@ -9,6 +9,16 @@
+ #ifndef TC_HEADER_Main_Forms_MainFrame
+ #define TC_HEADER_Main_Forms_MainFrame
+ 
++#ifdef HAVE_INDICATORS
++#define GSocket GlibGSocket
++#ifdef UBUNTU_INDICATOR
++#include <libappindicator/app-indicator.h>
++#elif AYATANA_INDICATOR
++#include <libayatana-appindicator/app-indicator.h>
++#endif
++#undef GSocket
++#endif
++
+ #include "Forms.h"
+ #include "ChangePasswordDialog.h"
+ 
+@@ -29,6 +33,16 @@ namespace CipherShed
+ 		static FilePath GetShowRequestFifoPath () { return Application::GetConfigFilePath (L".show-request-queue", true); }
+ #endif
+ 
++		void MountAllFavorites ();
++#ifdef HAVE_INDICATORS
++		AppIndicator *indicator;
++		GtkWidget *indicator_item_showhide;
++		GtkWidget *indicator_item_mountfavorites;
++		GtkWidget *indicator_item_dismountall;
++		GtkWidget *indicator_item_prefs;
++		GtkWidget *indicator_item_exit;
++		void SetBusy (bool busy);
++#endif
+ 	protected:
+ 		enum
+ 		{
+@@ -62,7 +76,6 @@ namespace CipherShed
+ 		void LoadFavoriteVolumes ();
+ 		void LoadPreferences ();
+ 		void MountAllDevices ();
+-		void MountAllFavorites ();
+ 		void MountVolume ();
+ 		void OnAboutMenuItemSelected (wxCommandEvent& event);
+ 		void OnActivate (wxActivateEvent& event);
+Index: ciphershed/src/Main/GraphicUserInterface.cpp
+===================================================================
+--- ciphershed.orig/src/Main/GraphicUserInterface.cpp
++++ ciphershed/src/Main/GraphicUserInterface.cpp
+@@ -1475,6 +1475,9 @@ namespace CipherShed
+ 		}
+ 
+ 		BackgroundMode = state;
++#ifdef HAVE_INDICATORS
++		gtk_menu_item_set_label ((GtkMenuItem*) ((MainFrame*) mMainFrame)->indicator_item_showhide, LangString[Gui->IsInBackgroundMode() ? "SHOW_TC" : "HIDE_TC"].mb_str());
++#endif
+ 	}
+ 
+ 	void GraphicUserInterface::SetListCtrlColumnWidths (wxListCtrl *listCtrl, list <int> columnWidthPermilles, bool hasVerticalScrollbar) const
+Index: ciphershed/src/Makefile
+===================================================================
+--- ciphershed.orig/src/Makefile
++++ ciphershed/src/Makefile
+@@ -57,6 +57,21 @@ export WXCONFIG_CFLAGS :=
+ export WXCONFIG_CXXFLAGS :=
+ WX_ROOT ?= ..
+ 
++ifneq (,$(findstring gtk3,$(shell $(WX_CONFIG) --selected-config)))
++   INDICATOR_LIBRARY=appindicator3-0.1
++else
++   INDICATOR_LIBRARY=appindicator-0.1
++endif
++
++ifeq ($(shell pkg-config --exists $(INDICATOR_LIBRARY) && echo $$?),0)
++       export C_CXX_FLAGS += -DHAVE_INDICATORS -DUBUNTU_INDICATOR
++       export LIBS += $(shell pkg-config --libs $(INDICATOR_LIBRARY))
++       C_CXX_FLAGS += $(shell pkg-config --cflags $(INDICATOR_LIBRARY))
++else ifeq ($(shell pkg-config --exists ayatana-$(INDICATOR_LIBRARY) && echo $$?),0)
++       export C_CXX_FLAGS += -DHAVE_INDICATORS -DAYATANA_INDICATOR
++       export LIBS += $(shell pkg-config --libs ayatana-$(INDICATOR_LIBRARY))
++       C_CXX_FLAGS += $(shell pkg-config --cflags ayatana-$(INDICATOR_LIBRARY))
++endif
+ 
+ export TC_BUILD_CONFIG := Release
+ 

@@ -1,0 +1,9 @@
+# If enabled, the following option calls 'ciphershed -d' at shutdown. Although
+# all filesystems are unmounted automatically at shutdown, only calling
+# 'ciphershed -d' will stop the CipherShed processes and remove any device mappings.
+# It probably isn't necessary to do this, but it shouldn't hurt.
+
+CIPHERSHED_SHUTDOWN_UNMOUNT="yes"
+
+# If enabled, the following option calls 'ciphershed -d' during suspend and hibernate.
+CIPHERSHED_SUSPEND_UNMOUNT="yes"

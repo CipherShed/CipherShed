@@ -1,0 +1,20 @@
+From: Stefan Sundin <stefan@stefansundin.com>
+Date: Fri, 12 Sept 2013
+Subject: Disable "x" in the preferences window
+
+The close icon in the preferences window does not close the preferences,
+this patch removes the icon.
+
+Forwarded: no
+
+--- ciphershed-7.1a.orig/src/Main/Forms/Forms.cpp	2012-02-07 11:36:48.000000000 +0100
++++ ciphershed-7.1a/src/Main/Forms/Forms.cpp	2013-06-25 20:26:48.501318815 +0200
+@@ -1582,7 +1582,7 @@
+ 	KeyfileNameTextCtrl->Disconnect( wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler( NewSecurityTokenKeyfileDialogBase::OnKeyfileNameChanged ), NULL, this );
+ }
+ 
+-PreferencesDialogBase::PreferencesDialogBase( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
++PreferencesDialogBase::PreferencesDialogBase( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style & (~wxCLOSE_BOX) )
+ {
+ 	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
+ 	this->SetExtraStyle( wxWS_EX_VALIDATE_RECURSIVELY );

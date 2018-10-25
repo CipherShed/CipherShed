@@ -1,0 +1,17 @@
+#!/bin/sh
+
+CIPHERSHED_SUSPEND_UNMOUNT=yes
+
+. /etc/default/ciphershed
+
+case "${CIPHERSHED_SUSPEND_UNMOUNT}" in
+[Nn]*)
+	exit 0
+	;;
+esac
+
+case "$1" in
+	pre)
+		/usr/bin/ciphershed --dismount
+		;;
+esac
