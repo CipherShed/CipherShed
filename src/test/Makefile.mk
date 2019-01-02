@@ -9,7 +9,7 @@ test_run: ${bindir}/kernel ${bindir}/floppy00.img ${bindir}/drive80.img
 		-nodefaults \
 		-nodefconfig \
 		-no-user-config \
-		-m 1M \
+		-m 2M \
 		-device isa-debug-exit \
 		-chardev file,id=ttyS0,path=/dev/fd/2 \
 		-device isa-serial,chardev=ttyS0 \
