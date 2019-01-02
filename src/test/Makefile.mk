@@ -15,8 +15,7 @@ test_run: ${bindir}/kernel ${bindir}/floppy00.img ${bindir}/drive80.img
 		-kernel ${bindir}/kernel \
 		-drive file=${bindir}/floppy00.img,format=raw,if=floppy \
 		-drive file=${bindir}/drive80.img,format=raw \
-		;
-		test $$? -eq 3
+		; test $$? -eq 3
 
 .PHONY:
 test_build: ${bindir}/kernel
