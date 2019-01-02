@@ -7,7 +7,6 @@ test_run: ${bindir}/kernel ${bindir}/floppy00.img ${bindir}/drive80.img
 	$(QEMU_SYSTEM_I386) \
 		-display none \
 		-nodefaults \
-		-nodefconfig \
 		-no-user-config \
 		-m 2M \
 		-device isa-debug-exit \
