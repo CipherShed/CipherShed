@@ -577,7 +577,7 @@ BOOL CALLBACK PageDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 	case WM_CTLCOLORSTATIC:
 
-		/* This maintains the background under the transparent-backround texts */
+		/* This maintains the background under the transparent-background texts */
 
 		SetBkMode ((HDC) wParam, TRANSPARENT);
 		return ((LONG) (HBRUSH) (GetStockObject (NULL_BRUSH)));
@@ -851,7 +851,7 @@ BOOL CALLBACK MainDialogProc (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 		if ((HWND) lParam != GetDlgItem (MainDlg, IDC_MAIN_CONTENT_CANVAS))
 		{
-			/* This maintains the background under the transparent-backround texts. The above 'if' statement allows
+			/* This maintains the background under the transparent-background texts. The above 'if' statement allows
 			colored background to be erased automatically when leaving a page that uses it. */
 
 			SetBkMode ((HDC) wParam, TRANSPARENT);
